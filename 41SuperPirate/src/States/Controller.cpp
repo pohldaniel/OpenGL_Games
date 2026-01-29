@@ -223,11 +223,11 @@ void Controller::renderButton(float x, float y, long value, int index) {
 	shader->unuse();
 }
 
-void Controller::OnMouseMotion(Event::MouseMoveEvent& event) {
+void Controller::OnMouseMotion(const Event::MouseMoveEvent& event) {
 
 }
 
-void Controller::OnMouseButtonDown(Event::MouseButtonEvent& event) {
+void Controller::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
 	if (event.button == 2u) {
 		Mouse::instance().attach(Application::GetWindow());
 	}
@@ -237,17 +237,17 @@ void Controller::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	}
 }
 
-void Controller::OnMouseButtonUp(Event::MouseButtonEvent& event) {
+void Controller::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
 	if (event.button == 2u || event.button == 1u) {
 		Mouse::instance().detach();
 	}
 }
 
-void Controller::OnMouseWheel(Event::MouseWheelEvent& event) {
+void Controller::OnMouseWheel(const Event::MouseWheelEvent& event) {
 
 }
 
-void Controller::OnKeyDown(Event::KeyboardEvent& event) {
+void Controller::OnKeyDown(const Event::KeyboardEvent& event) {
 #if DEVBUILD
 	if (event.keyCode == VK_LMENU) {
 		m_drawUi = !m_drawUi;
@@ -260,7 +260,7 @@ void Controller::OnKeyDown(Event::KeyboardEvent& event) {
 	}
 }
 
-void Controller::OnKeyUp(Event::KeyboardEvent& event) {
+void Controller::OnKeyUp(const Event::KeyboardEvent& event) {
 
 }
 

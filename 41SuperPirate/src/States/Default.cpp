@@ -113,30 +113,30 @@ void Default::render() {
 		renderUi();
 }
 
-void Default::OnMouseMotion(Event::MouseMoveEvent& event) {
+void Default::OnMouseMotion(const Event::MouseMoveEvent& event) {
 
 }
 
-void Default::OnMouseButtonDown(Event::MouseButtonEvent& event) {
+void Default::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
 
 }
 
-void Default::OnMouseButtonUp(Event::MouseButtonEvent& event) {
+void Default::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
 
 }
 
-void Default::OnMouseWheel(Event::MouseWheelEvent& event) {
+void Default::OnMouseWheel(const Event::MouseWheelEvent& event) {
 
 }
 
-void Default::OnKeyDown(Event::KeyboardEvent& event) {
+void Default::OnKeyDown(const Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_ESCAPE) {
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new Menu(m_machine));
 	}
 }
 
-void Default::OnKeyUp(Event::KeyboardEvent& event) {
+void Default::OnKeyUp(const Event::KeyboardEvent& event) {
 
 }
 

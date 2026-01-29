@@ -164,8 +164,6 @@ unsigned char* WgpTexture::LoadFromFile(std::string fileName, const bool flipVer
         bpp = 4;
     }
 
-   
-
     if (bytesNew) {
         FreeImage_Unload(sourceBitmap);
         return bytesNew;

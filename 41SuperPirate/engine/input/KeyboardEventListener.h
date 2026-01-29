@@ -10,8 +10,8 @@ public:
 	virtual ~KeyboardEventListener();
 
 private:
-	virtual void OnKeyDown(Event::KeyboardEvent& event) {}
-	virtual void OnKeyUp(Event::KeyboardEvent& event) {}
+	virtual void OnKeyDown(const Event::KeyboardEvent& event) {}
+	virtual void OnKeyUp(const Event::KeyboardEvent& event) {}
 
 	EventDispatcher * mDispatcher = nullptr;
 };

@@ -3,16 +3,11 @@
 #include <webgpu.h>
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
-#include <engine/Camera.h>
-#include <engine/ObjModel.h>
-#include <engine/TrackBall.h>
 
 #include <States/StateMachine.h>
 
 #include <WebGPU/WgpTexture.h>
 #include <WebGPU/WgpBuffer.h>
-#include <WebGPU/WgpData.h>
-
 
 enum class FilterType {
 	Sum,
@@ -44,15 +39,15 @@ public:
 	void update() override;
 	void render() override;
 	void OnDraw(const WGPURenderPassEncoder& renderPass);
-	void OnCompute();
+	void compute();
 
 	void resize(int deltaW, int deltaH) override;
-	void OnMouseMotion(Event::MouseMoveEvent& event) override;
-	void OnMouseWheel(Event::MouseWheelEvent& event) override;
-	void OnMouseButtonDown(Event::MouseButtonEvent& event) override;
-	void OnMouseButtonUp(Event::MouseButtonEvent& event) override;
-	void OnKeyDown(Event::KeyboardEvent& event) override;
-	void OnKeyUp(Event::KeyboardEvent& event) override;
+	void OnMouseMotion(const Event::MouseMoveEvent& event) override;
+	void OnMouseWheel(const Event::MouseWheelEvent& event) override;
+	void OnMouseButtonDown(const Event::MouseButtonEvent& event) override;
+	void OnMouseButtonUp(const Event::MouseButtonEvent& event) override;
+	void OnKeyDown(const Event::KeyboardEvent& event) override;
+	void OnKeyUp(const Event::KeyboardEvent& event) override;
 
 private:
 

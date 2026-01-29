@@ -23,9 +23,9 @@ public:
 
 private:
 
-	void OnMouseMotion(Event::MouseMoveEvent& event) override;
-	void OnMouseButtonDown(Event::MouseButtonEvent& event) override;
-	void OnKeyDown(Event::KeyboardEvent& event) override;
+	void OnMouseMotion(const Event::MouseMoveEvent& event) override;
+	void OnMouseButtonDown(const Event::MouseButtonEvent& event) override;
+	void OnKeyDown(const Event::KeyboardEvent& event) override;
 
 	TextField m_headline;
 	std::unordered_map<std::string, Button> m_buttons;

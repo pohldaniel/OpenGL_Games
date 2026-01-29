@@ -147,12 +147,12 @@ void Default::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
 		renderUi(renderPassEncoder);
 }
 
-void Default::OnMouseMotion(Event::MouseMoveEvent& event) {
+void Default::OnMouseMotion(const Event::MouseMoveEvent& event) {
 	m_trackball.motion(event.x, event.y);
 	applyTransformation(m_trackball);
 }
 
-void Default::OnMouseButtonDown(Event::MouseButtonEvent& event) {
+void Default::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
 	if (event.button == 1u) {
 		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, true, event.x, event.y);
 		applyTransformation(m_trackball);
@@ -161,7 +161,7 @@ void Default::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	}
 }
 
-void Default::OnMouseButtonUp(Event::MouseButtonEvent& event) {
+void Default::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
 	if (event.button == 1u) {
 		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, false, event.x, event.y);
 		applyTransformation(m_trackball);
@@ -170,11 +170,11 @@ void Default::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 	}
 }
 
-void Default::OnMouseWheel(Event::MouseWheelEvent& event) {
+void Default::OnMouseWheel(const Event::MouseWheelEvent& event) {
 
 }
 
-void Default::OnKeyDown(Event::KeyboardEvent& event) {
+void Default::OnKeyDown(const Event::KeyboardEvent& event) {
 #if DEVBUILD
 	if (event.keyCode == VK_LMENU) {
 		m_drawUi = !m_drawUi;
@@ -186,7 +186,7 @@ void Default::OnKeyDown(Event::KeyboardEvent& event) {
 	}
 }
 
-void Default::OnKeyUp(Event::KeyboardEvent& event) {
+void Default::OnKeyUp(const Event::KeyboardEvent& event) {
 
 }
 

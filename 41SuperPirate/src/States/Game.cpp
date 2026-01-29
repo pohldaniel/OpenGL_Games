@@ -142,15 +142,15 @@ void Game::OnReEnter(unsigned int prevState) {
 
 }
 
-void Game::OnMouseMotion(Event::MouseMoveEvent& event) {
+void Game::OnMouseMotion(const Event::MouseMoveEvent& event) {
 
 }
 
-void Game::OnMouseWheel(Event::MouseWheelEvent& event) {
+void Game::OnMouseWheel(const Event::MouseWheelEvent& event) {
 
 }
 
-void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
+void Game::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
 	if (event.button == 2u) {
 		Mouse::instance().attach(Application::GetWindow());
 	}
@@ -160,13 +160,13 @@ void Game::OnMouseButtonDown(Event::MouseButtonEvent& event) {
 	}
 }
 
-void Game::OnMouseButtonUp(Event::MouseButtonEvent& event) {
+void Game::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
 	if (event.button == 2u || event.button == 1u) {
 		Mouse::instance().detach();
 	}
 }
 
-void Game::OnKeyDown(Event::KeyboardEvent& event) {
+void Game::OnKeyDown(const Event::KeyboardEvent& event) {
 #if DEVBUILD
 	if (event.keyCode == VK_LMENU) {
 		m_drawUi = !m_drawUi;
@@ -190,7 +190,7 @@ void Game::OnKeyDown(Event::KeyboardEvent& event) {
 	}
 }
 
-void Game::OnKeyUp(Event::KeyboardEvent& event) {
+void Game::OnKeyUp(const Event::KeyboardEvent& event) {
 
 }
 

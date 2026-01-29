@@ -34,12 +34,12 @@ public:
 	
 
 	void resize(int deltaW, int deltaH) override;
-	void OnMouseMotion(Event::MouseMoveEvent& event) override;
-	void OnMouseWheel(Event::MouseWheelEvent& event) override;
-	void OnMouseButtonDown(Event::MouseButtonEvent& event) override;
-	void OnMouseButtonUp(Event::MouseButtonEvent& event) override;
-	void OnKeyDown(Event::KeyboardEvent& event) override;
-	void OnKeyUp(Event::KeyboardEvent& event) override;
+	void OnMouseMotion(const Event::MouseMoveEvent& event) override;
+	void OnMouseWheel(const Event::MouseWheelEvent& event) override;
+	void OnMouseButtonDown(const Event::MouseButtonEvent& event) override;
+	void OnMouseButtonUp(const Event::MouseButtonEvent& event) override;
+	void OnKeyDown(const Event::KeyboardEvent& event) override;
+	void OnKeyUp(const Event::KeyboardEvent& event) override;
 
 private:
 

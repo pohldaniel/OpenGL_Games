@@ -66,17 +66,17 @@ void Menu::render() {
 
 }
 
-void Menu::OnMouseMotion(Event::MouseMoveEvent& event) {
+void Menu::OnMouseMotion(const Event::MouseMoveEvent& event) {
 	for (auto&& b : m_buttons)
 		b.second.processInput(event.x, Application::Height - event.y);
 }
 
-void Menu::OnMouseButtonDown(Event::MouseButtonEvent& event) {
+void Menu::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
 	for (auto&& b : m_buttons)
 		b.second.processInput(event.x, Application::Height - event.y, event.button);
 }
 
-void Menu::OnKeyDown(Event::KeyboardEvent& event) {
+void Menu::OnKeyDown(const Event::KeyboardEvent& event) {
 	if (event.keyCode == VK_ESCAPE) {
 		m_isRunning = false;
 	}

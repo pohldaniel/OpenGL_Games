@@ -7,7 +7,6 @@
 
 #include "Compute.h"
 #include "Application.h"
-#include "Globals.h"
 
 Compute::Compute(StateMachine& machine) : State(machine, States::COMPUTE) {
 
@@ -58,14 +57,14 @@ void Compute::update() {
 
 void Compute::render() {
 	wgpDraw();
-	OnCompute();
+	compute();
 }
 
 void Compute::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
 	renderUi(renderPassEncoder, m_force);
 }
 
-void Compute::OnCompute() {
+void Compute::compute() {
 	if (m_shouldCompute) {
 		wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(UniformsCompute));
 
@@ -100,27 +99,27 @@ void Compute::OnCompute() {
 	}
 }
 
-void Compute::OnMouseMotion(Event::MouseMoveEvent& event) {
+void Compute::OnMouseMotion(const Event::MouseMoveEvent& event) {
 	
 }
 
-void Compute::OnMouseButtonDown(Event::MouseButtonEvent& event) {
+void Compute::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
     if (event.button == 2u) {
 		Mouse::instance().attach(Application::GetWindow());
 	}
 }
 
-void Compute::OnMouseButtonUp(Event::MouseButtonEvent& event) {
+void Compute::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
     if (event.button == 2u) {
 		Mouse::instance().detach();
 	}
 }
 
-void Compute::OnMouseWheel(Event::MouseWheelEvent& event) {
+void Compute::OnMouseWheel(const Event::MouseWheelEvent& event) {
 
 }
 
-void Compute::OnKeyDown(Event::KeyboardEvent& event) {
+void Compute::OnKeyDown(const Event::KeyboardEvent& event) {
 #if DEVBUILD
 	if (event.keyCode == VK_LMENU) {
 		m_drawUi = !m_drawUi;
@@ -132,7 +131,7 @@ void Compute::OnKeyDown(Event::KeyboardEvent& event) {
 	}
 }
 
-void Compute::OnKeyUp(Event::KeyboardEvent& event) {
+void Compute::OnKeyUp(const Event::KeyboardEvent& event) {
 
 }
 
