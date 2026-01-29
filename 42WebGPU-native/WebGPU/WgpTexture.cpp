@@ -43,17 +43,11 @@ void WgpTexture::loadFromFile(std::string fileName, const bool flipVertical, sho
     std::filesystem::path filePath = fileName;
     
     FreeImage_Initialise();
-    FIBITMAP* sourceBitmap = nullptr;
-    if (filePath.extension() == ".png") {
-        sourceBitmap = FreeImage_Load(FIF_PNG, fileName.c_str(), PNG_DEFAULT);
-        SwapRedBlue32(sourceBitmap);
-    }else if (filePath.extension() == ".jpg") {
-        sourceBitmap = FreeImage_Load(FIF_JPEG, fileName.c_str(), JPEG_DEFAULT);
-        SwapRedBlue32(sourceBitmap);
-    }else {
-        sourceBitmap = FreeImage_Load(FIF_BMP, fileName.c_str(), BMP_DEFAULT);
-    }
-
+    FIBITMAP* sourceBitmap = filePath.extension() == ".png" ? FreeImage_Load(FIF_PNG, fileName.c_str(), PNG_DEFAULT) : 
+                             filePath.extension() == ".jpg" ? FreeImage_Load(FIF_JPEG, fileName.c_str(), JPEG_DEFAULT) :
+                                                              FreeImage_Load(FIF_BMP, fileName.c_str(), BMP_DEFAULT);
+    SwapRedBlue32(sourceBitmap);
+    
     if(flipVertical)
         FreeImage_FlipVertical(sourceBitmap);
 
@@ -138,16 +132,10 @@ unsigned char* WgpTexture::LoadFromFile(std::string fileName, const bool flipVer
     std::filesystem::path filePath = fileName;
 
     FreeImage_Initialise();
-    FIBITMAP* sourceBitmap = nullptr;
-    if (filePath.extension() == ".png") {
-        sourceBitmap = FreeImage_Load(FIF_PNG, fileName.c_str(), PNG_DEFAULT);
-        SwapRedBlue32(sourceBitmap);
-    }else if (filePath.extension() == ".jpg") {
-        sourceBitmap = FreeImage_Load(FIF_JPEG, fileName.c_str(), JPEG_DEFAULT);
-        SwapRedBlue32(sourceBitmap);
-    }else {
-        sourceBitmap = FreeImage_Load(FIF_BMP, fileName.c_str(), BMP_DEFAULT);
-    }
+    FIBITMAP* sourceBitmap = filePath.extension() == ".png" ? FreeImage_Load(FIF_PNG, fileName.c_str(), PNG_DEFAULT) :
+                             filePath.extension() == ".jpg" ? FreeImage_Load(FIF_JPEG, fileName.c_str(), JPEG_DEFAULT) :
+                                                              FreeImage_Load(FIF_BMP, fileName.c_str(), BMP_DEFAULT);
+    SwapRedBlue32(sourceBitmap);
 
     if (flipVertical)
         FreeImage_FlipVertical(sourceBitmap);
@@ -185,16 +173,10 @@ unsigned char* WgpTexture::LoadFromFile(std::string fileName, uint32_t& width, u
     std::filesystem::path filePath = fileName;
 
     FreeImage_Initialise();
-    FIBITMAP* sourceBitmap = nullptr;
-    if (filePath.extension() == ".png") {
-        sourceBitmap = FreeImage_Load(FIF_PNG, fileName.c_str(), PNG_DEFAULT);
-        SwapRedBlue32(sourceBitmap);
-    }else if (filePath.extension() == ".jpg") {
-        sourceBitmap = FreeImage_Load(FIF_JPEG, fileName.c_str(), JPEG_DEFAULT);
-        SwapRedBlue32(sourceBitmap);
-    } else {
-        sourceBitmap = FreeImage_Load(FIF_BMP, fileName.c_str(), BMP_DEFAULT);
-    }
+    FIBITMAP* sourceBitmap = filePath.extension() == ".png" ? FreeImage_Load(FIF_PNG, fileName.c_str(), PNG_DEFAULT) :
+                             filePath.extension() == ".jpg" ? FreeImage_Load(FIF_JPEG, fileName.c_str(), JPEG_DEFAULT) :
+                                                              FreeImage_Load(FIF_BMP, fileName.c_str(), BMP_DEFAULT);
+    SwapRedBlue32(sourceBitmap);
 
     if (flipVertical)
         FreeImage_FlipVertical(sourceBitmap);

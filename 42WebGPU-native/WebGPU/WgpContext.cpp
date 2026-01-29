@@ -324,59 +324,11 @@ WGPUShaderModule wgpCreateShader(std::string path) {
 	shaderSourceWGSL.chain.sType = WGPUSType_ShaderSourceWGSL;
 	shaderSourceWGSL.code = { shaderSource.c_str(), WGPU_STRLEN };
 
-	WGPUShaderModuleDescriptor shaderModuleDescriptor;
-	shaderModuleDescriptor.nextInChain = &shaderSourceWGSL.chain;
-#ifdef WEBGPU_BACKEND_WGPU
-	shaderDesc.hintCount = 0;
-	shaderDesc.hints = NULL;
-#endif
-	return wgpuDeviceCreateShaderModule(wgpContext.device, &shaderModuleDescriptor);
-
-	/*const WGPUDevice& device = wgpContext.device;
-	FILE* file = NULL;
-	char* buf = NULL;
-	WGPUShaderModule shaderModule = NULL;
-
-	file = fopen(path.c_str(), "rb");
-	if (!file) {
-		perror("fopen");
-		goto cleanup;
-	}
-
-	if (fseek(file, 0, SEEK_END) != 0) {
-		perror("fseek");
-		goto cleanup;
-	}
-	unsigned long long length = ftell(file);
-	if (length == -1) {
-		perror("ftell");
-		goto cleanup;
-	}
-	if (fseek(file, 0, SEEK_SET) != 0) {
-		perror("fseek");
-		goto cleanup;
-	}
-
-	buf = (char*)malloc(length + 1);
-	fread(buf, 1, length, file);
-	buf[length] = 0;
-
-	WGPUShaderSourceWGSL shaderSourceWGSL = {};
-	shaderSourceWGSL.chain.next = NULL;
-	shaderSourceWGSL.chain.sType = WGPUSType_ShaderSourceWGSL;
-	shaderSourceWGSL.code = { buf, WGPU_STRLEN };
 	WGPUShaderModuleDescriptor shaderModuleDescriptor = {};
 	shaderModuleDescriptor.label = { path.c_str(), path.length() };
 	shaderModuleDescriptor.nextInChain = &shaderSourceWGSL.chain;
 
-	shaderModule = wgpuDeviceCreateShaderModule(device, &shaderModuleDescriptor);
-
-cleanup:
-	if (file)
-		fclose(file);
-	if (buf)
-		free(buf);
-	return shaderModule;*/
+	return wgpuDeviceCreateShaderModule(wgpContext.device, &shaderModuleDescriptor);
 }
 
 void wgpCreateVertexBufferLayout(VertexLayoutSlot slot) {
@@ -600,12 +552,11 @@ const WGPUShaderModule& WgpContext::getShaderModule(std::string shaderModuleName
 
 void WgpContext::createRenderPipelinePTN(std::string shaderModuleName, std::function <WGPUBindGroupLayout()> onBindGroupLayout) {
 	WGPUBindGroupLayout bindGroupLayout = onBindGroupLayout();
-
 	WGPUPipelineLayoutDescriptor pipelineLayoutDescriptor = {};
 	pipelineLayoutDescriptor.bindGroupLayoutCount = 1;
 	pipelineLayoutDescriptor.bindGroupLayouts = &bindGroupLayout;
 	pipelineLayouts["RP_PTN"] = wgpuDeviceCreatePipelineLayout(wgpContext.device, &pipelineLayoutDescriptor);
-
+	
 	WGPUVertexState vertexState = {};
 	vertexState.module = shaderModules.at(shaderModuleName);
 	vertexState.entryPoint = WGPU_STR("vs_main");

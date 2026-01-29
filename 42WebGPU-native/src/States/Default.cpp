@@ -22,7 +22,6 @@ Default::Default(StateMachine& machine) : State(machine, States::DEFAULT) {
 
 	wgpContext.addSahderModule("PTN", "res/shader/shader.wgsl");
 	wgpContext.createRenderPipelinePTN("PTN", std::bind(&Default::OnBindGroupLayoutPTN, this));
-
 	wgpContext.addSahderModule("wireframe", "res/shader/wireframe.wgsl");
 	wgpContext.createRenderPipelineWireframe("wireframe", std::bind(&Default::OnBindGroupLayoutWireframe, this));
 
@@ -253,7 +252,7 @@ void Default::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 
 WGPUBindGroupLayout Default::OnBindGroupLayoutPTN() {
 	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(3);
-
+	
 	WGPUBindGroupLayoutEntry& uniformLayout = bindingLayoutEntries[0];
 	uniformLayout.binding = 0;
 	uniformLayout.visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
@@ -274,6 +273,7 @@ WGPUBindGroupLayout Default::OnBindGroupLayoutPTN() {
 	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
 	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
 	bindGroupLayoutDescriptor.entries = bindingLayoutEntries.data();
+	
 	return wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor);
 }
 

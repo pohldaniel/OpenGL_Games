@@ -16,19 +16,10 @@ Compute::Compute(StateMachine& machine) : State(machine, States::COMPUTE) {
 	EventDispatcher::AddMouseListener(this);
 
 	m_uniformBuffer.createBuffer(sizeof(UniformsCompute), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
-	m_texture = wgpCreateTexture(512, 512, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst, WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm);
-	m_textureView = wgpCreateTextureView(WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm, WGPUTextureAspect::WGPUTextureAspect_All, m_texture);
 	wgpContext.addSampler(wgpCreateSampler());
 
 	wgpContext.addSahderModule("COMPUTE", "res/shader/compute.wgsl");
 	wgpContext.createComputePipeline("COMPUTE", "CP_COMPUTE", std::bind(&Compute::OnBindGroupLayout, this));
-
-	
-	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
-	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-	m_camera.lookAt(Vector3f(1.0f, 1.0f, 3.0f), Vector3f(0.2f, 0.2f, 1.5f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
-	m_camera.setRotationSpeed(0.1f);
-	m_camera.setMovingSpeed(10.0f);
 
 	uint32_t width, height;
 	uint8_t* pixelData = WgpTexture::LoadFromFile("res/textures/input.jpg", width, height, true);
@@ -94,12 +85,6 @@ Compute::~Compute() {
 
 	m_uniformBuffer.markForDelete();
 
-	wgpuTextureDestroy(m_texture);
-	wgpuTextureRelease(m_texture);
-	m_texture = nullptr;
-
-	wgpuTextureViewRelease(m_textureView);
-	m_textureView = nullptr;
 }
 
 void Compute::fixedUpdate() {
@@ -107,59 +92,7 @@ void Compute::fixedUpdate() {
 }
 
 void Compute::update() {
-	Keyboard& keyboard = Keyboard::instance();
-	Vector3f direction = Vector3f();
-
-	float dx = 0.0f;
-	float dy = 0.0f;
-	bool move = false;
-
-	if (keyboard.keyDown(Keyboard::KEY_W)) {
-		direction += Vector3f(0.0f, 0.0f, 1.0f);
-		move |= true;
-	}
-
-	if (keyboard.keyDown(Keyboard::KEY_S)) {
-		direction += Vector3f(0.0f, 0.0f, -1.0f);
-		move |= true;
-	}
-
-	if (keyboard.keyDown(Keyboard::KEY_A)) {
-		direction += Vector3f(-1.0f, 0.0f, 0.0f);
-		move |= true;
-	}
-
-	if (keyboard.keyDown(Keyboard::KEY_D)) {
-		direction += Vector3f(1.0f, 0.0f, 0.0f);
-		move |= true;
-	}
-
-	if (keyboard.keyDown(Keyboard::KEY_Q)) {
-		direction += Vector3f(0.0f, -1.0f, 0.0f);
-		move |= true;
-	}
-
-	if (keyboard.keyDown(Keyboard::KEY_E)) {
-		direction += Vector3f(0.0f, 1.0f, 0.0f);
-		move |= true;
-	}
-
-	Mouse& mouse = Mouse::instance();
-
-	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {
-		dx = mouse.xDelta();
-		dy = mouse.yDelta();
-	}
-
-	if (move || dx != 0.0f || dy != 0.0f) {
-		if (dx || dy) {
-			m_camera.rotate(dx, dy);
-		}
-
-		if (move) {
-			m_camera.move(direction * m_dt);
-		}
-	}
+	
 }
 
 void Compute::render() {
@@ -168,53 +101,37 @@ void Compute::render() {
 }
 
 void Compute::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
-
-	
-
-	/*wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getWgpuBuffer(), offsetof(Uniforms, projectionMatrix), &m_uniforms.projectionMatrix, sizeof(Uniforms::projectionMatrix));
-	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getWgpuBuffer(), offsetof(Uniforms, viewMatrix), &m_uniforms.viewMatrix, sizeof(Uniforms::viewMatrix));
-	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getWgpuBuffer(), offsetof(Uniforms, modelMatrix), &m_uniforms.modelMatrix, sizeof(Uniforms::modelMatrix));
-
-	
-
-	if (m_drawUi)
-		renderUi(renderPassEncoder);*/
 	renderUi(renderPassEncoder, m_force);
 }
 
 void Compute::OnCompute() {
 	if (m_shouldCompute) {
-		// Update uniforms
-	//Queue.writeBuffer(uniformBuffer, 0, &m_uniforms, sizeof(Uniforms));
 		wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(UniformsCompute));
-		// Initialize a command encoder
-		WGPUCommandEncoderDescriptor encoderDesc = {};
-		WGPUCommandEncoder encoder = wgpuDeviceCreateCommandEncoder(wgpContext.device, &encoderDesc);
 
-		// Create compute pass
+		WGPUCommandEncoderDescriptor commandEncoderDesc = {};
+		commandEncoderDesc.label = WGPU_STR("command_encoder");
+		WGPUCommandEncoder encoder = wgpuDeviceCreateCommandEncoder(wgpContext.device, &commandEncoderDesc);
+
+
 		WGPUComputePassDescriptor computePassDesc = {};
-		//computePassDesc.timestampWriteCount = 0;
-		computePassDesc.timestampWrites = nullptr;
+		computePassDesc.timestampWrites = NULL;
 		WGPUComputePassEncoder computePass = wgpuCommandEncoderBeginComputePass(encoder, &computePassDesc);
 		wgpuComputePassEncoderSetPipeline(computePass, wgpContext.computePipelines.at("CP_COMPUTE"));
 
 		for (uint32_t i = 0; i < 1; ++i) {
 			wgpuComputePassEncoderSetBindGroup(computePass, 0, m_bindGroup, 0, nullptr);
-
 			uint32_t invocationCountX = wgpuTextureGetWidth(inputTexture);
 			uint32_t invocationCountY = wgpuTextureGetHeight(inputTexture);
 			uint32_t workgroupSizePerDim = 8;
-			// This ceils invocationCountX / workgroupSizePerDim
 			uint32_t workgroupCountX = (invocationCountX + workgroupSizePerDim - 1) / workgroupSizePerDim;
 			uint32_t workgroupCountY = (invocationCountY + workgroupSizePerDim - 1) / workgroupSizePerDim;
 			wgpuComputePassEncoderDispatchWorkgroups(computePass, workgroupCountX, workgroupCountY, 1);
 		}
 
-		// Finalize compute pass
 		wgpuComputePassEncoderEnd(computePass);
-		WGPUCommandBufferDescriptor cmdBufferDescriptor = {};
-		cmdBufferDescriptor.label = WGPU_STR("command_buffer");
-		WGPUCommandBuffer commands = wgpuCommandEncoderFinish(encoder, NULL);
+		WGPUCommandBufferDescriptor commandBufferDescriptor = {};
+		commandBufferDescriptor.label = WGPU_STR("command_buffer");
+		WGPUCommandBuffer commands = wgpuCommandEncoderFinish(encoder, &commandBufferDescriptor);
 
 		wgpuQueueSubmit(wgpContext.queue, 1, &commands);
 		m_shouldCompute = false;
@@ -259,8 +176,7 @@ void Compute::OnKeyUp(Event::KeyboardEvent& event) {
 }
 
 void Compute::resize(int deltaW, int deltaH) {
-	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
-	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
+
 }
 
 void Compute::renderUi(const WGPURenderPassEncoder& renderPassEncoder, bool force) {
@@ -297,8 +213,6 @@ void Compute::renderUi(const WGPURenderPassEncoder& renderPassEncoder, bool forc
 		ImGui::DockBuilderDockWindow("Settings", dock_id_left);
 	}
 
-	// render widgets
-	// Display images
 	{
 		ImDrawList* drawList = ImGui::GetBackgroundDrawList();
 		float offset = 0.0f;
@@ -373,15 +287,12 @@ WGPUBindGroupLayout Compute::OnBindGroupLayout() {
 WGPUBindGroup Compute::createBindGroup(const WGPUTextureView& inputTextureView, const WGPUTextureView& outputTextureView, const WGPUBuffer& uniformBuffer) {
 	std::vector<WGPUBindGroupEntry> entries(3);
 
-	// Input buffer
 	entries[0].binding = 0;
 	entries[0].textureView = inputTextureView;
 
-	// Output buffer
 	entries[1].binding = 1;
 	entries[1].textureView = outputTextureView;
 
-	// Uniforms
 	entries[2].binding = 2;
 	entries[2].buffer = uniformBuffer;
 	entries[2].offset = 0;

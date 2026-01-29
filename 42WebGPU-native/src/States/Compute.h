@@ -62,13 +62,11 @@ private:
 	bool m_shouldCompute = true;
 	bool m_force = true;
 
-	Camera m_camera;
-	WgpBuffer m_uniformBuffer;
-	WGPUTexture m_texture;
-	WGPUTextureView m_textureView;
+	
 	UniformsCompute m_uniforms;
 	Parameters m_parameters;
 	SettingsC m_settings;
+	WgpBuffer m_uniformBuffer;
 	WGPUBindGroup m_bindGroup;
 
 	WGPUTexture inputTexture;
