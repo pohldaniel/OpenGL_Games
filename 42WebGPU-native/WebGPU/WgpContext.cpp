@@ -1,7 +1,6 @@
 #include <iostream>
 #include <Windows.h>
 #include "WgpContext.h"
-#include "WgpTexture.h"
 #include "../src/Application.h"
 
 WgpContext wgpContext = {};

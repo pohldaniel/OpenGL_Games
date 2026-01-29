@@ -21,60 +21,11 @@ Compute::Compute(StateMachine& machine) : State(machine, States::COMPUTE) {
 	wgpContext.addSahderModule("COMPUTE", "res/shader/compute.wgsl");
 	wgpContext.createComputePipeline("COMPUTE", "CP_COMPUTE", std::bind(&Compute::OnBindGroupLayout, this));
 
-	uint32_t width, height;
-	uint8_t* pixelData = WgpTexture::LoadFromFile("res/textures/input.jpg", width, height, true);
-
-
-	WGPUExtent3D textureSize = { width, height, 1 };
-
-	// Create texture
-	WGPUTextureDescriptor textureDesc = {};
-	textureDesc.dimension = WGPUTextureDimension::WGPUTextureDimension_2D;;
-	textureDesc.format = WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm;
-	textureDesc.size = textureSize;
-	textureDesc.sampleCount = 1;
-	textureDesc.viewFormatCount = 0;
-	textureDesc.viewFormats = nullptr;
-	textureDesc.mipLevelCount = 1;
-
-	textureDesc.label = WGPU_STR("input");
-	textureDesc.usage = WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst;
-	inputTexture = wgpuDeviceCreateTexture(wgpContext.device, &textureDesc);
-
-	textureDesc.label = WGPU_STR("output");
-	textureDesc.usage = WGPUTextureUsage_TextureBinding | WGPUTextureUsage_StorageBinding | WGPUTextureUsage_CopySrc;
-	outputTexture = wgpuDeviceCreateTexture(wgpContext.device, &textureDesc);
-
-	// Upload texture data for MIP level 0 to the GPU
-	WGPUTexelCopyTextureInfo destination = {};
-	destination.texture = inputTexture;
-	destination.origin = { 0, 0, 0 };
-	destination.aspect = WGPUTextureAspect_All;
-	destination.mipLevel = 0;
-
-	WGPUTexelCopyBufferLayout source = {};
-	source.offset = 0;
-	source.bytesPerRow = 4 * textureSize.width;
-	source.rowsPerImage = textureSize.height;
-	wgpuQueueWriteTexture(wgpContext.queue, &destination, pixelData, (size_t)(4 * width * height), &source, &textureSize);
-	free(pixelData);
-
-	WGPUTextureViewDescriptor textureViewDesc = {};
-	textureViewDesc.aspect = WGPUTextureAspect::WGPUTextureAspect_All;
-	textureViewDesc.baseArrayLayer = 0;
-	textureViewDesc.arrayLayerCount = 1;
-	textureViewDesc.dimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
-	textureViewDesc.format = WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm;
-	textureViewDesc.mipLevelCount = 1;
-	textureViewDesc.baseMipLevel = 0;
-
-	textureViewDesc.label = WGPU_STR("input");
-	inputTextureView = wgpuTextureCreateView(inputTexture, &textureViewDesc);
-
-	textureViewDesc.label = WGPU_STR("output");
-	outputTextureView = wgpuTextureCreateView(outputTexture, &textureViewDesc);
-
-	m_bindGroup = createBindGroup(inputTextureView, outputTextureView, m_uniformBuffer.getBuffer());
+	m_inputTexture.loadFromFile("res/textures/input.jpg", true);
+	m_outputTexture.createEmpty(m_inputTexture.getWidth(), m_inputTexture.getHeight(), WGPUTextureUsage_TextureBinding | WGPUTextureUsage_StorageBinding | WGPUTextureUsage_CopySrc, WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm);
+	m_inputTextureView = wgpCreateTextureView(m_inputTexture.getFormat(), WGPUTextureAspect::WGPUTextureAspect_All, m_inputTexture.getTexture());
+	m_outputTextureView = wgpCreateTextureView(m_outputTexture.getFormat(), WGPUTextureAspect::WGPUTextureAspect_All, m_outputTexture.getTexture());
+	m_bindGroup = createBindGroup(m_inputTextureView, m_outputTextureView, m_uniformBuffer.getBuffer());
 
 	wgpContext.OnDraw = std::bind(&Compute::OnDraw, this, std::placeholders::_1);
 }
@@ -84,7 +35,17 @@ Compute::~Compute() {
 	EventDispatcher::RemoveMouseListener(this);
 
 	m_uniformBuffer.markForDelete();
+	m_inputTexture.markForDelete();
+	m_outputTexture.markForDelete();
 
+	wgpuBindGroupRelease(m_bindGroup);
+	m_bindGroup = NULL;
+
+	wgpuTextureViewRelease(m_inputTextureView);
+	m_inputTextureView = NULL;
+
+	wgpuTextureViewRelease(m_outputTextureView);
+	m_outputTextureView = NULL;
 }
 
 void Compute::fixedUpdate() {
@@ -120,8 +81,8 @@ void Compute::OnCompute() {
 
 		for (uint32_t i = 0; i < 1; ++i) {
 			wgpuComputePassEncoderSetBindGroup(computePass, 0, m_bindGroup, 0, nullptr);
-			uint32_t invocationCountX = wgpuTextureGetWidth(inputTexture);
-			uint32_t invocationCountY = wgpuTextureGetHeight(inputTexture);
+			uint32_t invocationCountX = m_inputTexture.getWidth();
+			uint32_t invocationCountY = m_inputTexture.getHeight();
 			uint32_t workgroupSizePerDim = 8;
 			uint32_t workgroupCountX = (invocationCountX + workgroupSizePerDim - 1) / workgroupSizePerDim;
 			uint32_t workgroupCountY = (invocationCountY + workgroupSizePerDim - 1) / workgroupSizePerDim;
@@ -219,13 +180,13 @@ void Compute::renderUi(const WGPURenderPassEncoder& renderPassEncoder, bool forc
 		float width = 0.0f;
 
 		// Input image
-		width = wgpuTextureGetWidth(inputTexture) * m_settings.scale;
-		drawList->AddImage((ImTextureID)inputTextureView, { offset, 0 }, { offset + width, wgpuTextureGetHeight(inputTexture) * m_settings.scale});
+		width = m_inputTexture.getWidth() * m_scale;
+		drawList->AddImage((ImTextureID)m_inputTextureView, { offset, 0 }, { offset + width, m_inputTexture.getHeight() * m_scale });
 		offset += width;
 
 		// Output image
-		width = wgpuTextureGetWidth(outputTexture) * m_settings.scale;
-		drawList->AddImage((ImTextureID)outputTextureView, { offset, 0 }, {offset + width, wgpuTextureGetHeight(outputTexture) * m_settings.scale});
+		width = m_outputTexture.getWidth() * m_scale;
+		drawList->AddImage((ImTextureID)m_outputTextureView, { offset, 0 }, {offset + width, m_outputTexture.getHeight() * m_scale });
 		offset += width;
 	}
 
@@ -250,7 +211,7 @@ void Compute::renderUi(const WGPURenderPassEncoder& renderPassEncoder, bool forc
 	m_shouldCompute = changed || force;
 
 	ImGui::Begin("Settings");
-	ImGui::SliderFloat("Scale", &m_settings.scale, 0.0f, 2.0f);
+	ImGui::SliderFloat("Scale", &m_scale, 0.0f, 2.0f);
 	ImGui::End();
 	ImGui::Render();
 	ImGui_ImplWGPU_RenderDrawData(ImGui::GetDrawData(), renderPassEncoder);

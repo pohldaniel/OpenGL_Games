@@ -57,10 +57,10 @@ Default::~Default() {
 
 	wgpuTextureDestroy(m_texture);
 	wgpuTextureRelease(m_texture);
-	m_texture = nullptr;
+	m_texture = NULL;
 
 	wgpuTextureViewRelease(m_textureView);
-	m_textureView = nullptr;
+	m_textureView = NULL;
 }
 
 void Default::fixedUpdate() {

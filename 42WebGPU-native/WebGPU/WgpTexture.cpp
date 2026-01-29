@@ -6,19 +6,19 @@
 
 WgpTexture::WgpTexture() :
     m_texture(NULL),
+    m_format(WGPUTextureFormat::WGPUTextureFormat_Undefined),
     m_width(0u),
     m_height(0u),
     m_channels(0u),
-    m_data(nullptr),
     m_markForDelete(false) {
 
 }
 
-WgpTexture::WgpTexture(WgpTexture const& rhs) : m_texture(rhs.m_texture), m_width(rhs.m_width), m_height(rhs.m_height), m_channels(rhs.m_channels), m_data(rhs.m_data), m_markForDelete(false) {
+WgpTexture::WgpTexture(WgpTexture const& rhs) : m_texture(rhs.m_texture), m_format(rhs.m_format), m_width(rhs.m_width), m_height(rhs.m_height), m_channels(rhs.m_channels), m_markForDelete(false) {
 
 }
 
-WgpTexture::WgpTexture(WgpTexture&& rhs) noexcept : m_texture(rhs.m_texture), m_width(rhs.m_width), m_height(rhs.m_height), m_channels(rhs.m_channels), m_data(std::move(rhs.m_data)), m_markForDelete(rhs.m_markForDelete) {
+WgpTexture::WgpTexture(WgpTexture&& rhs) noexcept : m_texture(rhs.m_texture), m_format(rhs.m_format), m_width(rhs.m_width), m_height(rhs.m_height), m_channels(rhs.m_channels), m_markForDelete(rhs.m_markForDelete) {
 
 }
 
@@ -31,12 +31,27 @@ WgpTexture::~WgpTexture() {
 void WgpTexture::cleanup() {
     wgpuTextureDestroy(m_texture);
     wgpuTextureRelease(m_texture);
-    free(m_data);
     m_texture = nullptr;
 }
 
 void WgpTexture::markForDelete() {
     m_markForDelete = true;
+}
+
+const WGPUTexture& WgpTexture::getTexture() const {
+    return m_texture;
+}
+
+const unsigned int WgpTexture::getWidth() const {
+    return m_width;
+}
+
+const unsigned int WgpTexture::getHeight() const {
+    return m_height;
+}
+
+const WGPUTextureFormat WgpTexture::getFormat() const {
+    return m_format;
 }
 
 void WgpTexture::loadFromFile(std::string fileName, const bool flipVertical, short alphaChannel) { 
@@ -73,10 +88,7 @@ void WgpTexture::loadFromFile(std::string fileName, const bool flipVertical, sho
     m_width = width;
     m_height = height;
     m_channels = bpp;
-     
-    m_data = (unsigned char*)malloc(width * height * bpp);
-    memcpy(m_data, imageData, width * height * bpp);
-
+    m_format = WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm;
     m_texture = wgpCreateTexture(m_width, m_height, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst, WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm);
     
     WGPUTexelCopyTextureInfo destination = {};
@@ -100,20 +112,13 @@ void WgpTexture::loadFromFile(std::string fileName, const bool flipVertical, sho
     FreeImage_DeInitialise();
 }
 
-void WgpTexture::copyToDestination(const WGPUTexture& destTesture) {
-    WGPUTexelCopyTextureInfo destination = {};
-    destination.texture = destTesture;
-    destination.mipLevel = 0;
-    destination.origin = { 0, 0, 0 };
-    destination.aspect = WGPUTextureAspect_All;
+void WgpTexture::createEmpty(uint32_t width, uint32_t height, WGPUTextureUsage textureUsage, WGPUTextureFormat textureFormat) {
+    m_width = width;
+    m_height = height;
+    m_channels = 4u;
+    m_format = textureFormat;
+    m_texture = wgpCreateTexture(m_width, m_height, textureUsage, textureFormat);
 
-    WGPUTexelCopyBufferLayout source = {};
-    source.offset = 0;
-    source.bytesPerRow = m_channels * m_width;
-    source.rowsPerImage = m_height;
-
-    WGPUExtent3D extent3D = { m_width, m_height, 1 };
-    wgpuQueueWriteTexture(wgpContext.queue, &destination, m_data, m_width * m_height * m_channels, &source, &extent3D);
 }
 
 void WgpTexture::FlipVertical(unsigned char* data, unsigned int padWidth, unsigned int height) {

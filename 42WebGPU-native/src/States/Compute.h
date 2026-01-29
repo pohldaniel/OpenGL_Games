@@ -26,8 +26,11 @@ struct Parameters {
 	bool normalize = true;
 };
 
-struct SettingsC {
-	float scale = 0.5f;
+struct UniformsCompute {
+	Matrix4f kernel;
+	float test = 0.5f;
+	uint32_t filterType = 0;
+	float _pad[2];
 };
 
 class Compute : public State, public MouseEventListener, public KeyboardEventListener {
@@ -65,12 +68,10 @@ private:
 	
 	UniformsCompute m_uniforms;
 	Parameters m_parameters;
-	SettingsC m_settings;
+	float m_scale = 0.5f;
 	WgpBuffer m_uniformBuffer;
+	WgpTexture m_inputTexture, m_outputTexture;
 	WGPUBindGroup m_bindGroup;
-
-	WGPUTexture inputTexture;
-	WGPUTexture outputTexture;
-	WGPUTextureView inputTextureView;
-	WGPUTextureView outputTextureView;
+	WGPUTextureView m_inputTextureView;
+	WGPUTextureView m_outputTextureView;
 };
