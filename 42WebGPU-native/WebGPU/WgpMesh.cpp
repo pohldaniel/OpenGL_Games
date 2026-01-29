@@ -166,7 +166,7 @@ void WgpMesh::draw(const WGPURenderPassEncoder& renderPassEncoder) const {
 		wgpuRenderPassEncoderSetVertexBuffer(renderPassEncoder, 0u, m_vertexBuffer.m_buffer, 0u, wgpuBufferGetSize(m_vertexBuffer.m_buffer));
 		wgpuRenderPassEncoderSetVertexBuffer(renderPassEncoder, 1u, m_indexBuffer.m_buffer, 0u, wgpuBufferGetSize(m_indexBuffer.m_buffer));
 		wgpuRenderPassEncoderSetVertexBuffer(renderPassEncoder, 2u, m_vertexBuffer.m_buffer, 0u, wgpuBufferGetSize(m_vertexBuffer.m_buffer));
-		wgpuRenderPassEncoderSetVertexBuffer(renderPassEncoder, 5u, m_colorBuffer.getWgpuBuffer(), 0u, wgpuBufferGetSize(m_colorBuffer.getWgpuBuffer()));
+		wgpuRenderPassEncoderSetVertexBuffer(renderPassEncoder, 5u, m_colorBuffer.getBuffer(), 0u, wgpuBufferGetSize(m_colorBuffer.getBuffer()));
 
 		const uint32_t num_triangles = indexBuffer.size() / 3u;
 		wgpuRenderPassEncoderDraw(renderPassEncoder, 6 * num_triangles, 1, 0, 0);

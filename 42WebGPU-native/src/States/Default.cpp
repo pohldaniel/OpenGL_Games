@@ -15,10 +15,10 @@ Default::Default(StateMachine& machine) : State(machine, States::DEFAULT) {
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
 
-	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
-	wgpContext.addSampler(wgpCreateSampler());
+	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);	
 	m_texture = wgpCreateTexture(512, 512, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst, WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm);
 	m_textureView = wgpCreateTextureView(WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm, WGPUTextureAspect::WGPUTextureAspect_All, m_texture);
+	wgpContext.addSampler(wgpCreateSampler());
 
 	wgpContext.addSahderModule("PTN", "res/shader/shader.wgsl");
 	wgpContext.createRenderPipelinePTN("PTN", std::bind(&Default::OnBindGroupLayoutPTN, this));
@@ -46,7 +46,7 @@ Default::Default(StateMachine& machine) : State(machine, States::DEFAULT) {
 	m_uniforms.modelMatrix = Matrix4f::IDENTITY;
 	m_uniforms.color = { 1.0f, 1.0f, 1.0f, 1.0f };
 	
-	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getWgpuBuffer(), 0, &m_uniforms, sizeof(Uniforms));
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
 	wgpContext.OnDraw = std::bind(&Default::OnDraw, this, std::placeholders::_1);
 }
 
@@ -136,9 +136,9 @@ void Default::render() {
 
 void Default::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
 
-	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getWgpuBuffer(), offsetof(Uniforms, projectionMatrix), &m_uniforms.projectionMatrix, sizeof(Uniforms::projectionMatrix));
-	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getWgpuBuffer(), offsetof(Uniforms, viewMatrix), &m_uniforms.viewMatrix, sizeof(Uniforms::viewMatrix));
-	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getWgpuBuffer(), offsetof(Uniforms, modelMatrix), &m_uniforms.modelMatrix, sizeof(Uniforms::modelMatrix));
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, projectionMatrix), &m_uniforms.projectionMatrix, sizeof(Uniforms::projectionMatrix));
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, viewMatrix), &m_uniforms.viewMatrix, sizeof(Uniforms::viewMatrix));
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, modelMatrix), &m_uniforms.modelMatrix, sizeof(Uniforms::modelMatrix));
 	
 	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
 
@@ -254,12 +254,11 @@ void Default::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 WGPUBindGroupLayout Default::OnBindGroupLayoutPTN() {
 	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(3);
 
-	bindingLayoutEntries.resize(3);
-	WGPUBindGroupLayoutEntry& bindingLayout = bindingLayoutEntries[0];
-	bindingLayout.binding = 0;
-	bindingLayout.visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
-	bindingLayout.buffer.type = WGPUBufferBindingType_Uniform;
-	bindingLayout.buffer.minBindingSize = sizeof(Uniforms);
+	WGPUBindGroupLayoutEntry& uniformLayout = bindingLayoutEntries[0];
+	uniformLayout.binding = 0;
+	uniformLayout.visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
+	uniformLayout.buffer.type = WGPUBufferBindingType_Uniform;
+	uniformLayout.buffer.minBindingSize = sizeof(Uniforms);
 
 	WGPUBindGroupLayoutEntry& textureBindingLayout = bindingLayoutEntries[1];
 	textureBindingLayout.binding = 1;
@@ -281,11 +280,11 @@ WGPUBindGroupLayout Default::OnBindGroupLayoutPTN() {
 WGPUBindGroupLayout Default::OnBindGroupLayoutWireframe() {
 	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(4);
 
-	WGPUBindGroupLayoutEntry& bindingLayout = bindingLayoutEntries[0];
-	bindingLayout.binding = 0;
-	bindingLayout.visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
-	bindingLayout.buffer.type = WGPUBufferBindingType_Uniform;
-	bindingLayout.buffer.minBindingSize = sizeof(Uniforms);
+	WGPUBindGroupLayoutEntry& uniformLayout = bindingLayoutEntries[0];
+	uniformLayout.binding = 0;
+	uniformLayout.visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
+	uniformLayout.buffer.type = WGPUBufferBindingType_Uniform;
+	uniformLayout.buffer.minBindingSize = sizeof(Uniforms);
 
 	WGPUBindGroupLayoutEntry& indiceBindingLayout = bindingLayoutEntries[1];
 	indiceBindingLayout.binding = 1;

@@ -20,7 +20,8 @@ public:
 	void markForDelete();
 
 	static unsigned char* LoadFromFile(std::string fileName, const bool flipVertical = false, short alphaChannel = -1);
-
+	static unsigned char* LoadFromFile(std::string fileName, uint32_t& width, uint32_t& height, const bool flipVertical = false, short alphaChannel = -1);
+	
 private:
 
 	WGPUTexture m_texture;

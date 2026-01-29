@@ -3,10 +3,13 @@
 #include <vector>
 #include <string>
 #include <functional>
+#include <fstream>
 #include <webgpu.h>
 #ifdef WEBGPU_NATIVE
 	#include <wgpu.h>
 #endif
+
+#define WGPU_STR(str) { str, sizeof(str) - 1 }
 
 struct WgpContext;
 enum VertexLayoutSlot {
@@ -26,11 +29,11 @@ extern "C" {
 
 	WGPUBuffer wgpCreateEmptyBuffer(uint32_t size, WGPUBufferUsage bufferUsage);
 	WGPUBuffer wgpCreateBuffer(const void* data, uint32_t size, WGPUBufferUsage bufferUsage);
-
 	WGPUTexture wgpCreateTexture(uint32_t width, uint32_t height, WGPUTextureUsage textureUsage, WGPUTextureFormat textureFormat, WGPUTextureFormat viewFormat = WGPUTextureFormat_Undefined);
 	WGPUTextureView wgpCreateTextureView(WGPUTextureFormat textureFormat, WGPUTextureAspect aspect, const WGPUTexture& texture);
 	WGPUSampler wgpCreateSampler();
 	WGPUShaderModule wgpCreateShader(std::string path);
+
 	void wgpCreateVertexBufferLayout(VertexLayoutSlot slot = VL_PTN);
 	void wgpShutDown();
 	void wgpPipelinesRelease();
@@ -63,6 +66,7 @@ struct WgpContext {
 
 	void createRenderPipelinePTN(std::string shaderModuleName, std::function <WGPUBindGroupLayout()> onBindGroupLayout);
 	void createRenderPipelineWireframe(std::string shaderModuleName, std::function <WGPUBindGroupLayout()> onBindGroupLayout);
+	void createComputePipeline(std::string shaderModuleName, std::string pipelineLayoutName, std::function <WGPUBindGroupLayout()> onBindGroupLayout);
 
 	void createVertexBufferLayout(VertexLayoutSlot slot = VL_PTN);
 	void addSampler(const WGPUSampler& sampler, SamplerSlot samplerSlot = SS_LINEAR);
@@ -83,11 +87,12 @@ struct WgpContext {
 	WGPUTextureFormat depthformat = WGPUTextureFormat::WGPUTextureFormat_Depth24Plus;
 	WGPUTextureFormat colorformat = WGPUTextureFormat::WGPUTextureFormat_BGRA8UnormSrgb;
 
+	std::unordered_map<std::string, WGPUComputePipeline> computePipelines;
 	std::unordered_map<RenderPipelineSlot, WGPURenderPipeline> renderPipelines;
-	std::function<void(const WGPURenderPassEncoder& commandBuffer)> OnDraw;
+	std::function<void(const WGPURenderPassEncoder& commandBuffer)> OnDraw = NULL;
 
 private:
-	std::unordered_map<RenderPipelineSlot, WGPUPipelineLayout> pipelineLayouts;
+	std::unordered_map<std::string, WGPUPipelineLayout> pipelineLayouts;
 	std::unordered_map<SamplerSlot, WGPUSampler> samplers;
 	std::unordered_map<std::string, WGPUShaderModule> shaderModules;
 };

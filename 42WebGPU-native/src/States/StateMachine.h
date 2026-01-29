@@ -4,7 +4,7 @@
 enum States {
 	MENU,
 	DEFAULT,
-	GAME
+	COMPUTE
 };
 
 class State;

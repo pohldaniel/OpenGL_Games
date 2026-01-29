@@ -153,6 +153,9 @@
     <ClCompile Include="WebGPU\WgpModel.cpp">
       <Filter>WebGPU</Filter>
     </ClCompile>
+    <ClCompile Include="src\States\Compute.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convhull\convhull_3d.h">
@@ -298,6 +301,9 @@
     </ClInclude>
     <ClInclude Include="WebGPU\WgpModel.h">
       <Filter>WebGPU</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\Compute.h">
+      <Filter>Source Files\States</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

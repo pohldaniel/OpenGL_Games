@@ -1,5 +1,6 @@
 #include <vector>
 #include <FreeImage.h>
+#include <Utilities.h>
 #include "WgpContext.h"
 #include "WgpTexture.h"
 
@@ -42,7 +43,20 @@ void WgpTexture::loadFromFile(std::string fileName, const bool flipVertical, sho
     std::filesystem::path filePath = fileName;
     
     FreeImage_Initialise();
-    FIBITMAP* sourceBitmap = filePath.extension() == ".png" ? FreeImage_Load(FIF_PNG, fileName.c_str(), PNG_DEFAULT) : FreeImage_Load(FIF_BMP, fileName.c_str(), BMP_DEFAULT);
+    FIBITMAP* sourceBitmap = nullptr;
+    if (filePath.extension() == ".png") {
+        sourceBitmap = FreeImage_Load(FIF_PNG, fileName.c_str(), PNG_DEFAULT);
+        SwapRedBlue32(sourceBitmap);
+    }else if (filePath.extension() == ".jpg") {
+        sourceBitmap = FreeImage_Load(FIF_JPEG, fileName.c_str(), JPEG_DEFAULT);
+        SwapRedBlue32(sourceBitmap);
+    }else {
+        sourceBitmap = FreeImage_Load(FIF_BMP, fileName.c_str(), BMP_DEFAULT);
+    }
+
+    if(flipVertical)
+        FreeImage_FlipVertical(sourceBitmap);
+
     unsigned int bpp = FreeImage_GetBPP(sourceBitmap) / 8;
     unsigned int width = FreeImage_GetWidth(sourceBitmap);
     unsigned int height = FreeImage_GetHeight(sourceBitmap);
@@ -124,7 +138,20 @@ unsigned char* WgpTexture::LoadFromFile(std::string fileName, const bool flipVer
     std::filesystem::path filePath = fileName;
 
     FreeImage_Initialise();
-    FIBITMAP* sourceBitmap = filePath.extension() == ".png" ? FreeImage_Load(FIF_PNG, fileName.c_str(), PNG_DEFAULT) : FreeImage_Load(FIF_BMP, fileName.c_str(), BMP_DEFAULT);
+    FIBITMAP* sourceBitmap = nullptr;
+    if (filePath.extension() == ".png") {
+        sourceBitmap = FreeImage_Load(FIF_PNG, fileName.c_str(), PNG_DEFAULT);
+        SwapRedBlue32(sourceBitmap);
+    }else if (filePath.extension() == ".jpg") {
+        sourceBitmap = FreeImage_Load(FIF_JPEG, fileName.c_str(), JPEG_DEFAULT);
+        SwapRedBlue32(sourceBitmap);
+    }else {
+        sourceBitmap = FreeImage_Load(FIF_BMP, fileName.c_str(), BMP_DEFAULT);
+    }
+
+    if (flipVertical)
+        FreeImage_FlipVertical(sourceBitmap);
+
     unsigned int bpp = FreeImage_GetBPP(sourceBitmap) / 8;
     unsigned int width = FreeImage_GetWidth(sourceBitmap);
     unsigned int height = FreeImage_GetHeight(sourceBitmap);
@@ -145,6 +172,51 @@ unsigned char* WgpTexture::LoadFromFile(std::string fileName, const bool flipVer
     }
 
    
+
+    if (bytesNew) {
+        FreeImage_Unload(sourceBitmap);
+        return bytesNew;
+    }
+
+    return imageData;
+}
+
+unsigned char* WgpTexture::LoadFromFile(std::string fileName, uint32_t& width, uint32_t& height, const bool flipVertical, short alphaChannel) {
+    std::filesystem::path filePath = fileName;
+
+    FreeImage_Initialise();
+    FIBITMAP* sourceBitmap = nullptr;
+    if (filePath.extension() == ".png") {
+        sourceBitmap = FreeImage_Load(FIF_PNG, fileName.c_str(), PNG_DEFAULT);
+        SwapRedBlue32(sourceBitmap);
+    }else if (filePath.extension() == ".jpg") {
+        sourceBitmap = FreeImage_Load(FIF_JPEG, fileName.c_str(), JPEG_DEFAULT);
+        SwapRedBlue32(sourceBitmap);
+    } else {
+        sourceBitmap = FreeImage_Load(FIF_BMP, fileName.c_str(), BMP_DEFAULT);
+    }
+
+    if (flipVertical)
+        FreeImage_FlipVertical(sourceBitmap);
+
+    unsigned int bpp = FreeImage_GetBPP(sourceBitmap) / 8;
+    width = FreeImage_GetWidth(sourceBitmap);
+    height = FreeImage_GetHeight(sourceBitmap);
+    unsigned char* imageData = FreeImage_GetBits(sourceBitmap);
+    unsigned char* bytesNew = nullptr;
+
+    if (bpp == 3) {
+        bytesNew = (unsigned char*)malloc(width * height * 4);
+
+        for (unsigned int i = 0, k = 0; i < static_cast<unsigned int>(width * height * 4); i = i + 4, k = k + 3) {
+            bytesNew[i] = imageData[k];
+            bytesNew[i + 1] = imageData[k + 1];
+            bytesNew[i + 2] = imageData[k + 2];
+            bytesNew[i + 3] = alphaChannel == -1 ? 255 : alphaChannel;
+        }
+        imageData = bytesNew;
+        bpp = 4;
+    }
 
     if (bytesNew) {
         FreeImage_Unload(sourceBitmap);

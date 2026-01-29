@@ -9,6 +9,7 @@
 #include <engine/sound/SoundDevice.h>
 
 #include <States/Default.h>
+#include <States/Compute.h>
 
 #include "Application.h"
 #include "Globals.h"
@@ -290,7 +291,8 @@ void Application::fixedUpdate() {
 
 void Application::initStates() {
 	Machine = new StateMachine(m_dt, m_fdt);
-	Machine->addStateAtTop(new Default(*Machine));
+	//Machine->addStateAtTop(new Default(*Machine));
+	Machine->addStateAtTop(new Compute(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -435,8 +437,10 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 }
 
 void Application::Resize(int deltaW, int deltaH) {
-	if(InitWindow)
+	if (InitWindow) {
 		wgpResize(static_cast<uint32_t>(Width), static_cast<uint32_t>(Height));
+		Machine->getStates().top()->resize(deltaW, deltaH);
+	}
 }
 
 void Application::ToggleFullScreen(bool isFullScreen, unsigned int width, unsigned int height) {

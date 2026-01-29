@@ -2431,6 +2431,15 @@ Matrix4f Matrix4f::operator^(const Matrix4f &rhs) const {
 	return tmp;
 }
 
+Matrix4f Matrix4f::operator/(float scalar) const {
+	Matrix4f tmp(*this);
+	tmp[0][0] /= scalar; tmp[0][1] /= scalar; tmp[0][2] /= scalar; tmp[0][3] /= scalar;
+	tmp[1][0] /= scalar; tmp[1][1] /= scalar; tmp[1][2] /= scalar; tmp[1][3] /= scalar;
+	tmp[2][0] /= scalar; tmp[2][1] /= scalar; tmp[2][2] /= scalar; tmp[2][3] /= scalar;
+	tmp[3][0] /= scalar; tmp[3][1] /= scalar; tmp[3][2] /= scalar; tmp[3][3] /= scalar;
+	return tmp;
+}
+
 void Matrix4f::transpose() {
 	float tmp = mtx[0][1]; mtx[0][1] = mtx[1][0]; mtx[1][0] = tmp;
 	tmp = mtx[0][2]; mtx[0][2] = mtx[2][0]; mtx[2][0] = tmp;

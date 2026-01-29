@@ -271,6 +271,8 @@ public:
 	Matrix4f operator+(const Matrix4f& rhs) const;
 	Matrix4f operator*(const Matrix4f& rhs) const;
 	Matrix4f operator^(const Matrix4f& rhs) const;
+	Matrix4f operator/(float scalar) const;
+
 	void transpose();
 	void transpose3();
 	Matrix4f inverse() const;
