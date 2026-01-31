@@ -5,8 +5,9 @@
 #include "WgpTexture.h"
 
 enum RenderPipelineSlot;
-
 class WgpMesh {
+
+	friend class WgpModel;
 
 public:
 
@@ -16,29 +17,32 @@ public:
 	~WgpMesh();
 
 	void draw(const WGPURenderPassEncoder& renderPassEncoder) const;
+	void drawRaw(const WGPURenderPassEncoder& renderPassEncoder) const;
+
 	void cleanup();
 	void markForDelete();
 	void setRenderPipelineSlot(RenderPipelineSlot renderPipelineSlot);
 
 private:
 
-	WGPUBindGroup createBindGroup(const WGPUTextureView& textureView);
+	WGPUBindGroup createBindGroupPTN(const WGPUTextureView& textureView);
 	WGPUBindGroup createBindGroupWireframe();
+	void createBindGroup(const std::string& pipelineName);
 
 	WgpBuffer m_vertexBuffer;
 	WgpBuffer m_indexBuffer;
 	WgpBuffer m_colorBuffer;
 	WgpTexture m_texture;
 	WGPUTextureView m_textureView;
-	WGPUBindGroup m_bindGroup, m_bindGroupWireframe;
+	WGPUBindGroup m_bindGroupPTN, m_bindGroupWireframe, m_bindGroup;
 
 	uint32_t m_drawCount;
 	RenderPipelineSlot m_renderPipelineSlot;
 	bool m_markForDelete;
 	unsigned int m_stride;
 
-	const std::vector<float>& vertexBuffer;
-	const std::vector<unsigned int>& indexBuffer;
 	const WGPUTextureView& textureView;
 	const WGPUBuffer& uniformBuffer;
+	const std::vector<float>& vertexBuffer;
+	const std::vector<unsigned int>& indexBuffer;	
 };

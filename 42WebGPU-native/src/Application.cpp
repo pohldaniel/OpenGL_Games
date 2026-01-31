@@ -10,6 +10,7 @@
 
 #include <States/Default.h>
 #include <States/Compute.h>
+#include <States/Specularity.h>
 
 #include "Application.h"
 #include "Globals.h"
@@ -291,8 +292,9 @@ void Application::fixedUpdate() {
 
 void Application::initStates() {
 	Machine = new StateMachine(m_dt, m_fdt);
-	//Machine->addStateAtTop(new Default(*Machine));
-	Machine->addStateAtTop(new Compute(*Machine));
+	Machine->addStateAtTop(new Default(*Machine));
+	//Machine->addStateAtTop(new Compute(*Machine));
+	//Machine->addStateAtTop(new Specularity(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

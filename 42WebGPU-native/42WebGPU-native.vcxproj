@@ -197,6 +197,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClCompile Include="src\LoadingManager.cpp" />
     <ClCompile Include="src\States\Compute.cpp" />
     <ClCompile Include="src\States\Default.cpp" />
+    <ClCompile Include="src\States\Specularity.cpp" />
     <ClCompile Include="src\States\StateMachine.cpp" />
     <ClCompile Include="src\Utils\Fade.cpp" />
     <ClCompile Include="engine\Camera.cpp" />
@@ -261,6 +262,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClInclude Include="src\LoadingManager.h" />
     <ClInclude Include="src\States\Compute.h" />
     <ClInclude Include="src\States\Default.h" />
+    <ClInclude Include="src\States\Specularity.h" />
     <ClInclude Include="src\States\StateMachine.h" />
     <ClInclude Include="src\Utils\Fade.h" />
     <ClInclude Include="WebGPU\WgpBuffer.h" />

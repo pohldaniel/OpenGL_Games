@@ -649,12 +649,23 @@ unsigned int ObjModel::getNumberOfTriangles() {
 	return m_drawCount / 3;
 }
 
+void ObjModel::generateNormals() {
+	if (m_isStacked) {
+		if (m_hasNormals) { return; }
+		ObjModel::GenerateNormals(m_vertexBuffer, m_indexBuffer, *this, m_hasNormals, m_stride, 0, m_meshes.size());
+	}else {
+		for (int j = 0; j < m_meshes.size(); j++) {
+			if (m_meshes[j]->m_hasNormals) continue;
+			ObjModel::GenerateNormals(m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_indexBuffer, *this, m_meshes[j]->m_hasNormals, m_meshes[j]->m_stride, j, j + 1);
+		}
+	}
+}
+
 void ObjModel::generateTangents() {
 	if (m_isStacked) {
 		if (m_hasTangents) { return; }
 		ObjModel::GenerateTangents(m_vertexBuffer, m_indexBuffer, *this, m_hasNormals, m_hasTangents,  m_stride, 0, m_meshes.size());		
 	}else {
-
 		for (int j = 0; j < m_meshes.size(); j++) {
 			if (m_meshes[j]->m_hasTangents) continue;
 			ObjModel::GenerateTangents(m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_indexBuffer, *this, m_meshes[j]->m_hasNormals, m_meshes[j]->m_hasTangents, m_meshes[j]->m_stride, j, j + 1);
@@ -662,15 +673,14 @@ void ObjModel::generateTangents() {
 	}
 }
 
-void ObjModel::generateNormals() {	
+void ObjModel::generateColors(ModelColor modelColor) {
 	if (m_isStacked) {
-		if (m_hasNormals) { return; }
-		ObjModel::GenerateNormals(m_vertexBuffer, m_indexBuffer, *this, m_hasNormals, m_stride, 0, m_meshes.size());
+		if (m_hasTangents) { return; }
+		ObjModel::GenerateColors(m_vertexBuffer, m_indexBuffer, *this, m_stride, 0, m_meshes.size(), modelColor);
 	}else {
-
 		for (int j = 0; j < m_meshes.size(); j++) {
-			if (m_meshes[j]->m_hasNormals) continue;
-			ObjModel::GenerateNormals(m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_indexBuffer, *this, m_meshes[j]->m_hasNormals, m_meshes[j]->m_stride, j, j + 1);
+			if (m_meshes[j]->m_hasTangents) continue;
+			ObjModel::GenerateColors(m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_indexBuffer, *this, m_meshes[j]->m_stride, j, j + 1, modelColor);
 		}
 	}
 }
@@ -769,6 +779,7 @@ void ObjModel::GenerateNormals(std::vector<float>& vertexBuffer, std::vector<uns
 	}
 
 	vertexBuffer.clear();
+	vertexBuffer.shrink_to_fit();
 	copy(tmpVertex.begin(), tmpVertex.end(), back_inserter(vertexBuffer));
 	tmpVertex.clear();	
 
@@ -941,11 +952,62 @@ void ObjModel::GenerateTangents(std::vector<float>& vertexBuffer, std::vector<un
 	}
 
 	vertexBuffer.clear();
+	vertexBuffer.shrink_to_fit();
 	copy(tmpVertex.begin(), tmpVertex.end(), back_inserter(vertexBuffer));
 	tmpVertex.clear();
 
 	hasTangents = true;
 	stride = 14;
+}
+
+void ObjModel::GenerateColors(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, ObjModel& model, unsigned int& stride, unsigned int startIndex, unsigned int endIndex, ModelColor modelColor) {
+	if (stride < 8)
+		return;
+	
+	std::vector<float> tmpVertex;
+	for (int i = 0; i < vertexBuffer.size(); i++) {
+		tmpVertex.push_back(vertexBuffer[i]);
+
+		if ((i + 1) % stride == 0) {
+			if (modelColor == ModelColor::MC_POSITION) {
+				tmpVertex.push_back(vertexBuffer[i - stride]);
+				tmpVertex.push_back(vertexBuffer[i - stride + 1]);
+				tmpVertex.push_back(vertexBuffer[i - stride + 2]);
+				tmpVertex.push_back(1.0f);
+			}else if(modelColor == ModelColor::MC_WHITE){
+				tmpVertex.push_back(1.0f);
+				tmpVertex.push_back(1.0f);
+				tmpVertex.push_back(1.0f);
+				tmpVertex.push_back(1.0f);
+			}else if (modelColor == ModelColor::MC_RED) {
+				tmpVertex.push_back(1.0f);
+				tmpVertex.push_back(0.0f);
+				tmpVertex.push_back(0.0f);
+				tmpVertex.push_back(1.0f);
+			}else if (modelColor == ModelColor::MC_GREEN) {
+				tmpVertex.push_back(0.0f);
+				tmpVertex.push_back(1.0f);
+				tmpVertex.push_back(0.0f);
+				tmpVertex.push_back(1.0f);
+			}else if (modelColor == ModelColor::MC_BLUE) {
+				tmpVertex.push_back(0.0f);
+				tmpVertex.push_back(0.0f);
+				tmpVertex.push_back(1.0f);
+				tmpVertex.push_back(1.0f);
+			}else if (modelColor == ModelColor::MC_BLACK) {
+				tmpVertex.push_back(0.0f);
+				tmpVertex.push_back(0.0f);
+				tmpVertex.push_back(0.0f);
+				tmpVertex.push_back(1.0f);
+			}
+		}
+	}
+
+	vertexBuffer.clear();
+	vertexBuffer.shrink_to_fit();
+	copy(tmpVertex.begin(), tmpVertex.end(), back_inserter(vertexBuffer));
+	tmpVertex.clear();
+	stride += 4;
 }
 
 void ObjModel::PackBuffer(std::vector<float>& vertexBuffer, unsigned int stride) {
@@ -1528,7 +1590,6 @@ ObjMesh::~ObjMesh(){
 }
 
 void ObjMesh::cleanup(){
-
 	m_vertexBuffer.clear();
 	m_vertexBuffer.shrink_to_fit();
 	m_indexBuffer.clear();

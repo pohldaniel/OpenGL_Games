@@ -17,6 +17,7 @@ enum VertexLayoutSlot {
 	VL_PT,
 	VL_PN,
 	VL_PTN,
+	VL_PTNC
 };
 
 extern WgpContext wgpContext;
@@ -67,12 +68,14 @@ struct WgpContext {
 	void createRenderPipelinePTN(std::string shaderModuleName, std::function <WGPUBindGroupLayout()> onBindGroupLayout);
 	void createRenderPipelineWireframe(std::string shaderModuleName, std::function <WGPUBindGroupLayout()> onBindGroupLayout);
 	void createComputePipeline(std::string shaderModuleName, std::string pipelineLayoutName, std::function <WGPUBindGroupLayout()> onBindGroupLayout);
+	void createRenderPipeline(std::string shaderModuleName, std::string pipelineLayoutName, const VertexLayoutSlot vertexLayoutSlot, std::function <WGPUBindGroupLayout()> onBindGroupLayout);
 
 	void createVertexBufferLayout(VertexLayoutSlot slot = VL_PTN);
 	void addSampler(const WGPUSampler& sampler, SamplerSlot samplerSlot = SS_LINEAR);
 	const WGPUSampler& getSampler(SamplerSlot samplerSlot);
 	void addSahderModule(const std::string& shaderModuleName, const std::string& shaderModulePath);
 	const WGPUShaderModule& getShaderModule(std::string shaderModuleName);
+	bool hasRenderPipeline(RenderPipelineSlot renderPipelineSlot);
 
 	WGPUInstance instance = NULL;
 	WGPUAdapter adapter = NULL;
@@ -88,10 +91,12 @@ struct WgpContext {
 	WGPUTextureFormat colorformat = WGPUTextureFormat::WGPUTextureFormat_BGRA8UnormSrgb;
 
 	std::unordered_map<std::string, WGPUComputePipeline> computePipelines;
+	std::unordered_map<std::string, WGPURenderPipeline> renderPipelinesC;
 	std::unordered_map<RenderPipelineSlot, WGPURenderPipeline> renderPipelines;
 	std::function<void(const WGPURenderPassEncoder& commandBuffer)> OnDraw = NULL;
 
 private:
+
 	std::unordered_map<std::string, WGPUPipelineLayout> pipelineLayouts;
 	std::unordered_map<SamplerSlot, WGPUSampler> samplers;
 	std::unordered_map<std::string, WGPUShaderModule> shaderModules;

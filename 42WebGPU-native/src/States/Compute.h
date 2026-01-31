@@ -3,7 +3,7 @@
 #include <webgpu.h>
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
-
+#include <engine/Vector.h>
 #include <States/StateMachine.h>
 
 #include <WebGPU/WgpTexture.h>

@@ -5,23 +5,26 @@
 
 WgpMesh::WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, const std::string& texturePath, const WGPUTextureView& textureView, const WGPUBuffer& uniformBuffer, unsigned int stride) :
 	m_textureView(NULL),
-	m_bindGroup(NULL),
+	m_bindGroupPTN(NULL),
 	m_bindGroupWireframe(NULL),
+	m_bindGroup(NULL),
 	m_drawCount(indexBuffer.size()),
 	m_renderPipelineSlot(RP_PTN),
 	m_markForDelete(false),
-	m_stride(stride),
-	vertexBuffer(vertexBuffer),
-	indexBuffer(indexBuffer),
+	m_stride(stride),	
 	textureView(textureView),
-	uniformBuffer(uniformBuffer) {
+	uniformBuffer(uniformBuffer),
+	vertexBuffer(vertexBuffer),
+	indexBuffer(indexBuffer) {
 
 	m_vertexBuffer.createBuffer(reinterpret_cast<const void*>(vertexBuffer.data()), sizeof(float) * vertexBuffer.size(), WGPUBufferUsage_Vertex | WGPUBufferUsage_Storage);
 	m_indexBuffer.createBuffer(reinterpret_cast<const void*>(indexBuffer.data()), sizeof(unsigned int) * indexBuffer.size(), WGPUBufferUsage_Index | WGPUBufferUsage_Vertex | WGPUBufferUsage_Storage);
 	m_texture.loadFromFile(texturePath);
 
 	m_textureView = wgpCreateTextureView(WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm, WGPUTextureAspect::WGPUTextureAspect_All, m_texture.m_texture);
-	m_bindGroup = createBindGroup(m_textureView);
+	
+	if (wgpContext.hasRenderPipeline(RP_PTN))
+		m_bindGroupPTN = createBindGroupPTN(m_textureView);
 }
 
 WgpMesh::WgpMesh(WgpMesh const& rhs) : 
@@ -30,16 +33,17 @@ WgpMesh::WgpMesh(WgpMesh const& rhs) :
 	m_colorBuffer(rhs.m_colorBuffer),
 	m_texture(rhs.m_texture),
 	m_textureView(rhs.m_textureView),
-	m_bindGroup(rhs.m_bindGroup),
+	m_bindGroupPTN(rhs.m_bindGroupPTN),
 	m_bindGroupWireframe(rhs.m_bindGroupWireframe),
+	m_bindGroup(rhs.m_bindGroup),
 	m_drawCount(rhs.m_drawCount),
 	m_renderPipelineSlot(rhs.m_renderPipelineSlot),
 	m_markForDelete(false),
 	m_stride(rhs.m_stride),
-	vertexBuffer(rhs.vertexBuffer),
-	indexBuffer(rhs.indexBuffer),
 	textureView(rhs.textureView),
-	uniformBuffer(rhs.uniformBuffer) {
+	uniformBuffer(rhs.uniformBuffer),
+	vertexBuffer(rhs.vertexBuffer),
+	indexBuffer(rhs.indexBuffer) {
 }
 
 WgpMesh::WgpMesh(WgpMesh&& rhs) noexcept :
@@ -48,16 +52,17 @@ WgpMesh::WgpMesh(WgpMesh&& rhs) noexcept :
 	m_colorBuffer(std::move(rhs.m_colorBuffer)),
 	m_texture(std::move(rhs.m_texture)),
 	m_textureView(std::move(rhs.m_textureView)),
-	m_bindGroup(std::move(rhs.m_bindGroup)),
+	m_bindGroupPTN(std::move(rhs.m_bindGroupPTN)),
 	m_bindGroupWireframe(std::move(rhs.m_bindGroupWireframe)),
+	m_bindGroup(std::move(rhs.m_bindGroup)),
 	m_drawCount(rhs.m_drawCount),
 	m_renderPipelineSlot(rhs.m_renderPipelineSlot),
 	m_markForDelete(false),
-	m_stride(rhs.m_stride),
-	vertexBuffer(rhs.vertexBuffer),
-	indexBuffer(rhs.indexBuffer),
+	m_stride(rhs.m_stride),	
 	textureView(rhs.textureView),
-	uniformBuffer(rhs.uniformBuffer) {
+	uniformBuffer(rhs.uniformBuffer),
+	vertexBuffer(rhs.vertexBuffer),
+	indexBuffer(rhs.indexBuffer) {
 }
 
 WgpMesh::~WgpMesh() {
@@ -68,14 +73,21 @@ WgpMesh::~WgpMesh() {
 
 void WgpMesh::cleanup() {
 	wgpuTextureViewRelease(m_textureView);
-	m_textureView = nullptr;
+	m_textureView = NULL;
 
-	wgpuBindGroupRelease(m_bindGroup);
-	m_bindGroup = nullptr;
+	if (m_bindGroupPTN) {
+		wgpuBindGroupRelease(m_bindGroupPTN);
+		m_bindGroupPTN = NULL;
+	}
 
 	if (m_bindGroupWireframe) {
 		wgpuBindGroupRelease(m_bindGroupWireframe);
-		m_bindGroup = nullptr;
+		m_bindGroupWireframe = NULL;
+	}
+
+	if (m_bindGroup) {
+		wgpuBindGroupRelease(m_bindGroup);
+		m_bindGroup = NULL;
 	}
 }
 
@@ -94,7 +106,29 @@ void WgpMesh::setRenderPipelineSlot(RenderPipelineSlot renderPipelineSlot) {
 
 }
 
-WGPUBindGroup WgpMesh::createBindGroup(const WGPUTextureView& textureView) {
+void WgpMesh::createBindGroup(const std::string& pipelineName) {
+	std::vector<WGPUBindGroupEntry> bindings(3);
+
+	bindings[0].binding = 0;
+	bindings[0].buffer = uniformBuffer;
+	bindings[0].offset = 0;
+	bindings[0].size = sizeof(Uniforms);
+
+	bindings[1].binding = 1;
+	bindings[1].textureView = m_textureView;
+
+	bindings[2].binding = 2;
+	bindings[2].sampler = wgpContext.getSampler(SS_LINEAR);
+
+	WGPUBindGroupDescriptor bindGroupDesc = {};
+	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelinesC.at(pipelineName), 0);
+	bindGroupDesc.entryCount = (uint32_t)bindings.size();
+	bindGroupDesc.entries = bindings.data();
+
+	m_bindGroup = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
+}
+
+WGPUBindGroup WgpMesh::createBindGroupPTN(const WGPUTextureView& textureView) {
 	std::vector<WGPUBindGroupEntry> bindings(3);
 
 	bindings[0].binding = 0;
@@ -172,10 +206,17 @@ void WgpMesh::draw(const WGPURenderPassEncoder& renderPassEncoder) const {
 		wgpuRenderPassEncoderDraw(renderPassEncoder, 6 * num_triangles, 1, 0, 0);
 	}else {
 		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at(m_renderPipelineSlot));
-		wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_bindGroup, 0u, NULL);
+		wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_bindGroupPTN, 0u, NULL);
 
 		wgpuRenderPassEncoderSetVertexBuffer(renderPassEncoder, 0u, m_vertexBuffer.m_buffer, 0u, wgpuBufferGetSize(m_vertexBuffer.m_buffer));
 		wgpuRenderPassEncoderSetIndexBuffer(renderPassEncoder, m_indexBuffer.m_buffer, WGPUIndexFormat_Uint32, 0u, wgpuBufferGetSize(m_indexBuffer.m_buffer));
 		wgpuRenderPassEncoderDrawIndexed(renderPassEncoder, m_drawCount, 1u, 0u, 0u, 0u);
 	}
+}
+
+void WgpMesh::drawRaw(const WGPURenderPassEncoder& renderPassEncoder) const {
+	wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_bindGroup, 0u, NULL);
+	wgpuRenderPassEncoderSetVertexBuffer(renderPassEncoder, 0u, m_vertexBuffer.m_buffer, 0u, wgpuBufferGetSize(m_vertexBuffer.m_buffer));
+	wgpuRenderPassEncoderSetIndexBuffer(renderPassEncoder, m_indexBuffer.m_buffer, WGPUIndexFormat_Uint32, 0u, wgpuBufferGetSize(m_indexBuffer.m_buffer));
+	wgpuRenderPassEncoderDrawIndexed(renderPassEncoder, m_drawCount, 1u, 0u, 0u, 0u);
 }

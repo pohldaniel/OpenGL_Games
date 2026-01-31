@@ -28,8 +28,20 @@ void WgpModel::setRenderPipelineSlot(RenderPipelineSlot renderPipelineSlot) {
 	}
 }
 
+void WgpModel::createBindGroup(const std::string& pipelineName) {
+	for (WgpMesh& mesh : m_meshes) {
+		mesh.createBindGroup(pipelineName);
+	}
+}
+
 void WgpModel::draw(const WGPURenderPassEncoder& renderPassEncoder) const {
 	for (std::list<WgpMesh>::const_iterator it = m_meshes.begin(); it != m_meshes.end(); ++it) {
 		(*it).draw(renderPassEncoder);
+	}
+}
+
+void WgpModel::drawRaw(const WGPURenderPassEncoder& renderPassEncoder) const {
+	for (std::list<WgpMesh>::const_iterator it = m_meshes.begin(); it != m_meshes.end(); ++it) {
+		(*it).drawRaw(renderPassEncoder);
 	}
 }

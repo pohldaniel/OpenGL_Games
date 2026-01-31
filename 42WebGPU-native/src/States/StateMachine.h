@@ -4,7 +4,8 @@
 enum States {
 	MENU,
 	DEFAULT,
-	COMPUTE
+	COMPUTE,
+	SPECULARITY
 };
 
 class State;
