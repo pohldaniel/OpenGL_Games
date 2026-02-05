@@ -169,7 +169,9 @@ public:
 	static Vector3f Fract(const Vector3f &p);
 	static float Length(const Vector3f &p, const Vector3f &q);
 	static float DotAbs(const Vector3f &p, const Vector3f &q);
-
+	static Vector3f Polar(const Vector3f& p);
+	static Vector3f Euclidean(const Vector2f& p);
+	
 private:
 	float vec[3];
 };

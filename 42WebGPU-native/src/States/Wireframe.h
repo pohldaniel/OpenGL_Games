@@ -20,12 +20,12 @@ enum Model {
 	DRAGON
 };
 
-class Default : public State, public MouseEventListener, public KeyboardEventListener {
+class Wireframe : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
 
-	Default(StateMachine& machine);
-	~Default();
+	Wireframe(StateMachine& machine);
+	~Wireframe();
 
 	void fixedUpdate() override;
 	void update() override;

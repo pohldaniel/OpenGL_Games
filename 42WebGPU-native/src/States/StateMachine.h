@@ -3,7 +3,7 @@
 
 enum States {
 	MENU,
-	DEFAULT,
+	WIREFRAME,
 	COMPUTE,
 	SPECULARITY
 };

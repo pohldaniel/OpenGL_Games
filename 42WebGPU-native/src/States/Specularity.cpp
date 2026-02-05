@@ -16,17 +16,18 @@ Specularity::Specularity(StateMachine& machine) : State(machine, States::SPECULA
 	EventDispatcher::AddMouseListener(this);
 
 	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
+	m_lightUniformBuffer.createBuffer(sizeof(LightingUniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	wgpContext.addSampler(wgpCreateSampler());
 	m_texture = wgpCreateTexture(512, 512, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst, WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm);
 	m_textureView = wgpCreateTextureView(WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm, WGPUTextureAspect::WGPUTextureAspect_All, m_texture);
 
-	wgpContext.addSahderModule("BOAT", "res/shader/shader_new.wgsl");
+	wgpContext.addSahderModule("BOAT", "res/shader/specularity.wgsl");
 	wgpContext.createRenderPipeline("BOAT", "RP_PTNC", VL_PTNC, std::bind(&Specularity::OnBindGroupLayout, this));
 
 	m_boat.loadModel("res/models/fourareen.obj", false, false, false, false, false, true);
 	m_boat.generateColors();
 	m_wgpBoat.create(m_boat, m_textureView, m_uniformBuffer);
-	m_wgpBoat.createBindGroup("RP_PTNC");
+	m_wgpBoat.createBindGroup("RP_PTNC", m_lightUniformBuffer);
 
 	wgpContext.OnDraw = std::bind(&Specularity::OnDraw, this, std::placeholders::_1);
 
@@ -41,6 +42,12 @@ Specularity::Specularity(StateMachine& machine) : State(machine, States::SPECULA
 	m_uniforms.projectionMatrix = Matrix4f::Perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.01f, 100.0f);
 	m_uniforms.color = { 0.0f, 1.0f, 0.4f, 1.0f };
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
+
+	m_lightingUniforms.directions[0] = { 0.5f, -0.9f, 0.1f, 0.0f };
+	m_lightingUniforms.directions[1] = { 0.2f, 0.4f, 0.3f, 0.0f };
+	m_lightingUniforms.colors[0] = { 1.0f, 0.9f, 0.6f, 1.0f };
+	m_lightingUniforms.colors[1] = { 0.6f, 0.9f, 1.0f, 1.0f };
+	updateLightingUniforms();
 }
 
 Specularity::~Specularity() {
@@ -48,7 +55,7 @@ Specularity::~Specularity() {
 	EventDispatcher::RemoveMouseListener(this);
 
 	m_uniformBuffer.markForDelete();
-
+	m_lightUniformBuffer.markForDelete();
 	wgpuTextureDestroy(m_texture);
 	wgpuTextureRelease(m_texture);
 	m_texture = NULL;
@@ -62,7 +69,8 @@ void Specularity::fixedUpdate() {
 }
 
 void Specularity::update() {
-
+	updateDragInertia();
+	updateLightingUniforms();
 }
 
 void Specularity::render() {
@@ -137,12 +145,69 @@ void Specularity::resize(int deltaW, int deltaH) {
 	
 }
 
-void Specularity::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
-
+namespace ImGui {
+	bool DragDirection(const char* label, Vector4f& direction) {
+		Vector2f angles = Vector3f::Polar(Vector3f(direction)) * _180_ON_PI;
+		bool changed = ImGui::DragFloat2(label, &angles[0]);
+		direction = Vector4f(Vector3f::Euclidean(angles * PI_ON_180), direction[3]);
+		return changed;
+	}
 }
 
+void Specularity::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
+	ImGui_ImplWGPU_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+
+	ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar |
+		ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
+		ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus |
+		ImGuiWindowFlags_NoBackground;
+
+	ImGuiViewport* viewport = ImGui::GetMainViewport();
+	ImGui::SetNextWindowPos(viewport->Pos);
+	ImGui::SetNextWindowSize(viewport->Size);
+	ImGui::SetNextWindowViewport(viewport->ID);
+
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+	ImGui::Begin("InvisibleWindow", nullptr, windowFlags);
+	ImGui::PopStyleVar(3);
+
+	ImGuiID dockSpaceId = ImGui::GetID("MainDockSpace");
+	ImGui::DockSpace(dockSpaceId, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
+	ImGui::End();
+
+	if (m_initUi) {
+		m_initUi = false;
+		ImGuiID dock_id_left = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Left, 0.2f, nullptr, &dockSpaceId);
+		ImGuiID dock_id_right = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Right, 0.2f, nullptr, &dockSpaceId);
+		ImGuiID dock_id_down = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Down, 0.2f, nullptr, &dockSpaceId);
+		ImGuiID dock_id_up = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Up, 0.2f, nullptr, &dockSpaceId);
+		ImGui::DockBuilderDockWindow("Lighting", dock_id_left);
+	}
+
+	// Build our UI
+	{
+		bool changed = false;
+		ImGui::Begin("Lighting", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+		changed = ImGui::ColorEdit3("Color #0", &m_lightingUniforms.colors[0][0]) || changed;
+		changed = ImGui::DragDirection("Direction #0", m_lightingUniforms.directions[0]) || changed;
+		changed = ImGui::ColorEdit3("Color #1", &m_lightingUniforms.colors[1][0]) || changed;
+		changed = ImGui::DragDirection("Direction #1", m_lightingUniforms.directions[1]) || changed;
+		changed = ImGui::SliderFloat("Hardness", &m_lightingUniforms.hardness, 1.0f, 100.0f) || changed;
+		changed = ImGui::SliderFloat("K Diffuse", &m_lightingUniforms.kd, 0.0f, 1.0f) || changed;
+		changed = ImGui::SliderFloat("K Specular", &m_lightingUniforms.ks, 0.0f, 1.0f) || changed;
+		ImGui::End();
+		m_updateLight = changed;
+	}
+
+	ImGui::Render();
+	ImGui_ImplWGPU_RenderDrawData(ImGui::GetDrawData(), renderPassEncoder);
+}
 WGPUBindGroupLayout Specularity::OnBindGroupLayout() {
-	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(3);
+	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(4);
 
 	WGPUBindGroupLayoutEntry& uniformLayout = bindingLayoutEntries[0];
 	uniformLayout.binding = 0;
@@ -161,6 +226,12 @@ WGPUBindGroupLayout Specularity::OnBindGroupLayout() {
 	samplerBindingLayout.visibility = WGPUShaderStage_Fragment;
 	samplerBindingLayout.sampler.type = WGPUSamplerBindingType::WGPUSamplerBindingType_Filtering;
 
+	WGPUBindGroupLayoutEntry& lightUniformLayout = bindingLayoutEntries[3];
+	lightUniformLayout.binding = 3;
+	lightUniformLayout.visibility = WGPUShaderStage_Fragment;
+	lightUniformLayout.buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
+	lightUniformLayout.buffer.minBindingSize = sizeof(LightingUniforms);
+
 	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
 	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
 	bindGroupLayoutDescriptor.entries = bindingLayoutEntries.data();
@@ -178,9 +249,17 @@ void Specularity::updateViewMatrix() {
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, viewMatrix), &m_uniforms.viewMatrix, sizeof(Uniforms::viewMatrix));
 }
 
+void Specularity::updateLightingUniforms() {
+	if (m_updateLight) {
+		wgpuQueueWriteBuffer(wgpContext.queue, m_lightUniformBuffer.getBuffer(), 0u, &m_lightingUniforms, sizeof(LightingUniforms));
+		m_updateLight = false;
+	}
+}
+
 void Specularity::updateDragInertia() {
 	constexpr float eps = 1e-4f;
 	if (!m_drag.active) {
+
 		if (std::abs(m_drag.velocity[0]) < eps && std::abs(m_drag.velocity[1]) < eps) {
 			return;
 		}

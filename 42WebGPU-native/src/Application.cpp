@@ -8,7 +8,7 @@
 #include <thread>
 #include <engine/sound/SoundDevice.h>
 
-#include <States/Default.h>
+#include <States/Wireframe.h>
 #include <States/Compute.h>
 #include <States/Specularity.h>
 
@@ -292,9 +292,9 @@ void Application::fixedUpdate() {
 
 void Application::initStates() {
 	Machine = new StateMachine(m_dt, m_fdt);
-	Machine->addStateAtTop(new Default(*Machine));
+	//Machine->addStateAtTop(new Wireframe(*Machine));
 	//Machine->addStateAtTop(new Compute(*Machine));
-	//Machine->addStateAtTop(new Specularity(*Machine));
+	Machine->addStateAtTop(new Specularity(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

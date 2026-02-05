@@ -5,11 +5,11 @@
 
 #include <WebGPU/WgpContext.h>
 
-#include "Default.h"
+#include "Wireframe.h"
 #include "Application.h"
 #include "Globals.h"
 
-Default::Default(StateMachine& machine) : State(machine, States::DEFAULT) {
+Wireframe::Wireframe(StateMachine& machine) : State(machine, States::WIREFRAME) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -21,9 +21,9 @@ Default::Default(StateMachine& machine) : State(machine, States::DEFAULT) {
 	wgpContext.addSampler(wgpCreateSampler());
 
 	wgpContext.addSahderModule("PTN", "res/shader/shader.wgsl");
-	wgpContext.createRenderPipelinePTN("PTN", std::bind(&Default::OnBindGroupLayoutPTN, this));
+	wgpContext.createRenderPipelinePTN("PTN", std::bind(&Wireframe::OnBindGroupLayoutPTN, this));
 	wgpContext.addSahderModule("wireframe", "res/shader/wireframe.wgsl");
-	wgpContext.createRenderPipelineWireframe("wireframe", std::bind(&Default::OnBindGroupLayoutWireframe, this));
+	wgpContext.createRenderPipelineWireframe("wireframe", std::bind(&Wireframe::OnBindGroupLayoutWireframe, this));
 
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
@@ -46,10 +46,10 @@ Default::Default(StateMachine& machine) : State(machine, States::DEFAULT) {
 	m_uniforms.color = { 1.0f, 1.0f, 1.0f, 1.0f };
 	
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
-	wgpContext.OnDraw = std::bind(&Default::OnDraw, this, std::placeholders::_1);
+	wgpContext.OnDraw = std::bind(&Wireframe::OnDraw, this, std::placeholders::_1);
 }
 
-Default::~Default() {
+Wireframe::~Wireframe() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 
@@ -63,11 +63,11 @@ Default::~Default() {
 	m_textureView = NULL;
 }
 
-void Default::fixedUpdate() {
+void Wireframe::fixedUpdate() {
 
 }
 
-void Default::update() {
+void Wireframe::update() {
 	Keyboard &keyboard = Keyboard::instance();
 	Vector3f direction = Vector3f();
 
@@ -129,11 +129,11 @@ void Default::update() {
 	m_uniforms.viewMatrix = m_camera.getViewMatrix();
 }
 
-void Default::render() {
+void Wireframe::render() {
 	wgpDraw();
 }
 
-void Default::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
+void Wireframe::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
 
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, projectionMatrix), &m_uniforms.projectionMatrix, sizeof(Uniforms::projectionMatrix));
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, viewMatrix), &m_uniforms.viewMatrix, sizeof(Uniforms::viewMatrix));
@@ -147,12 +147,12 @@ void Default::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
 		renderUi(renderPassEncoder);
 }
 
-void Default::OnMouseMotion(const Event::MouseMoveEvent& event) {
+void Wireframe::OnMouseMotion(const Event::MouseMoveEvent& event) {
 	m_trackball.motion(event.x, event.y);
 	applyTransformation(m_trackball);
 }
 
-void Default::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
+void Wireframe::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
 	if (event.button == 1u) {
 		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, true, event.x, event.y);
 		applyTransformation(m_trackball);
@@ -161,7 +161,7 @@ void Default::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
 	}
 }
 
-void Default::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
+void Wireframe::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
 	if (event.button == 1u) {
 		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, false, event.x, event.y);
 		applyTransformation(m_trackball);
@@ -170,11 +170,11 @@ void Default::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
 	}
 }
 
-void Default::OnMouseWheel(const Event::MouseWheelEvent& event) {
+void Wireframe::OnMouseWheel(const Event::MouseWheelEvent& event) {
 
 }
 
-void Default::OnKeyDown(const Event::KeyboardEvent& event) {
+void Wireframe::OnKeyDown(const Event::KeyboardEvent& event) {
 #if DEVBUILD
 	if (event.keyCode == VK_LMENU) {
 		m_drawUi = !m_drawUi;
@@ -186,20 +186,20 @@ void Default::OnKeyDown(const Event::KeyboardEvent& event) {
 	}
 }
 
-void Default::OnKeyUp(const Event::KeyboardEvent& event) {
+void Wireframe::OnKeyUp(const Event::KeyboardEvent& event) {
 
 }
 
-void Default::applyTransformation(TrackBall& arc) {
+void Wireframe::applyTransformation(TrackBall& arc) {
 	m_uniforms.modelMatrix = arc.getTransform();
 }
 
-void Default::resize(int deltaW, int deltaH) {
+void Wireframe::resize(int deltaW, int deltaH) {
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 }
 
-void Default::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
+void Wireframe::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 	ImGui_ImplWGPU_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
@@ -250,7 +250,7 @@ void Default::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 	ImGui_ImplWGPU_RenderDrawData(ImGui::GetDrawData(), renderPassEncoder);
 }
 
-WGPUBindGroupLayout Default::OnBindGroupLayoutPTN() {
+WGPUBindGroupLayout Wireframe::OnBindGroupLayoutPTN() {
 	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(3);
 	
 	WGPUBindGroupLayoutEntry& uniformLayout = bindingLayoutEntries[0];
@@ -277,7 +277,7 @@ WGPUBindGroupLayout Default::OnBindGroupLayoutPTN() {
 	return wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor);
 }
 
-WGPUBindGroupLayout Default::OnBindGroupLayoutWireframe() {
+WGPUBindGroupLayout Wireframe::OnBindGroupLayoutWireframe() {
 	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(4);
 
 	WGPUBindGroupLayoutEntry& uniformLayout = bindingLayoutEntries[0];

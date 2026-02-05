@@ -3074,6 +3074,18 @@ float Vector3f::DotAbs(const Vector3f &p, const Vector3f &q) {
 	return (fabs(p[0]) * q[0]) + (fabs(p[1]) * q[1]) + (fabs(p[2]) * q[2]);
 }
 
+Vector3f Vector3f::Polar(const Vector3f& p) {
+	Vector3f tmp = Vector3f::Normalize(p);
+	return Vector3f(asinf(tmp[1]), atanf(tmp[0] / tmp[2]), sqrtf(tmp[0] * tmp[0] + tmp[2] * tmp[2]));
+}
+
+Vector3f Vector3f::Euclidean(const Vector2f& polar) {
+	float const latitude(polar[0]);
+	float const longitude(polar[1]);
+
+	return Vector3f(cosf(latitude) * sinf(longitude), sinf(latitude), cosf(latitude) * cosf(longitude));
+}
+
 Vector3f& Vector3f::normalize() {
 	float invMag = 1.0f / length();
 	vec[0] *= invMag, vec[1] *= invMag, vec[2] *= invMag;

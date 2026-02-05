@@ -55,6 +55,7 @@ private:
 	WGPUBindGroupLayout OnBindGroupLayout();
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 	void updateViewMatrix();
+	void updateLightingUniforms();
 	void updateDragInertia();
 
 	bool m_initUi = true;
@@ -62,7 +63,7 @@ private:
 
 	Camera m_camera;
 	ObjModel m_boat;
-	WgpBuffer m_uniformBuffer;
+	WgpBuffer m_uniformBuffer, m_lightUniformBuffer;
 
 	WGPUTexture m_texture;
 	WGPUTextureView m_textureView;
@@ -72,4 +73,7 @@ private:
 
 	CameraState m_cameraState;
 	DragState m_drag;
+
+	LightingUniforms m_lightingUniforms;
+	bool m_updateLight = true;
 };

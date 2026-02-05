@@ -28,9 +28,9 @@ void WgpModel::setRenderPipelineSlot(RenderPipelineSlot renderPipelineSlot) {
 	}
 }
 
-void WgpModel::createBindGroup(const std::string& pipelineName) {
+void WgpModel::createBindGroup(const std::string& pipelineName, const WgpBuffer& buffer) {
 	for (WgpMesh& mesh : m_meshes) {
-		mesh.createBindGroup(pipelineName);
+		mesh.createBindGroup(pipelineName, buffer);
 	}
 }
 

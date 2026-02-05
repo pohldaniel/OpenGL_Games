@@ -27,7 +27,7 @@ private:
 
 	WGPUBindGroup createBindGroupPTN(const WGPUTextureView& textureView);
 	WGPUBindGroup createBindGroupWireframe();
-	void createBindGroup(const std::string& pipelineName);
+	void createBindGroup(const std::string& pipelineName, const WgpBuffer& buffer);
 
 	WgpBuffer m_vertexBuffer;
 	WgpBuffer m_indexBuffer;

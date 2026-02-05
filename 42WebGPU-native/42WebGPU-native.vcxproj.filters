@@ -96,9 +96,6 @@
     <ClCompile Include="engine\sound\SoundDevice.cpp">
       <Filter>engine\sound</Filter>
     </ClCompile>
-    <ClCompile Include="src\States\Default.cpp">
-      <Filter>Source Files\States</Filter>
-    </ClCompile>
     <ClCompile Include="src\States\StateMachine.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
@@ -157,6 +154,9 @@
       <Filter>Source Files\States</Filter>
     </ClCompile>
     <ClCompile Include="src\States\Specularity.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="src\States\Wireframe.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
   </ItemGroup>
@@ -236,9 +236,6 @@
     <ClInclude Include="engine\sound\SoundDevice.h">
       <Filter>engine\sound</Filter>
     </ClInclude>
-    <ClInclude Include="src\States\Default.h">
-      <Filter>Source Files\States</Filter>
-    </ClInclude>
     <ClInclude Include="engine\AssimpModel.h">
       <Filter>engine</Filter>
     </ClInclude>
@@ -309,6 +306,9 @@
       <Filter>Source Files\States</Filter>
     </ClInclude>
     <ClInclude Include="src\States\Specularity.h">
+      <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\Wireframe.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
   </ItemGroup>

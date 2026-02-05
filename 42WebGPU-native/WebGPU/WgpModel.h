@@ -20,7 +20,7 @@ public:
 
 	void create(const ObjModel& model, const WGPUTextureView& textureView, const WgpBuffer& uniformBuffer);
 	void setRenderPipelineSlot(RenderPipelineSlot renderPipelineSlot);
-	void createBindGroup(const std::string& pipelineName);
+	void createBindGroup(const std::string& pipelineName, const WgpBuffer& buffer);
 
 private:
 
