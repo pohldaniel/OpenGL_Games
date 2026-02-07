@@ -21,9 +21,10 @@ Wireframe::Wireframe(StateMachine& machine) : State(machine, States::WIREFRAME) 
 	wgpContext.addSampler(wgpCreateSampler());
 
 	wgpContext.addSahderModule("PTN", "res/shader/shader.wgsl");
-	wgpContext.createRenderPipelinePTN("PTN", std::bind(&Wireframe::OnBindGroupLayoutPTN, this));
-	wgpContext.addSahderModule("wireframe", "res/shader/wireframe.wgsl");
-	wgpContext.createRenderPipelineWireframe("wireframe", std::bind(&Wireframe::OnBindGroupLayoutWireframe, this));
+	wgpContext.createRenderPipeline("PTN", "RP_PTNC", VL_PTNC, std::bind(&Wireframe::OnBindGroupLayoutPTN, this));
+
+	wgpContext.addSahderModule("WF", "res/shader/wireframe.wgsl");
+	wgpContext.createRenderPipeline("WF", "RP_WF", VL_NONE, std::bind(&Wireframe::OnBindGroupLayoutWF, this), WGPUPrimitiveTopology::WGPUPrimitiveTopology_LineList);
 
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
@@ -32,11 +33,21 @@ Wireframe::Wireframe(StateMachine& machine) : State(machine, States::WIREFRAME) 
 	m_camera.setMovingSpeed(10.0f);
 
 	m_mammoth.loadModel("res/models/mammoth.obj");
+	m_mammoth.generateColors(ModelColor::MC_POSITION);
+
 	m_wgpMammoth.create(m_mammoth, m_textureView, m_uniformBuffer);
-	
+	m_wgpMammoth.setBindGroupPTN(std::bind(&WgpContext::OnBindGroupPTN, &wgpContext,  std::placeholders::_1, std::placeholders::_2));
+	m_wgpMammoth.setBindGroupWF(std::bind(&WgpContext::OnBindGroupWF, &wgpContext, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+	m_wgpMammoth.setRenderPipelineSlot("RP_PTNC");
+
 	m_dragon.loadModel("res/models/dragon/dragon.obj", Vector3f(0.0f, 1.0f, 0.0f), 90.0f, Vector3f(0.0f, -1.0f, 0.0f), 0.1f, false, false, false, false, false, true);
 	m_dragon.rewind();
+	m_dragon.generateColors(ModelColor::MC_POSITION);
+
 	m_wgpDragon.create(m_dragon, m_textureView, m_uniformBuffer);
+	m_wgpDragon.setBindGroupPTN(std::bind(&WgpContext::OnBindGroupPTN, &wgpContext, std::placeholders::_1, std::placeholders::_2));
+	m_wgpDragon.setBindGroupWF(std::bind(&WgpContext::OnBindGroupWF, &wgpContext, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+	m_wgpDragon.setRenderPipelineSlot("RP_PTNC");
 
 	m_trackball.reshape(Application::Width, Application::Height);
 	m_trackball.setTrackballScale(0.5f);
@@ -236,8 +247,8 @@ void Wireframe::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 	// render widgets
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	if (ImGui::Checkbox("Draw Wirframe", &StateMachine::GetWireframeEnabled())  || StateMachine::IsWireframeToggled()) {
-		m_wgpMammoth.setRenderPipelineSlot(StateMachine::GetWireframeEnabled() ? RP_WIREFRAME : RP_PTN);
-		m_wgpDragon.setRenderPipelineSlot(StateMachine::GetWireframeEnabled() ? RP_WIREFRAME : RP_PTN);
+		m_wgpMammoth.setRenderPipelineSlot(StateMachine::GetWireframeEnabled() ? "RP_WF" : "RP_PTNC");
+		m_wgpDragon.setRenderPipelineSlot(StateMachine::GetWireframeEnabled() ? "RP_WF" : "RP_PTNC");
 	}
 
 	int currentModel = m_model;
@@ -277,8 +288,8 @@ WGPUBindGroupLayout Wireframe::OnBindGroupLayoutPTN() {
 	return wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor);
 }
 
-WGPUBindGroupLayout Wireframe::OnBindGroupLayoutWireframe() {
-	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(4);
+WGPUBindGroupLayout Wireframe::OnBindGroupLayoutWF() {
+	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(3);
 
 	WGPUBindGroupLayoutEntry& uniformLayout = bindingLayoutEntries[0];
 	uniformLayout.binding = 0;
@@ -297,12 +308,6 @@ WGPUBindGroupLayout Wireframe::OnBindGroupLayoutWireframe() {
 	vertexBindingLayout.visibility = WGPUShaderStage_Vertex;
 	vertexBindingLayout.buffer.type = WGPUBufferBindingType_ReadOnlyStorage;
 	vertexBindingLayout.buffer.hasDynamicOffset = false;
-
-	WGPUBindGroupLayoutEntry& colorBindingLayout = bindingLayoutEntries[3];
-	colorBindingLayout.binding = 3;
-	colorBindingLayout.visibility = WGPUShaderStage_Vertex;
-	colorBindingLayout.buffer.type = WGPUBufferBindingType_ReadOnlyStorage;
-	colorBindingLayout.buffer.hasDynamicOffset = false;
 
 	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
 	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();

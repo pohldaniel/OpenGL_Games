@@ -353,6 +353,7 @@ void wgpCreateVertexBufferLayout(VertexLayoutSlot slot) {
 		wgpVertexBufferLayout.arrayStride = 8 * sizeof(float);
 		wgpVertexBufferLayout.stepMode = WGPUVertexStepMode::WGPUVertexStepMode_Vertex;
 		wgpVertexBufferLayouts.emplace(VL_PTN, wgpVertexBufferLayout);
+
 	}else if (wgpVertexBufferLayouts.count(VL_PTNC) == 0 && slot == VL_PTNC) {
 		std::vector<WGPUVertexAttribute>& wgpVertexAttribute = wgpVertexAttributes[VL_PTNC];
 		wgpVertexAttribute.resize(4);
@@ -400,15 +401,6 @@ void wgpPipelinesRelease() {
 
 	wgpContext.renderPipelines.clear();
 	wgpContext.renderPipelines.rehash(0u);
-
-	for (auto& it : wgpContext.renderPipelinesC) {
-		WGPUBindGroupLayout bindGroupLayout = wgpuRenderPipelineGetBindGroupLayout(it.second, 0);
-		wgpuBindGroupLayoutRelease(bindGroupLayout);
-		wgpuRenderPipelineRelease(it.second);
-	}
-
-	wgpContext.renderPipelinesC.clear();
-	wgpContext.renderPipelinesC.rehash(0u);
 
 	for (auto& it : wgpContext.computePipelines) {
 		WGPUBindGroupLayout bindGroupLayout = wgpuComputePipelineGetBindGroupLayout(it.second, 0);
@@ -583,134 +575,7 @@ const WGPUShaderModule& WgpContext::getShaderModule(std::string shaderModuleName
 	return shaderModules.at(shaderModuleName);
 }
 
-bool WgpContext::hasRenderPipeline(RenderPipelineSlot renderPipelineSlot) {
-	return renderPipelines.count(renderPipelineSlot) != 0;
-}
-
-void WgpContext::createRenderPipelinePTN(std::string shaderModuleName, std::function <WGPUBindGroupLayout()> onBindGroupLayout) {
-	WGPUBindGroupLayout bindGroupLayout = onBindGroupLayout();
-	WGPUPipelineLayoutDescriptor pipelineLayoutDescriptor = {};
-	pipelineLayoutDescriptor.bindGroupLayoutCount = 1;
-	pipelineLayoutDescriptor.bindGroupLayouts = &bindGroupLayout;
-	pipelineLayouts["RP_PTN"] = wgpuDeviceCreatePipelineLayout(wgpContext.device, &pipelineLayoutDescriptor);
-	
-	WGPUVertexState vertexState = {};
-	vertexState.module = shaderModules.at(shaderModuleName);
-	vertexState.entryPoint = WGPU_STR("vs_main");
-	vertexState.constantCount = 0;
-	vertexState.constants = NULL;
-	vertexState.bufferCount = 1;
-	vertexState.buffers = &wgpVertexBufferLayouts.at(VL_PTN);
-
-	WGPUBlendState blendState = {};
-	blendState.color.srcFactor = WGPUBlendFactor::WGPUBlendFactor_SrcAlpha;
-	blendState.color.dstFactor = WGPUBlendFactor::WGPUBlendFactor_OneMinusSrcAlpha;
-	blendState.color.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
-	blendState.alpha.srcFactor = WGPUBlendFactor::WGPUBlendFactor_Zero;
-	blendState.alpha.dstFactor = WGPUBlendFactor::WGPUBlendFactor_One;
-	blendState.alpha.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
-
-	WGPUColorTargetState colorTarget = {};
-	colorTarget.format = colorformat;
-	colorTarget.blend = &blendState;
-	colorTarget.writeMask = WGPUColorWriteMask_All;
-
-	WGPUFragmentState fragmentState = {};
-	fragmentState.module = shaderModules.at(shaderModuleName);
-	fragmentState.entryPoint = WGPU_STR("fs_main");
-	fragmentState.constantCount = 0;
-	fragmentState.constants = NULL;
-	fragmentState.targetCount = 1;
-	fragmentState.targets = &colorTarget;
-
-	WGPUDepthStencilState depthStencilState = {};
-	setDefault(depthStencilState);
-	depthStencilState.depthCompare = WGPUCompareFunction::WGPUCompareFunction_Less;
-	depthStencilState.depthWriteEnabled = WGPUOptionalBool_True;
-	depthStencilState.format = wgpContext.depthformat;
-	depthStencilState.stencilReadMask = 0;
-	depthStencilState.stencilWriteMask = 0;
-
-	WGPURenderPipelineDescriptor renderPipelineDescriptor = {};
-	renderPipelineDescriptor.layout = pipelineLayouts.at("RP_PTN");
-	renderPipelineDescriptor.multisample.count = 1;
-	renderPipelineDescriptor.multisample.mask = ~0u;
-	renderPipelineDescriptor.multisample.alphaToCoverageEnabled = false;
-
-	renderPipelineDescriptor.vertex = vertexState;
-	renderPipelineDescriptor.fragment = &fragmentState;
-	renderPipelineDescriptor.depthStencil = &depthStencilState;
-
-	renderPipelineDescriptor.primitive.topology = WGPUPrimitiveTopology::WGPUPrimitiveTopology_TriangleList;
-	renderPipelineDescriptor.primitive.stripIndexFormat = WGPUIndexFormat::WGPUIndexFormat_Undefined;
-	renderPipelineDescriptor.primitive.frontFace = WGPUFrontFace::WGPUFrontFace_CCW;
-	renderPipelineDescriptor.primitive.cullMode = WGPUCullMode::WGPUCullMode_Back;
-
-	wgpContext.renderPipelines[RP_PTN] = wgpuDeviceCreateRenderPipeline(wgpContext.device, &renderPipelineDescriptor);
-}
-
-void WgpContext::createRenderPipelineWireframe(std::string shaderModuleName, std::function <WGPUBindGroupLayout()> onBindGroupLayout) {
-	WGPUBindGroupLayout bindGroupLayout = onBindGroupLayout();
-
-	WGPUPipelineLayoutDescriptor pipelineLayoutDescriptor = {};
-	pipelineLayoutDescriptor.bindGroupLayoutCount = 1;
-	pipelineLayoutDescriptor.bindGroupLayouts = &bindGroupLayout;
-	pipelineLayouts["RP_WIREFRAME"] = wgpuDeviceCreatePipelineLayout(wgpContext.device, &pipelineLayoutDescriptor);
-
-	WGPUVertexState vertexState = {};
-	vertexState.module = shaderModules.at(shaderModuleName);
-	vertexState.entryPoint = WGPU_STR("vs_main");
-	vertexState.constantCount = 0;
-	vertexState.constants = NULL;
-
-	WGPUBlendState blendState = {};
-	blendState.color.srcFactor = WGPUBlendFactor::WGPUBlendFactor_SrcAlpha;
-	blendState.color.dstFactor = WGPUBlendFactor::WGPUBlendFactor_OneMinusSrcAlpha;
-	blendState.color.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
-	blendState.alpha.srcFactor = WGPUBlendFactor::WGPUBlendFactor_Zero;
-	blendState.alpha.dstFactor = WGPUBlendFactor::WGPUBlendFactor_One;
-	blendState.alpha.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
-
-	WGPUColorTargetState colorTarget = {};
-	colorTarget.format = colorformat;
-	colorTarget.blend = &blendState;
-	colorTarget.writeMask = WGPUColorWriteMask_All;
-
-	WGPUFragmentState fragmentState = {};
-	fragmentState.module = shaderModules.at(shaderModuleName);
-	fragmentState.entryPoint = WGPU_STR("fs_main");
-	fragmentState.constantCount = 0;
-	fragmentState.constants = NULL;
-	fragmentState.targetCount = 1;
-	fragmentState.targets = &colorTarget;
-
-	WGPUDepthStencilState depthStencilState = {};
-	setDefault(depthStencilState);
-	depthStencilState.depthCompare = WGPUCompareFunction::WGPUCompareFunction_Less;
-	depthStencilState.depthWriteEnabled = WGPUOptionalBool_True;
-	depthStencilState.format = wgpContext.depthformat;
-	depthStencilState.stencilReadMask = 0;
-	depthStencilState.stencilWriteMask = 0;
-
-	WGPURenderPipelineDescriptor renderPipelineDescriptor = {};
-	renderPipelineDescriptor.layout = pipelineLayouts.at("RP_WIREFRAME");
-	renderPipelineDescriptor.multisample.count = 1;
-	renderPipelineDescriptor.multisample.mask = ~0u;
-	renderPipelineDescriptor.multisample.alphaToCoverageEnabled = false;
-
-	renderPipelineDescriptor.vertex = vertexState;
-	renderPipelineDescriptor.fragment = &fragmentState;
-	renderPipelineDescriptor.depthStencil = &depthStencilState;
-
-	renderPipelineDescriptor.primitive.topology = WGPUPrimitiveTopology::WGPUPrimitiveTopology_LineList;
-	renderPipelineDescriptor.primitive.stripIndexFormat = WGPUIndexFormat::WGPUIndexFormat_Undefined;
-	renderPipelineDescriptor.primitive.frontFace = WGPUFrontFace::WGPUFrontFace_CCW;
-	renderPipelineDescriptor.primitive.cullMode = WGPUCullMode::WGPUCullMode_None;
-
-	wgpContext.renderPipelines[RP_WIREFRAME] = wgpuDeviceCreateRenderPipeline(wgpContext.device, &renderPipelineDescriptor);
-}
-
-void WgpContext::createComputePipeline(std::string shaderModuleName, std::string pipelineLayoutName, std::function <WGPUBindGroupLayout()> onBindGroupLayout) {
+void WgpContext::createComputePipeline(std::string shaderModuleName, std::string pipelineLayoutName, const std::function<WGPUBindGroupLayout()>& onBindGroupLayout) {
 	WGPUBindGroupLayout bindGroupLayout = onBindGroupLayout();
 
 	WGPUPipelineLayoutDescriptor pipelineLayoutDescriptor = {};
@@ -729,7 +594,7 @@ void WgpContext::createComputePipeline(std::string shaderModuleName, std::string
 	wgpContext.computePipelines[pipelineLayoutName] = wgpuDeviceCreateComputePipeline(wgpContext.device, &computePipelineDesc);
 }
 
-void WgpContext::createRenderPipeline(std::string shaderModuleName, std::string pipelineLayoutName, const VertexLayoutSlot vertexLayoutSlot, std::function <WGPUBindGroupLayout()> onBindGroupLayout) {
+void WgpContext::createRenderPipeline(std::string shaderModuleName, std::string pipelineLayoutName, const VertexLayoutSlot vertexLayoutSlot, const std::function<WGPUBindGroupLayout()>& onBindGroupLayout, WGPUPrimitiveTopology primitiveTopology) {
 	WGPUBindGroupLayout bindGroupLayout = onBindGroupLayout();
 
 	WGPUPipelineLayoutDescriptor pipelineLayoutDescriptor = {};
@@ -740,10 +605,11 @@ void WgpContext::createRenderPipeline(std::string shaderModuleName, std::string 
 	WGPUVertexState vertexState = {};
 	vertexState.module = shaderModules.at(shaderModuleName);
 	vertexState.entryPoint = WGPU_STR("vs_main");
-	vertexState.constantCount = 0;
+	vertexState.constantCount = 0u;
 	vertexState.constants = NULL;
-	vertexState.bufferCount = 1;
-	vertexState.buffers = &wgpVertexBufferLayouts.at(vertexLayoutSlot);
+	vertexState.bufferCount = vertexLayoutSlot == VertexLayoutSlot::VL_NONE ? 0u : 1u;
+	if(vertexLayoutSlot != VertexLayoutSlot::VL_NONE)
+		vertexState.buffers = &wgpVertexBufferLayouts.at(vertexLayoutSlot);
 
 	WGPUBlendState blendState = {};
 	blendState.color.srcFactor = WGPUBlendFactor::WGPUBlendFactor_SrcAlpha;
@@ -784,10 +650,58 @@ void WgpContext::createRenderPipeline(std::string shaderModuleName, std::string 
 	renderPipelineDescriptor.fragment = &fragmentState;
 	renderPipelineDescriptor.depthStencil = &depthStencilState;
 
-	renderPipelineDescriptor.primitive.topology = WGPUPrimitiveTopology::WGPUPrimitiveTopology_TriangleList;
+	renderPipelineDescriptor.primitive.topology = primitiveTopology;
 	renderPipelineDescriptor.primitive.stripIndexFormat = WGPUIndexFormat::WGPUIndexFormat_Undefined;
 	renderPipelineDescriptor.primitive.frontFace = WGPUFrontFace::WGPUFrontFace_CCW;
 	renderPipelineDescriptor.primitive.cullMode = WGPUCullMode::WGPUCullMode_Back;
 
-	wgpContext.renderPipelinesC[pipelineLayoutName] = wgpuDeviceCreateRenderPipeline(wgpContext.device, &renderPipelineDescriptor);
+	wgpContext.renderPipelines[pipelineLayoutName] = wgpuDeviceCreateRenderPipeline(wgpContext.device, &renderPipelineDescriptor);
+}
+
+WGPUBindGroup WgpContext::OnBindGroupPTN(const WGPUBuffer& buffer, const WGPUTextureView& textureView) {
+	std::vector<WGPUBindGroupEntry> bindings(3);
+
+	bindings[0].binding = 0;
+	bindings[0].buffer = buffer;
+	bindings[0].offset = 0;
+	bindings[0].size = wgpuBufferGetSize(buffer);
+
+	bindings[1].binding = 1;
+	bindings[1].textureView = textureView;
+
+	bindings[2].binding = 2;
+	bindings[2].sampler = wgpContext.getSampler(SS_LINEAR);
+
+	WGPUBindGroupDescriptor bindGroupDesc = {};
+	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_PTNC"), 0);
+	bindGroupDesc.entryCount = (uint32_t)bindings.size();
+	bindGroupDesc.entries = bindings.data();
+
+	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
+}
+
+WGPUBindGroup WgpContext::OnBindGroupWF(const WGPUBuffer& uniformBuffer, const WGPUBuffer& vertexBuffer, const WGPUBuffer& indexBuffer) {
+	std::vector<WGPUBindGroupEntry> bindings(3);
+
+	bindings[0].binding = 0;
+	bindings[0].buffer = uniformBuffer;
+	bindings[0].offset = 0;
+	bindings[0].size = wgpuBufferGetSize(uniformBuffer);
+
+	bindings[1].binding = 1;
+	bindings[1].buffer = indexBuffer;
+	bindings[1].offset = 0;
+	bindings[1].size = wgpuBufferGetSize(indexBuffer);
+
+	bindings[2].binding = 2;
+	bindings[2].buffer = vertexBuffer;
+	bindings[2].offset = 0;
+	bindings[2].size = wgpuBufferGetSize(vertexBuffer);
+
+	WGPUBindGroupDescriptor bindGroupDesc = {};
+	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_WF"), 0);
+	bindGroupDesc.entryCount = (uint32_t)bindings.size();
+	bindGroupDesc.entries = bindings.data();
+
+	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
 }

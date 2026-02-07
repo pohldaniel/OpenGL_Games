@@ -16,7 +16,7 @@ Specularity::Specularity(StateMachine& machine) : State(machine, States::SPECULA
 	EventDispatcher::AddMouseListener(this);
 
 	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
-	m_lightUniformBuffer.createBuffer(sizeof(LightingUniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
+	m_uniformLigthBuffer.createBuffer(sizeof(LightingUniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	wgpContext.addSampler(wgpCreateSampler());
 	m_texture = wgpCreateTexture(512, 512, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst, WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm);
 	m_textureView = wgpCreateTextureView(WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm, WGPUTextureAspect::WGPUTextureAspect_All, m_texture);
@@ -27,7 +27,8 @@ Specularity::Specularity(StateMachine& machine) : State(machine, States::SPECULA
 	m_boat.loadModel("res/models/fourareen.obj", false, false, false, false, false, true);
 	m_boat.generateColors();
 	m_wgpBoat.create(m_boat, m_textureView, m_uniformBuffer);
-	m_wgpBoat.createBindGroup("RP_PTNC", m_lightUniformBuffer);
+	//m_wgpBoat.createBindGroup("RP_PTNC", m_uniformLigthBuffer);
+	m_wgpBoat.setBindGroup(std::bind(&Specularity::OnBindGroup, this, std::placeholders::_1));
 
 	wgpContext.OnDraw = std::bind(&Specularity::OnDraw, this, std::placeholders::_1);
 
@@ -55,7 +56,7 @@ Specularity::~Specularity() {
 	EventDispatcher::RemoveMouseListener(this);
 
 	m_uniformBuffer.markForDelete();
-	m_lightUniformBuffer.markForDelete();
+	m_uniformLigthBuffer.markForDelete();
 	wgpuTextureDestroy(m_texture);
 	wgpuTextureRelease(m_texture);
 	m_texture = NULL;
@@ -83,7 +84,7 @@ void Specularity::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, modelMatrix), &m_uniforms.modelMatrix, sizeof(Uniforms::modelMatrix));
 
 	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
-	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelinesC.at("RP_PTNC"));
+	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_PTNC"));
 
 	m_wgpBoat.drawRaw(renderPassEncoder);
 
@@ -239,6 +240,33 @@ WGPUBindGroupLayout Specularity::OnBindGroupLayout() {
 	return wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor);
 }
 
+WGPUBindGroup Specularity::OnBindGroup(const WGPUTextureView textureView) {
+	std::vector<WGPUBindGroupEntry> bindings(4);
+
+	bindings[0].binding = 0;
+	bindings[0].buffer = m_uniformBuffer.getBuffer();
+	bindings[0].offset = 0;
+	bindings[0].size = sizeof(Uniforms);
+
+	bindings[1].binding = 1;
+	bindings[1].textureView = textureView;
+
+	bindings[2].binding = 2;
+	bindings[2].sampler = wgpContext.getSampler(SS_LINEAR);
+
+	bindings[3].binding = 3;
+	bindings[3].buffer = m_uniformLigthBuffer.getBuffer();
+	bindings[3].offset = 0;
+	bindings[3].size = sizeof(LightingUniforms);
+
+	WGPUBindGroupDescriptor bindGroupDesc = {};
+	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_PTNC"), 0);
+	bindGroupDesc.entryCount = (uint32_t)bindings.size();
+	bindGroupDesc.entries = bindings.data();
+
+	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
+}
+
 void Specularity::updateViewMatrix() {
 	float cx = cos(m_cameraState.angles[0]);
 	float sx = sin(m_cameraState.angles[0]);
@@ -251,7 +279,7 @@ void Specularity::updateViewMatrix() {
 
 void Specularity::updateLightingUniforms() {
 	if (m_updateLight) {
-		wgpuQueueWriteBuffer(wgpContext.queue, m_lightUniformBuffer.getBuffer(), 0u, &m_lightingUniforms, sizeof(LightingUniforms));
+		wgpuQueueWriteBuffer(wgpContext.queue, m_uniformLigthBuffer.getBuffer(), 0u, &m_lightingUniforms, sizeof(LightingUniforms));
 		m_updateLight = false;
 	}
 }

@@ -15,13 +15,13 @@ struct F32s {
 
 @group(0) @binding(0) var<uniform> uniforms : Uniforms;
 @group(0) @binding(1) var<storage, read> indices : U32s;
-@group(0) @binding(2) var<storage, read> positions : F32s;
-@group(0) @binding(3) var<storage, read> colors : F32s;
+@group(0) @binding(2) var<storage, read> vertices : F32s;
+//@group(0) @binding(3) var<storage, read> colors : F32s;
 
 struct VertexInput {
 	@builtin(instance_index) instanceID : u32,
 	@builtin(vertex_index) vertexID : u32
-}
+};
 
 struct VertexOutput {
     @builtin(position) position : vec4<f32>,   
@@ -41,29 +41,29 @@ fn vs_main(in : VertexInput) -> VertexOutput {
     var elementIndex = indices.values[elementIndexIndex];
 
     var position = vec4<f32>(
-        positions.values[8u * elementIndex + 0u],
-        positions.values[8u * elementIndex + 1u],
-        positions.values[8u * elementIndex + 2u],
+        vertices.values[12u * elementIndex + 0u],
+        vertices.values[12u * elementIndex + 1u],
+        vertices.values[12u * elementIndex + 2u],
         1.0
     );
 	
 	var texcoord = vec2<f32>(
-        positions.values[8u * elementIndex + 3u],
-        positions.values[8u * elementIndex + 4u]
+        vertices.values[12u * elementIndex + 3u],
+        vertices.values[12u * elementIndex + 4u]
     );
 	
 	var normal = vec4<f32>(
-        positions.values[8u * elementIndex + 5u],
-        positions.values[8u * elementIndex + 6u],
-        positions.values[8u * elementIndex + 7u],
+        vertices.values[12u * elementIndex + 5u],
+        vertices.values[12u * elementIndex + 6u],
+        vertices.values[12u * elementIndex + 7u],
         0.0
     );
 	
 	var color = vec4<f32>(
-        colors.values[4u * elementIndex + 0u],
-        colors.values[4u * elementIndex + 1u],
-        colors.values[4u * elementIndex + 2u],
-        colors.values[4u * elementIndex + 3u]
+        vertices.values[12u * elementIndex + 8u],
+        vertices.values[12u * elementIndex + 9u],
+        vertices.values[12u * elementIndex + 10u],
+        vertices.values[12u * elementIndex + 11u]
     );
 	
     position = uniforms.projection * uniforms.view * uniforms.model * position;

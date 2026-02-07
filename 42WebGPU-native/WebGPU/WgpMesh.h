@@ -4,14 +4,13 @@
 #include "WgpBuffer.h"
 #include "WgpTexture.h"
 
-enum RenderPipelineSlot;
 class WgpMesh {
 
 	friend class WgpModel;
 
 public:
 
-	WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, const std::string& texturePath, const WGPUTextureView& textureView, const WGPUBuffer& uniformBuffer, unsigned int stride);
+	WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, const std::string& texturePath, const WgpBuffer& uniformBuffer, const WGPUTextureView& textureView, unsigned int stride);
 	WgpMesh(WgpMesh const& rhs);
 	WgpMesh(WgpMesh&& rhs) noexcept;
 	~WgpMesh();
@@ -21,28 +20,27 @@ public:
 
 	void cleanup();
 	void markForDelete();
-	void setRenderPipelineSlot(RenderPipelineSlot renderPipelineSlot);
+	void setRenderPipelineSlot(const std::string& renderPipelineSlot);
+	void setBindGroup(const std::function<WGPUBindGroup(const WGPUTextureView textureView)>& onBindGroup);
+	void setBindGroupPTN(const std::function<WGPUBindGroup(const WGPUBuffer& buffer, const WGPUTextureView& textureView)>& onBindGroup);
+	void setBindGroupWF(const std::function< WGPUBindGroup(const WGPUBuffer& uniformBuffer, const WGPUBuffer& vertexBuffer, const WGPUBuffer& indexBuffer)> & onBindGroup);
 
 private:
-
-	WGPUBindGroup createBindGroupPTN(const WGPUTextureView& textureView);
-	WGPUBindGroup createBindGroupWireframe();
-	void createBindGroup(const std::string& pipelineName, const WgpBuffer& buffer);
 
 	WgpBuffer m_vertexBuffer;
 	WgpBuffer m_indexBuffer;
 	WgpBuffer m_colorBuffer;
 	WgpTexture m_texture;
 	WGPUTextureView m_textureView;
-	WGPUBindGroup m_bindGroupPTN, m_bindGroupWireframe, m_bindGroup;
+	WGPUBindGroup m_bindGroupWF, m_bindGroup;
 
 	uint32_t m_drawCount;
-	RenderPipelineSlot m_renderPipelineSlot;
+	std::string m_renderPipelineSlot;
 	bool m_markForDelete;
 	unsigned int m_stride;
 
 	const WGPUTextureView& textureView;
-	const WGPUBuffer& uniformBuffer;
+	const WgpBuffer& uniformBuffer;
 	const std::vector<float>& vertexBuffer;
 	const std::vector<unsigned int>& indexBuffer;	
 };

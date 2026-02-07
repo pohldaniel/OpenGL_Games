@@ -53,6 +53,8 @@ public:
 private:
 
 	WGPUBindGroupLayout OnBindGroupLayout();
+	WGPUBindGroup OnBindGroup(const WGPUTextureView textureView);
+
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 	void updateViewMatrix();
 	void updateLightingUniforms();
@@ -63,7 +65,7 @@ private:
 
 	Camera m_camera;
 	ObjModel m_boat;
-	WgpBuffer m_uniformBuffer, m_lightUniformBuffer;
+	WgpBuffer m_uniformBuffer, m_uniformLigthBuffer;
 
 	WGPUTexture m_texture;
 	WGPUTextureView m_textureView;

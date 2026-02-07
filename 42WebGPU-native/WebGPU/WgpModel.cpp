@@ -14,7 +14,7 @@ WgpModel::WgpModel(WgpModel&& rhs) noexcept : m_meshes(rhs.m_meshes) {
 
 void WgpModel::create(const ObjModel& model, const WGPUTextureView& textureView, const WgpBuffer& uniformBuffer) {
 	for (ObjMesh* mesh : model.getMeshes()) {
-		m_meshes.push_back(WgpMesh(mesh->getVertexBuffer(), mesh->getIndexBuffer(), mesh->getMaterial().textures.at(TextureSlot::TEXTURE_DIFFUSE), textureView, uniformBuffer.m_buffer, mesh->getStride()));
+		m_meshes.push_back(WgpMesh(mesh->getVertexBuffer(), mesh->getIndexBuffer(), mesh->getMaterial().textures.at(TextureSlot::TEXTURE_DIFFUSE), uniformBuffer, textureView, mesh->getStride()));
 	}
 
 	for (WgpMesh& mesh : m_meshes) {
@@ -22,15 +22,27 @@ void WgpModel::create(const ObjModel& model, const WGPUTextureView& textureView,
 	}
 }
 
-void WgpModel::setRenderPipelineSlot(RenderPipelineSlot renderPipelineSlot) {
+void WgpModel::setRenderPipelineSlot(const std::string& renderPipelineSlot) {
 	for (WgpMesh& mesh : m_meshes) {
 		mesh.setRenderPipelineSlot(renderPipelineSlot);
 	}
 }
 
-void WgpModel::createBindGroup(const std::string& pipelineName, const WgpBuffer& buffer) {
+void WgpModel::setBindGroup(const std::function<WGPUBindGroup(const WGPUTextureView textureView)>& onBindGroup) {
 	for (WgpMesh& mesh : m_meshes) {
-		mesh.createBindGroup(pipelineName, buffer);
+		mesh.setBindGroup(onBindGroup);
+	}
+}
+
+void WgpModel::setBindGroupPTN(const std::function<WGPUBindGroup(const WGPUBuffer& buffer, const WGPUTextureView& textureView)>& onBindGroup) {
+	for (WgpMesh& mesh : m_meshes) {
+		mesh.setBindGroupPTN(onBindGroup);
+	}
+}
+
+void WgpModel::setBindGroupWF(const std::function<WGPUBindGroup(const WGPUBuffer& uniformBuffer, const WGPUBuffer& vertexBuffer, const WGPUBuffer& indexBuffer)>& onBindGroup) {
+	for (WgpMesh& mesh : m_meshes) {
+		mesh.setBindGroupWF(onBindGroup);
 	}
 }
 

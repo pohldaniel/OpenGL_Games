@@ -40,11 +40,11 @@ public:
 	void OnMouseButtonUp(const Event::MouseButtonEvent& event) override;
 	void OnKeyDown(const Event::KeyboardEvent& event) override;
 	void OnKeyUp(const Event::KeyboardEvent& event) override;
-
+	
 private:
 
 	WGPUBindGroupLayout OnBindGroupLayoutPTN();
-	WGPUBindGroupLayout OnBindGroupLayoutWireframe();
+	WGPUBindGroupLayout OnBindGroupLayoutWF();
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 	void applyTransformation(TrackBall& arc);
 

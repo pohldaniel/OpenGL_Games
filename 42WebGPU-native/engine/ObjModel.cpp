@@ -675,11 +675,9 @@ void ObjModel::generateTangents() {
 
 void ObjModel::generateColors(ModelColor modelColor) {
 	if (m_isStacked) {
-		if (m_hasTangents) { return; }
 		ObjModel::GenerateColors(m_vertexBuffer, m_indexBuffer, *this, m_stride, 0, m_meshes.size(), modelColor);
 	}else {
 		for (int j = 0; j < m_meshes.size(); j++) {
-			if (m_meshes[j]->m_hasTangents) continue;
 			ObjModel::GenerateColors(m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_indexBuffer, *this, m_meshes[j]->m_stride, j, j + 1, modelColor);
 		}
 	}
@@ -960,7 +958,7 @@ void ObjModel::GenerateTangents(std::vector<float>& vertexBuffer, std::vector<un
 	stride = 14;
 }
 
-void ObjModel::GenerateColors(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, ObjModel& model, unsigned int& stride, unsigned int startIndex, unsigned int endIndex, ModelColor modelColor) {
+void ObjModel::GenerateColors(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, ObjModel& model, unsigned int& stride, unsigned int startIndex, unsigned int endIndex, ModelColor modelColor) {		
 	if (stride < 8)
 		return;
 	
@@ -970,9 +968,9 @@ void ObjModel::GenerateColors(std::vector<float>& vertexBuffer, std::vector<unsi
 
 		if ((i + 1) % stride == 0) {
 			if (modelColor == ModelColor::MC_POSITION) {
-				tmpVertex.push_back(vertexBuffer[i - stride]);
 				tmpVertex.push_back(vertexBuffer[i - stride + 1]);
 				tmpVertex.push_back(vertexBuffer[i - stride + 2]);
+				tmpVertex.push_back(vertexBuffer[i - stride + 3]);
 				tmpVertex.push_back(1.0f);
 			}else if(modelColor == ModelColor::MC_WHITE){
 				tmpVertex.push_back(1.0f);

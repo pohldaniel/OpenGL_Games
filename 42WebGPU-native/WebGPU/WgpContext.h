@@ -13,6 +13,7 @@
 
 struct WgpContext;
 enum VertexLayoutSlot {
+	VL_NONE,
 	VL_P,
 	VL_PT,
 	VL_PN,
@@ -48,12 +49,6 @@ extern "C" {
 	void wgpConfigureSurface();
 }
 
-enum RenderPipelineSlot {
-	RP_NONE,
-	RP_PTN,
-	RP_WIREFRAME
-};
-
 enum SamplerSlot {
 	SS_LINEAR
 };
@@ -65,17 +60,17 @@ struct WgpContext {
 	friend void wgpShaderModulesRelease();
 	friend void wgpPipelineLayoutsRelease();
 
-	void createRenderPipelinePTN(std::string shaderModuleName, std::function <WGPUBindGroupLayout()> onBindGroupLayout);
-	void createRenderPipelineWireframe(std::string shaderModuleName, std::function <WGPUBindGroupLayout()> onBindGroupLayout);
-	void createComputePipeline(std::string shaderModuleName, std::string pipelineLayoutName, std::function <WGPUBindGroupLayout()> onBindGroupLayout);
-	void createRenderPipeline(std::string shaderModuleName, std::string pipelineLayoutName, const VertexLayoutSlot vertexLayoutSlot, std::function <WGPUBindGroupLayout()> onBindGroupLayout);
+	void createComputePipeline(std::string shaderModuleName, std::string pipelineLayoutName, const std::function<WGPUBindGroupLayout()>& onBindGroupLayout);
+	void createRenderPipeline(std::string shaderModuleName, std::string pipelineLayoutName, const VertexLayoutSlot vertexLayoutSlot, const std::function<WGPUBindGroupLayout()>& onBindGroupLayout, WGPUPrimitiveTopology primitiveTopology = WGPUPrimitiveTopology::WGPUPrimitiveTopology_TriangleList);
+
+	WGPUBindGroup OnBindGroupPTN(const WGPUBuffer& buffer, const WGPUTextureView& textureView);
+	WGPUBindGroup OnBindGroupWF(const WGPUBuffer& uniformBuffer, const WGPUBuffer& vertexBuffer, const WGPUBuffer& indexBuffer);
 
 	void createVertexBufferLayout(VertexLayoutSlot slot = VL_PTN);
 	void addSampler(const WGPUSampler& sampler, SamplerSlot samplerSlot = SS_LINEAR);
 	const WGPUSampler& getSampler(SamplerSlot samplerSlot);
 	void addSahderModule(const std::string& shaderModuleName, const std::string& shaderModulePath);
 	const WGPUShaderModule& getShaderModule(std::string shaderModuleName);
-	bool hasRenderPipeline(RenderPipelineSlot renderPipelineSlot);
 
 	WGPUInstance instance = NULL;
 	WGPUAdapter adapter = NULL;
@@ -91,8 +86,7 @@ struct WgpContext {
 	WGPUTextureFormat colorformat = WGPUTextureFormat::WGPUTextureFormat_BGRA8UnormSrgb;
 
 	std::unordered_map<std::string, WGPUComputePipeline> computePipelines;
-	std::unordered_map<std::string, WGPURenderPipeline> renderPipelinesC;
-	std::unordered_map<RenderPipelineSlot, WGPURenderPipeline> renderPipelines;
+	std::unordered_map<std::string, WGPURenderPipeline> renderPipelines;
 	std::function<void(const WGPURenderPassEncoder& commandBuffer)> OnDraw = NULL;
 
 private:
