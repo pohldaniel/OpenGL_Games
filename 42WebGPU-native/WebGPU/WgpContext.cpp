@@ -689,14 +689,14 @@ WGPUBindGroup WgpContext::OnBindGroupWF(const WGPUBuffer& uniformBuffer, const W
 	bindings[0].size = wgpuBufferGetSize(uniformBuffer);
 
 	bindings[1].binding = 1;
-	bindings[1].buffer = indexBuffer;
+	bindings[1].buffer = vertexBuffer;
 	bindings[1].offset = 0;
-	bindings[1].size = wgpuBufferGetSize(indexBuffer);
+	bindings[1].size = wgpuBufferGetSize(vertexBuffer);
 
 	bindings[2].binding = 2;
-	bindings[2].buffer = vertexBuffer;
-	bindings[2].offset = 0;
-	bindings[2].size = wgpuBufferGetSize(vertexBuffer);
+	bindings[2].buffer = indexBuffer;
+	bindings[1].offset = 0;
+	bindings[2].size = wgpuBufferGetSize(indexBuffer);
 
 	WGPUBindGroupDescriptor bindGroupDesc = {};
 	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_WF"), 0);

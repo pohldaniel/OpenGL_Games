@@ -14,9 +14,8 @@ struct F32s {
 }
 
 @group(0) @binding(0) var<uniform> uniforms : Uniforms;
-@group(0) @binding(1) var<storage, read> indices : U32s;
-@group(0) @binding(2) var<storage, read> vertices : F32s;
-//@group(0) @binding(3) var<storage, read> colors : F32s;
+@group(0) @binding(1) var<storage, read> vertices : F32s;
+@group(0) @binding(2) var<storage, read> indices : U32s;
 
 struct VertexInput {
 	@builtin(instance_index) instanceID : u32,
