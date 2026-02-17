@@ -3,7 +3,7 @@
 #include "WgpMesh.h"
 #include "WgpData.h"
 
-WgpMesh::WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, const std::string& texturePath, const WgpBuffer& uniformBuffer, const WGPUTextureView& textureView, unsigned int stride) :
+WgpMesh::WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, const std::string& texturePath, const WGPUTextureView& textureView, const WgpBuffer& uniformBuffer, unsigned int stride) :
 	m_textureView(NULL),
 	m_bindGroupWF(NULL),
 	m_bindGroup(NULL),
@@ -11,8 +11,8 @@ WgpMesh::WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsig
 	m_renderPipelineSlot("RP_PTN"),
 	m_markForDelete(false),
 	m_stride(stride),
-	uniformBuffer(uniformBuffer),
 	textureView(textureView),
+	uniformBuffer(uniformBuffer),
 	vertexBuffer(vertexBuffer),
 	indexBuffer(indexBuffer) {
 

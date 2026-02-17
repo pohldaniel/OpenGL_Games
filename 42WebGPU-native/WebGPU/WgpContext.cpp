@@ -515,11 +515,11 @@ void wgpDraw() {
 	depthStencilAttachment.depthClearValue = 1.0f;
 	depthStencilAttachment.depthLoadOp = WGPULoadOp::WGPULoadOp_Clear;
 	depthStencilAttachment.depthStoreOp = WGPUStoreOp::WGPUStoreOp_Store;
-	depthStencilAttachment.depthReadOnly = false;
+	depthStencilAttachment.depthReadOnly = WGPUOptionalBool::WGPUOptionalBool_False;
 	depthStencilAttachment.stencilClearValue = 0u;
 	depthStencilAttachment.stencilLoadOp = WGPULoadOp::WGPULoadOp_Undefined;
 	depthStencilAttachment.stencilStoreOp = WGPUStoreOp::WGPUStoreOp_Undefined;
-	depthStencilAttachment.stencilReadOnly = true;
+	depthStencilAttachment.stencilReadOnly = WGPUOptionalBool::WGPUOptionalBool_True;
 
 	WGPURenderPassDescriptor renderPassDesc = {};
 	renderPassDesc.colorAttachmentCount = 1;
@@ -635,7 +635,7 @@ void WgpContext::createRenderPipeline(std::string shaderModuleName, std::string 
 	WGPUDepthStencilState depthStencilState = {};
 	setDefault(depthStencilState);
 	depthStencilState.depthCompare = WGPUCompareFunction::WGPUCompareFunction_Less;
-	depthStencilState.depthWriteEnabled = WGPUOptionalBool_True;
+	depthStencilState.depthWriteEnabled = WGPUOptionalBool::WGPUOptionalBool_True;
 	depthStencilState.format = wgpContext.depthformat;
 	depthStencilState.stencilReadMask = 0;
 	depthStencilState.stencilWriteMask = 0;
@@ -644,7 +644,7 @@ void WgpContext::createRenderPipeline(std::string shaderModuleName, std::string 
 	renderPipelineDescriptor.layout = pipelineLayouts.at(pipelineLayoutName);
 	renderPipelineDescriptor.multisample.count = 1;
 	renderPipelineDescriptor.multisample.mask = ~0u;
-	renderPipelineDescriptor.multisample.alphaToCoverageEnabled = false;
+	renderPipelineDescriptor.multisample.alphaToCoverageEnabled = WGPUOptionalBool::WGPUOptionalBool_False;
 
 	renderPipelineDescriptor.vertex = vertexState;
 	renderPipelineDescriptor.fragment = &fragmentState;

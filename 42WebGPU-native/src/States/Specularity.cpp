@@ -27,7 +27,6 @@ Specularity::Specularity(StateMachine& machine) : State(machine, States::SPECULA
 	m_boat.loadModel("res/models/fourareen.obj", false, false, false, false, false, true);
 	m_boat.generateColors();
 	m_wgpBoat.create(m_boat, m_textureView, m_uniformBuffer);
-	//m_wgpBoat.createBindGroup("RP_PTNC", m_uniformLigthBuffer);
 	m_wgpBoat.setBindGroup(std::bind(&Specularity::OnBindGroup, this, std::placeholders::_1));
 
 	wgpContext.OnDraw = std::bind(&Specularity::OnDraw, this, std::placeholders::_1);

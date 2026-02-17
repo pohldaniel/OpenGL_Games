@@ -10,7 +10,7 @@ class WgpMesh {
 
 public:
 
-	WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, const std::string& texturePath, const WgpBuffer& uniformBuffer, const WGPUTextureView& textureView, unsigned int stride);
+	WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, const std::string& texturePath, const WGPUTextureView& textureView, const WgpBuffer& uniformBuffer, unsigned int stride);
 	WgpMesh(WgpMesh const& rhs);
 	WgpMesh(WgpMesh&& rhs) noexcept;
 	~WgpMesh();

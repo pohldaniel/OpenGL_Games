@@ -14,7 +14,7 @@ WgpModel::WgpModel(WgpModel&& rhs) noexcept : m_meshes(rhs.m_meshes) {
 
 void WgpModel::create(const ObjModel& model, const WGPUTextureView& textureView, const WgpBuffer& uniformBuffer) {
 	for (ObjMesh* mesh : model.getMeshes()) {
-		m_meshes.push_back(WgpMesh(mesh->getVertexBuffer(), mesh->getIndexBuffer(), mesh->getMaterial().textures.at(TextureSlot::TEXTURE_DIFFUSE), uniformBuffer, textureView, mesh->getStride()));
+		m_meshes.push_back(WgpMesh(mesh->getVertexBuffer(), mesh->getIndexBuffer(), mesh->getMaterial().textures.at(TextureSlot::TEXTURE_DIFFUSE), textureView, uniformBuffer, mesh->getStride()));
 	}
 
 	for (WgpMesh& mesh : m_meshes) {
