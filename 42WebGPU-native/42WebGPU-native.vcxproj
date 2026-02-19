@@ -185,6 +185,8 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClCompile Include="engine\Object.cpp" />
     <ClCompile Include="engine\RandomColor.cpp" />
     <ClCompile Include="engine\RandomNew.cpp" />
+    <ClCompile Include="engine\shape\Cube.cpp" />
+    <ClCompile Include="engine\shape\Shape.cpp" />
     <ClCompile Include="engine\sound\MusicBuffer.cpp" />
     <ClCompile Include="engine\sound\SoundBuffer.cpp" />
     <ClCompile Include="engine\sound\SoundDevice.cpp" />
@@ -245,6 +247,8 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClInclude Include="engine\RandomColor.h" />
     <ClInclude Include="engine\RandomNew.h" />
     <ClInclude Include="engine\Rect.h" />
+    <ClInclude Include="engine\shape\Cube.h" />
+    <ClInclude Include="engine\shape\Shape.h" />
     <ClInclude Include="engine\sound\Cache.h" />
     <ClInclude Include="engine\sound\MusicBuffer.h" />
     <ClInclude Include="engine\sound\SoundBuffer.h" />

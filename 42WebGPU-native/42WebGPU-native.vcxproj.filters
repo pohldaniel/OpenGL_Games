@@ -40,6 +40,9 @@
     <Filter Include="WebGPU">
       <UniqueIdentifier>{f1f0391f-f7c4-4de1-a606-27c6973b4c54}</UniqueIdentifier>
     </Filter>
+    <Filter Include="engine\shape">
+      <UniqueIdentifier>{018d801b-431d-44be-95e6-6b0fa7549c90}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\input\ApplicationEventListener.cpp">
@@ -164,6 +167,12 @@
     </ClCompile>
     <ClCompile Include="src\ImguiExtension.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\shape\Cube.cpp">
+      <Filter>engine\shape</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\shape\Shape.cpp">
+      <Filter>engine\shape</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -322,6 +331,12 @@
     </ClInclude>
     <ClInclude Include="src\ImguiExtension.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\shape\Cube.h">
+      <Filter>engine\shape</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\shape\Shape.h">
+      <Filter>engine\shape</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
