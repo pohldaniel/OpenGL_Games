@@ -1,7 +1,7 @@
 //========================================================================
-// GLFW 3.5 - www.glfw.org
+// GLFW 3.5 POSIX - www.glfw.org
 //------------------------------------------------------------------------
-// Copyright (c) 2016-2017 Camilla Löwy <elmindreda@glfw.org>
+// Copyright (c) 2021 Camilla Löwy <elmindreda@glfw.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -26,31 +26,29 @@
 
 #include "internal.h"
 
+#if defined(GLFW_BUILD_POSIX_MODULE)
+
+#include <dlfcn.h>
 
 //////////////////////////////////////////////////////////////////////////
 //////                       GLFW platform API                      //////
 //////////////////////////////////////////////////////////////////////////
 
-GLFWbool _glfwInitJoysticksNull(void)
+void* _glfwPlatformLoadModule(const char* path)
 {
-    return GLFW_TRUE;
+    return dlopen(path, RTLD_LAZY | RTLD_LOCAL);
 }
 
-void _glfwTerminateJoysticksNull(void)
+void _glfwPlatformFreeModule(void* module)
 {
+    if (module)
+        dlclose(module);
 }
 
-GLFWbool _glfwPollJoystickNull(_GLFWjoystick* js, int mode)
+GLFWproc _glfwPlatformGetModuleSymbol(void* module, const char* name)
 {
-    return GLFW_FALSE;
+    return dlsym(module, name);
 }
 
-const char* _glfwGetMappingNameNull(void)
-{
-    return "";
-}
-
-void _glfwUpdateGamepadGUIDNull(char* guid)
-{
-}
+#endif // GLFW_BUILD_POSIX_MODULE
 

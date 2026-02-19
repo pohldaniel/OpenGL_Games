@@ -2,50 +2,13 @@
 #include <vector>
 #include <list>
 #include <algorithm>
+#include <functional>
+#include <string>
 #include <vulkan/vulkan.h>
 #include <shaderc/shaderc.h>
 
-class VlkSwapchain;
-class VlkMesh;
-class VlkTexture;
 
-struct VlkContext {
-
-    const int maxDescriptorSets = 10;
-    const int maxDescriptorCount = 65536;
-
-    void createShader(const VkDevice& vkDevice);
-    void createDescriptorSetLayout(const VkDevice& vkDevice, std::vector<VkDescriptorSetLayout>& vkDescriptorSetLayouts);
-
-    VkInstance vkInstance;
-    VkDevice vkDevice;
-    VkPhysicalDevice vkPhysicalDevice;
-    VkDebugUtilsMessengerEXT vkDebugMessenger;
-
-    VkSurfaceKHR vkSurfaceKHR;
-    VkQueue vkQueue;
-    VkCommandPool vkCommandPool;
-    VkCommandBuffer vkCommandBuffer;
-    VkFormat vkDepthFormat;
-    VkDescriptorPool vkDescriptorPool;
-    uint32_t queueFamilyIndex;
-
-    VlkSwapchain* swapchain;
-    VlkSwapchain* newSwapchain;
-
-    VkPolygonMode vkPolygonMode = VkPolygonMode::VK_POLYGON_MODE_FILL;
-    VkPresentModeKHR vkPresentModeKHR = VkPresentModeKHR::VK_PRESENT_MODE_FIFO_KHR;
-
-    //Sample scope
-    std::vector<VkDescriptorSetLayout> vkDescriptorSetLayouts;
-    VkDescriptorSet vkDescriptorSetUbo;
-    VkPipelineLayout vkPipelineLayout;
-    VkSampler sampler;
-    std::vector<VkShaderEXT> shader;
-
-    static void CheckVKResult(VkResult err);
-};
-
+struct VlkContext;
 extern VlkContext vlkContext;
 extern int maxDescriptorSets;
 extern int maxDescriptorCount;
@@ -100,4 +63,49 @@ extern "C" {
     void vlkCreatePipelineLayout(const std::vector<VkDescriptorSetLayout>& vkDescriptorSetLayouts, const std::vector<VkPushConstantRange> vkPushConstantRanges, VkPipelineLayout& vkPipelineLayout);
     void vlkCreateUniformBuffer(VkBuffer& vkBuffer, VkDeviceMemory& vkDeviceMemory, void*& mapping, uint32_t size);
     void vlkBindBufferToDescriptorSet(const VkBuffer& vkBuffer, const VkDescriptorSet& vkDescriptorSet, VkDescriptorType vkDescriptorType, uint32_t dstBinding);
+};
+
+class VlkSwapchain;
+class VlkMesh;
+class VlkTexture;
+struct VlkContext {
+
+    const int maxDescriptorSets = 10;
+    const int maxDescriptorCount = 65536;
+
+    void createShader(const VkDevice& vkDevice);
+    void createDescriptorSetLayout(const VkDevice& vkDevice, std::vector<VkDescriptorSetLayout>& vkDescriptorSetLayouts);
+    void createRenderPipeline(std::string shaderModuleName, std::string pipelineLayoutName, const std::function<VkDescriptorSetLayout()>& onBindGroupLayout);
+
+    VkInstance vkInstance;
+    VkDevice vkDevice;
+    VkPhysicalDevice vkPhysicalDevice;
+    VkDebugUtilsMessengerEXT vkDebugMessenger;
+
+    VkSurfaceKHR vkSurfaceKHR;
+    VkQueue vkQueue;
+    VkCommandPool vkCommandPool;
+    VkCommandBuffer vkCommandBuffer;
+    VkFormat vkDepthFormat;
+    VkDescriptorPool vkDescriptorPool;
+    uint32_t queueFamilyIndex;
+
+    VlkSwapchain* swapchain;
+    VlkSwapchain* newSwapchain;
+
+    VkPolygonMode vkPolygonMode = VkPolygonMode::VK_POLYGON_MODE_FILL;
+    VkPresentModeKHR vkPresentModeKHR = VkPresentModeKHR::VK_PRESENT_MODE_FIFO_KHR;
+
+    //Sample scope  
+    VkDescriptorSet vkDescriptorSetUbo;  
+    VkSampler sampler;
+    std::vector<VkShaderEXT> shader;
+
+    std::vector<VkDescriptorSetLayout> vkDescriptorSetLayouts;
+    VkPipelineLayout vkPipelineLayout;
+
+    static void CheckVKResult(VkResult err);
+
+private:
+    std::unordered_map<std::string, VkPipelineLayout> pipelineLayouts; 
 };

@@ -194,8 +194,10 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClCompile Include="engine\thread\Thread.cpp" />
     <ClCompile Include="engine\thread\WorkQueue.cpp" />
     <ClCompile Include="engine\Timer.cpp" />
+    <ClCompile Include="src\ImguiExtension.cpp" />
     <ClCompile Include="src\LoadingManager.cpp" />
     <ClCompile Include="src\States\Compute.cpp" />
+    <ClCompile Include="src\States\NormalMap.cpp" />
     <ClCompile Include="src\States\Specularity.cpp" />
     <ClCompile Include="src\States\StateMachine.cpp" />
     <ClCompile Include="src\States\Wireframe.cpp" />
@@ -259,8 +261,10 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\DataStructs.h" />
     <ClInclude Include="src\Globals.h" />
+    <ClInclude Include="src\ImguiExtension.h" />
     <ClInclude Include="src\LoadingManager.h" />
     <ClInclude Include="src\States\Compute.h" />
+    <ClInclude Include="src\States\NormalMap.h" />
     <ClInclude Include="src\States\Specularity.h" />
     <ClInclude Include="src\States\StateMachine.h" />
     <ClInclude Include="src\States\Wireframe.h" />

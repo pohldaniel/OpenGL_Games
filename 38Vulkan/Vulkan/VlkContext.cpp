@@ -818,7 +818,7 @@ void VlkContext::createShader(const VkDevice& vkDevice){
 void VlkContext::createDescriptorSetLayout(const VkDevice& vkDevice, std::vector<VkDescriptorSetLayout>& vkDescriptorSetLayouts) {
     vkDescriptorSetLayouts.resize(2);
 
-    VkDescriptorSetLayoutBinding bindings[2]{};
+    VkDescriptorSetLayoutBinding bindings[2] = {};
     bindings[0].binding = 0;
     bindings[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     bindings[0].descriptorCount = maxDescriptorCount;
@@ -853,4 +853,8 @@ void VlkContext::createDescriptorSetLayout(const VkDevice& vkDevice, std::vector
     createInfo.pBindings = &bindings[1];
 
     vkCreateDescriptorSetLayout(vkDevice, &createInfo, nullptr, &vkDescriptorSetLayouts[1]);
+}
+
+void VlkContext::createRenderPipeline(std::string shaderModuleName, std::string pipelineLayoutName, const std::function<VkDescriptorSetLayout()>& onBindGroupLayout) {
+
 }

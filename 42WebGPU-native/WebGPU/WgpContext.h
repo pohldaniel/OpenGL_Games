@@ -11,7 +11,6 @@
 
 #define WGPU_STR(str) { str, sizeof(str) - 1 }
 
-struct WgpContext;
 enum VertexLayoutSlot {
 	VL_NONE,
 	VL_P,
@@ -21,6 +20,7 @@ enum VertexLayoutSlot {
 	VL_PTNC
 };
 
+struct WgpContext;
 extern WgpContext wgpContext;
 extern std::unordered_map<VertexLayoutSlot, std::vector<WGPUVertexAttribute>> wgpVertexAttributes;
 extern std::unordered_map<VertexLayoutSlot, WGPUVertexBufferLayout> wgpVertexBufferLayouts;

@@ -1,7 +1,7 @@
 //========================================================================
-// GLFW 3.5 - www.glfw.org
+// GLFW 3.5 Win32 - www.glfw.org
 //------------------------------------------------------------------------
-// Copyright (c) 2016-2017 Camilla Löwy <elmindreda@glfw.org>
+// Copyright (c) 2021 Camilla Löwy <elmindreda@glfw.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -26,31 +26,27 @@
 
 #include "internal.h"
 
+#if defined(GLFW_BUILD_WIN32_MODULE)
 
 //////////////////////////////////////////////////////////////////////////
 //////                       GLFW platform API                      //////
 //////////////////////////////////////////////////////////////////////////
 
-GLFWbool _glfwInitJoysticksNull(void)
+void* _glfwPlatformLoadModule(const char* path)
 {
-    return GLFW_TRUE;
+    return LoadLibraryA(path);
 }
 
-void _glfwTerminateJoysticksNull(void)
+void _glfwPlatformFreeModule(void* module)
 {
+    if (module)
+        FreeLibrary((HMODULE) module);
 }
 
-GLFWbool _glfwPollJoystickNull(_GLFWjoystick* js, int mode)
+GLFWproc _glfwPlatformGetModuleSymbol(void* module, const char* name)
 {
-    return GLFW_FALSE;
+    return (GLFWproc) GetProcAddress((HMODULE) module, name);
 }
 
-const char* _glfwGetMappingNameNull(void)
-{
-    return "";
-}
-
-void _glfwUpdateGamepadGUIDNull(char* guid)
-{
-}
+#endif // GLFW_BUILD_WIN32_MODULE
 

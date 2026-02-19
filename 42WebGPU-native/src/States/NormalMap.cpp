@@ -5,12 +5,12 @@
 
 #include <WebGPU/WgpContext.h>
 
-#include "Specularity.h"
+#include "NormalMap.h"
 #include "Application.h"
 #include "Globals.h"
 #include "ImguiExtension.h"
 
-Specularity::Specularity(StateMachine& machine) : State(machine, States::SPECULARITY) {
+NormalMap::NormalMap(StateMachine& machine) : State(machine, States::NORMAL_MAP) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -23,14 +23,14 @@ Specularity::Specularity(StateMachine& machine) : State(machine, States::SPECULA
 	m_textureView = wgpCreateTextureView(WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm, WGPUTextureAspect::WGPUTextureAspect_All, m_texture);
 
 	wgpContext.addSahderModule("BOAT", "res/shader/specularity.wgsl");
-	wgpContext.createRenderPipeline("BOAT", "RP_PTNC", VL_PTNC, std::bind(&Specularity::OnBindGroupLayout, this));
+	wgpContext.createRenderPipeline("BOAT", "RP_PTNC", VL_PTNC, std::bind(&NormalMap::OnBindGroupLayout, this));
 
 	m_boat.loadModel("res/models/fourareen.obj", false, false, false, false, false, true);
 	m_boat.generateColors();
 	m_wgpBoat.create(m_boat, m_textureView, m_uniformBuffer);
-	m_wgpBoat.setBindGroup(std::bind(&Specularity::OnBindGroup, this, std::placeholders::_1));
+	m_wgpBoat.setBindGroup(std::bind(&NormalMap::OnBindGroup, this, std::placeholders::_1));
 
-	wgpContext.OnDraw = std::bind(&Specularity::OnDraw, this, std::placeholders::_1);
+	wgpContext.OnDraw = std::bind(&NormalMap::OnDraw, this, std::placeholders::_1);
 
 	float cx = cos(m_cameraState.angles[0]);
 	float sx = sin(m_cameraState.angles[0]);
@@ -51,7 +51,7 @@ Specularity::Specularity(StateMachine& machine) : State(machine, States::SPECULA
 	updateLightingUniforms();
 }
 
-Specularity::~Specularity() {
+NormalMap::~NormalMap() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 
@@ -65,20 +65,20 @@ Specularity::~Specularity() {
 	m_textureView = NULL;
 }
 
-void Specularity::fixedUpdate() {
+void NormalMap::fixedUpdate() {
 
 }
 
-void Specularity::update() {
+void NormalMap::update() {
 	updateDragInertia();
 	updateLightingUniforms();
 }
 
-void Specularity::render() {
+void NormalMap::render() {
 	wgpDraw();
 }
 
-void Specularity::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
+void NormalMap::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, projectionMatrix), &m_uniforms.projectionMatrix, sizeof(Uniforms::projectionMatrix));
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, viewMatrix), &m_uniforms.viewMatrix, sizeof(Uniforms::viewMatrix));
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, modelMatrix), &m_uniforms.modelMatrix, sizeof(Uniforms::modelMatrix));
@@ -92,7 +92,7 @@ void Specularity::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
 		renderUi(renderPassEncoder);
 }
 
-void Specularity::OnMouseMotion(const Event::MouseMoveEvent& event) {
+void NormalMap::OnMouseMotion(const Event::MouseMoveEvent& event) {
 	if (m_drag.active) {
 		Vector2f currentMouse = Vector2f(-static_cast<float>(event.x), static_cast<float>(event.y));
 		Vector2f delta = (currentMouse - m_drag.startMouse) * m_drag.sensitivity;
@@ -104,29 +104,31 @@ void Specularity::OnMouseMotion(const Event::MouseMoveEvent& event) {
 	}
 }
 
-void Specularity::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
+void NormalMap::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
 	if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT) {
 		Mouse::instance().attach(Application::GetWindow());
-	}else if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {
+	}
+	else if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {
 		m_drag.active = true;
 		m_drag.startMouse = Vector2f(-static_cast<float>(event.x), static_cast<float>(event.y));
 		m_drag.startCameraState = m_cameraState;
 	}
 }
 
-void Specularity::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
-	if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT){
+void NormalMap::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
+	if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT) {
 		Mouse::instance().detach();
-	}else if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {
+	}
+	else if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {
 		m_drag.active = false;
 	}
 }
 
-void Specularity::OnMouseWheel(const Event::MouseWheelEvent& event) {
+void NormalMap::OnMouseWheel(const Event::MouseWheelEvent& event) {
 
 }
 
-void Specularity::OnKeyDown(const Event::KeyboardEvent& event) {
+void NormalMap::OnKeyDown(const Event::KeyboardEvent& event) {
 #if DEVBUILD
 	if (event.keyCode == VK_LMENU) {
 		m_drawUi = !m_drawUi;
@@ -138,15 +140,15 @@ void Specularity::OnKeyDown(const Event::KeyboardEvent& event) {
 	}
 }
 
-void Specularity::OnKeyUp(const Event::KeyboardEvent& event) {
+void NormalMap::OnKeyUp(const Event::KeyboardEvent& event) {
 
 }
 
-void Specularity::resize(int deltaW, int deltaH) {
-	
+void NormalMap::resize(int deltaW, int deltaH) {
+
 }
 
-void Specularity::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
+void NormalMap::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 	ImGui_ImplWGPU_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
@@ -198,7 +200,7 @@ void Specularity::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 	ImGui::Render();
 	ImGui_ImplWGPU_RenderDrawData(ImGui::GetDrawData(), renderPassEncoder);
 }
-WGPUBindGroupLayout Specularity::OnBindGroupLayout() {
+WGPUBindGroupLayout NormalMap::OnBindGroupLayout() {
 	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(4);
 
 	WGPUBindGroupLayoutEntry& uniformLayout = bindingLayoutEntries[0];
@@ -231,7 +233,7 @@ WGPUBindGroupLayout Specularity::OnBindGroupLayout() {
 	return wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor);
 }
 
-WGPUBindGroup Specularity::OnBindGroup(const WGPUTextureView textureView) {
+WGPUBindGroup NormalMap::OnBindGroup(const WGPUTextureView textureView) {
 	std::vector<WGPUBindGroupEntry> bindings(4);
 
 	bindings[0].binding = 0;
@@ -258,7 +260,7 @@ WGPUBindGroup Specularity::OnBindGroup(const WGPUTextureView textureView) {
 	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
 }
 
-void Specularity::updateViewMatrix() {
+void NormalMap::updateViewMatrix() {
 	float cx = cos(m_cameraState.angles[0]);
 	float sx = sin(m_cameraState.angles[0]);
 	float cy = cos(m_cameraState.angles[1]);
@@ -268,14 +270,14 @@ void Specularity::updateViewMatrix() {
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, viewMatrix), &m_uniforms.viewMatrix, sizeof(Uniforms::viewMatrix));
 }
 
-void Specularity::updateLightingUniforms() {
+void NormalMap::updateLightingUniforms() {
 	if (m_updateLight) {
 		wgpuQueueWriteBuffer(wgpContext.queue, m_uniformLigthBuffer.getBuffer(), 0u, &m_lightingUniforms, sizeof(LightingUniforms));
 		m_updateLight = false;
 	}
 }
 
-void Specularity::updateDragInertia() {
+void NormalMap::updateDragInertia() {
 	constexpr float eps = 1e-4f;
 	if (!m_drag.active) {
 

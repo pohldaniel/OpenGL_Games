@@ -1,7 +1,8 @@
 //========================================================================
-// GLFW 3.5 - www.glfw.org
+// GLFW 3.5 Win32 - www.glfw.org
 //------------------------------------------------------------------------
-// Copyright (c) 2016-2017 Camilla Löwy <elmindreda@glfw.org>
+// Copyright (c) 2002-2006 Marcus Geelnard
+// Copyright (c) 2006-2017 Camilla Löwy <elmindreda@glfw.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -24,33 +25,19 @@
 //
 //========================================================================
 
-#include "internal.h"
+// This is a workaround for the fact that glfw3.h needs to export APIENTRY (for
+// example to allow applications to correctly declare a GL_KHR_debug callback)
+// but windows.h assumes no one will define APIENTRY before it does
+#undef APIENTRY
 
+#include <windows.h>
 
-//////////////////////////////////////////////////////////////////////////
-//////                       GLFW platform API                      //////
-//////////////////////////////////////////////////////////////////////////
+#define GLFW_WIN32_LIBRARY_TIMER_STATE  _GLFWtimerWin32   win32;
 
-GLFWbool _glfwInitJoysticksNull(void)
+// Win32-specific global timer data
+//
+typedef struct _GLFWtimerWin32
 {
-    return GLFW_TRUE;
-}
-
-void _glfwTerminateJoysticksNull(void)
-{
-}
-
-GLFWbool _glfwPollJoystickNull(_GLFWjoystick* js, int mode)
-{
-    return GLFW_FALSE;
-}
-
-const char* _glfwGetMappingNameNull(void)
-{
-    return "";
-}
-
-void _glfwUpdateGamepadGUIDNull(char* guid)
-{
-}
+    uint64_t            frequency;
+} _GLFWtimerWin32;
 

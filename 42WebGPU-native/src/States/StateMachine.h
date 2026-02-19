@@ -5,7 +5,8 @@ enum States {
 	MENU,
 	WIREFRAME,
 	COMPUTE,
-	SPECULARITY
+	SPECULARITY,
+	NORMAL_MAP
 };
 
 class State;

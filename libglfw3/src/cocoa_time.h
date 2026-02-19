@@ -1,7 +1,7 @@
 //========================================================================
-// GLFW 3.5 - www.glfw.org
+// GLFW 3.5 macOS - www.glfw.org
 //------------------------------------------------------------------------
-// Copyright (c) 2016-2017 Camilla Löwy <elmindreda@glfw.org>
+// Copyright (c) 2009-2021 Camilla Löwy <elmindreda@glfw.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -24,33 +24,12 @@
 //
 //========================================================================
 
-#include "internal.h"
+#define GLFW_COCOA_LIBRARY_TIMER_STATE  _GLFWtimerNS   ns;
 
-
-//////////////////////////////////////////////////////////////////////////
-//////                       GLFW platform API                      //////
-//////////////////////////////////////////////////////////////////////////
-
-GLFWbool _glfwInitJoysticksNull(void)
+// Cocoa-specific global timer data
+//
+typedef struct _GLFWtimerNS
 {
-    return GLFW_TRUE;
-}
-
-void _glfwTerminateJoysticksNull(void)
-{
-}
-
-GLFWbool _glfwPollJoystickNull(_GLFWjoystick* js, int mode)
-{
-    return GLFW_FALSE;
-}
-
-const char* _glfwGetMappingNameNull(void)
-{
-    return "";
-}
-
-void _glfwUpdateGamepadGUIDNull(char* guid)
-{
-}
+    uint64_t        frequency;
+} _GLFWtimerNS;
 
