@@ -1,6 +1,8 @@
 #pragma once
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
+#include <engine/shape/Shape.h>
+
 #include <engine/Camera.h>
 #include <engine/ObjModel.h>
 #include <engine/TrackBall.h>
@@ -65,13 +67,12 @@ private:
 
 	Camera m_camera;
 	ObjModel m_boat;
+	Shape m_cube;
 	WgpBuffer m_uniformBuffer, m_uniformLigthBuffer;
-
-	WGPUTexture m_texture;
-	WGPUTextureView m_textureView;
 
 	Uniforms m_uniforms;
 	WgpModel m_wgpBoat;
+	WgpModel m_wgpCube;
 
 	CameraState2 m_cameraState;
 	DragState2 m_drag;

@@ -3,15 +3,28 @@
 #include "WgpMesh.h"
 #include "WgpData.h"
 
-WgpMesh::WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, const std::string& texturePath, const WGPUTextureView& textureView, const WgpBuffer& uniformBuffer, unsigned int stride) :
+WgpMesh::WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, const WgpBuffer& uniformBuffer) :
 	m_textureView(NULL),
 	m_bindGroupWF(NULL),
 	m_bindGroup(NULL),
 	m_drawCount(indexBuffer.size()),
 	m_renderPipelineSlot("RP_PTN"),
 	m_markForDelete(false),
-	m_stride(stride),
-	textureView(textureView),
+	uniformBuffer(uniformBuffer),
+	vertexBuffer(vertexBuffer),
+	indexBuffer(indexBuffer) {
+
+	m_vertexBuffer.createBuffer(reinterpret_cast<const void*>(vertexBuffer.data()), sizeof(float) * vertexBuffer.size(), WGPUBufferUsage_Vertex | WGPUBufferUsage_Storage);
+	m_indexBuffer.createBuffer(reinterpret_cast<const void*>(indexBuffer.data()), sizeof(unsigned int) * indexBuffer.size(), WGPUBufferUsage_Index | WGPUBufferUsage_Vertex | WGPUBufferUsage_Storage);
+}
+
+WgpMesh::WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, const std::string& texturePath, const WgpBuffer& uniformBuffer) :
+	m_textureView(NULL),
+	m_bindGroupWF(NULL),
+	m_bindGroup(NULL),
+	m_drawCount(indexBuffer.size()),
+	m_renderPipelineSlot("RP_PTN"),
+	m_markForDelete(false),
 	uniformBuffer(uniformBuffer),
 	vertexBuffer(vertexBuffer),
 	indexBuffer(indexBuffer) {
@@ -33,8 +46,6 @@ WgpMesh::WgpMesh(WgpMesh const& rhs) :
 	m_drawCount(rhs.m_drawCount),
 	m_renderPipelineSlot(rhs.m_renderPipelineSlot),
 	m_markForDelete(false),
-	m_stride(rhs.m_stride),
-	textureView(rhs.textureView),
 	uniformBuffer(rhs.uniformBuffer),
 	vertexBuffer(rhs.vertexBuffer),
 	indexBuffer(rhs.indexBuffer) {
@@ -50,9 +61,7 @@ WgpMesh::WgpMesh(WgpMesh&& rhs) noexcept :
 	m_bindGroup(std::move(rhs.m_bindGroup)),
 	m_drawCount(rhs.m_drawCount),
 	m_renderPipelineSlot(rhs.m_renderPipelineSlot),
-	m_markForDelete(false),
-	m_stride(rhs.m_stride),	
-	textureView(rhs.textureView),
+	m_markForDelete(false),	
 	uniformBuffer(rhs.uniformBuffer),
 	vertexBuffer(rhs.vertexBuffer),
 	indexBuffer(rhs.indexBuffer) {
@@ -65,8 +74,10 @@ WgpMesh::~WgpMesh() {
 }
 
 void WgpMesh::cleanup() {
-	wgpuTextureViewRelease(m_textureView);
-	m_textureView = NULL;
+	if (m_textureView) {
+		wgpuTextureViewRelease(m_textureView);
+		m_textureView = NULL;
+	}
 
 	if (m_bindGroupWF) {
 		wgpuBindGroupRelease(m_bindGroupWF);

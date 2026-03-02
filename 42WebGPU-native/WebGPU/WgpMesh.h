@@ -10,7 +10,9 @@ class WgpMesh {
 
 public:
 
-	WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, const std::string& texturePath, const WGPUTextureView& textureView, const WgpBuffer& uniformBuffer, unsigned int stride);
+	WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, const WgpBuffer& uniformBuffer);
+	WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, const std::string& texturePath, const WgpBuffer& uniformBuffer);
+	
 	WgpMesh(WgpMesh const& rhs);
 	WgpMesh(WgpMesh&& rhs) noexcept;
 	~WgpMesh();
@@ -37,9 +39,7 @@ private:
 	uint32_t m_drawCount;
 	std::string m_renderPipelineSlot;
 	bool m_markForDelete;
-	unsigned int m_stride;
 
-	const WGPUTextureView& textureView;
 	const WgpBuffer& uniformBuffer;
 	const std::vector<float>& vertexBuffer;
 	const std::vector<unsigned int>& indexBuffer;	

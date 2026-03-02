@@ -16,8 +16,6 @@ Wireframe::Wireframe(StateMachine& machine) : State(machine, States::WIREFRAME) 
 	EventDispatcher::AddMouseListener(this);
 
 	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);	
-	m_texture = wgpCreateTexture(512, 512, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst, WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm);
-	m_textureView = wgpCreateTextureView(WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm, WGPUTextureAspect::WGPUTextureAspect_All, m_texture);
 	wgpContext.addSampler(wgpCreateSampler());
 
 	wgpContext.addSahderModule("PTN", "res/shader/shader.wgsl");
@@ -35,7 +33,7 @@ Wireframe::Wireframe(StateMachine& machine) : State(machine, States::WIREFRAME) 
 	m_mammoth.loadModel("res/models/mammoth.obj");
 	m_mammoth.generateColors(ModelColor::MC_POSITION);
 
-	m_wgpMammoth.create(m_mammoth, m_textureView, m_uniformBuffer);
+	m_wgpMammoth.create(m_mammoth, m_uniformBuffer);
 	m_wgpMammoth.setBindGroupPTN(std::bind(&WgpContext::OnBindGroupPTN, &wgpContext,  std::placeholders::_1, std::placeholders::_2));
 	m_wgpMammoth.setBindGroupWF(std::bind(&WgpContext::OnBindGroupWF, &wgpContext, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 	m_wgpMammoth.setRenderPipelineSlot("RP_PTNC");
@@ -44,7 +42,7 @@ Wireframe::Wireframe(StateMachine& machine) : State(machine, States::WIREFRAME) 
 	m_dragon.rewind();
 	m_dragon.generateColors(ModelColor::MC_POSITION);
 
-	m_wgpDragon.create(m_dragon, m_textureView, m_uniformBuffer);
+	m_wgpDragon.create(m_dragon, m_uniformBuffer);
 	m_wgpDragon.setBindGroupPTN(std::bind(&WgpContext::OnBindGroupPTN, &wgpContext, std::placeholders::_1, std::placeholders::_2));
 	m_wgpDragon.setBindGroupWF(std::bind(&WgpContext::OnBindGroupWF, &wgpContext, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 	m_wgpDragon.setRenderPipelineSlot("RP_PTNC");
@@ -65,13 +63,6 @@ Wireframe::~Wireframe() {
 	EventDispatcher::RemoveMouseListener(this);
 
 	m_uniformBuffer.markForDelete();
-
-	wgpuTextureDestroy(m_texture);
-	wgpuTextureRelease(m_texture);
-	m_texture = NULL;
-
-	wgpuTextureViewRelease(m_textureView);
-	m_textureView = NULL;
 }
 
 void Wireframe::fixedUpdate() {

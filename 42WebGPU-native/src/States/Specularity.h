@@ -67,9 +67,6 @@ private:
 	ObjModel m_boat;
 	WgpBuffer m_uniformBuffer, m_uniformLigthBuffer;
 
-	WGPUTexture m_texture;
-	WGPUTextureView m_textureView;
-
 	Uniforms m_uniforms;
 	WgpModel m_wgpBoat;
 

@@ -29,9 +29,11 @@ WgpTexture::~WgpTexture() {
 }
 
 void WgpTexture::cleanup() {
-    wgpuTextureDestroy(m_texture);
-    wgpuTextureRelease(m_texture);
-    m_texture = nullptr;
+    if (m_texture) {
+        wgpuTextureDestroy(m_texture);
+        wgpuTextureRelease(m_texture);
+        m_texture = NULL;
+    }
 }
 
 void WgpTexture::markForDelete() {

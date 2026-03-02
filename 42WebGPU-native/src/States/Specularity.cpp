@@ -19,15 +19,13 @@ Specularity::Specularity(StateMachine& machine) : State(machine, States::SPECULA
 	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	m_uniformLigthBuffer.createBuffer(sizeof(LightingUniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	wgpContext.addSampler(wgpCreateSampler());
-	m_texture = wgpCreateTexture(512, 512, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst, WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm);
-	m_textureView = wgpCreateTextureView(WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm, WGPUTextureAspect::WGPUTextureAspect_All, m_texture);
 
 	wgpContext.addSahderModule("BOAT", "res/shader/specularity.wgsl");
 	wgpContext.createRenderPipeline("BOAT", "RP_PTNC", VL_PTNC, std::bind(&Specularity::OnBindGroupLayout, this));
 
 	m_boat.loadModel("res/models/fourareen.obj", false, false, false, false, false, true);
 	m_boat.generateColors();
-	m_wgpBoat.create(m_boat, m_textureView, m_uniformBuffer);
+	m_wgpBoat.create(m_boat, m_uniformBuffer);
 	m_wgpBoat.setBindGroup(std::bind(&Specularity::OnBindGroup, this, std::placeholders::_1));
 
 	wgpContext.OnDraw = std::bind(&Specularity::OnDraw, this, std::placeholders::_1);
@@ -57,12 +55,6 @@ Specularity::~Specularity() {
 
 	m_uniformBuffer.markForDelete();
 	m_uniformLigthBuffer.markForDelete();
-	wgpuTextureDestroy(m_texture);
-	wgpuTextureRelease(m_texture);
-	m_texture = NULL;
-
-	wgpuTextureViewRelease(m_textureView);
-	m_textureView = NULL;
 }
 
 void Specularity::fixedUpdate() {

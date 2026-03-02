@@ -55,9 +55,6 @@ private:
 	ObjModel m_mammoth, m_dragon;
 	WgpBuffer m_uniformBuffer;
 
-	WGPUTexture m_texture;
-	WGPUTextureView m_textureView;
-
 	TrackBall m_trackball;
 	Uniforms m_uniforms;
 	WgpModel m_wgpDragon, m_wgpMammoth;
