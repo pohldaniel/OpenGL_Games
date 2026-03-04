@@ -52,7 +52,7 @@ private:
 	TrackBall m_trackball;
 
 	Shape m_cube, m_sphere, m_torus, m_torusKnot, m_spiral;
-	WgpBuffer m_uniformBuffer;
+	WgpBuffer m_uniformBuffer, m_normalUniformBuffer;
 
 	Uniforms m_uniforms;
 	WgpModel m_wgpCube, m_wgpSphere, m_wgpTorus, m_wgpTorusKnot, m_wgpSpiral;

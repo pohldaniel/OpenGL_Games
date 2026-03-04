@@ -20,6 +20,7 @@ struct Uniforms {
     projectionMatrix: mat4x4f,
     viewMatrix: mat4x4f,
     modelMatrix: mat4x4f,
+	normalMatrix: mat4x4f,
     color: vec4f,
 	camPosition: vec3f,
 };

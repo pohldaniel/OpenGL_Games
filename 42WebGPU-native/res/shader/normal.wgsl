@@ -21,15 +21,25 @@ struct Uniforms {
     projectionMatrix: mat4x4f,
     viewMatrix: mat4x4f,
     modelMatrix: mat4x4f,
+	normalMatrix: mat4x4f,
     color: vec4f,
 	camPosition: vec3f,
 };
+
+struct NormalUniform {
+  lightPosVS: vec3f,
+  mode: u32,
+  lightIntensity: f32,
+  depthScale: f32,
+  depthLayers: f32,
+}
 
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
 @group(0) @binding(1) var textureSampler: sampler;
 @group(0) @binding(2) var albedoTexture: texture_2d<f32>;
 @group(0) @binding(3) var normalTexture: texture_2d<f32>;
 @group(0) @binding(4) var heightTexture: texture_2d<f32>;
+@group(0) @binding(5) var<uniform> normalUniforms: NormalUniform;
 
 @vertex
 fn vs_main(in: VertexInput) -> VertexOutput {
@@ -46,5 +56,5 @@ fn vs_main(in: VertexInput) -> VertexOutput {
 
 @fragment
 fn fs_main(in: VertexOutput) -> @location(0) vec4f {
-	return uniforms.color;
+	return vec4f(in.uv, 0.0, 1.0);
 }

@@ -280,11 +280,11 @@ void Application::update() {
 	Keyboard::instance().update();
 	XInputController::instance().update();
 	
-	Machine->update();
-
 	if (!Machine->isRunning()) {
 		SendMessage(Window, WM_DESTROY, NULL, NULL);
 	}
+
+	Machine->update();
 }
 
 void Application::fixedUpdate() {

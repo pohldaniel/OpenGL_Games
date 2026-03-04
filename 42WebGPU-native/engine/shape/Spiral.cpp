@@ -223,8 +223,7 @@ void Spiral::BuildMesh(const std::array<float, 3>& position, float radius, float
 
 			if ((j > 0) && ((j + 1) % (vResolution + 1)) == 0) {
 				currentVertexOffset = ((i + 1) * (vResolution + 1));
-			}
-			else {
+			}else {
 
 				vertexIndexA = currentVertexOffset;
 				vertexIndexB = currentVertexOffset + vResolution + 1;

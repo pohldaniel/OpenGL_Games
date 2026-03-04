@@ -2,7 +2,9 @@ struct Uniforms {
 	projection: mat4x4<f32>,
 	view: mat4x4<f32>,
     model: mat4x4<f32>,    
-	color: vec4f
+	normal: mat4x4<f32>,
+	color: vec4<f32>,
+	camPos: vec3<f32>
 }
 
 struct U32s {

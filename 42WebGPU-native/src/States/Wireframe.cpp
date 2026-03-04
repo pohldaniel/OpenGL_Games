@@ -52,6 +52,7 @@ Wireframe::Wireframe(StateMachine& machine) : State(machine, States::WIREFRAME) 
 	m_uniforms.projectionMatrix = Matrix4f::IDENTITY;
 	m_uniforms.viewMatrix = Matrix4f::IDENTITY;
 	m_uniforms.modelMatrix = Matrix4f::IDENTITY;
+
 	m_uniforms.color = { 1.0f, 1.0f, 1.0f, 1.0f };
 	
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));

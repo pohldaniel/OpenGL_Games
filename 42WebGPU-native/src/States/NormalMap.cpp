@@ -23,6 +23,7 @@ NormalMap::NormalMap(StateMachine& machine) : State(machine, States::NORMAL_MAP)
 	m_camera.setMovingSpeed(10.0f);
 
 	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
+	m_normalUniformBuffer.createBuffer(sizeof(NormalUniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	wgpContext.addSampler(wgpCreateSampler());
 
 	m_textureA.loadFromFile("res/textures/wood_albedo.png");
@@ -58,6 +59,7 @@ NormalMap::NormalMap(StateMachine& machine) : State(machine, States::NORMAL_MAP)
 	m_trackball.setTrackballScale(0.5f);
 
 	m_uniforms.modelMatrix = Matrix4f::IDENTITY;
+	m_uniforms.normalMatrix = Matrix4f::IDENTITY;
 	m_uniforms.viewMatrix = m_camera.getViewMatrix();
 	m_uniforms.projectionMatrix = m_camera.getPerspectiveMatrix();
 	m_uniforms.color = { 0.0f, 1.0f, 0.4f, 1.0f };
@@ -134,6 +136,7 @@ void NormalMap::update() {
 	applyTransformation(m_trackball);
 
 	m_uniforms.viewMatrix = m_camera.getViewMatrix();
+	m_uniforms.normalMatrix = Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_uniforms.modelMatrix);
 }
 
 void NormalMap::render() {
@@ -144,6 +147,7 @@ void NormalMap::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, projectionMatrix), &m_uniforms.projectionMatrix, sizeof(Uniforms::projectionMatrix));
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, viewMatrix), &m_uniforms.viewMatrix, sizeof(Uniforms::viewMatrix));
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, modelMatrix), &m_uniforms.modelMatrix, sizeof(Uniforms::modelMatrix));
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, normalMatrix), &m_uniforms.normalMatrix, sizeof(Uniforms::normalMatrix));
 
 	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
 
@@ -256,7 +260,7 @@ void NormalMap::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 }
 
 WGPUBindGroupLayout NormalMap::OnBindGroupLayoutNormal() {
-	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(5);
+	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(6);
 
 	WGPUBindGroupLayoutEntry& uniformLayout = bindingLayoutEntries[0];
 	uniformLayout.binding = 0u;
@@ -287,6 +291,12 @@ WGPUBindGroupLayout NormalMap::OnBindGroupLayoutNormal() {
 	textureBindingLayoutH.texture.sampleType = WGPUTextureSampleType::WGPUTextureSampleType_Float;
 	textureBindingLayoutH.texture.viewDimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
 
+	WGPUBindGroupLayoutEntry& normalUniformLayout = bindingLayoutEntries[5];
+	normalUniformLayout.binding = 5u;
+	normalUniformLayout.visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
+	normalUniformLayout.buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
+	normalUniformLayout.buffer.minBindingSize = sizeof(NormalUniforms);
+
 	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
 	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
 	bindGroupLayoutDescriptor.entries = bindingLayoutEntries.data();
@@ -295,7 +305,7 @@ WGPUBindGroupLayout NormalMap::OnBindGroupLayoutNormal() {
 }
 
 WGPUBindGroup NormalMap::OnBindGroupNormal() {
-	std::vector<WGPUBindGroupEntry> bindings(5);
+	std::vector<WGPUBindGroupEntry> bindings(6);
 
 	bindings[0].binding = 0u;
 	bindings[0].buffer = m_uniformBuffer.getBuffer();
@@ -313,6 +323,11 @@ WGPUBindGroup NormalMap::OnBindGroupNormal() {
 
 	bindings[4].binding = 4u;
 	bindings[4].textureView = m_textureH.getTextureView();
+
+	bindings[5].binding = 5u;
+	bindings[5].buffer = m_normalUniformBuffer.getBuffer();
+	bindings[5].offset = 0u;
+	bindings[5].size = sizeof(NormalUniforms);
 
 	WGPUBindGroupDescriptor bindGroupDesc = {};
 	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_PTNTB"), 0);

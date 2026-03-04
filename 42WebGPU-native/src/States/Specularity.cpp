@@ -37,6 +37,7 @@ Specularity::Specularity(StateMachine& machine) : State(machine, States::SPECULA
 	Vector3f position = Vector3f(cx * cy, sx * cy, sy) * std::expf(-m_cameraState.zoom);
 
 	m_uniforms.modelMatrix = Matrix4f::IDENTITY;
+	m_uniforms.normalMatrix = Matrix4f::IDENTITY;
 	m_uniforms.viewMatrix = Matrix4f::LookAt(position, Vector3f(0.0f), Vector3f(0.0f, 0.0f, 1.0f));
 	m_uniforms.projectionMatrix = Matrix4f::Perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.01f, 100.0f);
 	m_uniforms.color = { 0.0f, 1.0f, 0.4f, 1.0f };
