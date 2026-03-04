@@ -5,8 +5,6 @@
 
 class WgpTexture {
 
-	friend class WgpMesh;
-
 public:
 
 	WgpTexture();
@@ -19,6 +17,7 @@ public:
 	void cleanup();
 	void markForDelete();
 	const WGPUTexture& getTexture() const;
+	const WGPUTextureView& getTextureView() const;
 
 	const unsigned int getWidth() const;
 	const unsigned int getHeight() const;
@@ -31,6 +30,7 @@ private:
 
 	WGPUTexture m_texture;
 	WGPUTextureFormat m_format;
+	WGPUTextureView m_textureView;
 
 	unsigned int m_width;
 	unsigned int m_height;

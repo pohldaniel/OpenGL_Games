@@ -15,21 +15,6 @@
 #include <WebGPU/WgpData.h>
 #include <WebGPU/WgpModel.h>
 
-struct CameraState2 {
-	Vector2f angles = { 0.8f, 0.5f };
-	float zoom = -1.2f;
-};
-
-struct DragState2 {
-	bool active = false;
-	Vector2f startMouse;
-	CameraState2 startCameraState;
-	Vector2f velocity = { 0.0f, 0.0f };
-	Vector2f previousDelta;
-	float intertia = 0.9f;
-	float sensitivity = 0.01f;
-	float scrollSensitivity = 0.1f;
-};
 
 class NormalMap : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -54,29 +39,23 @@ public:
 
 private:
 
-	WGPUBindGroupLayout OnBindGroupLayout();
-	WGPUBindGroup OnBindGroup(const WGPUTextureView textureView);
+	WGPUBindGroupLayout OnBindGroupLayoutNormal();
+	WGPUBindGroup OnBindGroupNormal();
 
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
-	void updateViewMatrix();
-	void updateLightingUniforms();
-	void updateDragInertia();
+	void applyTransformation(TrackBall& arc);
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
 
 	Camera m_camera;
-	ObjModel m_boat;
+	TrackBall m_trackball;
+
 	Shape m_cube;
-	WgpBuffer m_uniformBuffer, m_uniformLigthBuffer;
+	WgpBuffer m_uniformBuffer;
 
 	Uniforms m_uniforms;
-	WgpModel m_wgpBoat;
 	WgpModel m_wgpCube;
 
-	CameraState2 m_cameraState;
-	DragState2 m_drag;
-
-	LightingUniforms m_lightingUniforms;
-	bool m_updateLight = true;
+	WgpTexture m_textureA, m_textureN,m_textureH;
 };

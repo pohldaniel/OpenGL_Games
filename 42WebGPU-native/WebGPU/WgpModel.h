@@ -23,6 +23,7 @@ public:
 	void create(const Shape& shape, const WgpBuffer& uniformBuffer);
 	void setRenderPipelineSlot(const std::string& renderPipelineSlot);
 	void setBindGroup(const std::function <WGPUBindGroup(const WGPUTextureView textureView)>& onBindGroup);
+	void setBindGroupNormal(const std::function <WGPUBindGroup()>& onBindGroup);
 	void setBindGroupPTN(const std::function <WGPUBindGroup(const WGPUBuffer& buffer, const WGPUTextureView& textureView)>& onBindGroup);
 	void setBindGroupWF(const std::function< WGPUBindGroup(const WGPUBuffer& uniformBuffer, const WGPUBuffer& vertexBuffer, const WGPUBuffer& indexBuffer)>& onBindGroup);
 

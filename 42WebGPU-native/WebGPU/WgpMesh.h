@@ -24,6 +24,7 @@ public:
 	void markForDelete();
 	void setRenderPipelineSlot(const std::string& renderPipelineSlot);
 	void setBindGroup(const std::function<WGPUBindGroup(const WGPUTextureView textureView)>& onBindGroup);
+	void setBindGroupNormal(const std::function<WGPUBindGroup()>& onBindGroup);
 	void setBindGroupPTN(const std::function<WGPUBindGroup(const WGPUBuffer& buffer, const WGPUTextureView& textureView)>& onBindGroup);
 	void setBindGroupWF(const std::function< WGPUBindGroup(const WGPUBuffer& uniformBuffer, const WGPUBuffer& vertexBuffer, const WGPUBuffer& indexBuffer)> & onBindGroup);
 
@@ -33,7 +34,6 @@ private:
 	WgpBuffer m_indexBuffer;
 	WgpBuffer m_colorBuffer;
 	WgpTexture m_texture;
-	WGPUTextureView m_textureView;
 	WGPUBindGroup m_bindGroupWF, m_bindGroup;
 
 	uint32_t m_drawCount;

@@ -7,6 +7,7 @@
 WgpTexture::WgpTexture() :
     m_texture(NULL),
     m_format(WGPUTextureFormat::WGPUTextureFormat_Undefined),
+    m_textureView(NULL),
     m_width(0u),
     m_height(0u),
     m_channels(0u),
@@ -14,11 +15,11 @@ WgpTexture::WgpTexture() :
 
 }
 
-WgpTexture::WgpTexture(WgpTexture const& rhs) : m_texture(rhs.m_texture), m_format(rhs.m_format), m_width(rhs.m_width), m_height(rhs.m_height), m_channels(rhs.m_channels), m_markForDelete(false) {
+WgpTexture::WgpTexture(WgpTexture const& rhs) : m_texture(rhs.m_texture), m_format(rhs.m_format), m_textureView(rhs.m_textureView), m_width(rhs.m_width), m_height(rhs.m_height), m_channels(rhs.m_channels), m_markForDelete(false) {
 
 }
 
-WgpTexture::WgpTexture(WgpTexture&& rhs) noexcept : m_texture(rhs.m_texture), m_format(rhs.m_format), m_width(rhs.m_width), m_height(rhs.m_height), m_channels(rhs.m_channels), m_markForDelete(rhs.m_markForDelete) {
+WgpTexture::WgpTexture(WgpTexture&& rhs) noexcept : m_texture(rhs.m_texture), m_format(rhs.m_format), m_textureView(rhs.m_textureView), m_width(rhs.m_width), m_height(rhs.m_height), m_channels(rhs.m_channels), m_markForDelete(rhs.m_markForDelete) {
 
 }
 
@@ -34,6 +35,11 @@ void WgpTexture::cleanup() {
         wgpuTextureRelease(m_texture);
         m_texture = NULL;
     }
+
+    if (m_textureView) {
+        wgpuTextureViewRelease(m_textureView);
+        m_textureView = NULL;
+    }
 }
 
 void WgpTexture::markForDelete() {
@@ -42,6 +48,10 @@ void WgpTexture::markForDelete() {
 
 const WGPUTexture& WgpTexture::getTexture() const {
     return m_texture;
+}
+
+const WGPUTextureView& WgpTexture::getTextureView() const {
+    return m_textureView;
 }
 
 const unsigned int WgpTexture::getWidth() const {
@@ -112,6 +122,8 @@ void WgpTexture::loadFromFile(std::string fileName, const bool flipVertical, sho
         free(bytesNew);
 
     FreeImage_DeInitialise();
+
+    m_textureView = wgpCreateTextureView(WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm, WGPUTextureAspect::WGPUTextureAspect_All, m_texture);
 }
 
 void WgpTexture::createEmpty(uint32_t width, uint32_t height, WGPUTextureUsage textureUsage, WGPUTextureFormat textureFormat) {

@@ -16,40 +16,36 @@ NormalMap::NormalMap(StateMachine& machine) : State(machine, States::NORMAL_MAP)
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
 
+	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
+	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
+	m_camera.lookAt(Vector3f(0.0f, 0.0f, 15.0f), Vector3f(0.0f, 0.0f, 0.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.setRotationSpeed(0.1f);
+	m_camera.setMovingSpeed(10.0f);
+
 	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
-	m_uniformLigthBuffer.createBuffer(sizeof(LightingUniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	wgpContext.addSampler(wgpCreateSampler());
 
-	wgpContext.addSahderModule("BOAT", "res/shader/specularity.wgsl");
-	wgpContext.createRenderPipeline("BOAT", "RP_PTNC", VL_PTNC, std::bind(&NormalMap::OnBindGroupLayout, this));
+	m_textureA.loadFromFile("res/textures/wood_albedo.png");
+	m_textureN.loadFromFile("res/textures/toybox_normal.png");
+	m_textureH.loadFromFile("res/textures/toybox_height.png");
+
+	wgpContext.addSahderModule("NORMAL", "res/shader/normal.wgsl");
+	wgpContext.createRenderPipeline("NORMAL", "RP_PTNTB", VL_PTNTB, std::bind(&NormalMap::OnBindGroupLayoutNormal, this));
 
 	m_cube.buildCube({ -1.0f, -1.0f, -1.0f }, { 2.0f, 2.0f, 2.0f }, 1u, 1u, true, true, true);
 	m_wgpCube.create(m_cube, m_uniformBuffer);
-
-	m_boat.loadModel("res/models/fourareen.obj", false, false, false, false, false, true);
-	m_boat.generateColors();
-	m_wgpBoat.create(m_boat, m_uniformBuffer);
-	m_wgpBoat.setBindGroup(std::bind(&NormalMap::OnBindGroup, this, std::placeholders::_1));
+	m_wgpCube.setBindGroupNormal(std::bind(&NormalMap::OnBindGroupNormal, this));
 
 	wgpContext.OnDraw = std::bind(&NormalMap::OnDraw, this, std::placeholders::_1);
 
-	float cx = cos(m_cameraState.angles[0]);
-	float sx = sin(m_cameraState.angles[0]);
-	float cy = cos(m_cameraState.angles[1]);
-	float sy = sin(m_cameraState.angles[1]);
-	Vector3f position = Vector3f(cx * cy, sx * cy, sy) * std::expf(-m_cameraState.zoom);
+	m_trackball.reshape(Application::Width, Application::Height);
+	m_trackball.setTrackballScale(0.5f);
 
 	m_uniforms.modelMatrix = Matrix4f::IDENTITY;
-	m_uniforms.viewMatrix = Matrix4f::LookAt(position, Vector3f(0.0f), Vector3f(0.0f, 0.0f, 1.0f));
-	m_uniforms.projectionMatrix = Matrix4f::Perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.01f, 100.0f);
+	m_uniforms.viewMatrix = m_camera.getViewMatrix();
+	m_uniforms.projectionMatrix = m_camera.getPerspectiveMatrix();
 	m_uniforms.color = { 0.0f, 1.0f, 0.4f, 1.0f };
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
-
-	m_lightingUniforms.directions[0] = { 0.5f, -0.9f, 0.1f, 0.0f };
-	m_lightingUniforms.directions[1] = { 0.2f, 0.4f, 0.3f, 0.0f };
-	m_lightingUniforms.colors[0] = { 1.0f, 0.9f, 0.6f, 1.0f };
-	m_lightingUniforms.colors[1] = { 0.6f, 0.9f, 1.0f, 1.0f };
-	updateLightingUniforms();
 }
 
 NormalMap::~NormalMap() {
@@ -57,7 +53,6 @@ NormalMap::~NormalMap() {
 	EventDispatcher::RemoveMouseListener(this);
 
 	m_uniformBuffer.markForDelete();
-	m_uniformLigthBuffer.markForDelete();
 }
 
 void NormalMap::fixedUpdate() {
@@ -65,8 +60,64 @@ void NormalMap::fixedUpdate() {
 }
 
 void NormalMap::update() {
-	updateDragInertia();
-	updateLightingUniforms();
+	Keyboard& keyboard = Keyboard::instance();
+	Vector3f direction = Vector3f();
+
+	float dx = 0.0f;
+	float dy = 0.0f;
+	bool move = false;
+
+	if (keyboard.keyDown(Keyboard::KEY_W)) {
+		direction += Vector3f(0.0f, 0.0f, 1.0f);
+		move |= true;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_S)) {
+		direction += Vector3f(0.0f, 0.0f, -1.0f);
+		move |= true;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_A)) {
+		direction += Vector3f(-1.0f, 0.0f, 0.0f);
+		move |= true;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_D)) {
+		direction += Vector3f(1.0f, 0.0f, 0.0f);
+		move |= true;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_Q)) {
+		direction += Vector3f(0.0f, -1.0f, 0.0f);
+		move |= true;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_E)) {
+		direction += Vector3f(0.0f, 1.0f, 0.0f);
+		move |= true;
+	}
+
+	Mouse& mouse = Mouse::instance();
+
+	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {
+		dx = mouse.xDelta();
+		dy = mouse.yDelta();
+	}
+
+	if (move || dx != 0.0f || dy != 0.0f) {
+		if (dx || dy) {
+			m_camera.rotate(dx, dy);
+		}
+
+		if (move) {
+			m_camera.move(direction * m_dt);
+		}
+	}
+
+	m_trackball.idle();
+	applyTransformation(m_trackball);
+
+	m_uniforms.viewMatrix = m_camera.getViewMatrix();
 }
 
 void NormalMap::render() {
@@ -79,43 +130,34 @@ void NormalMap::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, modelMatrix), &m_uniforms.modelMatrix, sizeof(Uniforms::modelMatrix));
 
 	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
-	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_PTNC"));
 
-	m_wgpBoat.drawRaw(renderPassEncoder);
+	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_PTNTB"));
+	m_wgpCube.drawRaw(renderPassEncoder);
 
 	if (m_drawUi)
 		renderUi(renderPassEncoder);
 }
 
 void NormalMap::OnMouseMotion(const Event::MouseMoveEvent& event) {
-	if (m_drag.active) {
-		Vector2f currentMouse = Vector2f(-static_cast<float>(event.x), static_cast<float>(event.y));
-		Vector2f delta = (currentMouse - m_drag.startMouse) * m_drag.sensitivity;
-		m_cameraState.angles = m_drag.startCameraState.angles + delta;
-		m_cameraState.angles[1] = Math::Clamp(m_cameraState.angles[1], -HALF_PI + 1e-5f, HALF_PI - 1e-5f);
-		updateViewMatrix();
-		m_drag.velocity = delta - m_drag.previousDelta;
-		m_drag.previousDelta = delta;
-	}
+	m_trackball.motion(event.x, event.y);
+	applyTransformation(m_trackball);
 }
 
 void NormalMap::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
-	if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT) {
+	if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {
+		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, true, event.x, event.y);
+		applyTransformation(m_trackball);
+	}else if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT) {
 		Mouse::instance().attach(Application::GetWindow());
-	}
-	else if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {
-		m_drag.active = true;
-		m_drag.startMouse = Vector2f(-static_cast<float>(event.x), static_cast<float>(event.y));
-		m_drag.startCameraState = m_cameraState;
 	}
 }
 
 void NormalMap::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
-	if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT) {
+	if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {
+		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, false, event.x, event.y);
+		applyTransformation(m_trackball);
+	}else if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT) {
 		Mouse::instance().detach();
-	}
-	else if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {
-		m_drag.active = false;
 	}
 }
 
@@ -140,7 +182,12 @@ void NormalMap::OnKeyUp(const Event::KeyboardEvent& event) {
 }
 
 void NormalMap::resize(int deltaW, int deltaH) {
+	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
+	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
+}
 
+void NormalMap::applyTransformation(TrackBall& arc) {
+	m_uniforms.modelMatrix = arc.getTransform();
 }
 
 void NormalMap::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
@@ -174,52 +221,51 @@ void NormalMap::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 		ImGuiID dock_id_right = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Right, 0.2f, nullptr, &dockSpaceId);
 		ImGuiID dock_id_down = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Down, 0.2f, nullptr, &dockSpaceId);
 		ImGuiID dock_id_up = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Up, 0.2f, nullptr, &dockSpaceId);
-		ImGui::DockBuilderDockWindow("Lighting", dock_id_left);
+		ImGui::DockBuilderDockWindow("Settings", dock_id_left);
 	}
 
-	// Build our UI
-	{
-		bool changed = false;
-		ImGui::Begin("Lighting", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-		changed = ImGui::ColorEdit3("Color #0", &m_lightingUniforms.colors[0][0]) || changed;
-		changed = ImGui::DragDirection("Direction #0", m_lightingUniforms.directions[0]) || changed;
-		changed = ImGui::ColorEdit3("Color #1", &m_lightingUniforms.colors[1][0]) || changed;
-		changed = ImGui::DragDirection("Direction #1", m_lightingUniforms.directions[1]) || changed;
-		changed = ImGui::SliderFloat("Hardness", &m_lightingUniforms.hardness, 1.0f, 100.0f) || changed;
-		changed = ImGui::SliderFloat("K Diffuse", &m_lightingUniforms.kd, 0.0f, 1.0f) || changed;
-		changed = ImGui::SliderFloat("K Specular", &m_lightingUniforms.ks, 0.0f, 1.0f) || changed;
-		ImGui::End();
-		m_updateLight = changed;
+	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+	if (ImGui::Checkbox("Draw Wirframe", &StateMachine::GetWireframeEnabled()) || StateMachine::IsWireframeToggled()) {
+		
 	}
+
+	ImGui::End();
 
 	ImGui::Render();
 	ImGui_ImplWGPU_RenderDrawData(ImGui::GetDrawData(), renderPassEncoder);
 }
-WGPUBindGroupLayout NormalMap::OnBindGroupLayout() {
-	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(4);
+
+WGPUBindGroupLayout NormalMap::OnBindGroupLayoutNormal() {
+	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(5);
 
 	WGPUBindGroupLayoutEntry& uniformLayout = bindingLayoutEntries[0];
-	uniformLayout.binding = 0;
+	uniformLayout.binding = 0u;
 	uniformLayout.visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
 	uniformLayout.buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
 	uniformLayout.buffer.minBindingSize = sizeof(Uniforms);
 
-	WGPUBindGroupLayoutEntry& textureBindingLayout = bindingLayoutEntries[1];
-	textureBindingLayout.binding = 1;
-	textureBindingLayout.visibility = WGPUShaderStage_Fragment;
-	textureBindingLayout.texture.sampleType = WGPUTextureSampleType::WGPUTextureSampleType_Float;
-	textureBindingLayout.texture.viewDimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
-
-	WGPUBindGroupLayoutEntry& samplerBindingLayout = bindingLayoutEntries[2];
-	samplerBindingLayout.binding = 2;
+	WGPUBindGroupLayoutEntry& samplerBindingLayout = bindingLayoutEntries[1];
+	samplerBindingLayout.binding = 1u;
 	samplerBindingLayout.visibility = WGPUShaderStage_Fragment;
 	samplerBindingLayout.sampler.type = WGPUSamplerBindingType::WGPUSamplerBindingType_Filtering;
 
-	WGPUBindGroupLayoutEntry& lightUniformLayout = bindingLayoutEntries[3];
-	lightUniformLayout.binding = 3;
-	lightUniformLayout.visibility = WGPUShaderStage_Fragment;
-	lightUniformLayout.buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
-	lightUniformLayout.buffer.minBindingSize = sizeof(LightingUniforms);
+	WGPUBindGroupLayoutEntry& textureBindingLayoutA = bindingLayoutEntries[2];
+	textureBindingLayoutA.binding = 2u;
+	textureBindingLayoutA.visibility = WGPUShaderStage_Fragment;
+	textureBindingLayoutA.texture.sampleType = WGPUTextureSampleType::WGPUTextureSampleType_Float;
+	textureBindingLayoutA.texture.viewDimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
+
+	WGPUBindGroupLayoutEntry& textureBindingLayoutN = bindingLayoutEntries[3];
+	textureBindingLayoutN.binding = 3u;
+	textureBindingLayoutN.visibility = WGPUShaderStage_Fragment;
+	textureBindingLayoutN.texture.sampleType = WGPUTextureSampleType::WGPUTextureSampleType_Float;
+	textureBindingLayoutN.texture.viewDimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
+
+	WGPUBindGroupLayoutEntry& textureBindingLayoutH = bindingLayoutEntries[4];
+	textureBindingLayoutH.binding = 4u;
+	textureBindingLayoutH.visibility = WGPUShaderStage_Fragment;
+	textureBindingLayoutH.texture.sampleType = WGPUTextureSampleType::WGPUTextureSampleType_Float;
+	textureBindingLayoutH.texture.viewDimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
 
 	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
 	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
@@ -228,60 +274,30 @@ WGPUBindGroupLayout NormalMap::OnBindGroupLayout() {
 	return wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor);
 }
 
-WGPUBindGroup NormalMap::OnBindGroup(const WGPUTextureView textureView) {
-	std::vector<WGPUBindGroupEntry> bindings(4);
+WGPUBindGroup NormalMap::OnBindGroupNormal() {
+	std::vector<WGPUBindGroupEntry> bindings(5);
 
-	bindings[0].binding = 0;
+	bindings[0].binding = 0u;
 	bindings[0].buffer = m_uniformBuffer.getBuffer();
-	bindings[0].offset = 0;
+	bindings[0].offset = 0u;
 	bindings[0].size = sizeof(Uniforms);
 
-	bindings[1].binding = 1;
-	bindings[1].textureView = textureView;
+	bindings[1].binding = 1u;
+	bindings[1].sampler = wgpContext.getSampler(SS_LINEAR);
 
-	bindings[2].binding = 2;
-	bindings[2].sampler = wgpContext.getSampler(SS_LINEAR);
+	bindings[2].binding = 2u;
+	bindings[2].textureView = m_textureA.getTextureView();
 
-	bindings[3].binding = 3;
-	bindings[3].buffer = m_uniformLigthBuffer.getBuffer();
-	bindings[3].offset = 0;
-	bindings[3].size = sizeof(LightingUniforms);
+	bindings[3].binding = 3u;
+	bindings[3].textureView = m_textureN.getTextureView();
+
+	bindings[4].binding = 4u;
+	bindings[4].textureView = m_textureH.getTextureView();
 
 	WGPUBindGroupDescriptor bindGroupDesc = {};
-	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_PTNC"), 0);
+	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_PTNTB"), 0);
 	bindGroupDesc.entryCount = (uint32_t)bindings.size();
 	bindGroupDesc.entries = bindings.data();
 
 	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
-}
-
-void NormalMap::updateViewMatrix() {
-	float cx = cos(m_cameraState.angles[0]);
-	float sx = sin(m_cameraState.angles[0]);
-	float cy = cos(m_cameraState.angles[1]);
-	float sy = sin(m_cameraState.angles[1]);
-	Vector3f position = Vector3f(cx * cy, sx * cy, sy) * std::expf(-m_cameraState.zoom);
-	m_uniforms.viewMatrix = Matrix4f::LookAt(position, Vector3f(0.0f), Vector3f(0.0f, 0.0f, 1.0f));
-	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, viewMatrix), &m_uniforms.viewMatrix, sizeof(Uniforms::viewMatrix));
-}
-
-void NormalMap::updateLightingUniforms() {
-	if (m_updateLight) {
-		wgpuQueueWriteBuffer(wgpContext.queue, m_uniformLigthBuffer.getBuffer(), 0u, &m_lightingUniforms, sizeof(LightingUniforms));
-		m_updateLight = false;
-	}
-}
-
-void NormalMap::updateDragInertia() {
-	constexpr float eps = 1e-4f;
-	if (!m_drag.active) {
-
-		if (std::abs(m_drag.velocity[0]) < eps && std::abs(m_drag.velocity[1]) < eps) {
-			return;
-		}
-		m_cameraState.angles += m_drag.velocity;
-		m_cameraState.angles[1] = Math::Clamp(m_cameraState.angles[1], -HALF_PI + 1e-5f, HALF_PI - 1e-5f);
-		m_drag.velocity *= m_drag.intertia;
-		updateViewMatrix();
-	}
 }

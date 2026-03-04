@@ -40,6 +40,12 @@ void WgpModel::setBindGroup(const std::function<WGPUBindGroup(const WGPUTextureV
 	}
 }
 
+void WgpModel::setBindGroupNormal(const std::function <WGPUBindGroup()>& onBindGroup) {
+	for (WgpMesh& mesh : m_meshes) {
+		mesh.setBindGroupNormal(onBindGroup);
+	}
+}
+
 void WgpModel::setBindGroupPTN(const std::function<WGPUBindGroup(const WGPUBuffer& buffer, const WGPUTextureView& textureView)>& onBindGroup) {
 	for (WgpMesh& mesh : m_meshes) {
 		mesh.setBindGroupPTN(onBindGroup);
