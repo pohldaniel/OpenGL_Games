@@ -191,7 +191,7 @@ bool wgpCreateDevice(WgpContext& wgpContext, void* window) {
 
 	wgpContext.queue = wgpuDeviceGetQueue(wgpContext.device);
 	wgpContext.depthTexture = wgpCreateTexture(static_cast<uint32_t>(Application::Width), static_cast<uint32_t>(Application::Height), WGPUTextureUsage_RenderAttachment, wgpContext.depthformat, wgpContext.depthformat);
-	wgpContext.depthTextureView = wgpCreateTextureView(wgpContext.depthformat, WGPUTextureAspect::WGPUTextureAspect_DepthOnly, wgpContext.depthTexture);
+	wgpContext.depthTextureView = wgpCreateTextureView(wgpContext.depthformat, WGPUTextureAspect::WGPUTextureAspect_All, wgpContext.depthTexture);
 
 	wgpCreateVertexBufferLayout(VL_PTN);
 	wgpCreateVertexBufferLayout(VL_PTNC);
@@ -281,10 +281,10 @@ WGPUTextureView wgpCreateTextureView(WGPUTextureFormat textureFormat, WGPUTextur
 	WGPUTextureViewDescriptor textureViewDescriptor = {};
 	textureViewDescriptor.label = WGPU_STR("texture_view");
 	textureViewDescriptor.aspect = aspect;
-	textureViewDescriptor.baseArrayLayer = 0;
-	textureViewDescriptor.arrayLayerCount = 1;
-	textureViewDescriptor.baseMipLevel = 0;
-	textureViewDescriptor.mipLevelCount = 1;
+	textureViewDescriptor.baseArrayLayer = 0u;
+	textureViewDescriptor.arrayLayerCount = 1u;
+	textureViewDescriptor.baseMipLevel = 0u;
+	textureViewDescriptor.mipLevelCount = 1u;
 	textureViewDescriptor.dimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
 	textureViewDescriptor.format = textureFormat;
 	textureViewDescriptor.nextInChain = NULL;
@@ -294,7 +294,7 @@ WGPUTextureView wgpCreateTextureView(WGPUTextureFormat textureFormat, WGPUTextur
 WGPUSampler wgpCreateSampler() {
 	const WGPUDevice& device = wgpContext.device;
 	WGPUSamplerDescriptor samplerDescriptor = {};
-	samplerDescriptor.label = WGPU_STR("texture_view");
+	samplerDescriptor.label = WGPU_STR("sampler");
 	samplerDescriptor.addressModeU = WGPUAddressMode_ClampToEdge;
 	samplerDescriptor.addressModeV = WGPUAddressMode_ClampToEdge;
 	samplerDescriptor.addressModeW = WGPUAddressMode_ClampToEdge;
@@ -304,7 +304,7 @@ WGPUSampler wgpCreateSampler() {
 	samplerDescriptor.lodMinClamp = 0.0f;
 	samplerDescriptor.lodMaxClamp = 1.0f;
 	samplerDescriptor.compare = WGPUCompareFunction_Undefined;
-	samplerDescriptor.maxAnisotropy = 1;
+	samplerDescriptor.maxAnisotropy = 1u;
 	return wgpuDeviceCreateSampler(device, &samplerDescriptor);
 }
 
@@ -498,8 +498,8 @@ void wgpResize(uint32_t width, uint32_t height) {
 		wgpuTextureDestroy(wgpContext.depthTexture);
 		wgpuTextureRelease(wgpContext.depthTexture);
 
-		wgpContext.depthTexture = wgpCreateTexture(width, height, WGPUTextureUsage_RenderAttachment, WGPUTextureFormat::WGPUTextureFormat_Depth24Plus, WGPUTextureFormat::WGPUTextureFormat_Depth24Plus);
-		wgpContext.depthTextureView = wgpCreateTextureView(WGPUTextureFormat_Depth24Plus, WGPUTextureAspect::WGPUTextureAspect_DepthOnly, wgpContext.depthTexture);
+		wgpContext.depthTexture = wgpCreateTexture(width, height, WGPUTextureUsage_RenderAttachment, wgpContext.depthformat, wgpContext.depthformat);
+		wgpContext.depthTextureView = wgpCreateTextureView(wgpContext.depthformat, WGPUTextureAspect::WGPUTextureAspect_All, wgpContext.depthTexture);
 
 		wgpContext.config.width = width;
 		wgpContext.config.height = height;

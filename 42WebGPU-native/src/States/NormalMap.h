@@ -55,6 +55,7 @@ private:
 	WgpBuffer m_uniformBuffer, m_normalUniformBuffer;
 
 	Uniforms m_uniforms;
+	NormalUniforms m_normalUniforms;
 	WgpModel m_wgpCube, m_wgpSphere, m_wgpTorus, m_wgpTorusKnot, m_wgpSpiral;
 
 	WgpTexture m_textureA, m_textureN,m_textureH;

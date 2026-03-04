@@ -64,6 +64,16 @@ NormalMap::NormalMap(StateMachine& machine) : State(machine, States::NORMAL_MAP)
 	m_uniforms.projectionMatrix = m_camera.getPerspectiveMatrix();
 	m_uniforms.color = { 0.0f, 1.0f, 0.4f, 1.0f };
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
+
+
+	Vector3f lightPos = m_camera.getViewMatrix() >> Vector3f(1.7f, 0.7f, -1.9f);
+	m_normalUniforms.light_pos_vs = { lightPos[0], lightPos[1], lightPos[2] };
+	m_normalUniforms.light_intensity = 5.0f;
+	m_normalUniforms.depth_scale = 0.05f;
+	m_normalUniforms.depth_layers = 16.0f;
+	m_normalUniforms.mode = 3u;
+
+	wgpuQueueWriteBuffer(wgpContext.queue, m_normalUniformBuffer.getBuffer(), 0, &m_normalUniforms, sizeof(NormalUniforms));
 }
 
 NormalMap::~NormalMap() {
@@ -152,11 +162,11 @@ void NormalMap::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
 	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
 
 	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_PTNTB"));
-	//m_wgpCube.drawRaw(renderPassEncoder);
+	m_wgpCube.drawRaw(renderPassEncoder);
 	//m_wgpSphere.drawRaw(renderPassEncoder);
 	//m_wgpTorus.drawRaw(renderPassEncoder);
 	//m_wgpTorusKnot.drawRaw(renderPassEncoder);
-	m_wgpSpiral.drawRaw(renderPassEncoder);
+	//m_wgpSpiral.drawRaw(renderPassEncoder);
 
 	if (m_drawUi)
 		renderUi(renderPassEncoder);
