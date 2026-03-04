@@ -12,9 +12,6 @@
     <Filter Include="Source Files\States">
       <UniqueIdentifier>{61f62bb9-5bfc-46f4-98b2-ff9f822154ae}</UniqueIdentifier>
     </Filter>
-    <Filter Include="convhull">
-      <UniqueIdentifier>{16b0aa13-3ea7-4211-bef6-e7a1047efd87}</UniqueIdentifier>
-    </Filter>
     <Filter Include="engine">
       <UniqueIdentifier>{b825812d-d6d9-4db8-b627-5449dfc6db6a}</UniqueIdentifier>
     </Filter>
@@ -174,11 +171,20 @@
     <ClCompile Include="engine\shape\Shape.cpp">
       <Filter>engine\shape</Filter>
     </ClCompile>
+    <ClCompile Include="engine\shape\Sphere.cpp">
+      <Filter>engine\shape</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\shape\Torus.cpp">
+      <Filter>engine\shape</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\shape\TorusKnot.cpp">
+      <Filter>engine\shape</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\shape\Spiral.cpp">
+      <Filter>engine\shape</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="convhull\convhull_3d.h">
-      <Filter>convhull</Filter>
-    </ClInclude>
     <ClInclude Include="engine\input\ApplicationEventListener.h">
       <Filter>engine\input</Filter>
     </ClInclude>
@@ -336,6 +342,18 @@
       <Filter>engine\shape</Filter>
     </ClInclude>
     <ClInclude Include="engine\shape\Shape.h">
+      <Filter>engine\shape</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\shape\Sphere.h">
+      <Filter>engine\shape</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\shape\Torus.h">
+      <Filter>engine\shape</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\shape\TorusKnot.h">
+      <Filter>engine\shape</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\shape\Spiral.h">
       <Filter>engine\shape</Filter>
     </ClInclude>
   </ItemGroup>

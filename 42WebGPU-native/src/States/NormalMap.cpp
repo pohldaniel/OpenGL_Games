@@ -36,6 +36,22 @@ NormalMap::NormalMap(StateMachine& machine) : State(machine, States::NORMAL_MAP)
 	m_wgpCube.create(m_cube, m_uniformBuffer);
 	m_wgpCube.setBindGroupNormal(std::bind(&NormalMap::OnBindGroupNormal, this));
 
+	m_sphere.buildSphere({ 0.0f, 0.0f, 0.0f }, 1.0f, 49u, 49u, true, true, true);
+	m_wgpSphere.create(m_sphere, m_uniformBuffer);
+	m_wgpSphere.setBindGroupNormal(std::bind(&NormalMap::OnBindGroupNormal, this));
+
+	m_torus.buildTorus({ 0.0f, 0.0f, 0.0f }, 0.5f, 0.25f, 49u, 49u, true, true, true);
+	m_wgpTorus.create(m_torus, m_uniformBuffer);
+	m_wgpTorus.setBindGroupNormal(std::bind(&NormalMap::OnBindGroupNormal, this));
+
+	m_torusKnot.buildTorusKnot({ 0.0f, 0.0f, 0.0f }, 1.0f, 0.4f, 2u, 3u, 100u, 16u, true, true, true);
+	m_wgpTorusKnot.create(m_torusKnot, m_uniformBuffer);
+	m_wgpTorusKnot.setBindGroupNormal(std::bind(&NormalMap::OnBindGroupNormal, this));
+
+	m_spiral.buildSpiral({ 0.0f, -0.75f, 0.0f }, 0.5f, 0.25f, 1.5f, 2u, true, 49u, 49u, true, true, true);
+	m_wgpSpiral.create(m_spiral, m_uniformBuffer);
+	m_wgpSpiral.setBindGroupNormal(std::bind(&NormalMap::OnBindGroupNormal, this));
+
 	wgpContext.OnDraw = std::bind(&NormalMap::OnDraw, this, std::placeholders::_1);
 
 	m_trackball.reshape(Application::Width, Application::Height);
@@ -132,7 +148,11 @@ void NormalMap::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
 	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
 
 	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_PTNTB"));
-	m_wgpCube.drawRaw(renderPassEncoder);
+	//m_wgpCube.drawRaw(renderPassEncoder);
+	//m_wgpSphere.drawRaw(renderPassEncoder);
+	//m_wgpTorus.drawRaw(renderPassEncoder);
+	//m_wgpTorusKnot.drawRaw(renderPassEncoder);
+	m_wgpSpiral.drawRaw(renderPassEncoder);
 
 	if (m_drawUi)
 		renderUi(renderPassEncoder);

@@ -51,11 +51,11 @@ private:
 	Camera m_camera;
 	TrackBall m_trackball;
 
-	Shape m_cube;
+	Shape m_cube, m_sphere, m_torus, m_torusKnot, m_spiral;
 	WgpBuffer m_uniformBuffer;
 
 	Uniforms m_uniforms;
-	WgpModel m_wgpCube;
+	WgpModel m_wgpCube, m_wgpSphere, m_wgpTorus, m_wgpTorusKnot, m_wgpSpiral;
 
 	WgpTexture m_textureA, m_textureN,m_textureH;
 };

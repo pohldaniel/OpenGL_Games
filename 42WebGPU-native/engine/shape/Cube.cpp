@@ -18,10 +18,14 @@ Cube::Cube(const std::array<float, 3>& position, const std::array<float, 3>& siz
 	m_stride = 3u + 2u * generateTexels + 3u * generateNormals + 6u * generateTangents;
 	m_center = { m_position[0] + m_size[0] * 0.5f, m_position[1] + m_size[1] * 0.5f, m_position[2] + m_size[2] * 0.5f};
 
-	BuildMesh4Q(m_position, m_size, m_uResolution, m_vResolution, m_generateTexels, m_generateNormals, m_generateTangents, m_positions, m_texels, m_normals, m_vertexBuffer, m_indexBuffer, m_tangents, m_bitangents);
+	BuildMesh4Q(m_position, m_size, m_uResolution, m_vResolution, m_generateTexels, m_generateNormals, m_generateTangents, m_vertexBuffer, m_indexBuffer);
 }
 
-void Cube::BuildMesh4Q(const std::array<float, 3>& _position, const std::array<float, 3>& size, unsigned int uResolution, unsigned int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, std::vector<std::array<float, 3>>& positions, std::vector<std::array<float, 2>>& texels, std::vector<std::array<float, 3>>& normals, std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, std::vector<std::array<float, 3>>& tangents, std::vector<std::array<float, 3>>& bitangents) {
+Cube::~Cube() {
+
+}
+
+void Cube::BuildMesh4Q(const std::array<float, 3>& _position, const std::array<float, 3>& size, unsigned int uResolution, unsigned int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer) {
 	float vStep = (1.0f / vResolution) * size[1];
 	float uStep = (1.0f / uResolution) * size[2];
 
@@ -34,7 +38,6 @@ void Cube::BuildMesh4Q(const std::array<float, 3>& _position, const std::array<f
 			float z = j * uStep;
 
 			std::array<float, 3> position = { x + _position[0], y + _position[1], z + _position[2] };
-			positions.push_back(position);
 			vertexBuffer.push_back(position[0]); vertexBuffer.push_back(position[1]); vertexBuffer.push_back(position[2]);
 
 			if (generateTexels) {
@@ -42,20 +45,15 @@ void Cube::BuildMesh4Q(const std::array<float, 3>& _position, const std::array<f
 				float v = (float)i / vResolution;
 
 				std::array<float, 2> textureCoordinate = { 1 - u, v };
-				texels.push_back(textureCoordinate);
 				vertexBuffer.push_back(textureCoordinate[0]); vertexBuffer.push_back(textureCoordinate[1]);
 			}
 
 			if (generateNormals) {
-				normals.push_back({ 1.0f, 0.0f, 0.0f });
 				vertexBuffer.push_back(1.0f); vertexBuffer.push_back(0.0f); vertexBuffer.push_back(0.0f);
 			}
 
 			if (generateTangents) {
-				tangents.push_back({ 0.0f, 0.0f, -1.0f });
 				vertexBuffer.push_back(0.0f); vertexBuffer.push_back(0.0f); vertexBuffer.push_back(-1.0f);
-
-				bitangents.push_back({ 0.0f, 1.0f, 0.0f });
 				vertexBuffer.push_back(0.0f); vertexBuffer.push_back(1.0f); vertexBuffer.push_back(0.0f);
 			}
 		}
@@ -73,7 +71,6 @@ void Cube::BuildMesh4Q(const std::array<float, 3>& _position, const std::array<f
 			float z = j * uStep;
 
 			std::array<float, 3> position = { x + _position[0], y + _position[1], z + _position[2] };
-			positions.push_back(position);
 			vertexBuffer.push_back(position[0]); vertexBuffer.push_back(position[1]); vertexBuffer.push_back(position[2]);
 
 			if (generateTexels) {
@@ -81,20 +78,15 @@ void Cube::BuildMesh4Q(const std::array<float, 3>& _position, const std::array<f
 				float v = (float)i / vResolution;
 
 				std::array<float, 2> textureCoordinate = { u, v };
-				texels.push_back(textureCoordinate);
 				vertexBuffer.push_back(textureCoordinate[0]); vertexBuffer.push_back(textureCoordinate[1]);
 			}
 
 			if (generateNormals) {
-				normals.push_back({ -1.0f, 0.0f, 0.0f });
 				vertexBuffer.push_back(-1.0f); vertexBuffer.push_back(0.0f); vertexBuffer.push_back(0.0f);
 			}
 
 			if (generateTangents) {
-				tangents.push_back({ 0.0f, 0.0f, 1.0f });
 				vertexBuffer.push_back(0.0f); vertexBuffer.push_back(0.0f); vertexBuffer.push_back(1.0f);
-
-				bitangents.push_back({ 0.0f, 1.0f, 0.0f });
 				vertexBuffer.push_back(0.0f); vertexBuffer.push_back(1.0f); vertexBuffer.push_back(0.0f);
 			}
 		}
@@ -112,7 +104,6 @@ void Cube::BuildMesh4Q(const std::array<float, 3>& _position, const std::array<f
 			float z = i * vStep;
 
 			std::array<float, 3> position = { x + _position[0], y + _position[1], z + _position[2] };
-			positions.push_back(position);
 			vertexBuffer.push_back(position[0]); vertexBuffer.push_back(position[1]); vertexBuffer.push_back(position[2]);
 
 			if (generateTexels) {
@@ -120,20 +111,15 @@ void Cube::BuildMesh4Q(const std::array<float, 3>& _position, const std::array<f
 				float v = (float)i / vResolution;
 
 				std::array<float, 2> textureCoordinate = { u, 1.0f - v };
-				texels.push_back(textureCoordinate);
 				vertexBuffer.push_back(textureCoordinate[0]); vertexBuffer.push_back(textureCoordinate[1]);
 			}
 
 			if (generateNormals) {
-				normals.push_back({ 0.0f, 1.0f, 0.0f });
 				vertexBuffer.push_back(0.0f); vertexBuffer.push_back(1.0f); vertexBuffer.push_back(0.0f);
 			}
 
 			if (generateTangents) {
-				tangents.push_back({ 1.0f, 0.0f, 0.0f });
 				vertexBuffer.push_back(1.0f); vertexBuffer.push_back(0.0f); vertexBuffer.push_back(0.0f);
-
-				bitangents.push_back({ 0.0f, 0.0f, -1.0f });
 				vertexBuffer.push_back(0.0f); vertexBuffer.push_back(0.0f); vertexBuffer.push_back(-1.0f);
 			}
 		}
@@ -151,7 +137,6 @@ void Cube::BuildMesh4Q(const std::array<float, 3>& _position, const std::array<f
 			float z = i * vStep;
 
 			std::array<float, 3> position = { x + _position[0], y + _position[1], z + _position[2] };
-			positions.push_back(position);
 			vertexBuffer.push_back(position[0]); vertexBuffer.push_back(position[1]); vertexBuffer.push_back(position[2]);
 
 			if (generateTexels) {
@@ -159,20 +144,15 @@ void Cube::BuildMesh4Q(const std::array<float, 3>& _position, const std::array<f
 				float v = (float)i / vResolution;
 
 				std::array<float, 2> textureCoordinate = { u, v };
-				texels.push_back(textureCoordinate);
 				vertexBuffer.push_back(textureCoordinate[0]); vertexBuffer.push_back(textureCoordinate[1]);
 			}
 
 			if (generateNormals) {
-				normals.push_back({ 0.0f, -1.0f, 0.0f });
 				vertexBuffer.push_back(0.0f); vertexBuffer.push_back(-1.0f); vertexBuffer.push_back(0.0f);
 			}
 
 			if (generateTangents) {
-				tangents.push_back({ 1.0f, 0.0f, 0.0f });
 				vertexBuffer.push_back(1.0f); vertexBuffer.push_back(0.0f); vertexBuffer.push_back(0.0f);
-
-				bitangents.push_back({ 0.0f, 0.0f, 1.0f });
 				vertexBuffer.push_back(0.0f); vertexBuffer.push_back(0.0f); vertexBuffer.push_back(1.0f);
 			}
 		}
@@ -190,7 +170,6 @@ void Cube::BuildMesh4Q(const std::array<float, 3>& _position, const std::array<f
 			float z = size[2];
 
 			std::array<float, 3> position = { x + _position[0], y + _position[1], z + _position[2] };
-			positions.push_back(position);
 			vertexBuffer.push_back(position[0]); vertexBuffer.push_back(position[1]); vertexBuffer.push_back(position[2]);
 
 			if (generateTexels) {
@@ -198,20 +177,15 @@ void Cube::BuildMesh4Q(const std::array<float, 3>& _position, const std::array<f
 				float v = (float)i / vResolution;
 
 				std::array<float, 2> textureCoordinate = { u, v };
-				texels.push_back(textureCoordinate);
 				vertexBuffer.push_back(textureCoordinate[0]); vertexBuffer.push_back(textureCoordinate[1]);
 			}
 
 			if (generateNormals) {
-				normals.push_back({ 0.0f, 0.0f, 1.0f });
 				vertexBuffer.push_back(0.0f); vertexBuffer.push_back(0.0f); vertexBuffer.push_back(1.0f);
 			}
 
 			if (generateTangents) {
-				tangents.push_back({ 1.0f, 0.0f, 0.0f });
 				vertexBuffer.push_back(1.0f); vertexBuffer.push_back(0.0f); vertexBuffer.push_back(0.0f);
-
-				bitangents.push_back({ 0.0f, 1.0f, 0.0f });
 				vertexBuffer.push_back(0.0f); vertexBuffer.push_back(1.0f); vertexBuffer.push_back(0.0f);
 			}
 		}
@@ -229,7 +203,6 @@ void Cube::BuildMesh4Q(const std::array<float, 3>& _position, const std::array<f
 			float z = 0.0f;
 
 			std::array<float, 3> position = { x + _position[0], y + _position[1], z + _position[2] };
-			positions.push_back(position);
 			vertexBuffer.push_back(position[0]); vertexBuffer.push_back(position[1]); vertexBuffer.push_back(position[2]);
 
 			if (generateTexels) {
@@ -237,20 +210,15 @@ void Cube::BuildMesh4Q(const std::array<float, 3>& _position, const std::array<f
 				float v = (float)i / vResolution;
 
 				std::array<float, 2> textureCoordinate = { 1 - u, v };
-				texels.push_back(textureCoordinate);
 				vertexBuffer.push_back(textureCoordinate[0]); vertexBuffer.push_back(textureCoordinate[1]);
 			}
 
 			if (generateNormals) {
-				normals.push_back({ 0.0f, 0.0f, -1.0f });
 				vertexBuffer.push_back(0.0f); vertexBuffer.push_back(0.0f); vertexBuffer.push_back(-1.0f);
 			}
 
 			if (generateTangents) {
-				tangents.push_back({ -1.0f, 0.0f, 0.0f });
 				vertexBuffer.push_back(-1.0f); vertexBuffer.push_back(0.0f); vertexBuffer.push_back(0.0f);
-
-				bitangents.push_back({ 0.0f, 1.0f, 0.0f });
 				vertexBuffer.push_back(0.0f); vertexBuffer.push_back(1.0f); vertexBuffer.push_back(0.0f);
 			}
 		}

@@ -187,6 +187,10 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClCompile Include="engine\RandomNew.cpp" />
     <ClCompile Include="engine\shape\Cube.cpp" />
     <ClCompile Include="engine\shape\Shape.cpp" />
+    <ClCompile Include="engine\shape\Sphere.cpp" />
+    <ClCompile Include="engine\shape\Spiral.cpp" />
+    <ClCompile Include="engine\shape\Torus.cpp" />
+    <ClCompile Include="engine\shape\TorusKnot.cpp" />
     <ClCompile Include="engine\sound\MusicBuffer.cpp" />
     <ClCompile Include="engine\sound\SoundBuffer.cpp" />
     <ClCompile Include="engine\sound\SoundDevice.cpp" />
@@ -232,7 +236,6 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClInclude Include="engine\interfaces\IStateMachine.h" />
     <ClInclude Include="engine\Mesh.h" />
     <ClInclude Include="engine\Object.h" />
-    <ClInclude Include="convhull\convhull_3d.h" />
     <ClInclude Include="engine\Camera.h" />
     <ClInclude Include="engine\Clock.h" />
     <ClInclude Include="engine\input\ApplicationEventListener.h" />
@@ -249,6 +252,10 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClInclude Include="engine\Rect.h" />
     <ClInclude Include="engine\shape\Cube.h" />
     <ClInclude Include="engine\shape\Shape.h" />
+    <ClInclude Include="engine\shape\Sphere.h" />
+    <ClInclude Include="engine\shape\Spiral.h" />
+    <ClInclude Include="engine\shape\Torus.h" />
+    <ClInclude Include="engine\shape\TorusKnot.h" />
     <ClInclude Include="engine\sound\Cache.h" />
     <ClInclude Include="engine\sound\MusicBuffer.h" />
     <ClInclude Include="engine\sound\SoundBuffer.h" />

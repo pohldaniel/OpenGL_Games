@@ -267,8 +267,8 @@ WGPUTexture wgpCreateTexture(uint32_t width, uint32_t height, WGPUTextureUsage t
 	textureDescriptor.size = { width, height, 1 };
 	textureDescriptor.format = textureFormat;
 	textureDescriptor.usage = textureUsage;
-	textureDescriptor.mipLevelCount = 1;
-	textureDescriptor.sampleCount = 1;	
+	textureDescriptor.mipLevelCount = 1u;
+	textureDescriptor.sampleCount = 1u;	
 	textureDescriptor.nextInChain = NULL;
 	if (viewFormat != WGPUTextureFormat_Undefined) {
 		textureDescriptor.viewFormatCount = 1;
@@ -660,7 +660,7 @@ void WgpContext::createRenderPipeline(std::string shaderModuleName, std::string 
 	WGPUFragmentState fragmentState = {};
 	fragmentState.module = shaderModules.at(shaderModuleName);
 	fragmentState.entryPoint = WGPU_STR("fs_main");
-	fragmentState.constantCount = 0;
+	fragmentState.constantCount = 0u;
 	fragmentState.constants = NULL;
 	fragmentState.targetCount = 1;
 	fragmentState.targets = &colorTarget;
@@ -670,12 +670,12 @@ void WgpContext::createRenderPipeline(std::string shaderModuleName, std::string 
 	depthStencilState.depthCompare = WGPUCompareFunction::WGPUCompareFunction_Less;
 	depthStencilState.depthWriteEnabled = WGPUOptionalBool::WGPUOptionalBool_True;
 	depthStencilState.format = wgpContext.depthformat;
-	depthStencilState.stencilReadMask = 0;
-	depthStencilState.stencilWriteMask = 0;
+	depthStencilState.stencilReadMask = 0u;
+	depthStencilState.stencilWriteMask = 0u;
 	
 	WGPURenderPipelineDescriptor renderPipelineDescriptor = {};
 	renderPipelineDescriptor.layout = pipelineLayouts.at(pipelineLayoutName);
-	renderPipelineDescriptor.multisample.count = 1;
+	renderPipelineDescriptor.multisample.count = 1u;
 	renderPipelineDescriptor.multisample.mask = ~0u;
 	renderPipelineDescriptor.multisample.alphaToCoverageEnabled = WGPUOptionalBool::WGPUOptionalBool_False;
 
@@ -689,7 +689,6 @@ void WgpContext::createRenderPipeline(std::string shaderModuleName, std::string 
 	renderPipelineDescriptor.primitive.cullMode = WGPUCullMode::WGPUCullMode_Back;
 
 	wgpContext.renderPipelines[pipelineLayoutName] = wgpuDeviceCreateRenderPipeline(wgpContext.device, &renderPipelineDescriptor);
-	
 }
 
 WGPUBindGroup WgpContext::OnBindGroupPTN(const WGPUBuffer& buffer, const WGPUTextureView& textureView) {
