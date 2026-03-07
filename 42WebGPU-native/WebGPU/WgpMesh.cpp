@@ -33,9 +33,8 @@ WgpMesh::WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsig
 WgpMesh::WgpMesh(WgpMesh const& rhs) :
 	m_vertexBuffer(rhs.m_vertexBuffer),
 	m_indexBuffer(rhs.m_indexBuffer),
-	m_colorBuffer(rhs.m_colorBuffer),
 	m_texture(rhs.m_texture),
-	m_bindGroupsNew(rhs.m_bindGroupsNew),
+	m_bindGroups(rhs.m_bindGroups),
 	m_drawCount(rhs.m_drawCount),
 	m_renderPipelineSlot(rhs.m_renderPipelineSlot),
 	m_bindGroupsSlot(rhs.m_bindGroupsSlot),
@@ -48,9 +47,8 @@ WgpMesh::WgpMesh(WgpMesh const& rhs) :
 WgpMesh::WgpMesh(WgpMesh&& rhs) noexcept :
 	m_vertexBuffer(std::move(rhs.m_vertexBuffer)),
 	m_indexBuffer(std::move(rhs.m_indexBuffer)),
-	m_colorBuffer(std::move(rhs.m_colorBuffer)),
 	m_texture(std::move(rhs.m_texture)),
-	m_bindGroupsNew(std::move(rhs.m_bindGroupsNew)),
+	m_bindGroups(std::move(rhs.m_bindGroups)),
 	m_drawCount(rhs.m_drawCount),
 	m_renderPipelineSlot(rhs.m_renderPipelineSlot),
 	m_bindGroupsSlot(rhs.m_bindGroupsSlot),
@@ -67,7 +65,7 @@ WgpMesh::~WgpMesh() {
 }
 
 void WgpMesh::cleanup() {		
-	for (auto& it : m_bindGroupsNew) {
+	for (auto& it : m_bindGroups) {
 		for (auto& bindgroup : it.second) {
 			wgpuBindGroupRelease(bindgroup);
 		}
@@ -90,7 +88,7 @@ void WgpMesh::setBindGroupsSlot(const std::string& bindGroupsSlot) {
 }
 
 void WgpMesh::setBindGroups(std::string bindGroupsName, const std::function<std::vector<WGPUBindGroup>()>& onBindGroups) {
-	m_bindGroupsNew[bindGroupsName] = onBindGroups();
+	m_bindGroups[bindGroupsName] = onBindGroups();
 	m_bindGroupsSlot = bindGroupsName;
 }
 
@@ -104,7 +102,7 @@ void WgpMesh::addBindGroupTexture(std::string bindGroupsName, WGPUBindGroupLayou
 	bindGroupDesc.entryCount = (uint32_t)bindingGroupEntries.size();
 	bindGroupDesc.entries = bindingGroupEntries.data();
 
-	m_bindGroupsNew[bindGroupsName].push_back(wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc));
+	m_bindGroups[bindGroupsName].push_back(wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc));
 }
 
 void WgpMesh::addBindGroupWF(std::string bindGroupsName, WGPUBindGroupLayout layout) {
@@ -124,11 +122,11 @@ void WgpMesh::addBindGroupWF(std::string bindGroupsName, WGPUBindGroupLayout lay
 	bindGroupDesc.entryCount = (uint32_t)bindingGroupEntries.size();
 	bindGroupDesc.entries = bindingGroupEntries.data();
 
-	m_bindGroupsNew[bindGroupsName].push_back(wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc));
+	m_bindGroups[bindGroupsName].push_back(wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc));
 }
 
 std::vector<WGPUBindGroup>& WgpMesh::getBindGroup(std::string bindGroupsName) const {
-	return m_bindGroupsNew.at(bindGroupsName);
+	return m_bindGroups.at(bindGroupsName);
 }
 
 const WgpTexture& WgpMesh::getTexture() const {
@@ -136,7 +134,7 @@ const WgpTexture& WgpMesh::getTexture() const {
 }
 
 void WgpMesh::draw(const WGPURenderPassEncoder& renderPassEncoder) const {	
-	const std::vector<WGPUBindGroup>& bindGroups = m_bindGroupsNew.at(m_bindGroupsSlot);
+	const std::vector<WGPUBindGroup>& bindGroups = m_bindGroups.at(m_bindGroupsSlot);
 
 	if (m_renderPipelineSlot == "RP_WF") {
 		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_WF"));
@@ -159,7 +157,7 @@ void WgpMesh::draw(const WGPURenderPassEncoder& renderPassEncoder) const {
 }
 
 void WgpMesh::drawRaw(const WGPURenderPassEncoder& renderPassEncoder) const {
-	const std::vector<WGPUBindGroup>& bindGroups = m_bindGroupsNew.at(m_bindGroupsSlot);
+	const std::vector<WGPUBindGroup>& bindGroups = m_bindGroups.at(m_bindGroupsSlot);
 
 	for (uint32_t i = 0u; i < bindGroups.size(); i++) {
 		wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, i, bindGroups[i], 0u, NULL);

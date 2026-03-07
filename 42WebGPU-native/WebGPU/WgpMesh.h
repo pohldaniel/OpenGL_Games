@@ -36,9 +36,8 @@ private:
 
 	WgpBuffer m_vertexBuffer;
 	WgpBuffer m_indexBuffer;
-	WgpBuffer m_colorBuffer;
 	WgpTexture m_texture;
-	mutable std::unordered_map<std::string, std::vector<WGPUBindGroup>> m_bindGroupsNew;
+	mutable std::unordered_map<std::string, std::vector<WGPUBindGroup>> m_bindGroups;
 
 	uint32_t m_drawCount;
 	std::string m_renderPipelineSlot, m_bindGroupsSlot;
