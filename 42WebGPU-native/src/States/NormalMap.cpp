@@ -16,9 +16,9 @@ NormalMap::NormalMap(StateMachine& machine) : State(machine, States::NORMAL_MAP)
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
 
-	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
+	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-	m_camera.lookAt(Vector3f(0.0f, 0.0f, 15.0f), Vector3f(0.0f, 0.0f, 0.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.lookAt(Vector3f(0.0f, 0.8f, 1.4f), Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(10.0f);
 
@@ -33,7 +33,7 @@ NormalMap::NormalMap(StateMachine& machine) : State(machine, States::NORMAL_MAP)
 	wgpContext.addSahderModule("NORMAL", "res/shader/normal.wgsl");
 	wgpContext.createRenderPipeline("NORMAL", "RP_PTNTB", VL_PTNTB, std::bind(&NormalMap::OnBindGroupLayoutNormal, this));
 
-	m_cube.buildCube({ -1.0f, -1.0f, -1.0f }, { 2.0f, 2.0f, 2.0f }, 1u, 1u, true, true, true);
+	m_cube.buildCube({ -0.5f, -0.5f, -0.5f }, { 1.0f, 1.0f, 1.0f }, 1u, 1u, true, true, true);
 	m_wgpCube.create(m_cube, m_uniformBuffer);
 	m_wgpCube.setBindGroupNormal(std::bind(&NormalMap::OnBindGroupNormal, this));
 
@@ -64,9 +64,8 @@ NormalMap::NormalMap(StateMachine& machine) : State(machine, States::NORMAL_MAP)
 	m_uniforms.projectionMatrix = m_camera.getPerspectiveMatrix();
 	m_uniforms.color = { 0.0f, 1.0f, 0.4f, 1.0f };
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
-
-
-	Vector3f lightPos = m_camera.getViewMatrix() >> Vector3f(1.7f, 0.7f, -1.9f);
+	
+	Vector3f lightPos = m_camera.getViewMatrix() >> Vector3f(-1.7f, 0.7f, 1.9f);
 	m_normalUniforms.light_pos_vs = { lightPos[0], lightPos[1], lightPos[2] };
 	m_normalUniforms.light_intensity = 5.0f;
 	m_normalUniforms.depth_scale = 0.05f;
@@ -147,6 +146,9 @@ void NormalMap::update() {
 
 	m_uniforms.viewMatrix = m_camera.getViewMatrix();
 	m_uniforms.normalMatrix = Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_uniforms.modelMatrix);
+
+	Vector3f lightPos = m_camera.getViewMatrix() >> Vector3f(-1.7f, 0.7f, 1.9f);
+	m_normalUniforms.light_pos_vs = { lightPos[0], lightPos[1], lightPos[2] };
 }
 
 void NormalMap::render() {
@@ -158,6 +160,8 @@ void NormalMap::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, viewMatrix), &m_uniforms.viewMatrix, sizeof(Uniforms::viewMatrix));
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, modelMatrix), &m_uniforms.modelMatrix, sizeof(Uniforms::modelMatrix));
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, normalMatrix), &m_uniforms.normalMatrix, sizeof(Uniforms::normalMatrix));
+
+	wgpuQueueWriteBuffer(wgpContext.queue, m_normalUniformBuffer.getBuffer(), 0u, &m_normalUniforms.light_pos_vs, sizeof(NormalUniforms::light_pos_vs));
 
 	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
 
@@ -278,34 +282,34 @@ WGPUBindGroupLayout NormalMap::OnBindGroupLayoutNormal() {
 	uniformLayout.buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
 	uniformLayout.buffer.minBindingSize = sizeof(Uniforms);
 
-	WGPUBindGroupLayoutEntry& samplerBindingLayout = bindingLayoutEntries[1];
-	samplerBindingLayout.binding = 1u;
+	WGPUBindGroupLayoutEntry& normalUniformLayout = bindingLayoutEntries[1];
+	normalUniformLayout.binding = 1u;
+	normalUniformLayout.visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
+	normalUniformLayout.buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
+	normalUniformLayout.buffer.minBindingSize = sizeof(NormalUniforms);
+
+	WGPUBindGroupLayoutEntry& samplerBindingLayout = bindingLayoutEntries[2];
+	samplerBindingLayout.binding = 2u;
 	samplerBindingLayout.visibility = WGPUShaderStage_Fragment;
 	samplerBindingLayout.sampler.type = WGPUSamplerBindingType::WGPUSamplerBindingType_Filtering;
 
-	WGPUBindGroupLayoutEntry& textureBindingLayoutA = bindingLayoutEntries[2];
-	textureBindingLayoutA.binding = 2u;
+	WGPUBindGroupLayoutEntry& textureBindingLayoutA = bindingLayoutEntries[3];
+	textureBindingLayoutA.binding = 3u;
 	textureBindingLayoutA.visibility = WGPUShaderStage_Fragment;
 	textureBindingLayoutA.texture.sampleType = WGPUTextureSampleType::WGPUTextureSampleType_Float;
 	textureBindingLayoutA.texture.viewDimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
 
-	WGPUBindGroupLayoutEntry& textureBindingLayoutN = bindingLayoutEntries[3];
-	textureBindingLayoutN.binding = 3u;
+	WGPUBindGroupLayoutEntry& textureBindingLayoutN = bindingLayoutEntries[4];
+	textureBindingLayoutN.binding = 4u;
 	textureBindingLayoutN.visibility = WGPUShaderStage_Fragment;
 	textureBindingLayoutN.texture.sampleType = WGPUTextureSampleType::WGPUTextureSampleType_Float;
 	textureBindingLayoutN.texture.viewDimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
 
-	WGPUBindGroupLayoutEntry& textureBindingLayoutH = bindingLayoutEntries[4];
-	textureBindingLayoutH.binding = 4u;
+	WGPUBindGroupLayoutEntry& textureBindingLayoutH = bindingLayoutEntries[5];
+	textureBindingLayoutH.binding = 5u;
 	textureBindingLayoutH.visibility = WGPUShaderStage_Fragment;
 	textureBindingLayoutH.texture.sampleType = WGPUTextureSampleType::WGPUTextureSampleType_Float;
 	textureBindingLayoutH.texture.viewDimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
-
-	WGPUBindGroupLayoutEntry& normalUniformLayout = bindingLayoutEntries[5];
-	normalUniformLayout.binding = 5u;
-	normalUniformLayout.visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
-	normalUniformLayout.buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
-	normalUniformLayout.buffer.minBindingSize = sizeof(NormalUniforms);
 
 	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
 	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
@@ -323,21 +327,21 @@ WGPUBindGroup NormalMap::OnBindGroupNormal() {
 	bindings[0].size = sizeof(Uniforms);
 
 	bindings[1].binding = 1u;
-	bindings[1].sampler = wgpContext.getSampler(SS_LINEAR);
+	bindings[1].buffer = m_normalUniformBuffer.getBuffer();
+	bindings[1].offset = 0u;
+	bindings[1].size = sizeof(NormalUniforms);
 
 	bindings[2].binding = 2u;
-	bindings[2].textureView = m_textureA.getTextureView();
+	bindings[2].sampler = wgpContext.getSampler(SS_LINEAR);
 
 	bindings[3].binding = 3u;
-	bindings[3].textureView = m_textureN.getTextureView();
+	bindings[3].textureView = m_textureA.getTextureView();
 
 	bindings[4].binding = 4u;
-	bindings[4].textureView = m_textureH.getTextureView();
+	bindings[4].textureView = m_textureN.getTextureView();
 
 	bindings[5].binding = 5u;
-	bindings[5].buffer = m_normalUniformBuffer.getBuffer();
-	bindings[5].offset = 0u;
-	bindings[5].size = sizeof(NormalUniforms);
+	bindings[5].textureView = m_textureH.getTextureView();
 
 	WGPUBindGroupDescriptor bindGroupDesc = {};
 	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_PTNTB"), 0);

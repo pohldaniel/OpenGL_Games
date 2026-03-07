@@ -44,7 +44,7 @@ void Cube::BuildMesh4Q(const std::array<float, 3>& _position, const std::array<f
 				float u = (float)j / uResolution;
 				float v = (float)i / vResolution;
 
-				std::array<float, 2> textureCoordinate = { 1 - u, v };
+				std::array<float, 2> textureCoordinate = { 1.0f - u, v };
 				vertexBuffer.push_back(textureCoordinate[0]); vertexBuffer.push_back(textureCoordinate[1]);
 			}
 
@@ -209,7 +209,7 @@ void Cube::BuildMesh4Q(const std::array<float, 3>& _position, const std::array<f
 				float u = (float)j / uResolution;
 				float v = (float)i / vResolution;
 
-				std::array<float, 2> textureCoordinate = { 1 - u, v };
+				std::array<float, 2> textureCoordinate = { 1.0f - u, v };
 				vertexBuffer.push_back(textureCoordinate[0]); vertexBuffer.push_back(textureCoordinate[1]);
 			}
 

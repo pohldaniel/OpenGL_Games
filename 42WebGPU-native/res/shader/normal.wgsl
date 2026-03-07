@@ -46,11 +46,12 @@ struct NormalUniform {
 }
 
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
-@group(0) @binding(1) var textureSampler: sampler;
-@group(0) @binding(2) var albedoTexture: texture_2d<f32>;
-@group(0) @binding(3) var normalTexture: texture_2d<f32>;
-@group(0) @binding(4) var heightTexture: texture_2d<f32>;
-@group(0) @binding(5) var<uniform> normalUniforms: NormalUniform;
+@group(0) @binding(1) var<uniform> normalUniforms: NormalUniform;
+@group(0) @binding(2) var textureSampler: sampler;
+
+@group(0) @binding(3) var albedoTexture: texture_2d<f32>;
+@group(0) @binding(4) var normalTexture: texture_2d<f32>;
+@group(0) @binding(5) var heightTexture: texture_2d<f32>;
 
 @vertex
 fn vs_main(in: VertexInput) -> VertexOutput {
@@ -134,13 +135,13 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4f {
 		 let lightDirVS = fragToLightVS * inverseSqrt(lightSqrDist);
 
 		 // Light strength is inversely proportional to square of distance from light
-		 let diffuseLight = normalUniforms.lightIntensity * max(dot(lightDirVS, normalVS), 0) / lightSqrDist;
+		 let diffuseLight = normalUniforms.lightIntensity  * max(dot(lightDirVS, normalVS), 0) / lightSqrDist;
 
 		 // The diffuse is the albedo color multiplied by the diffuseLight
 		 let diffuse = albedoSample.rgb * diffuseLight;
+		 let color = pow(diffuse, vec3f(2.2));
 
-		 return vec4f(diffuse, 1.0);
-		 //return textureSample(heightTexture, textureSampler, in.uv);
+		 return vec4f(color, 1.0);
 	   }		
 	}
 	//return vec4f(in.uv, 0.0, 1.0);
