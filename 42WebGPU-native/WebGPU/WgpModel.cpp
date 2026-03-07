@@ -46,6 +46,12 @@ void WgpModel::setBindGroupNormal(const std::function <WGPUBindGroup()>& onBindG
 	}
 }
 
+void WgpModel::setBindGroups(const std::function <std::vector<WGPUBindGroup>()>& onBindGroups) {
+	for (WgpMesh& mesh : m_meshes) {
+		mesh.setBindGroups(onBindGroups);
+	}
+}
+
 void WgpModel::setBindGroupPTN(const std::function<WGPUBindGroup(const WGPUBuffer& buffer, const WGPUTextureView& textureView)>& onBindGroup) {
 	for (WgpMesh& mesh : m_meshes) {
 		mesh.setBindGroupPTN(onBindGroup);
@@ -56,6 +62,10 @@ void WgpModel::setBindGroupWF(const std::function<WGPUBindGroup(const WGPUBuffer
 	for (WgpMesh& mesh : m_meshes) {
 		mesh.setBindGroupWF(onBindGroup);
 	}
+}
+
+std::list<WgpMesh>& WgpModel::getMeshes() const{
+	return m_meshes;
 }
 
 void WgpModel::draw(const WGPURenderPassEncoder& renderPassEncoder) const {

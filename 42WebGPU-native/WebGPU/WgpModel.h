@@ -27,7 +27,10 @@ public:
 	void setBindGroupPTN(const std::function <WGPUBindGroup(const WGPUBuffer& buffer, const WGPUTextureView& textureView)>& onBindGroup);
 	void setBindGroupWF(const std::function< WGPUBindGroup(const WGPUBuffer& uniformBuffer, const WGPUBuffer& vertexBuffer, const WGPUBuffer& indexBuffer)>& onBindGroup);
 
+	void setBindGroups(const std::function <std::vector<WGPUBindGroup>()>& onBindGroups);
+	std::list<WgpMesh>& getMeshes() const;
+
 private:
 
-	std::list<WgpMesh> m_meshes;
+	mutable std::list<WgpMesh> m_meshes;
 };

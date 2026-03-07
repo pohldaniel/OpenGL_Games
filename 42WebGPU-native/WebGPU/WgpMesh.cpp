@@ -99,12 +99,21 @@ void WgpMesh::setBindGroupNormal(const std::function<WGPUBindGroup()>& onBindGro
 	m_bindGroup = onBindGroup();
 }
 
+void  WgpMesh::setBindGroups(const std::function<std::vector<WGPUBindGroup>()>& onBindGroups) {
+	m_bindGroups = onBindGroups();
+	
+}
+
 void WgpMesh::setBindGroupPTN(const std::function <WGPUBindGroup(const WGPUBuffer& buffer, const WGPUTextureView& textureView)>& onBindGroup) {
 	m_bindGroup = onBindGroup(uniformBuffer.getBuffer(), m_texture.getTextureView());
 }
 
 void WgpMesh::setBindGroupWF(const std::function <WGPUBindGroup(const WGPUBuffer& uniformBuffer, const WGPUBuffer& vertexBuffer, const WGPUBuffer& indexBuffer)>& onBindGroup) {
 	m_bindGroupWF = onBindGroup(uniformBuffer.getBuffer(), m_vertexBuffer.getBuffer(), m_indexBuffer.getBuffer());
+}
+
+std::vector<WGPUBindGroup>& WgpMesh::getBindGroups() {
+	return m_bindGroups;
 }
 
 void WgpMesh::draw(const WGPURenderPassEncoder& renderPassEncoder) const {
@@ -123,7 +132,11 @@ void WgpMesh::draw(const WGPURenderPassEncoder& renderPassEncoder) const {
 }
 
 void WgpMesh::drawRaw(const WGPURenderPassEncoder& renderPassEncoder) const {
-	wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_bindGroup, 0u, NULL);
+	//wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_bindGroups[0], 0u, NULL);
+	//wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 1u, m_bindGroups[1], 0u, NULL);
+	for (uint32_t i = 0u; i < m_bindGroups.size(); i++) {
+		wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, i, m_bindGroups[i], 0u, NULL);
+	}
 	wgpuRenderPassEncoderSetVertexBuffer(renderPassEncoder, 0u, m_vertexBuffer.m_buffer, 0u, wgpuBufferGetSize(m_vertexBuffer.m_buffer));
 	wgpuRenderPassEncoderSetIndexBuffer(renderPassEncoder, m_indexBuffer.m_buffer, WGPUIndexFormat_Uint32, 0u, wgpuBufferGetSize(m_indexBuffer.m_buffer));
 	wgpuRenderPassEncoderDrawIndexed(renderPassEncoder, m_drawCount, 1u, 0u, 0u, 0u);

@@ -15,6 +15,10 @@
 #include <WebGPU/WgpData.h>
 #include <WebGPU/WgpModel.h>
 
+enum TexturePack {
+	SPIRAL,
+	TOY_BOX
+};
 
 class NormalMap : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -39,8 +43,8 @@ public:
 
 private:
 
-	WGPUBindGroupLayout OnBindGroupLayoutNormal();
-	WGPUBindGroup OnBindGroupNormal();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayouts();
+	std::vector <WGPUBindGroup> OnBindGroups();
 
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 	void applyTransformation(TrackBall& arc);
@@ -58,5 +62,10 @@ private:
 	NormalUniforms m_normalUniforms;
 	WgpModel m_wgpCube, m_wgpSphere, m_wgpTorus, m_wgpTorusKnot, m_wgpSpiral;
 
-	WgpTexture m_textureA, m_textureN,m_textureH;
+	WgpTexture m_textureAW, m_textureNT, m_textureHT;
+	WgpTexture m_textureNS, m_textureHS;
+	WgpTexture m_textureAB, m_textureNB, m_textureHB;
+
+	std::vector <WGPUBindGroup> m_bindgroups;
+	TexturePack m_texturePack = TexturePack::SPIRAL;
 };

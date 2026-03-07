@@ -49,9 +49,9 @@ struct NormalUniform {
 @group(0) @binding(1) var<uniform> normalUniforms: NormalUniform;
 @group(0) @binding(2) var textureSampler: sampler;
 
-@group(0) @binding(3) var albedoTexture: texture_2d<f32>;
-@group(0) @binding(4) var normalTexture: texture_2d<f32>;
-@group(0) @binding(5) var heightTexture: texture_2d<f32>;
+@group(1) @binding(0) var albedoTexture: texture_2d<f32>;
+@group(1) @binding(1) var normalTexture: texture_2d<f32>;
+@group(1) @binding(2) var heightTexture: texture_2d<f32>;
 
 @vertex
 fn vs_main(in: VertexInput) -> VertexOutput {
