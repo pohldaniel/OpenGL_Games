@@ -34,18 +34,6 @@ void WgpModel::setRenderPipelineSlot(const std::string& renderPipelineSlot) {
 	}
 }
 
-void WgpModel::setBindGroup(const std::function<WGPUBindGroup(const WGPUTextureView textureView)>& onBindGroup) {
-	for (WgpMesh& mesh : m_meshes) {
-		mesh.setBindGroup(onBindGroup);
-	}
-}
-
-void WgpModel::setBindGroupNormal(const std::function <WGPUBindGroup()>& onBindGroup) {
-	for (WgpMesh& mesh : m_meshes) {
-		mesh.setBindGroupNormal(onBindGroup);
-	}
-}
-
 void WgpModel::setBindGroups(const std::function <std::vector<WGPUBindGroup>()>& onBindGroups) {
 	for (WgpMesh& mesh : m_meshes) {
 		mesh.setBindGroups(onBindGroups);

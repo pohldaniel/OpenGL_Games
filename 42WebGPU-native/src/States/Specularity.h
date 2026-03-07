@@ -52,8 +52,8 @@ public:
 
 private:
 
-	WGPUBindGroupLayout OnBindGroupLayout();
-	WGPUBindGroup OnBindGroup(const WGPUTextureView textureView);
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayouts();
+	std::vector <WGPUBindGroup> OnBindGroups();
 
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 	void updateViewMatrix();

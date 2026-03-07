@@ -63,8 +63,8 @@ struct WgpContext {
 
 	void createComputePipeline(std::string shaderModuleName, std::string pipelineLayoutName, const std::function<WGPUBindGroupLayout()>& onBindGroupLayout);
 
-	void createRenderPipeline(std::string shaderModuleName, std::string pipelineLayoutName, const VertexLayoutSlot vertexLayoutSlot, const std::function<WGPUBindGroupLayout()>& onBindGroupLayout, WGPUPrimitiveTopology primitiveTopology = WGPUPrimitiveTopology::WGPUPrimitiveTopology_TriangleList);
-	void createRenderPipeline2(std::string shaderModuleName, std::string pipelineLayoutName, const VertexLayoutSlot vertexLayoutSlot, const std::function<std::vector<WGPUBindGroupLayout>()>& onBindGroupLayouts, WGPUPrimitiveTopology primitiveTopology = WGPUPrimitiveTopology::WGPUPrimitiveTopology_TriangleList);
+	//void createRenderPipeline(std::string shaderModuleName, std::string pipelineLayoutName, const VertexLayoutSlot vertexLayoutSlot, const std::function<WGPUBindGroupLayout()>& onBindGroupLayout, WGPUPrimitiveTopology primitiveTopology = WGPUPrimitiveTopology::WGPUPrimitiveTopology_TriangleList);
+	void createRenderPipeline(std::string shaderModuleName, std::string pipelineLayoutName, const VertexLayoutSlot vertexLayoutSlot, const std::function<std::vector<WGPUBindGroupLayout>()>& onBindGroupLayouts, WGPUPrimitiveTopology primitiveTopology = WGPUPrimitiveTopology::WGPUPrimitiveTopology_TriangleList);
 
 
 	WGPUBindGroup OnBindGroupPTN(const WGPUBuffer& buffer, const WGPUTextureView& textureView);

@@ -626,72 +626,7 @@ void WgpContext::createComputePipeline(std::string shaderModuleName, std::string
 	wgpContext.computePipelines[pipelineLayoutName] = wgpuDeviceCreateComputePipeline(wgpContext.device, &computePipelineDesc);
 }
 
-void WgpContext::createRenderPipeline(std::string shaderModuleName, std::string pipelineLayoutName, const VertexLayoutSlot vertexLayoutSlot, const std::function<WGPUBindGroupLayout()>& onBindGroupLayout, WGPUPrimitiveTopology primitiveTopology) {
-	
-	WGPUBindGroupLayout bindGroupLayout = onBindGroupLayout();
-
-	WGPUPipelineLayoutDescriptor pipelineLayoutDescriptor = {};
-	pipelineLayoutDescriptor.bindGroupLayoutCount = 1;
-	pipelineLayoutDescriptor.bindGroupLayouts = &bindGroupLayout;
-	pipelineLayouts[pipelineLayoutName] = wgpuDeviceCreatePipelineLayout(wgpContext.device, &pipelineLayoutDescriptor);
-
-	WGPUVertexState vertexState = {};
-	vertexState.module = shaderModules.at(shaderModuleName);
-	vertexState.entryPoint = WGPU_STR("vs_main");
-	vertexState.constantCount = 0u;
-	vertexState.constants = NULL;
-	vertexState.bufferCount = vertexLayoutSlot == VertexLayoutSlot::VL_NONE ? 0u : 1u;
-	if(vertexLayoutSlot != VertexLayoutSlot::VL_NONE)
-		vertexState.buffers = &wgpVertexBufferLayouts.at(vertexLayoutSlot);
-	
-	WGPUBlendState blendState = {};
-	blendState.color.srcFactor = WGPUBlendFactor::WGPUBlendFactor_SrcAlpha;
-	blendState.color.dstFactor = WGPUBlendFactor::WGPUBlendFactor_OneMinusSrcAlpha;
-	blendState.color.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
-	blendState.alpha.srcFactor = WGPUBlendFactor::WGPUBlendFactor_Zero;
-	blendState.alpha.dstFactor = WGPUBlendFactor::WGPUBlendFactor_One;
-	blendState.alpha.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
-
-	WGPUColorTargetState colorTarget = {};
-	colorTarget.format = colorformat;
-	colorTarget.blend = &blendState;
-	colorTarget.writeMask = WGPUColorWriteMask_All;
-
-	WGPUFragmentState fragmentState = {};
-	fragmentState.module = shaderModules.at(shaderModuleName);
-	fragmentState.entryPoint = WGPU_STR("fs_main");
-	fragmentState.constantCount = 0u;
-	fragmentState.constants = NULL;
-	fragmentState.targetCount = 1;
-	fragmentState.targets = &colorTarget;
-
-	WGPUDepthStencilState depthStencilState = {};
-	setDefault(depthStencilState);
-	depthStencilState.depthCompare = WGPUCompareFunction::WGPUCompareFunction_Less;
-	depthStencilState.depthWriteEnabled = WGPUOptionalBool::WGPUOptionalBool_True;
-	depthStencilState.format = wgpContext.depthformat;
-	depthStencilState.stencilReadMask = 0u;
-	depthStencilState.stencilWriteMask = 0u;
-	
-	WGPURenderPipelineDescriptor renderPipelineDescriptor = {};
-	renderPipelineDescriptor.layout = pipelineLayouts.at(pipelineLayoutName);
-	renderPipelineDescriptor.multisample.count = 1u;
-	renderPipelineDescriptor.multisample.mask = ~0u;
-	renderPipelineDescriptor.multisample.alphaToCoverageEnabled = WGPUOptionalBool::WGPUOptionalBool_False;
-
-	renderPipelineDescriptor.vertex = vertexState;
-	renderPipelineDescriptor.fragment = &fragmentState;
-	renderPipelineDescriptor.depthStencil = &depthStencilState;
-
-	renderPipelineDescriptor.primitive.topology = primitiveTopology;
-	renderPipelineDescriptor.primitive.stripIndexFormat = WGPUIndexFormat::WGPUIndexFormat_Undefined;
-	renderPipelineDescriptor.primitive.frontFace = WGPUFrontFace::WGPUFrontFace_CCW;
-	renderPipelineDescriptor.primitive.cullMode = WGPUCullMode::WGPUCullMode_Back;
-
-	wgpContext.renderPipelines[pipelineLayoutName] = wgpuDeviceCreateRenderPipeline(wgpContext.device, &renderPipelineDescriptor);
-}
-
-void WgpContext::createRenderPipeline2(std::string shaderModuleName, std::string pipelineLayoutName, const VertexLayoutSlot vertexLayoutSlot, const std::function<std::vector<WGPUBindGroupLayout>()>& onBindGroupLayouts, WGPUPrimitiveTopology primitiveTopology) {
+void WgpContext::createRenderPipeline(std::string shaderModuleName, std::string pipelineLayoutName, const VertexLayoutSlot vertexLayoutSlot, const std::function<std::vector<WGPUBindGroupLayout>()>& onBindGroupLayouts, WGPUPrimitiveTopology primitiveTopology) {
 
 	std::vector<WGPUBindGroupLayout> bindGroupLayouts = onBindGroupLayouts();
 

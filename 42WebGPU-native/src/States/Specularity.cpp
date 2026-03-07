@@ -21,12 +21,12 @@ Specularity::Specularity(StateMachine& machine) : State(machine, States::SPECULA
 	wgpContext.addSampler(wgpCreateSampler());
 
 	wgpContext.addSahderModule("BOAT", "res/shader/specularity.wgsl");
-	wgpContext.createRenderPipeline("BOAT", "RP_PTNC", VL_PTNC, std::bind(&Specularity::OnBindGroupLayout, this));
+	wgpContext.createRenderPipeline("BOAT", "RP_PTNC", VL_PTNC, std::bind(&Specularity::OnBindGroupLayouts, this));
 
 	m_boat.loadModel("res/models/fourareen.obj", false, false, false, false, false, true);
 	m_boat.generateColors();
 	m_wgpBoat.create(m_boat, m_uniformBuffer);
-	m_wgpBoat.setBindGroup(std::bind(&Specularity::OnBindGroup, this, std::placeholders::_1));
+	m_wgpBoat.setBindGroups(std::bind(&Specularity::OnBindGroups, this));
 
 	wgpContext.OnDraw = std::bind(&Specularity::OnDraw, this, std::placeholders::_1);
 
@@ -191,7 +191,10 @@ void Specularity::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 	ImGui::Render();
 	ImGui_ImplWGPU_RenderDrawData(ImGui::GetDrawData(), renderPassEncoder);
 }
-WGPUBindGroupLayout Specularity::OnBindGroupLayout() {
+
+std::vector <WGPUBindGroupLayout> Specularity::OnBindGroupLayouts() {
+	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
+
 	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(4);
 
 	WGPUBindGroupLayoutEntry& uniformLayout = bindingLayoutEntries[0];
@@ -221,10 +224,13 @@ WGPUBindGroupLayout Specularity::OnBindGroupLayout() {
 	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
 	bindGroupLayoutDescriptor.entries = bindingLayoutEntries.data();
 
-	return wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor);
+	bindingLayouts[0] = wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor);
+	return bindingLayouts;
 }
 
-WGPUBindGroup Specularity::OnBindGroup(const WGPUTextureView textureView) {
+std::vector<WGPUBindGroup> Specularity::OnBindGroups() {
+	std::vector<WGPUBindGroup> bindGroups(1);
+	
 	std::vector<WGPUBindGroupEntry> bindings(4);
 
 	bindings[0].binding = 0;
@@ -233,7 +239,7 @@ WGPUBindGroup Specularity::OnBindGroup(const WGPUTextureView textureView) {
 	bindings[0].size = sizeof(Uniforms);
 
 	bindings[1].binding = 1;
-	bindings[1].textureView = textureView;
+	bindings[1].textureView = m_wgpBoat.getMeshes().begin()->getTexture().getTextureView();
 
 	bindings[2].binding = 2;
 	bindings[2].sampler = wgpContext.getSampler(SS_LINEAR);
@@ -248,7 +254,8 @@ WGPUBindGroup Specularity::OnBindGroup(const WGPUTextureView textureView) {
 	bindGroupDesc.entryCount = (uint32_t)bindings.size();
 	bindGroupDesc.entries = bindings.data();
 
-	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
+	bindGroups[0] = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
+	return bindGroups;
 }
 
 void Specularity::updateViewMatrix() {

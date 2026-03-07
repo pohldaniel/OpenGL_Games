@@ -19,10 +19,10 @@ Wireframe::Wireframe(StateMachine& machine) : State(machine, States::WIREFRAME) 
 	wgpContext.addSampler(wgpCreateSampler());
 
 	wgpContext.addSahderModule("PTN", "res/shader/shader.wgsl");
-	wgpContext.createRenderPipeline("PTN", "RP_PTNC", VL_PTNC, std::bind(&Wireframe::OnBindGroupLayoutPTN, this));
+	wgpContext.createRenderPipeline("PTN", "RP_PTNC", VL_PTNC, std::bind(&Wireframe::OnBindGroupLayoutsPTN, this));
 
 	wgpContext.addSahderModule("WF", "res/shader/wireframe.wgsl");
-	wgpContext.createRenderPipeline("WF", "RP_WF", VL_NONE, std::bind(&Wireframe::OnBindGroupLayoutWF, this), WGPUPrimitiveTopology::WGPUPrimitiveTopology_LineList);
+	wgpContext.createRenderPipeline("WF", "RP_WF", VL_NONE, std::bind(&Wireframe::OnBindGroupLayoutsWF, this), WGPUPrimitiveTopology::WGPUPrimitiveTopology_LineList);
 
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
@@ -253,7 +253,9 @@ void Wireframe::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 	ImGui_ImplWGPU_RenderDrawData(ImGui::GetDrawData(), renderPassEncoder);
 }
 
-WGPUBindGroupLayout Wireframe::OnBindGroupLayoutPTN() {
+std::vector <WGPUBindGroupLayout> Wireframe::OnBindGroupLayoutsPTN() {
+	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
+
 	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(3);
 	
 	WGPUBindGroupLayoutEntry& uniformLayout = bindingLayoutEntries[0];
@@ -277,10 +279,13 @@ WGPUBindGroupLayout Wireframe::OnBindGroupLayoutPTN() {
 	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
 	bindGroupLayoutDescriptor.entries = bindingLayoutEntries.data();
 	
-	return wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor);
+	bindingLayouts[0] = wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor);
+	return bindingLayouts;
 }
 
-WGPUBindGroupLayout Wireframe::OnBindGroupLayoutWF() {
+std::vector <WGPUBindGroupLayout> Wireframe::OnBindGroupLayoutsWF() {
+	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
+
 	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(3);
 
 	WGPUBindGroupLayoutEntry& uniformLayout = bindingLayoutEntries[0];
@@ -304,5 +309,7 @@ WGPUBindGroupLayout Wireframe::OnBindGroupLayoutWF() {
 	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
 	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
 	bindGroupLayoutDescriptor.entries = bindingLayoutEntries.data();
-	return wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor);
+
+	bindingLayouts[0] = wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor);
+	return bindingLayouts;
 }

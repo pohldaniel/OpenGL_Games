@@ -51,7 +51,7 @@ NormalMap::NormalMap(StateMachine& machine) : State(machine, States::NORMAL_MAP)
 	m_textureHB.markForDelete();
 
 	wgpContext.addSahderModule("NORMAL", "res/shader/normal.wgsl");
-	wgpContext.createRenderPipeline2("NORMAL", "RP_PTNTB", VL_PTNTB, std::bind(&NormalMap::OnBindGroupLayouts, this));
+	wgpContext.createRenderPipeline("NORMAL", "RP_PTNTB", VL_PTNTB, std::bind(&NormalMap::OnBindGroupLayouts, this));
 
 	m_cube.buildCube({ -0.5f, -0.5f, -0.5f }, { 1.0f, 1.0f, 1.0f }, 1u, 1u, true, true, true);
 	m_wgpCube.create(m_cube, m_uniformBuffer);

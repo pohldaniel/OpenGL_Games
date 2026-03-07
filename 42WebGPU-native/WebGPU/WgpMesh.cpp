@@ -91,14 +91,6 @@ void WgpMesh::setRenderPipelineSlot(const std::string& renderPipelineSlot) {
 	m_renderPipelineSlot = renderPipelineSlot;
 }
 
-void WgpMesh::setBindGroup(const std::function <WGPUBindGroup(const WGPUTextureView textureView)>& onBindGroup) {
-	m_bindGroup = onBindGroup(m_texture.getTextureView());
-}
-
-void WgpMesh::setBindGroupNormal(const std::function<WGPUBindGroup()>& onBindGroup) {
-	m_bindGroup = onBindGroup();
-}
-
 void  WgpMesh::setBindGroups(const std::function<std::vector<WGPUBindGroup>()>& onBindGroups) {
 	m_bindGroups = onBindGroups();
 	
@@ -112,8 +104,12 @@ void WgpMesh::setBindGroupWF(const std::function <WGPUBindGroup(const WGPUBuffer
 	m_bindGroupWF = onBindGroup(uniformBuffer.getBuffer(), m_vertexBuffer.getBuffer(), m_indexBuffer.getBuffer());
 }
 
-std::vector<WGPUBindGroup>& WgpMesh::getBindGroups() {
+std::vector<WGPUBindGroup>& WgpMesh::getBindGroups() const {
 	return m_bindGroups;
+}
+
+const WgpTexture& WgpMesh::getTexture() const {
+	return m_texture;
 }
 
 void WgpMesh::draw(const WGPURenderPassEncoder& renderPassEncoder) const {
