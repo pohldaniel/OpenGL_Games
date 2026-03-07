@@ -22,9 +22,12 @@ public:
 	void create(const ObjModel& model, const WgpBuffer& uniformBuffer);
 	void create(const Shape& shape, const WgpBuffer& uniformBuffer);
 	void setRenderPipelineSlot(const std::string& renderPipelineSlot);
-	void setBindGroupPTN(const std::function <WGPUBindGroup(const WGPUBuffer& buffer, const WGPUTextureView& textureView)>& onBindGroup);
-	void setBindGroupWF(const std::function< WGPUBindGroup(const WGPUBuffer& uniformBuffer, const WGPUBuffer& vertexBuffer, const WGPUBuffer& indexBuffer)>& onBindGroup);
-	void setBindGroups(const std::function <std::vector<WGPUBindGroup>()>& onBindGroups);
+	void setBindGroupsSlot(const std::string& bindGroupsSlot);
+
+	void setBindGroups(std::string bindGroupsName, const std::function <std::vector<WGPUBindGroup>()>& onBindGroups);
+
+	void addBindGroupTexture(std::string bindGroupsName, WGPUBindGroupLayout layout);
+	void addBindGroupWF(std::string bindGroupsName, WGPUBindGroupLayout layout);
 
 	std::list<WgpMesh>& getMeshes() const;
 

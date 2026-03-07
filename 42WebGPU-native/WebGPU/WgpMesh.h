@@ -23,12 +23,13 @@ public:
 	void cleanup();
 	void markForDelete();
 	void setRenderPipelineSlot(const std::string& renderPipelineSlot);
+	void setBindGroupsSlot(const std::string& bindGroupsSlot);
+	void setBindGroups(std::string bindGroupsName, const std::function<std::vector<WGPUBindGroup>()>& onBindGroups);
 
-	void setBindGroupPTN(const std::function<WGPUBindGroup(const WGPUBuffer& buffer, const WGPUTextureView& textureView)>& onBindGroup);
-	void setBindGroupWF(const std::function< WGPUBindGroup(const WGPUBuffer& uniformBuffer, const WGPUBuffer& vertexBuffer, const WGPUBuffer& indexBuffer)> & onBindGroup);
-	void setBindGroups(const std::function<std::vector<WGPUBindGroup>()>& onBindGroups);
+	void addBindGroupTexture(std::string bindGroupsName, WGPUBindGroupLayout layout);
+	void addBindGroupWF(std::string bindGroupsName, WGPUBindGroupLayout layout);
 
-	std::vector<WGPUBindGroup>& getBindGroups() const;
+	std::vector<WGPUBindGroup>& getBindGroup(std::string bindGroupsName) const;
 	const WgpTexture& getTexture() const;
 
 private:
@@ -37,11 +38,10 @@ private:
 	WgpBuffer m_indexBuffer;
 	WgpBuffer m_colorBuffer;
 	WgpTexture m_texture;
-	WGPUBindGroup m_bindGroupWF, m_bindGroup;
-	mutable std::vector<WGPUBindGroup> m_bindGroups;
+	mutable std::unordered_map<std::string, std::vector<WGPUBindGroup>> m_bindGroupsNew;
 
 	uint32_t m_drawCount;
-	std::string m_renderPipelineSlot;
+	std::string m_renderPipelineSlot, m_bindGroupsSlot;
 	bool m_markForDelete;
 
 	const WgpBuffer& uniformBuffer;

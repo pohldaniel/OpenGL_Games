@@ -34,21 +34,27 @@ void WgpModel::setRenderPipelineSlot(const std::string& renderPipelineSlot) {
 	}
 }
 
-void WgpModel::setBindGroups(const std::function <std::vector<WGPUBindGroup>()>& onBindGroups) {
+void WgpModel::setBindGroupsSlot(const std::string& bindGroupsSlot) {
 	for (WgpMesh& mesh : m_meshes) {
-		mesh.setBindGroups(onBindGroups);
+		mesh.setBindGroupsSlot(bindGroupsSlot);
 	}
 }
 
-void WgpModel::setBindGroupPTN(const std::function<WGPUBindGroup(const WGPUBuffer& buffer, const WGPUTextureView& textureView)>& onBindGroup) {
+void WgpModel::setBindGroups(std::string bindGroupsName, const std::function <std::vector<WGPUBindGroup>()>& onBindGroups) {
 	for (WgpMesh& mesh : m_meshes) {
-		mesh.setBindGroupPTN(onBindGroup);
+		mesh.setBindGroups(bindGroupsName, onBindGroups);
 	}
 }
 
-void WgpModel::setBindGroupWF(const std::function<WGPUBindGroup(const WGPUBuffer& uniformBuffer, const WGPUBuffer& vertexBuffer, const WGPUBuffer& indexBuffer)>& onBindGroup) {
+void WgpModel::addBindGroupTexture(std::string bindGroupsName, WGPUBindGroupLayout layout) {
 	for (WgpMesh& mesh : m_meshes) {
-		mesh.setBindGroupWF(onBindGroup);
+		mesh.addBindGroupTexture(bindGroupsName, layout);
+	}
+}
+
+void WgpModel::addBindGroupWF(std::string bindGroupsName, WGPUBindGroupLayout layout) {
+	for (WgpMesh& mesh : m_meshes) {
+		mesh.addBindGroupWF(bindGroupsName, layout);
 	}
 }
 

@@ -46,6 +46,9 @@ private:
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsPTN();
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsWF();
 
+	std::vector<WGPUBindGroup> OnBindGroups();
+	std::vector<WGPUBindGroup> OnBindGroupsWF();
+
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 	void applyTransformation(TrackBall& arc);
 
