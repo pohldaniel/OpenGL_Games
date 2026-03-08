@@ -338,7 +338,7 @@ void NormalMap::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	int currentTexturePack = m_texturePack;
-	if (ImGui::Combo("Model", &currentTexturePack, "Spiral\0Toybox\0BrickWall\0\0")) {
+	if (ImGui::Combo("Texturepack", &currentTexturePack, "Spiral\0Toybox\0BrickWall\0\0")) {
 		m_texturePack = static_cast<TexturePack>(currentTexturePack);
 		m_wgpCube.getMeshes().begin()->getBindGroups("BG")[1] = m_bindgroups[currentTexturePack];
 	}
