@@ -46,30 +46,12 @@ void WgpModel::setBindGroups(std::string bindGroupsName, const std::function <st
 	}
 }
 
-void WgpModel::addBindGroupTexture(std::string bindGroupsName, WGPUBindGroupLayout layout) {
-	for (WgpMesh& mesh : m_meshes) {
-		mesh.addBindGroupTexture(bindGroupsName, layout);
-	}
-}
-
-void WgpModel::addBindGroupWF(std::string bindGroupsName, WGPUBindGroupLayout layout) {
-	for (WgpMesh& mesh : m_meshes) {
-		mesh.addBindGroupWF(bindGroupsName, layout);
-	}
-}
-
-std::list<WgpMesh>& WgpModel::getMeshes() const{
+const std::list<WgpMesh>& WgpModel::getMeshes() const{
 	return m_meshes;
 }
 
 void WgpModel::draw(const WGPURenderPassEncoder& renderPassEncoder) const {
 	for (std::list<WgpMesh>::const_iterator it = m_meshes.begin(); it != m_meshes.end(); ++it) {
 		(*it).draw(renderPassEncoder);
-	}
-}
-
-void WgpModel::drawRaw(const WGPURenderPassEncoder& renderPassEncoder) const {
-	for (std::list<WgpMesh>::const_iterator it = m_meshes.begin(); it != m_meshes.end(); ++it) {
-		(*it).drawRaw(renderPassEncoder);
 	}
 }

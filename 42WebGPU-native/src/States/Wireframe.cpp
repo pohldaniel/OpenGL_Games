@@ -36,11 +36,8 @@ Wireframe::Wireframe(StateMachine& machine) : State(machine, States::WIREFRAME) 
 	m_wgpMammoth.create(m_mammoth, m_uniformBuffer);	
 	m_wgpMammoth.setBindGroups("BG_WF", std::bind(&Wireframe::OnBindGroupsWF, this));
 	m_wgpMammoth.setBindGroups("BG", std::bind(&Wireframe::OnBindGroups, this));
-
-	m_wgpMammoth.addBindGroupTexture("BG", wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_PTNC"), 1u));
-	m_wgpMammoth.addBindGroupWF("BG_WF", wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_WF"), 1u));
-
 	m_wgpMammoth.setRenderPipelineSlot("RP_PTNC");
+	AddBindgroups(m_wgpMammoth);
 
 	m_dragon.loadModel("res/models/dragon/dragon.obj", Vector3f(0.0f, 1.0f, 0.0f), 90.0f, Vector3f(0.0f, -1.0f, 0.0f), 0.1f, false, false, false, false, false, true);
 	m_dragon.rewind();
@@ -49,11 +46,8 @@ Wireframe::Wireframe(StateMachine& machine) : State(machine, States::WIREFRAME) 
 	m_wgpDragon.create(m_dragon, m_uniformBuffer);
 	m_wgpDragon.setBindGroups("BG_WF", std::bind(&Wireframe::OnBindGroupsWF, this));
 	m_wgpDragon.setBindGroups("BG", std::bind(&Wireframe::OnBindGroups, this));
-
-	m_wgpDragon.addBindGroupTexture("BG", wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_PTNC"), 1u));
-	m_wgpDragon.addBindGroupWF("BG_WF", wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_WF"), 1u));
-
 	m_wgpDragon.setRenderPipelineSlot("RP_PTNC");
+	AddBindgroups(m_wgpDragon);
 
 	m_trackball.reshape(Application::Width, Application::Height);
 	m_trackball.setTrackballScale(0.5f);
@@ -152,7 +146,24 @@ void Wireframe::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
 	
 	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
 
-	m_model == MAMMOTH ? m_wgpMammoth.draw(renderPassEncoder) : m_wgpDragon.draw(renderPassEncoder);
+	if (StateMachine::GetWireframeEnabled()) {
+		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_WF"));
+
+		WgpModel model = m_model == MAMMOTH ? m_wgpMammoth : m_wgpDragon;
+
+		for (std::list<WgpMesh>::const_iterator it = model.getMeshes().begin(); it != model.getMeshes().end(); ++it) {
+			const WgpMesh& mesh = *it;
+			std::vector<WGPUBindGroup>& bindGroups = mesh.getBindGroups();
+			for (uint32_t i = 0u; i < bindGroups.size(); i++) {
+				wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, i, bindGroups[i], 0u, NULL);
+			}
+
+			wgpuRenderPassEncoderDraw(renderPassEncoder, 2u * mesh.getDrawCount(), 1u, 0u, 0u);
+		}
+	}else {
+		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_PTNC"));
+		m_model == MAMMOTH ? m_wgpMammoth.draw(renderPassEncoder) : m_wgpDragon.draw(renderPassEncoder);
+	}
 
 	if (m_drawUi)
 		renderUi(renderPassEncoder);
@@ -382,4 +393,39 @@ std::vector<WGPUBindGroup> Wireframe::OnBindGroupsWF() {
 	bindGroups[0] = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
 
 	return bindGroups;
+}
+
+WGPUBindGroup Wireframe::AddBindgroups(const WgpModel& model) {
+	for (std::list<WgpMesh>::const_iterator it = model.getMeshes().begin(); it != model.getMeshes().end(); ++it) {
+		const WgpMesh& mesh = *it;
+
+		std::vector<WGPUBindGroupEntry> bindingGroupEntries(1);
+		bindingGroupEntries[0].binding = 0u;
+		bindingGroupEntries[0].textureView = mesh.getTexture().getTextureView();
+
+		WGPUBindGroupDescriptor bindGroupDesc = {};
+		bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_PTNC"), 1u);
+		bindGroupDesc.entryCount = (uint32_t)bindingGroupEntries.size();
+		bindGroupDesc.entries = bindingGroupEntries.data();
+
+		mesh.addBindGroup("BG", wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc));
+
+		std::vector<WGPUBindGroupEntry> bindingGroupEntriesWF(2);
+		bindingGroupEntriesWF[0].binding = 0u;
+		bindingGroupEntriesWF[0].buffer = mesh.getVertexBuffer().getBuffer();
+		bindingGroupEntriesWF[0].offset = 0u;
+		bindingGroupEntriesWF[0].size = wgpuBufferGetSize(mesh.getVertexBuffer().getBuffer());
+
+		bindingGroupEntriesWF[1].binding = 1u;
+		bindingGroupEntriesWF[1].buffer = mesh.getIndexBuffer().getBuffer();
+		bindingGroupEntriesWF[1].offset = 0u;
+		bindingGroupEntriesWF[1].size = wgpuBufferGetSize(mesh.getIndexBuffer().getBuffer());
+
+		WGPUBindGroupDescriptor bindGroupDescWF = {};
+		bindGroupDescWF.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_WF"), 1u);
+		bindGroupDescWF.entryCount = (uint32_t)bindingGroupEntriesWF.size();
+		bindGroupDescWF.entries = bindingGroupEntriesWF.data();
+
+		mesh.addBindGroup("BG_WF", wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDescWF));
+	}
 }

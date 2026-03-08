@@ -31,7 +31,6 @@ public:
 	void update() override;
 	void render() override;
 	void OnDraw(const WGPURenderPassEncoder& renderPass);
-	
 
 	void resize(int deltaW, int deltaH) override;
 	void OnMouseMotion(const Event::MouseMoveEvent& event) override;
@@ -62,4 +61,6 @@ private:
 	TrackBall m_trackball;
 	Uniforms m_uniforms;
 	WgpModel m_wgpDragon, m_wgpMammoth;
+
+	static WGPUBindGroup AddBindgroups(const WgpModel& model);
 };

@@ -17,19 +17,14 @@ public:
 	WgpModel(WgpModel&& rhs) noexcept;
 
 	void draw(const WGPURenderPassEncoder& renderPassEncoder) const;
-	void drawRaw(const WGPURenderPassEncoder& renderPassEncoder) const;
 
 	void create(const ObjModel& model, const WgpBuffer& uniformBuffer);
 	void create(const Shape& shape, const WgpBuffer& uniformBuffer);
 	void setRenderPipelineSlot(const std::string& renderPipelineSlot);
 	void setBindGroupsSlot(const std::string& bindGroupsSlot);
-
 	void setBindGroups(std::string bindGroupsName, const std::function <std::vector<WGPUBindGroup>()>& onBindGroups);
 
-	void addBindGroupTexture(std::string bindGroupsName, WGPUBindGroupLayout layout);
-	void addBindGroupWF(std::string bindGroupsName, WGPUBindGroupLayout layout);
-
-	std::list<WgpMesh>& getMeshes() const;
+	const std::list<WgpMesh>& getMeshes() const;
 
 private:
 

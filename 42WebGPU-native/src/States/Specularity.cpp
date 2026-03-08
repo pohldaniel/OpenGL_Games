@@ -79,7 +79,7 @@ void Specularity::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
 	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
 	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_PTNC"));
 
-	m_wgpBoat.drawRaw(renderPassEncoder);
+	m_wgpBoat.draw(renderPassEncoder);
 
 	if (m_drawUi)
 		renderUi(renderPassEncoder);

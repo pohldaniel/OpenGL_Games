@@ -240,11 +240,11 @@ void NormalMap::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
 	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
 
 	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_PTNTB"));
-	m_wgpCube.drawRaw(renderPassEncoder);
-	//m_wgpSphere.drawRaw(renderPassEncoder);
-	//m_wgpTorus.drawRaw(renderPassEncoder);
-	//m_wgpTorusKnot.drawRaw(renderPassEncoder);
-	//m_wgpSpiral.drawRaw(renderPassEncoder);
+	m_wgpCube.draw(renderPassEncoder);
+	//m_wgpSphere.draw(renderPassEncoder);
+	//m_wgpTorus.draw(renderPassEncoder);
+	//m_wgpTorusKnot.draw(renderPassEncoder);
+	//m_wgpSpiral.draw(renderPassEncoder);
 
 	if (m_drawUi)
 		renderUi(renderPassEncoder);
@@ -340,8 +340,7 @@ void NormalMap::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 	int currentTexturePack = m_texturePack;
 	if (ImGui::Combo("Model", &currentTexturePack, "Spiral\0Toybox\0BrickWall\0\0")) {
 		m_texturePack = static_cast<TexturePack>(currentTexturePack);
-
-		m_wgpCube.getMeshes().begin()->getBindGroup("BG")[1] = m_bindgroups[currentTexturePack];
+		m_wgpCube.getMeshes().begin()->getBindGroups("BG")[1] = m_bindgroups[currentTexturePack];
 	}
 
 	ImGui::End();
