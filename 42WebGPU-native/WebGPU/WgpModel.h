@@ -6,7 +6,6 @@ class WgpMesh;
 class WgpBuffer;
 class ObjModel;
 class Shape;
-enum RenderPipelineSlot;
 
 class WgpModel {
 
@@ -18,8 +17,8 @@ public:
 
 	void draw(const WGPURenderPassEncoder& renderPassEncoder) const;
 
-	void create(const ObjModel& model, const WgpBuffer& uniformBuffer);
-	void create(const Shape& shape, const WgpBuffer& uniformBuffer);
+	void create(const ObjModel& model);
+	void create(const Shape& shape);
 	void setRenderPipelineSlot(const std::string& renderPipelineSlot);
 	void setBindGroupsSlot(const std::string& bindGroupsSlot);
 	void setBindGroups(std::string bindGroupsName, const std::function <std::vector<WGPUBindGroup>()>& onBindGroups);

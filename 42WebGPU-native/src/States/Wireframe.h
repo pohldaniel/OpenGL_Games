@@ -56,11 +56,10 @@ private:
 	Model m_model = Model::DRAGON;
 	Camera m_camera;
 	ObjModel m_mammoth, m_dragon;
-	WgpBuffer m_uniformBuffer;
-
 	TrackBall m_trackball;
 	Uniforms m_uniforms;
-	WgpModel m_wgpDragon, m_wgpMammoth;
 
-	static WGPUBindGroup AddBindgroups(const WgpModel& model);
+	WgpModel m_wgpDragon, m_wgpMammoth;
+	WgpBuffer m_uniformBuffer;
+	static void AddBindgroups(const WgpModel& model);
 };

@@ -201,11 +201,13 @@ void Spiral::BuildMesh(const std::array<float, 3>& position, float radius, float
 
 	for (size_t i = 0u; i < positions.size() / 3u; i++) {
 		vertexBuffer.push_back(positions[3 * i]); vertexBuffer.push_back(positions[3 * i + 1]); vertexBuffer.push_back(positions[3 * i + 2]);
-		if(!texels.empty())
+		if (!texels.empty()) {
 			vertexBuffer.push_back(texels[2 * i]); vertexBuffer.push_back(texels[2 * i + 1]);
+		}
 
-		if (!normals.empty())
+		if (!normals.empty()) {
 			vertexBuffer.push_back(normals[3 * i]); vertexBuffer.push_back(normals[3 * i + 1]); vertexBuffer.push_back(normals[3 * i + 2]);
+		}
 
 		if (!tangents.empty()) {
 			vertexBuffer.push_back(tangents[3 * i]); vertexBuffer.push_back(tangents[3 * i + 1]); vertexBuffer.push_back(tangents[3 * i + 2]);

@@ -10,8 +10,8 @@ class WgpMesh {
 
 public:
 
-	WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, const WgpBuffer& uniformBuffer);
-	WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, const std::string& texturePath, const WgpBuffer& uniformBuffer);
+	WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer);
+	WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, const std::string& texturePath);
 	
 	WgpMesh(WgpMesh const& rhs);
 	WgpMesh(WgpMesh&& rhs) noexcept;
@@ -46,7 +46,6 @@ private:
 	std::string m_renderPipelineSlot, m_bindGroupsSlot;
 	bool m_markForDelete;
 
-	const WgpBuffer& uniformBuffer;
 	const std::vector<float>& vertexBuffer;
 	const std::vector<unsigned int>& indexBuffer;	
 };

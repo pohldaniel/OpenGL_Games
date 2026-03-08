@@ -1,6 +1,5 @@
 #include <engine/shape/Shape.h>
 #include <engine/ObjModel.h>
-#include "WgpContext.h"
 #include "WgpModel.h"
 #include "WgpMesh.h"
 #include "WgpBuffer.h"
@@ -13,9 +12,9 @@ WgpModel::WgpModel(WgpModel&& rhs) noexcept : m_meshes(rhs.m_meshes) {
 
 }
 
-void WgpModel::create(const ObjModel& model, const WgpBuffer& uniformBuffer) {
+void WgpModel::create(const ObjModel& model) {
 	for (ObjMesh* mesh : model.getMeshes()) {
-		m_meshes.push_back(WgpMesh(mesh->getVertexBuffer(), mesh->getIndexBuffer(), mesh->getMaterial().textures.at(TextureSlot::TEXTURE_DIFFUSE), uniformBuffer));
+		m_meshes.push_back(WgpMesh(mesh->getVertexBuffer(), mesh->getIndexBuffer(), mesh->getMaterial().textures.at(TextureSlot::TEXTURE_DIFFUSE)));
 	}
 
 	for (WgpMesh& mesh : m_meshes) {
@@ -23,8 +22,8 @@ void WgpModel::create(const ObjModel& model, const WgpBuffer& uniformBuffer) {
 	}
 }
 
-void WgpModel::create(const Shape& shape, const WgpBuffer& uniformBuffer) {
-	m_meshes.push_back(WgpMesh(shape.getVertexBuffer(), shape.getIndexBuffer(), uniformBuffer));
+void WgpModel::create(const Shape& shape) {
+	m_meshes.push_back(WgpMesh(shape.getVertexBuffer(), shape.getIndexBuffer()));
 	m_meshes.back().markForDelete();
 }
 

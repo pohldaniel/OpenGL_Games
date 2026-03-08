@@ -33,7 +33,7 @@ Wireframe::Wireframe(StateMachine& machine) : State(machine, States::WIREFRAME) 
 	m_mammoth.loadModel("res/models/mammoth.obj");
 	m_mammoth.generateColors(ModelColor::MC_POSITION);
 
-	m_wgpMammoth.create(m_mammoth, m_uniformBuffer);	
+	m_wgpMammoth.create(m_mammoth);	
 	m_wgpMammoth.setBindGroups("BG_WF", std::bind(&Wireframe::OnBindGroupsWF, this));
 	m_wgpMammoth.setBindGroups("BG", std::bind(&Wireframe::OnBindGroups, this));
 	m_wgpMammoth.setRenderPipelineSlot("RP_PTNC");
@@ -43,7 +43,7 @@ Wireframe::Wireframe(StateMachine& machine) : State(machine, States::WIREFRAME) 
 	m_dragon.rewind();
 	m_dragon.generateColors(ModelColor::MC_POSITION);
 
-	m_wgpDragon.create(m_dragon, m_uniformBuffer);
+	m_wgpDragon.create(m_dragon);
 	m_wgpDragon.setBindGroups("BG_WF", std::bind(&Wireframe::OnBindGroupsWF, this));
 	m_wgpDragon.setBindGroups("BG", std::bind(&Wireframe::OnBindGroups, this));
 	m_wgpDragon.setRenderPipelineSlot("RP_PTNC");
@@ -395,7 +395,7 @@ std::vector<WGPUBindGroup> Wireframe::OnBindGroupsWF() {
 	return bindGroups;
 }
 
-WGPUBindGroup Wireframe::AddBindgroups(const WgpModel& model) {
+void Wireframe::AddBindgroups(const WgpModel& model) {
 	for (std::list<WgpMesh>::const_iterator it = model.getMeshes().begin(); it != model.getMeshes().end(); ++it) {
 		const WgpMesh& mesh = *it;
 

@@ -105,16 +105,16 @@ void WgpTexture::loadFromFile(std::string fileName, const bool flipVertical, sho
     
     WGPUTexelCopyTextureInfo destination = {};
     destination.texture = m_texture;
-    destination.mipLevel = 0;
-    destination.origin = { 0, 0, 0 };
+    destination.mipLevel = 0u;
+    destination.origin = { 0u, 0u, 0u };
     destination.aspect = WGPUTextureAspect_All;
 
     WGPUTexelCopyBufferLayout source = {};
-    source.offset = 0;
+    source.offset = 0u;
     source.bytesPerRow = m_channels * m_width;
     source.rowsPerImage = m_height;
 
-    WGPUExtent3D extent3D = { m_width, m_height, 1 };
+    WGPUExtent3D extent3D = { m_width, m_height, 1u };
     wgpuQueueWriteTexture(wgpContext.queue, &destination, imageData, width * height * bpp, &source, &extent3D);
 
     FreeImage_Unload(sourceBitmap);

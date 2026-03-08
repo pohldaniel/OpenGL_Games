@@ -1,14 +1,11 @@
-#include <iostream>
 #include "WgpContext.h"
 #include "WgpMesh.h"
-#include "WgpData.h"
 
-WgpMesh::WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, const WgpBuffer& uniformBuffer) :
+WgpMesh::WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer) :
 	m_drawCount(indexBuffer.size()),
 	m_renderPipelineSlot("RP_PTN"),
 	m_bindGroupsSlot("BG"),
 	m_markForDelete(false),
-	uniformBuffer(uniformBuffer),
 	vertexBuffer(vertexBuffer),
 	indexBuffer(indexBuffer) {
 
@@ -16,12 +13,11 @@ WgpMesh::WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsig
 	m_indexBuffer.createBuffer(reinterpret_cast<const void*>(indexBuffer.data()), sizeof(unsigned int) * indexBuffer.size(), WGPUBufferUsage_Index | WGPUBufferUsage_Vertex | WGPUBufferUsage_Storage);
 }
 
-WgpMesh::WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, const std::string& texturePath, const WgpBuffer& uniformBuffer) :
+WgpMesh::WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, const std::string& texturePath) :
 	m_drawCount(indexBuffer.size()),
 	m_renderPipelineSlot("RP_PTN"),
 	m_bindGroupsSlot("BG"),
 	m_markForDelete(false),
-	uniformBuffer(uniformBuffer),
 	vertexBuffer(vertexBuffer),
 	indexBuffer(indexBuffer) {
 
@@ -39,7 +35,6 @@ WgpMesh::WgpMesh(WgpMesh const& rhs) :
 	m_renderPipelineSlot(rhs.m_renderPipelineSlot),
 	m_bindGroupsSlot(rhs.m_bindGroupsSlot),
 	m_markForDelete(false),
-	uniformBuffer(rhs.uniformBuffer),
 	vertexBuffer(rhs.vertexBuffer),
 	indexBuffer(rhs.indexBuffer) {
 }
@@ -52,8 +47,7 @@ WgpMesh::WgpMesh(WgpMesh&& rhs) noexcept :
 	m_drawCount(rhs.m_drawCount),
 	m_renderPipelineSlot(rhs.m_renderPipelineSlot),
 	m_bindGroupsSlot(rhs.m_bindGroupsSlot),
-	m_markForDelete(false),	
-	uniformBuffer(rhs.uniformBuffer),
+	m_markForDelete(false),
 	vertexBuffer(rhs.vertexBuffer),
 	indexBuffer(rhs.indexBuffer) {
 }

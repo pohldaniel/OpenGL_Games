@@ -294,9 +294,9 @@ void Application::fixedUpdate() {
 void Application::initStates() {
 	Machine = new StateMachine(m_dt, m_fdt);
 	//Machine->addStateAtTop(new Wireframe(*Machine));
-	//Machine->addStateAtTop(new Compute(*Machine));
+	Machine->addStateAtTop(new Compute(*Machine));
 	//Machine->addStateAtTop(new Specularity(*Machine));
-	Machine->addStateAtTop(new NormalMap(*Machine));
+	//Machine->addStateAtTop(new NormalMap(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

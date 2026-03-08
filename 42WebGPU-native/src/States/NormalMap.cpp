@@ -54,23 +54,23 @@ NormalMap::NormalMap(StateMachine& machine) : State(machine, States::NORMAL_MAP)
 	wgpContext.createRenderPipeline("NORMAL", "RP_PTNTB", VL_PTNTB, std::bind(&NormalMap::OnBindGroupLayouts, this));
 
 	m_cube.buildCube({ -0.5f, -0.5f, -0.5f }, { 1.0f, 1.0f, 1.0f }, 1u, 1u, true, true, true);
-	m_wgpCube.create(m_cube, m_uniformBuffer);
+	m_wgpCube.create(m_cube);
 	m_wgpCube.setBindGroups("BG", std::bind(&NormalMap::OnBindGroups, this));
 
 	m_sphere.buildSphere({ 0.0f, 0.0f, 0.0f }, 1.0f, 49u, 49u, true, true, true);
-	m_wgpSphere.create(m_sphere, m_uniformBuffer);
+	m_wgpSphere.create(m_sphere);
 	m_wgpSphere.setBindGroups("BG", std::bind(&NormalMap::OnBindGroups, this));
 
 	m_torus.buildTorus({ 0.0f, 0.0f, 0.0f }, 0.5f, 0.25f, 49u, 49u, true, true, true);
-	m_wgpTorus.create(m_torus, m_uniformBuffer);
+	m_wgpTorus.create(m_torus);
 	m_wgpTorus.setBindGroups("BG", std::bind(&NormalMap::OnBindGroups, this));
 
 	m_torusKnot.buildTorusKnot({ 0.0f, 0.0f, 0.0f }, 1.0f, 0.4f, 2u, 3u, 100u, 16u, true, true, true);
-	m_wgpTorusKnot.create(m_torusKnot, m_uniformBuffer);
+	m_wgpTorusKnot.create(m_torusKnot);
 	m_wgpTorusKnot.setBindGroups("BG", std::bind(&NormalMap::OnBindGroups, this));
 
 	m_spiral.buildSpiral({ 0.0f, -0.75f, 0.0f }, 0.5f, 0.25f, 1.5f, 2u, true, 49u, 49u, true, true, true);
-	m_wgpSpiral.create(m_spiral, m_uniformBuffer);
+	m_wgpSpiral.create(m_spiral);
 	m_wgpSpiral.setBindGroups("BG", std::bind(&NormalMap::OnBindGroups, this));
 
 	wgpContext.OnDraw = std::bind(&NormalMap::OnDraw, this, std::placeholders::_1);

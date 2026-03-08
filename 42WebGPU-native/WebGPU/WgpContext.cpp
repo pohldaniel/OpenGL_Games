@@ -627,7 +627,6 @@ void WgpContext::createComputePipeline(std::string shaderModuleName, std::string
 }
 
 void WgpContext::createRenderPipeline(std::string shaderModuleName, std::string pipelineLayoutName, const VertexLayoutSlot vertexLayoutSlot, const std::function<std::vector<WGPUBindGroupLayout>()>& onBindGroupLayouts, WGPUPrimitiveTopology primitiveTopology) {
-
 	std::vector<WGPUBindGroupLayout> bindGroupLayouts = onBindGroupLayouts();
 
 	WGPUPipelineLayoutDescriptor pipelineLayoutDescriptor = {};
