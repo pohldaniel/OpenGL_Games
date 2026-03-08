@@ -18,7 +18,7 @@ Compute::Compute(StateMachine& machine) : State(machine, States::COMPUTE) {
 	wgpContext.addSampler(wgpCreateSampler());
 
 	wgpContext.addSahderModule("COMPUTE", "res/shader/compute.wgsl");
-	wgpContext.createComputePipeline("COMPUTE", "CP_COMPUTE", std::bind(&Compute::OnBindGroupLayout, this));
+	wgpContext.createComputePipeline("COMPUTE", "CP_COMPUTE", std::bind(&Compute::OnBindGroupLayouts, this));
 
 	m_inputTexture.loadFromFile("res/textures/input.jpg", true);
 	m_outputTexture.createEmpty(m_inputTexture.getWidth(), m_inputTexture.getHeight(), WGPUTextureUsage_TextureBinding | WGPUTextureUsage_StorageBinding | WGPUTextureUsage_CopySrc, WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm);
@@ -216,24 +216,26 @@ void Compute::renderUi(const WGPURenderPassEncoder& renderPassEncoder, bool forc
 	ImGui_ImplWGPU_RenderDrawData(ImGui::GetDrawData(), renderPassEncoder);
 }
 
-WGPUBindGroupLayout Compute::OnBindGroupLayout() {
+std::vector<WGPUBindGroupLayout> Compute::OnBindGroupLayouts() {
+	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
+
 	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(3);
 
 	WGPUBindGroupLayoutEntry& inputImageLayout = bindingLayoutEntries[0];
-	inputImageLayout.binding = 0;
+	inputImageLayout.binding = 0u;
 	inputImageLayout.texture.sampleType = WGPUTextureSampleType::WGPUTextureSampleType_Float;
 	inputImageLayout.texture.viewDimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
 	inputImageLayout.visibility = WGPUShaderStage_Compute;
 
 	WGPUBindGroupLayoutEntry& outputImageLayout = bindingLayoutEntries[1];
-	outputImageLayout.binding = 1;
+	outputImageLayout.binding = 1u;
 	outputImageLayout.storageTexture.access = WGPUStorageTextureAccess::WGPUStorageTextureAccess_WriteOnly;
 	outputImageLayout.storageTexture.format = WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm;
 	outputImageLayout.storageTexture.viewDimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
 	outputImageLayout.visibility = WGPUShaderStage_Compute;
 
 	WGPUBindGroupLayoutEntry& uniformLayout = bindingLayoutEntries[2];
-	uniformLayout.binding = 2;
+	uniformLayout.binding = 2u;
 	uniformLayout.buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
 	uniformLayout.buffer.minBindingSize = sizeof(UniformsCompute);
 	uniformLayout.visibility = WGPUShaderStage_Compute;
@@ -241,7 +243,10 @@ WGPUBindGroupLayout Compute::OnBindGroupLayout() {
 	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
 	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
 	bindGroupLayoutDescriptor.entries = bindingLayoutEntries.data();
-	return wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor);
+
+	bindingLayouts[0] = wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor);
+
+	return bindingLayouts;
 }
 
 WGPUBindGroup Compute::createBindGroup(const WGPUTextureView& inputTextureView, const WGPUTextureView& outputTextureView, const WGPUBuffer& uniformBuffer) {

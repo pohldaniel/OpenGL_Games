@@ -61,7 +61,7 @@ struct WgpContext {
 	friend void wgpShaderModulesRelease();
 	friend void wgpPipelineLayoutsRelease();
 
-	void createComputePipeline(std::string shaderModuleName, std::string pipelineLayoutName, const std::function<WGPUBindGroupLayout()>& onBindGroupLayout);
+	void createComputePipeline(std::string shaderModuleName, std::string pipelineLayoutName, const std::function<std::vector<WGPUBindGroupLayout>()>& onBindGroupLayouts);
 	void createRenderPipeline(std::string shaderModuleName, std::string pipelineLayoutName, const VertexLayoutSlot vertexLayoutSlot, const std::function<std::vector<WGPUBindGroupLayout>()>& onBindGroupLayouts, WGPUPrimitiveTopology primitiveTopology = WGPUPrimitiveTopology::WGPUPrimitiveTopology_TriangleList);
 
 	void createVertexBufferLayout(VertexLayoutSlot slot = VL_PTN);

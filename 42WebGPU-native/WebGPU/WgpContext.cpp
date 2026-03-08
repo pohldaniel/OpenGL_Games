@@ -607,12 +607,12 @@ const WGPUShaderModule& WgpContext::getShaderModule(std::string shaderModuleName
 	return shaderModules.at(shaderModuleName);
 }
 
-void WgpContext::createComputePipeline(std::string shaderModuleName, std::string pipelineLayoutName, const std::function<WGPUBindGroupLayout()>& onBindGroupLayout) {
-	WGPUBindGroupLayout bindGroupLayout = onBindGroupLayout();
+void WgpContext::createComputePipeline(std::string shaderModuleName, std::string pipelineLayoutName, const std::function<std::vector<WGPUBindGroupLayout>()>& onBindGroupLayouts) {
+	std::vector<WGPUBindGroupLayout> bindGroupLayouts = onBindGroupLayouts();
 
 	WGPUPipelineLayoutDescriptor pipelineLayoutDescriptor = {};
-	pipelineLayoutDescriptor.bindGroupLayoutCount = 1;
-	pipelineLayoutDescriptor.bindGroupLayouts = &bindGroupLayout;
+	pipelineLayoutDescriptor.bindGroupLayoutCount = bindGroupLayouts.size();
+	pipelineLayoutDescriptor.bindGroupLayouts = bindGroupLayouts.data();
 	pipelineLayouts[pipelineLayoutName] = wgpuDeviceCreatePipelineLayout(wgpContext.device, &pipelineLayoutDescriptor);
 
 	WGPUComputePipelineDescriptor computePipelineDesc = {};
