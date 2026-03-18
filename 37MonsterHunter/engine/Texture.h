@@ -155,13 +155,13 @@ private:
 	unsigned int m_format = 0u;
 	unsigned int m_internalFormat = 0u;
 	unsigned int m_type = 0u;
-	unsigned int m_target;
+	unsigned int m_target = 0u;
 	unsigned int m_textureHandle = 0u;
 	bool m_deepCopy = false;
 	bool m_markForDelete = false;
 	unsigned char* imageData = nullptr;
 	unsigned char* subImage = nullptr;
-	std::vector<unsigned char*> facData;
+	std::vector<unsigned char*> faceData;
 
 	static std::map<unsigned int, unsigned int> ActiveTextures;
 };

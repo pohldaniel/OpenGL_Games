@@ -1,0 +1,214 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\contour-combiners.cpp" />
+    <ClCompile Include="src\Contour.cpp" />
+    <ClCompile Include="src\convergent-curve-ordering.cpp" />
+    <ClCompile Include="src\DistanceMapping.cpp" />
+    <ClCompile Include="src\edge-coloring.cpp" />
+    <ClCompile Include="src\edge-segments.cpp" />
+    <ClCompile Include="src\edge-selectors.cpp" />
+    <ClCompile Include="src\EdgeHolder.cpp" />
+    <ClCompile Include="src\equation-solver.cpp" />
+    <ClCompile Include="src\export-svg.cpp" />
+    <ClCompile Include="src\msdf-error-correction.cpp" />
+    <ClCompile Include="src\MSDFErrorCorrection.cpp" />
+    <ClCompile Include="src\msdfgen.cpp" />
+    <ClCompile Include="src\Projection.cpp" />
+    <ClCompile Include="src\rasterization.cpp" />
+    <ClCompile Include="src\render-sdf.cpp" />
+    <ClCompile Include="src\save-bmp.cpp" />
+    <ClCompile Include="src\save-fl32.cpp" />
+    <ClCompile Include="src\save-rgba.cpp" />
+    <ClCompile Include="src\save-tiff.cpp" />
+    <ClCompile Include="src\Scanline.cpp" />
+    <ClCompile Include="src\sdf-error-estimation.cpp" />
+    <ClCompile Include="src\shape-description.cpp" />
+    <ClCompile Include="src\Shape.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\arithmetics.hpp" />
+    <ClInclude Include="include\base.h" />
+    <ClInclude Include="include\bitmap-interpolation.hpp" />
+    <ClInclude Include="include\Bitmap.h" />
+    <ClInclude Include="include\Bitmap.hpp" />
+    <ClInclude Include="include\BitmapRef.hpp" />
+    <ClInclude Include="include\contour-combiners.h" />
+    <ClInclude Include="include\Contour.h" />
+    <ClInclude Include="include\convergent-curve-ordering.h" />
+    <ClInclude Include="include\DistanceMapping.h" />
+    <ClInclude Include="include\edge-coloring.h" />
+    <ClInclude Include="include\edge-segments.h" />
+    <ClInclude Include="include\edge-selectors.h" />
+    <ClInclude Include="include\EdgeColor.h" />
+    <ClInclude Include="include\EdgeHolder.h" />
+    <ClInclude Include="include\equation-solver.h" />
+    <ClInclude Include="include\export-svg.h" />
+    <ClInclude Include="include\generator-config.h" />
+    <ClInclude Include="include\msdf-error-correction.h" />
+    <ClInclude Include="include\MSDFErrorCorrection.h" />
+    <ClInclude Include="include\pixel-conversion.hpp" />
+    <ClInclude Include="include\Projection.h" />
+    <ClInclude Include="include\Range.hpp" />
+    <ClInclude Include="include\rasterization.h" />
+    <ClInclude Include="include\render-sdf.h" />
+    <ClInclude Include="include\save-bmp.h" />
+    <ClInclude Include="include\save-fl32.h" />
+    <ClInclude Include="include\save-rgba.h" />
+    <ClInclude Include="include\save-tiff.h" />
+    <ClInclude Include="include\Scanline.h" />
+    <ClInclude Include="include\sdf-error-estimation.h" />
+    <ClInclude Include="include\SDFTransformation.h" />
+    <ClInclude Include="include\shape-description.h" />
+    <ClInclude Include="include\Shape.h" />
+    <ClInclude Include="include\ShapeDistanceFinder.h" />
+    <ClInclude Include="include\ShapeDistanceFinder.hpp" />
+    <ClInclude Include="include\SignedDistance.hpp" />
+    <ClInclude Include="include\Vector2.hpp" />
+    <ClInclude Include="include\YAxisOrientation.h" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{e011da66-fb2a-437e-9e9f-d3417e1387eb}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>msdfgen_core</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>..\..\libd\x86\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>..\..\libd\x64\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>..\..\lib\x64\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>..\..\lib\x86\</OutDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;MSDFGEN_VERSION=1.13.0;MSDFGEN_VERSION_MAJOR=1;MSDFGEN_VERSION_MINOR=13;MSDFGEN_VERSION_REVISION=0;MSDFGEN_COPYRIGHT_YEAR=2026;MSDFGEN_PUBLIC=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;MSDFGEN_VERSION=1.13.0;MSDFGEN_VERSION_MAJOR=1;MSDFGEN_VERSION_MINOR=13;MSDFGEN_VERSION_REVISION=0;MSDFGEN_COPYRIGHT_YEAR=2026;MSDFGEN_PUBLIC=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;MSDFGEN_VERSION=1.13.0;MSDFGEN_VERSION_MAJOR=1;MSDFGEN_VERSION_MINOR=13;MSDFGEN_VERSION_REVISION=0;MSDFGEN_COPYRIGHT_YEAR=2026;MSDFGEN_PUBLIC=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;MSDFGEN_VERSION=1.13.0;MSDFGEN_VERSION_MAJOR=1;MSDFGEN_VERSION_MINOR=13;MSDFGEN_VERSION_REVISION=0;MSDFGEN_COPYRIGHT_YEAR=2026;MSDFGEN_PUBLIC=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

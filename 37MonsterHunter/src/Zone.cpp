@@ -840,9 +840,9 @@ void Zone::loadTileSet(const std::vector<std::pair<std::string, float>>& pathSiz
 }
 
 void Zone::loadTileSetData(const std::string& path) {
-	std::ifstream file("res/tilesets.json", std::ios::in);
+	std::ifstream file(path, std::ios::in);
 	if (!file.is_open()) {
-		std::cerr << "Could not open file: " << "res/tilesets.json" << std::endl;
+		std::cerr << "Could not open file: " << path << std::endl;
 	}
 
 	rapidjson::IStreamWrapper streamWrapper(file);

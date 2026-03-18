@@ -511,15 +511,15 @@ void Texture::loadFromFileGpu() {
 
 		// load face data
 		for (int i = 0; i < 6; i++) {
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, m_internalFormat, m_width, m_height, 0, m_format, m_type, facData[i]);
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, m_internalFormat, m_width, m_height, 0, m_format, m_type, faceData[i]);
 		}
 
 		glBindTexture(m_target, 0);
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 
 		for (int i = 0; i < 6; i++) {
-			free(facData[i]);
-			facData[i] = nullptr;
+			free(faceData[i]);
+			faceData[i] = nullptr;
 		}
 
 		SOIL_free_image_data(imageData);
@@ -749,7 +749,7 @@ void Texture::loadCrossCubeFromFileCpu(std::string fileName, const bool _flipVer
 		memcpy(ptr, &imageData[(m_height - (fHeight + j + 1)) * m_width * m_channels + 2 * fWidth * m_channels], fWidth * m_channels);
 		ptr += fWidth * m_channels;
 	}
-	facData.push_back(face);
+	faceData.push_back(face);
 
 	// negative X
 	face = new unsigned char[fWidth * fHeight * m_channels];
@@ -758,7 +758,7 @@ void Texture::loadCrossCubeFromFileCpu(std::string fileName, const bool _flipVer
 		memcpy(ptr, &imageData[(m_height - (fHeight + j + 1))*m_width * m_channels], fWidth * m_channels);
 		ptr += fWidth * m_channels;
 	}
-	facData.push_back(face);
+	faceData.push_back(face);
 
 	// positive Y
 	face = new unsigned char[fWidth * fHeight * m_channels];
@@ -767,7 +767,7 @@ void Texture::loadCrossCubeFromFileCpu(std::string fileName, const bool _flipVer
 		memcpy(ptr, &imageData[j * m_width * m_channels + fWidth * m_channels], fWidth * m_channels);
 		ptr += fWidth * m_channels;
 	}
-	facData.push_back(face);
+	faceData.push_back(face);
 
 	// negative Y
 	face = new unsigned char[fWidth * fHeight * m_channels];
@@ -776,7 +776,7 @@ void Texture::loadCrossCubeFromFileCpu(std::string fileName, const bool _flipVer
 		memcpy(ptr, &imageData[(m_height - (j + 1)) * m_width * m_channels + fWidth * m_channels], fWidth * m_channels);
 		ptr += fWidth * m_channels;
 	}
-	facData.push_back(face);
+	faceData.push_back(face);
 	
 	// positive Z
 	face = new unsigned char[fWidth * fHeight * m_channels];
@@ -785,7 +785,7 @@ void Texture::loadCrossCubeFromFileCpu(std::string fileName, const bool _flipVer
 		memcpy(ptr, &imageData[(m_height - (fHeight + j + 1)) * m_width * m_channels + fWidth * m_channels], fWidth * m_channels);
 		ptr += fWidth * m_channels;
 	}
-	facData.push_back(face);
+	faceData.push_back(face);
 
 	// negative Z
 	face = new unsigned char[fWidth * fHeight * m_channels];
@@ -795,14 +795,14 @@ void Texture::loadCrossCubeFromFileCpu(std::string fileName, const bool _flipVer
 		memcpy(ptr, &imageData[(m_height - (fHeight + j + 1)) * m_width * m_channels + 3 * fWidth * m_channels], fWidth * m_channels);
 		ptr += fWidth * m_channels;
 	}
-	facData.push_back(face);
+	faceData.push_back(face);
 
 	m_width = fWidth;
 	m_height = fHeight;
 
 	for (int i = 0; i < 6; i++) {
 		if (_flipVertical && i != 2)
-			flipVertical(facData[i], m_channels * m_width, m_height);
+			flipVertical(faceData[i], m_channels * m_width, m_height);
 	}
 }
 
@@ -820,15 +820,15 @@ void Texture::loadCrossCubeFromFileGpu() {
 
 	// load face data
 	for (int i = 0; i < 6; i++) {
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, m_internalFormat, m_width, m_height, 0, m_format, m_type, facData[i]);
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, m_internalFormat, m_width, m_height, 0, m_format, m_type, faceData[i]);
 	}
 	glGenerateMipmap(m_target);
 	glBindTexture(m_target, 0);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 
 	for (int i = 0; i < 6; i++) {
-		free(facData[i]);
-		facData[i] = nullptr;
+		free(faceData[i]);
+		faceData[i] = nullptr;
 	}
 
 	SOIL_free_image_data(imageData);
