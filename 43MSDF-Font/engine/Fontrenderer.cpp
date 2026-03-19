@@ -61,7 +61,7 @@ void Fontrenderer::addText(const CharacterSet& characterSet, float posX, float p
 	std::string::const_iterator c;
 	for (c = text.begin(); c != text.end(); c++) {
 		const Char& ch = characterSet.getCharacter(*c);
-		m_batchrenderer->addQuadAA(Vector4f(posX + ch.offset[0], posY + ch.offset[1] * size, static_cast<float>(ch.size[0]) * size, static_cast<float>(ch.size[1]) * size), flipGlyph ? Vector4f(ch.textureOffset[0], ch.textureOffset[1] + ch.textureSize[1], ch.textureSize[0], -ch.textureSize[1]) : Vector4f(ch.textureOffset[0], ch.textureOffset[1], ch.textureSize[0], ch.textureSize[1]), color, characterSet.frame);
+		m_batchrenderer->addQuadAA(Vector4f(posX + ch.offset[0] * size, posY + ch.offset[1] * size, static_cast<float>(ch.size[0]) * size, static_cast<float>(ch.size[1]) * size), flipGlyph ? Vector4f(ch.textureOffset[0], ch.textureOffset[1] + ch.textureSize[1], ch.textureSize[0], -ch.textureSize[1]) : Vector4f(ch.textureOffset[0], ch.textureOffset[1], ch.textureSize[0], ch.textureSize[1]), color, characterSet.frame);
 		posX = posX + (ch.offset[0] + ch.advance) * size;
 	}
 }

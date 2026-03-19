@@ -368,6 +368,8 @@ void Application::initOpenGL(int msaaSamples) {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+
+	glAlphaFunc(GL_GREATER, 0.4f);
 }
 
 void Application::initImGUI() {

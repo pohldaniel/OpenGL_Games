@@ -45,6 +45,7 @@ struct CharacterSet {
 	unsigned int maxHeight;
 	unsigned int lineHeight;
 	unsigned int frame;
+	float distanceRange;
 
 	const Char& getCharacter(const char c) const;
 	int getWidth(std::string text) const;

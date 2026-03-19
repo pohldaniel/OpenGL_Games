@@ -262,8 +262,11 @@ void CharacterSet::loadMsdfFromFile(const std::string& pathJson, const std::stri
 	float width = doc["atlas"]["width"].GetFloat();
 	float height = doc["atlas"]["height"].GetFloat();
 
+	distanceRange = doc["atlas"]["distanceRange"].GetFloat();
+	lineHeight = static_cast<unsigned int>(doc["metrics"]["lineHeight"].GetFloat() * size);
+
 	for (rapidjson::Value::ConstValueIterator glyph = doc["glyphs"].GetArray().Begin(); glyph != doc["glyphs"].GetArray().End(); ++glyph) {
-		unsigned int code = (*glyph)["unicode"].GetUint();
+		unsigned int code = glyph->HasMember("unicode") ?  (*glyph)["unicode"].GetUint() : glyph->HasMember("index") ? (*glyph)["index"].GetUint() : 0;
 
 		float advance = glyph->HasMember("advance") ? (*glyph)["advance"].GetFloat() : 0.0f;
 
@@ -279,13 +282,11 @@ void CharacterSet::loadMsdfFromFile(const std::string& pathJson, const std::stri
 
 		characters.insert(std::pair<char, Char>(code,
 			{ (pright - pleft) * size, (ptop - pbottom) * size,
-			  aleft / width, abottom / height,
-			  (aright - aleft) / width, (atop - abottom) / height,
+			  (aleft + 0.5f) / width, (abottom + 0.5f) / height,
+			  ((aright - aleft) - 1.0f) / width, ((atop - abottom) - 1.0f) / height,
 			  pleft * size, pbottom * size,
-			  advance * size,
-			}));
-
-		lineHeight = static_cast<unsigned int>(doc["metrics"]["lineHeight"].GetFloat() * size);
+			  advance * size + advance * distanceRange * 0.75f
+			}));	
 	}
 	Spritesheet::LoadFromFile(spriteSheet, pathTexture, true);
 }

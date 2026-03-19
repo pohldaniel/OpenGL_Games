@@ -115,14 +115,15 @@ void Default::render() {
 	//m_background.draw();
 
 	Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("font_msdf"));
-	
+	glEnable(GL_ALPHA_TEST);
 	Globals::fontManager.get("upheaval_150_msdf").bind();
-	Fontrenderer::Get().addText(Globals::fontManager.get("upheaval_150_msdf"), static_cast<float>(Application::Width) * 0.5f + 2.0f, static_cast<float>(Application::Height) * 0.5f, "WhQH", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), m_fontSize);
+	Fontrenderer::Get().addText(Globals::fontManager.get("upheaval_150_msdf"), static_cast<float>(Application::Width) * 0.5f, static_cast<float>(Application::Height) * 0.5f, "WhQH", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), m_fontSize);
 	Fontrenderer::Get().drawBuffer();
+	glDisable(GL_ALPHA_TEST);
 
 	Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("font_ttf"));
 	Globals::fontManager.get("upheaval_150").bind();
-	Fontrenderer::Get().addText(Globals::fontManager.get("upheaval_150"), static_cast<float>(Application::Width) * 0.5f, static_cast<float>(Application::Height) * 0.5f - (Globals::fontManager.get("upheaval_150").lineHeight + 10.0f) * m_fontSize, "WhQH", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), m_fontSize);
+	Fontrenderer::Get().addText(Globals::fontManager.get("upheaval_150"), static_cast<float>(Application::Width) * 0.5f, static_cast<float>(Application::Height) * 0.5f - (Globals::fontManager.get("upheaval_150").lineHeight + 10.0f + 20.0f) * m_fontSize, "WhQH", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), m_fontSize);
 	Fontrenderer::Get().drawBuffer();
 
 	if (m_drawUi)
@@ -144,12 +145,12 @@ void Default::OnMouseButtonUp(Event::MouseButtonEvent& event) {
 void Default::OnMouseWheel(Event::MouseWheelEvent& event) {
 	if (event.direction == 1u) {
 		m_fontSize = m_fontSize - 0.05f;
-		m_fontSize = Math::Clamp(m_fontSize, 0.0f, 2.0f);
+		m_fontSize = Math::Clamp(m_fontSize, 0.0f, 5.0f);
 	}
 
 	if (event.direction == 0u) {
 		m_fontSize = m_fontSize + 0.05f;
-		m_fontSize = Math::Clamp(m_fontSize, 0.0f, 2.0f);
+		m_fontSize = Math::Clamp(m_fontSize, 0.0f, 5.0f);
 	}
 }
 

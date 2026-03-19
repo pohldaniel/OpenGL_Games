@@ -36,5 +36,5 @@ private:
 
 	Camera m_camera;
 	Background m_background;
-	float m_fontSize = 0.205f;
+	float m_fontSize = 0.6f;
 };
