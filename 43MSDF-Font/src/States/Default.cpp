@@ -36,6 +36,8 @@ Default::Default(StateMachine& machine) : State(machine, States::DEFAULT) {
 		{ &Globals::textureManager.get("forest_4"), 1, 4.0f },
 		{ &Globals::textureManager.get("forest_5"), 1, 5.0f }});
 	m_background.setSpeed(0.005f);
+
+	loadMsdfFromFileBM("res/fonts/upheavtt_msdf_bm.json", "res/fonts/upheavtt_msdf_bm.png");
 }
 
 Default::~Default() {
@@ -112,9 +114,9 @@ void Default::update() {
 void Default::render() {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	//m_background.draw();
+	m_background.draw();
 
-	Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("font_msdf"));
+	Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("font_msdf_new"));
 	glEnable(GL_ALPHA_TEST);
 	Globals::fontManager.get("upheaval_150_msdf").bind();
 	Fontrenderer::Get().addText(Globals::fontManager.get("upheaval_150_msdf"), static_cast<float>(Application::Width) * 0.5f, static_cast<float>(Application::Height) * 0.5f, "WhQH", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), m_fontSize);
@@ -124,6 +126,11 @@ void Default::render() {
 	Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("font_ttf"));
 	Globals::fontManager.get("upheaval_150").bind();
 	Fontrenderer::Get().addText(Globals::fontManager.get("upheaval_150"), static_cast<float>(Application::Width) * 0.5f, static_cast<float>(Application::Height) * 0.5f - (Globals::fontManager.get("upheaval_150").lineHeight + 10.0f + 20.0f) * m_fontSize, "WhQH", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), m_fontSize);
+	Fontrenderer::Get().drawBuffer();
+
+	Fontrenderer::Get().setShader(Globals::shaderManager.getAssetPointer("font_msdf"));
+	m_characterSet.bind();
+	Fontrenderer::Get().addText(m_characterSet, static_cast<float>(Application::Width) * 0.5f, static_cast<float>(Application::Height) * 0.5f - (Globals::fontManager.get("upheaval_150").lineHeight + 10.0f + 100.0f) * m_fontSize, "WhQH", Vector4f(1.0f, 1.0f, 1.0f, 1.0f), m_fontSize);
 	Fontrenderer::Get().drawBuffer();
 
 	if (m_drawUi)
@@ -216,4 +223,47 @@ void Default::renderUi() {
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void Default::loadMsdfFromFileBM(const std::string& pathJson, const std::string& pathTexture) {
+	std::ifstream file(pathJson, std::ios::in);
+	if (!file.is_open()) {
+		std::cerr << "Could not open file: " << pathJson << std::endl;
+	}
+
+	rapidjson::IStreamWrapper streamWrapper(file);
+	rapidjson::Document doc;
+	doc.ParseStream(streamWrapper);
+
+	float size = doc["info"]["size"].GetFloat();
+	float widthT = doc["common"]["scaleW"].GetFloat();
+	float heightT = doc["common"]["scaleH"].GetFloat();
+
+	float distanceRange = doc["distanceField"]["distanceRange"].GetFloat();
+	float lineHeight = static_cast<unsigned int>(doc["common"]["lineHeight"].GetFloat());
+
+	for (rapidjson::Value::ConstValueIterator glyph = doc["chars"].GetArray().Begin(); glyph != doc["chars"].GetArray().End(); ++glyph) {
+		char code = glyph->HasMember("id") ? (*glyph)["id"].GetUint() : 0;
+
+		float advance = glyph->HasMember("xadvance") ? (*glyph)["xadvance"].GetFloat() : 0.0f;
+
+
+		float posX = glyph->HasMember("x") ? (*glyph)["x"].GetFloat() : 0.0f;
+		float posY = glyph->HasMember("y") ? (*glyph)["y"].GetFloat() : 0.0f;
+		float width = glyph->HasMember("width") ? (*glyph)["width"].GetFloat() : 0.0f;
+		float height = glyph->HasMember("height") ? (*glyph)["height"].GetFloat() : 0.0f;
+
+		float offsetX = glyph->HasMember("xoffset") ? (*glyph)["xoffset"].GetFloat() : 0.0f;
+		float offsetY = glyph->HasMember("yoffset") ? (*glyph)["yoffset"].GetFloat() : 0.0f;
+
+		m_characterSet.characters.insert(std::pair<char, Char>(code,
+			{ width, height,
+			  posX / widthT, posY / heightT,
+			  (width - 1.0f) / widthT, (height - 1.0f) / heightT,
+			  offsetX, offsetY,
+			  advance + distanceRange
+			}));
+	}
+
+	Spritesheet::LoadFromFile(m_characterSet.spriteSheet, pathTexture, true);
 }

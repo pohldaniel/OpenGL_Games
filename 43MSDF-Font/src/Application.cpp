@@ -85,6 +85,11 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f));
 	shader->unuse();
 
+	shader = Globals::shaderManager.getAssetPointer("font_msdf_new");
+	shader->use();
+	shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f));
+	shader->unuse();
+
 	shader = Globals::shaderManager.getAssetPointer("batch");
 	shader->use();
 	shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f));
@@ -595,6 +600,11 @@ void Application::Resize(int deltaW, int deltaH) {
 		shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Width), 0.0f, static_cast<float>(Height), -1.0f, 1.0f));
 		shader->unuse();
 
+		shader = Globals::shaderManager.getAssetPointer("font_msdf_new");
+		shader->use();
+		shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f));
+		shader->unuse();
+
 		shader = Globals::shaderManager.getAssetPointer("batch");
 		shader->use();
 		shader->loadMatrix("u_transform", Matrix4f::Orthographic(0.0f, static_cast<float>(Width), 0.0f, static_cast<float>(Height), -1.0f, 1.0f));
@@ -701,6 +711,7 @@ void Application::SetCursorIcon(const char* image[]) {
 void Application::loadAssets() {
 	Globals::shaderManager.loadShader("font_ttf", "res/shader/batch.vert", "res/shader/font_ttf.frag");
 	Globals::shaderManager.loadShader("font_msdf", "res/shader/batch.vert", "res/shader/font_msdf.frag");
+	Globals::shaderManager.loadShader("font_msdf_new", "res/shader/batch.vert", "res/shader/font_msdf_new.frag");
 	Globals::shaderManager.loadShader("batch", "res/shader/batch.vert", "res/shader/batch.frag");
 	Globals::shaderManager.loadShader("color", "res/shader/color.vert", "res/shader/color.frag");
 	Globals::shaderManager.loadShader("quad", "res/shader/quad.vert", "res/shader/quad.frag");

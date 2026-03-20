@@ -37,4 +37,7 @@ private:
 	Camera m_camera;
 	Background m_background;
 	float m_fontSize = 0.6f;
+
+	void loadMsdfFromFileBM(const std::string& pathJson, const std::string& pathTexture);
+	CharacterSet m_characterSet;
 };
