@@ -203,6 +203,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClCompile Include="src\ImguiExtension.cpp" />
     <ClCompile Include="src\LoadingManager.cpp" />
     <ClCompile Include="src\States\Compute.cpp" />
+    <ClCompile Include="src\States\MSDFFont.cpp" />
     <ClCompile Include="src\States\NormalMap.cpp" />
     <ClCompile Include="src\States\Specularity.cpp" />
     <ClCompile Include="src\States\StateMachine.cpp" />
@@ -222,6 +223,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClCompile Include="engine\Vector.cpp" />
     <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="WebGPU\WgpBatchRenderer.cpp" />
     <ClCompile Include="WebGPU\WgpBuffer.cpp" />
     <ClCompile Include="WebGPU\WgpContext.cpp" />
     <ClCompile Include="WebGPU\WgpMesh.cpp" />
@@ -275,11 +277,13 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClInclude Include="src\ImguiExtension.h" />
     <ClInclude Include="src\LoadingManager.h" />
     <ClInclude Include="src\States\Compute.h" />
+    <ClInclude Include="src\States\MSDFFont.h" />
     <ClInclude Include="src\States\NormalMap.h" />
     <ClInclude Include="src\States\Specularity.h" />
     <ClInclude Include="src\States\StateMachine.h" />
     <ClInclude Include="src\States\Wireframe.h" />
     <ClInclude Include="src\Utils\Fade.h" />
+    <ClInclude Include="WebGPU\WgpBatchRenderer.h" />
     <ClInclude Include="WebGPU\WgpBuffer.h" />
     <ClInclude Include="WebGPU\WgpContext.h" />
     <ClInclude Include="WebGPU\WgpData.h" />
