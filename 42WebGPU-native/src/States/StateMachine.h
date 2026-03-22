@@ -6,7 +6,8 @@ enum States {
 	WIREFRAME,
 	COMPUTE,
 	SPECULARITY,
-	NORMAL_MAP
+	NORMAL_MAP,
+	MSDF_FONT
 };
 
 class State;

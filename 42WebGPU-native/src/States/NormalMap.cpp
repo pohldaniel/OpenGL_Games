@@ -154,6 +154,7 @@ NormalMap::~NormalMap() {
 	EventDispatcher::RemoveMouseListener(this);
 
 	m_uniformBuffer.markForDelete();
+	m_normalUniformBuffer.markForDelete();
 }
 
 void NormalMap::fixedUpdate() {

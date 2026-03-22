@@ -12,6 +12,7 @@
 #include <States/Compute.h>
 #include <States/Specularity.h>
 #include <States/NormalMap.h>
+#include <States/MSDFFont.h>
 
 #include "Application.h"
 #include "Globals.h"
@@ -296,7 +297,9 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new Wireframe(*Machine));
 	//Machine->addStateAtTop(new Compute(*Machine));
 	//Machine->addStateAtTop(new Specularity(*Machine));
-	Machine->addStateAtTop(new NormalMap(*Machine));
+	//Machine->addStateAtTop(new NormalMap(*Machine));
+	Machine->addStateAtTop(new MSDFFont(*Machine));
+	
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
