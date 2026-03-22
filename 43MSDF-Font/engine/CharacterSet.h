@@ -32,6 +32,8 @@ struct CharacterSet {
 
 	void loadFromFile(const std::string& path, unsigned int characterSize, unsigned int paddingX = 1u, unsigned int paddingY = 10u, unsigned int minHeight = 0u, int spacing = 0, const bool flipVertical = true, unsigned int frame = 0u);
 	void loadMsdfFromFile(const std::string& pathJson, const std::string& pathTexture);
+	void loadMsdfBmFromFile(const std::string& pathJson, const std::string& pathTexture);
+
 	void safeFont(std::string name);
 	void addSpacing(std::string chars, int spacing = 0);
 	void setRepeat();

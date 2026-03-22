@@ -47,11 +47,9 @@ void Fontrenderer::drawText(const CharacterSet& characterSet, float posX, float 
 	glBindTexture(GL_TEXTURE_2D_ARRAY, characterSet.spriteSheet);
 	std::string::const_iterator c;
 	for (c = text.begin(); c != text.end(); c++) {
-
 		const Char& ch = characterSet.getCharacter(*c);
-
-		m_batchrenderer->addQuadAA(Vector4f(posX, posY, static_cast<float>(ch.size[0]) * size, static_cast<float>(ch.size[1])) * size, flipGlyph ? Vector4f(ch.textureOffset[0], ch.textureOffset[1] + ch.textureSize[1], ch.textureSize[0], -ch.textureSize[1]) : Vector4f(ch.textureOffset[0], ch.textureOffset[1], ch.textureSize[0], ch.textureSize[1]), color, characterSet.frame);
-		posX = posX + ch.advance * size;
+		m_batchrenderer->addQuadAA(Vector4f(posX + ch.offset[0] * size, posY + ch.offset[1] * size, static_cast<float>(ch.size[0]) * size, static_cast<float>(ch.size[1]) * size), flipGlyph ? Vector4f(ch.textureOffset[0], ch.textureOffset[1] + ch.textureSize[1], ch.textureSize[0], -ch.textureSize[1]) : Vector4f(ch.textureOffset[0], ch.textureOffset[1], ch.textureSize[0], ch.textureSize[1]), color, characterSet.frame);
+		posX = posX + (ch.offset[0] + ch.advance) * size;
 	}
 	m_batchrenderer->drawBuffer();
 	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
@@ -77,12 +75,12 @@ void Fontrenderer::addTextTransformed(const CharacterSet& characterSet, const Ma
 	for (c = text.begin(); c != text.end(); c++) {
 		const Char& ch = characterSet.getCharacter(*c);
 		
-		verices[0] = transformation ^ Vector3f(offset, 0.0f, 0.0f);
-		verices[1] = transformation ^ Vector3f(offset + sx * static_cast<float>(ch.size[0]), 0.0f,                                0.0f);
-		verices[2] = transformation ^ Vector3f(offset + sx * static_cast<float>(ch.size[0]), sy * static_cast<float>(ch.size[1]), 0.0f);
-		verices[3] = transformation ^ Vector3f(offset,                                       sy * static_cast<float>(ch.size[1]), 0.0f);			
+		verices[0] = transformation ^ Vector3f(offset + ch.offset[0],                                       ch.offset[1],                                       0.0f);
+		verices[1] = transformation ^ Vector3f(offset + ch.offset[0] + sx * static_cast<float>(ch.size[0]), ch.offset[1],                                       0.0f);
+		verices[2] = transformation ^ Vector3f(offset + ch.offset[0] + sx * static_cast<float>(ch.size[0]), ch.offset[1] + sy * static_cast<float>(ch.size[1]), 0.0f);
+		verices[3] = transformation ^ Vector3f(offset + ch.offset[0],                                       ch.offset[1] + sy * static_cast<float>(ch.size[1]), 0.0f);
 		m_batchrenderer->addQuad(verices, Vector4f(ch.textureOffset[0], ch.textureOffset[1], ch.textureSize[0], ch.textureSize[1]), color, characterSet.frame);
-		offset = offset + ch.advance * sx;
+		offset = offset + (ch.offset[0] + ch.advance) * sx;
 	}
 }
 

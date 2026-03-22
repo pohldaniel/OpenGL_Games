@@ -23,5 +23,5 @@ void main() {
 	float w = fwidth(sigDist);
     float opacity = smoothstep(0.5 - w, 0.5 + w, sigDist);
 	
-	outColor = texture(u_texture, vec3(v_texCoord, v_layer));
+	outColor = vec4(v_color.rgb, opacity);
 } 

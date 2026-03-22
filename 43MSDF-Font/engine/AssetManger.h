@@ -52,6 +52,11 @@ public:
 		m_assets[name].loadMsdfFromFile(pathJson, pathTexture);
 	}
 
+	void loadMsdfBmCharacterSet(const std::string& name, const std::string& pathJson, const std::string& pathTexture) {
+		m_assets.insert(std::pair<std::string, T>(name, T()));
+		m_assets[name].loadMsdfBmFromFile(pathJson, pathTexture);
+	}
+
 	void loadShader(const std::string& name, const std::string& vertex, const std::string& fragment) {
 		//m_assets[name].loadFromFile(vertex, fragment);
 		m_assetPointer[name] = new T(vertex.c_str(), fragment.c_str(), true);

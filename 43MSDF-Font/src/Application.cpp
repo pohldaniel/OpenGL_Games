@@ -720,6 +720,7 @@ void Application::loadAssets() {
 	Globals::fontManager.loadCharacterSet("upheaval_30", "res/fonts/upheavtt.ttf", 30, 0, 3, 0, 0, true, 0u);
 	Globals::fontManager.loadCharacterSet("upheaval_150", "res/fonts/upheavtt.ttf", 150, 0, 30, 128, 0, true, 0u);
 	Globals::fontManager.loadMsdfCharacterSet("upheaval_150_msdf", "res/fonts/upheavtt_msdf.json", "res/fonts/upheavtt_msdf.png");
+	Globals::fontManager.loadMsdfBmCharacterSet("upheaval_150_msdf_bm", "res/fonts/upheavtt_msdf_bm.json", "res/fonts/upheavtt_msdf_bm.png");
 
 	Globals::textureManager.loadTexture("forest_1", "res/backgrounds/Forest/plx-1.png");
 	Globals::textureManager.loadTexture("forest_2", "res/backgrounds/Forest/plx-2.png");
