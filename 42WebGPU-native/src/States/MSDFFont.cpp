@@ -9,7 +9,6 @@
 #include "MSDFFont.h"
 #include "Application.h"
 #include "Globals.h"
-#include "ImguiExtension.h"
 
 MSDFFont::MSDFFont(StateMachine& machine) : State(machine, States::MSDF_FONT) {
 
@@ -37,10 +36,11 @@ MSDFFont::MSDFFont(StateMachine& machine) : State(machine, States::MSDF_FONT) {
 	m_trackball.reshape(Application::Width, Application::Height);
 	m_trackball.setTrackballScale(0.5f);
 
+	m_uniforms.projectionMatrix = m_camera.getOrthographicMatrix();
+	m_uniforms.viewMatrix = m_camera.getViewMatrix();
 	m_uniforms.modelMatrix = Matrix4f::IDENTITY;
 	m_uniforms.normalMatrix = Matrix4f::IDENTITY;
-	m_uniforms.viewMatrix = m_camera.getViewMatrix();
-	m_uniforms.projectionMatrix = m_camera.getOrthographicMatrix();
+	
 	m_uniforms.color = { 0.0f, 1.0f, 0.4f, 1.0f };
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
 
@@ -116,6 +116,7 @@ void MSDFFont::update() {
 	m_trackball.idle();
 	applyTransformation(m_trackball);
 
+	m_uniforms.projectionMatrix = m_camera.getOrthographicMatrix();
 	m_uniforms.viewMatrix = m_camera.getViewMatrix();
 	m_uniforms.normalMatrix = Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_uniforms.modelMatrix);
 }

@@ -427,7 +427,7 @@ void wgpCreateVertexBufferLayout(VertexLayoutSlot slot) {
 		wgpVertexAttribute[1].offset = 4 * sizeof(float);
 
 		wgpVertexAttribute[2].shaderLocation = 2;
-		wgpVertexAttribute[2].format = WGPUVertexFormat::WGPUVertexFormat_Uint8;
+		wgpVertexAttribute[2].format = WGPUVertexFormat::WGPUVertexFormat_Uint32;
 		wgpVertexAttribute[2].offset = 8 * sizeof(float);
 
 		WGPUVertexBufferLayout wgpVertexBufferLayout = {};

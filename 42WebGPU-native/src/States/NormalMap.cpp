@@ -8,7 +8,6 @@
 #include "NormalMap.h"
 #include "Application.h"
 #include "Globals.h"
-#include "ImguiExtension.h"
 
 NormalMap::NormalMap(StateMachine& machine) : State(machine, States::NORMAL_MAP) {
 
