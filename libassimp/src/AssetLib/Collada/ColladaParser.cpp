@@ -86,7 +86,7 @@ static bool FindCommonKey(const std::string &collada_key, const MetaKeyPairVecto
     return false;
 }
 
-static void readUrlAttribute(XmlNode &node, std::string &url) {
+static void readUrlAttribute(const XmlNode &node, std::string &url) {
     url.clear();
     if (!XmlParser::getStdStrAttribute(node, "url", url)) {
         return;
@@ -394,11 +394,11 @@ void ColladaParser::ReadMetaDataItem(XmlNode &node, StringMetaData &metadata) {
 
 // ------------------------------------------------------------------------------------------------
 // Reads the animation clips
-void ColladaParser::ReadAnimationClipLibrary(XmlNode &node /*NODE: library_animation_clips*/) {
+void ColladaParser::ReadAnimationClipLibrary(const XmlNode &node /*NODE: library_animation_clips*/) {
     if (node.empty()) {
         return;
     }
-	for (XmlNode &currentNode : node.children()) {
+	for (const XmlNode &currentNode : node.children()) {
         const std::string& currentNodeName = currentNode.name();
         if (currentNodeName != "animation_clip") {
             continue;
@@ -412,7 +412,7 @@ void ColladaParser::ReadAnimationClipLibrary(XmlNode &node /*NODE: library_anima
         std::pair<std::string, std::vector<std::string>> clip;
         clip.first = animName;
 
-        for (XmlNode& instanceAnimation : currentNode.children()) {
+        for (const XmlNode& instanceAnimation : currentNode.children()) {
                 const std::string& currentName = instanceAnimation.name();
                 if (currentName == "instance_animation") {
                     std::string url;

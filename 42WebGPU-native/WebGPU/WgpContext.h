@@ -18,7 +18,8 @@ enum VertexLayoutSlot {
 	VL_PN,
 	VL_PTN,
 	VL_PTNC,
-	VL_PTNTB
+	VL_PTNTB,
+	VL_BATCH
 };
 
 struct WgpContext;

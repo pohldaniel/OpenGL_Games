@@ -102,7 +102,7 @@ protected:
     void ReadAnimationLibrary(XmlNode &node);
 
     /** Reads the animation clip library */
-    void ReadAnimationClipLibrary(XmlNode &node);
+    void ReadAnimationClipLibrary(const XmlNode &node);
 
     /** Unwrap controllers dependency hierarchy */
     void PostProcessControllers();

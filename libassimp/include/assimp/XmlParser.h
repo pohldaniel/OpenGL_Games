@@ -190,7 +190,7 @@ public:
     /// @param name     [in] The attribute name to look for.
     /// @param val      [out] The std::string value from the attribute.
     /// @return true, if the node contains an attribute with the given name and if the value is a std::string.
-    static inline bool getStdStrAttribute(XmlNode &xmlNode, const char *name, std::string &val);
+    static inline bool getStdStrAttribute(const XmlNode &xmlNode, const char *name, std::string &val);
 
     /// @brief Will try to get a bool attribute value.
     /// @param xmlNode  [in] The node to search in.
@@ -409,7 +409,7 @@ inline bool TXmlParser<TNodeType>::getDoubleAttribute(XmlNode &xmlNode, const ch
 }
 
 template <class TNodeType>
-inline bool TXmlParser<TNodeType>::getStdStrAttribute(XmlNode &xmlNode, const char *name, std::string &val) {
+inline bool TXmlParser<TNodeType>::getStdStrAttribute(const XmlNode &xmlNode, const char *name, std::string &val) {
     pugi::xml_attribute attr = xmlNode.attribute(name);
     if (attr.empty()) {
         return false;

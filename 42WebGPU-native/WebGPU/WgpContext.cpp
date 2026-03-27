@@ -196,6 +196,7 @@ bool wgpCreateDevice(WgpContext& wgpContext, void* window) {
 	wgpCreateVertexBufferLayout(VL_PTN);
 	wgpCreateVertexBufferLayout(VL_PTNC);
 	wgpCreateVertexBufferLayout(VL_PTNTB);
+	wgpCreateVertexBufferLayout(VL_BATCH);	
 	return true;
 }
 
@@ -412,6 +413,29 @@ void wgpCreateVertexBufferLayout(VertexLayoutSlot slot) {
 		wgpVertexBufferLayout.arrayStride = 14 * sizeof(float);
 		wgpVertexBufferLayout.stepMode = WGPUVertexStepMode::WGPUVertexStepMode_Vertex;
 		wgpVertexBufferLayouts.emplace(VL_PTNTB, wgpVertexBufferLayout);
+
+	}else if (wgpVertexBufferLayouts.count(VL_BATCH) == 0 && slot == VL_BATCH) {
+		std::vector<WGPUVertexAttribute>& wgpVertexAttribute = wgpVertexAttributes[VL_BATCH];
+		wgpVertexAttribute.resize(3);
+
+		wgpVertexAttribute[0].shaderLocation = 0;
+		wgpVertexAttribute[0].format = WGPUVertexFormat::WGPUVertexFormat_Float32x4;
+		wgpVertexAttribute[0].offset = 0;
+
+		wgpVertexAttribute[1].shaderLocation = 1;
+		wgpVertexAttribute[1].format = WGPUVertexFormat::WGPUVertexFormat_Float32x4;
+		wgpVertexAttribute[1].offset = 4 * sizeof(float);
+
+		wgpVertexAttribute[2].shaderLocation = 2;
+		wgpVertexAttribute[2].format = WGPUVertexFormat::WGPUVertexFormat_Uint8;
+		wgpVertexAttribute[2].offset = 8 * sizeof(float);
+
+		WGPUVertexBufferLayout wgpVertexBufferLayout = {};
+		wgpVertexBufferLayout.attributeCount = (uint32_t)wgpVertexAttribute.size();
+		wgpVertexBufferLayout.attributes = wgpVertexAttribute.data();
+		wgpVertexBufferLayout.arrayStride = 8 * sizeof(float) + sizeof(unsigned int);
+		wgpVertexBufferLayout.stepMode = WGPUVertexStepMode::WGPUVertexStepMode_Vertex;
+		wgpVertexBufferLayouts.emplace(VL_BATCH, wgpVertexBufferLayout);
 	}
 }
 

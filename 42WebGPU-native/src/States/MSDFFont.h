@@ -15,11 +15,6 @@
 #include <WebGPU/WgpData.h>
 #include <WebGPU/WgpModel.h>
 
-enum TexturePack2 {
-	SPIRAL2,
-	TOY_BOX2
-};
-
 class MSDFFont : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
@@ -31,7 +26,6 @@ public:
 	void update() override;
 	void render() override;
 	void OnDraw(const WGPURenderPassEncoder& renderPass);
-
 
 	void resize(int deltaW, int deltaH) override;
 	void OnMouseMotion(const Event::MouseMoveEvent& event) override;
@@ -55,17 +49,6 @@ private:
 	Camera m_camera;
 	TrackBall m_trackball;
 
-	Shape m_cube, m_sphere, m_torus, m_torusKnot, m_spiral;
-	WgpBuffer m_uniformBuffer, m_normalUniformBuffer;
-
+	WgpBuffer m_uniformBuffer;
 	Uniforms m_uniforms;
-	NormalUniforms m_normalUniforms;
-	WgpModel m_wgpCube, m_wgpSphere, m_wgpTorus, m_wgpTorusKnot, m_wgpSpiral;
-
-	WgpTexture m_textureAW, m_textureNT, m_textureHT;
-	WgpTexture m_textureNS, m_textureHS;
-	WgpTexture m_textureAB, m_textureNB, m_textureHB;
-
-	std::vector <WGPUBindGroup> m_bindgroups;
-	TexturePack2 m_texturePack = TexturePack2::SPIRAL2;
 };
