@@ -292,16 +292,16 @@ WGPUTextureView wgpCreateTextureView(WGPUTextureFormat textureFormat, WGPUTextur
 	return wgpuTextureCreateView(texture, &textureViewDescriptor);
 }
 
-WGPUSampler wgpCreateSampler() {
+WGPUSampler wgpCreateSampler(WGPUFilterMode filterMode) {
 	const WGPUDevice& device = wgpContext.device;
 	WGPUSamplerDescriptor samplerDescriptor = {};
 	samplerDescriptor.label = WGPU_STR("sampler");
 	samplerDescriptor.addressModeU = WGPUAddressMode_ClampToEdge;
 	samplerDescriptor.addressModeV = WGPUAddressMode_ClampToEdge;
 	samplerDescriptor.addressModeW = WGPUAddressMode_ClampToEdge;
-	samplerDescriptor.magFilter = WGPUFilterMode_Linear;
-	samplerDescriptor.minFilter = WGPUFilterMode_Linear;
-	samplerDescriptor.mipmapFilter = WGPUMipmapFilterMode_Linear;
+	samplerDescriptor.magFilter = filterMode;
+	samplerDescriptor.minFilter = filterMode;
+	samplerDescriptor.mipmapFilter = (filterMode == WGPUFilterMode_Nearest) ? WGPUMipmapFilterMode_Nearest : WGPUMipmapFilterMode_Linear;
 	samplerDescriptor.lodMinClamp = 0.0f;
 	samplerDescriptor.lodMaxClamp = 1.0f;
 	samplerDescriptor.compare = WGPUCompareFunction_Undefined;

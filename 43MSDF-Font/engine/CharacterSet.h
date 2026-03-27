@@ -11,9 +11,6 @@
 #include <freetype/ftstroke.h>
 #include <freetype/ftbitmap.h>
 
-#include <rapidjson/document.h>
-#include <rapidjson/istreamwrapper.h>
-
 #define MAXWIDTH 4096
 
 struct Char {

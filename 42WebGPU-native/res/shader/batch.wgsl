@@ -21,6 +21,9 @@ struct Uniforms {
 };
 
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
+@group(0) @binding(1) var tSampler: sampler;
+
+@group(1) @binding(0) var texture: texture_2d<f32>;
 
 @vertex
 fn vs_main(in: VertexInput) -> VertexOutput {
@@ -34,5 +37,7 @@ fn vs_main(in: VertexInput) -> VertexOutput {
 
 @fragment
 fn fs_main(in: VertexOutput) -> @location(0) vec4f {
-	return vec4f(in.uv, 0.0, 1.0);
+
+	let sample = textureSample(texture, tSampler, in.uv);
+	return sample;
 }

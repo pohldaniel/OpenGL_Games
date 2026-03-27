@@ -181,6 +181,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="engine\AssimpModel.cpp" />
+    <ClCompile Include="engine\CharacterSet.cpp" />
     <ClCompile Include="engine\input\GamePad.cpp" />
     <ClCompile Include="engine\Object.cpp" />
     <ClCompile Include="engine\RandomColor.cpp" />
@@ -226,12 +227,14 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClCompile Include="WebGPU\WgpBatchRenderer.cpp" />
     <ClCompile Include="WebGPU\WgpBuffer.cpp" />
     <ClCompile Include="WebGPU\WgpContext.cpp" />
+    <ClCompile Include="WebGPU\WgpFontRenderer.cpp" />
     <ClCompile Include="WebGPU\WgpMesh.cpp" />
     <ClCompile Include="WebGPU\WgpModel.cpp" />
     <ClCompile Include="WebGPU\WgpTexture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\AssimpModel.h" />
+    <ClInclude Include="engine\CharacterSet.h" />
     <ClInclude Include="engine\input\GamePad.h" />
     <ClInclude Include="engine\input\Mouse.h" />
     <ClInclude Include="engine\interfaces\ICounter.h" />
@@ -287,6 +290,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClInclude Include="WebGPU\WgpBuffer.h" />
     <ClInclude Include="WebGPU\WgpContext.h" />
     <ClInclude Include="WebGPU\WgpData.h" />
+    <ClInclude Include="WebGPU\WgpFontRenderer.h" />
     <ClInclude Include="WebGPU\WgpMesh.h" />
     <ClInclude Include="WebGPU\WgpModel.h" />
     <ClInclude Include="WebGPU\WgpTexture.h" />

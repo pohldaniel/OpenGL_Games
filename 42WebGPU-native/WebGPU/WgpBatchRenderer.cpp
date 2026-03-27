@@ -101,7 +101,7 @@ void WgpBatchRenderer::addQuadAA(std::array<float, 4> posSize, std::array<float,
 	m_indexCount += 6;
 }
 
-void WgpBatchRenderer::draw(const WGPURenderPassEncoder& renderPassEncoder){
+void WgpBatchRenderer::draw(const WGPURenderPassEncoder& renderPassEncoder) {
 
 	for (uint32_t index = 0u; index  < m_currentBatch + 1u; index++) {
 		ptrdiff_t size = (uint8_t*)m_batches[index].bufferPtr - (uint8_t*)m_batches[index].buffer;

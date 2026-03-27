@@ -1,4 +1,6 @@
 #include <GL/glew.h>
+#include <rapidjson/document.h>
+#include <rapidjson/istreamwrapper.h>
 
 #include <engine/Spritesheet.h>
 #include "CharacterSet.h"

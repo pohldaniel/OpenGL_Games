@@ -6,6 +6,7 @@
 #include <engine/Camera.h>
 #include <engine/ObjModel.h>
 #include <engine/TrackBall.h>
+#include <engine/CharacterSet.h>
 
 #include <States/StateMachine.h>
 
@@ -51,4 +52,7 @@ private:
 
 	WgpBuffer m_uniformBuffer;
 	Uniforms m_uniforms;
+
+	CharacterSet m_characterSet;
+	float m_fontSize = 0.6f;
 };

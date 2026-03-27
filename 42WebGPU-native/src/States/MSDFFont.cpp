@@ -4,7 +4,7 @@
 #include <imgui_internal.h>
 
 #include <WebGPU/WgpContext.h>
-#include <WebGPU/WgpBatchRenderer.h>
+#include <WebGPU/WgpFontRenderer.h>
 
 #include "MSDFFont.h"
 #include "Application.h"
@@ -15,7 +15,7 @@ MSDFFont::MSDFFont(StateMachine& machine) : State(machine, States::MSDF_FONT) {
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
-	WgpBatchRenderer::Get().init();
+	WgpFontRenderer::Get().init();
 
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
@@ -23,12 +23,13 @@ MSDFFont::MSDFFont(StateMachine& machine) : State(machine, States::MSDF_FONT) {
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(10.0f);
 
+	m_characterSet.loadMsdfBmFromFile("res/fonts/YaHei_msdf_bm.json", "res/fonts/YaHei_msdf_bm.png");
 	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	
 	wgpContext.addSampler(wgpCreateSampler());
 
-	wgpContext.addSahderModule("BATCH", "res/shader/batch.wgsl");
-	wgpContext.createRenderPipeline("BATCH", "RP_BATCH", VL_BATCH, std::bind(&MSDFFont::OnBindGroupLayouts, this));
+	wgpContext.addSahderModule("FONT", "res/shader/font.wgsl");
+	wgpContext.createRenderPipeline("FONT", "RP_FONT", VL_BATCH, std::bind(&MSDFFont::OnBindGroupLayouts, this));
 
 	
 	wgpContext.OnDraw = std::bind(&MSDFFont::OnDraw, this, std::placeholders::_1);
@@ -44,7 +45,7 @@ MSDFFont::MSDFFont(StateMachine& machine) : State(machine, States::MSDF_FONT) {
 	m_uniforms.color = { 0.0f, 1.0f, 0.4f, 1.0f };
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
 
-	WgpBatchRenderer::Get().setBindGroups(std::bind(&MSDFFont::OnBindGroups, this));
+	WgpFontRenderer::Get().setBindGroups(std::bind(&MSDFFont::OnBindGroups, this));
 }
 
 MSDFFont::~MSDFFont() {
@@ -126,19 +127,14 @@ void MSDFFont::render() {
 }
 
 void MSDFFont::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
-	float pos = 0.0f;
-
-	for(int i = 0; i < 16; i++) {
-		WgpBatchRenderer::Get().addQuadAA({ pos,   pos,   50.0f, 50.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }, 0u);
-		pos = pos + 50.0f;
-	}
+	WgpFontRenderer::Get().addText(m_characterSet, static_cast<float>(Application::Width) * 0.5f, static_cast<float>(Application::Height) * 0.5f, "WHQH", {1.0f, 1.0f, 1.0f, 1.0f}, m_fontSize);
 
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, projectionMatrix), &m_uniforms.projectionMatrix, sizeof(Uniforms::projectionMatrix));
 
 	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
-	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_BATCH"));
+	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_FONT"));
 	
-	WgpBatchRenderer::Get().draw(renderPassEncoder);
+	WgpFontRenderer::Get().draw(renderPassEncoder);
 
 	if (m_drawUi)
 		renderUi(renderPassEncoder);
@@ -170,7 +166,15 @@ void MSDFFont::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
 }
 
 void MSDFFont::OnMouseWheel(const Event::MouseWheelEvent& event) {
+	if (event.direction == 1u) {
+		m_fontSize = m_fontSize - 0.05f;
+		m_fontSize = Math::Clamp(m_fontSize, 0.0f, 5.0f);
+	}
 
+	if (event.direction == 0u) {
+		m_fontSize = m_fontSize + 0.05f;
+		m_fontSize = Math::Clamp(m_fontSize, 0.0f, 5.0f);
+	}
 }
 
 void MSDFFont::OnKeyDown(const Event::KeyboardEvent& event) {
@@ -241,14 +245,19 @@ void MSDFFont::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 }
 
 std::vector<WGPUBindGroupLayout> MSDFFont::OnBindGroupLayouts() {
-	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
+	std::vector<WGPUBindGroupLayout> bindingLayouts(2);
 
-	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries0(1);
+	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries0(2);
 	WGPUBindGroupLayoutEntry& uniformLayout = bindingLayoutEntries0[0];
 	uniformLayout.binding = 0u;
 	uniformLayout.visibility = WGPUShaderStage_Vertex;
 	uniformLayout.buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
 	uniformLayout.buffer.minBindingSize = sizeof(Uniforms);
+
+	WGPUBindGroupLayoutEntry& samplerBindingLayout = bindingLayoutEntries0[1];
+	samplerBindingLayout.binding = 1u;
+	samplerBindingLayout.visibility = WGPUShaderStage_Fragment;
+	samplerBindingLayout.sampler.type = WGPUSamplerBindingType::WGPUSamplerBindingType_Filtering;
 
 	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor0 = {};
 	bindGroupLayoutDescriptor0.entryCount = (uint32_t)bindingLayoutEntries0.size();
@@ -256,25 +265,49 @@ std::vector<WGPUBindGroupLayout> MSDFFont::OnBindGroupLayouts() {
 
 	bindingLayouts[0] = wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor0);
 
+	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries1(1);
+	WGPUBindGroupLayoutEntry& textureBindingLayout = bindingLayoutEntries1[0];
+	textureBindingLayout.binding = 0u;
+	textureBindingLayout.visibility = WGPUShaderStage_Fragment;
+	textureBindingLayout.texture.sampleType = WGPUTextureSampleType::WGPUTextureSampleType_Float;
+	textureBindingLayout.texture.viewDimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
+
+	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor1 = {};
+	bindGroupLayoutDescriptor1.entryCount = (uint32_t)bindingLayoutEntries1.size();
+	bindGroupLayoutDescriptor1.entries = bindingLayoutEntries1.data();
+
+	bindingLayouts[1] = wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor1);
+
 	return bindingLayouts;
 }
 
 std::vector<WGPUBindGroup> MSDFFont::OnBindGroups() {
-	std::vector<WGPUBindGroup> bindGroups(1);
+	std::vector<WGPUBindGroup> bindGroups(2);
 
-	std::vector<WGPUBindGroupEntry> bindGroupEntries0(1);
-
+	std::vector<WGPUBindGroupEntry> bindGroupEntries0(2);
 	bindGroupEntries0[0].binding = 0u;
 	bindGroupEntries0[0].buffer = m_uniformBuffer.getBuffer();
 	bindGroupEntries0[0].offset = 0u;
 	bindGroupEntries0[0].size = sizeof(Uniforms);
+
+	bindGroupEntries0[1].binding = 1u;
+	bindGroupEntries0[1].sampler = wgpContext.getSampler(SS_LINEAR);
 	
 	WGPUBindGroupDescriptor bindGroupDesc0 = {};
-	bindGroupDesc0.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_BATCH"), 0u);
+	bindGroupDesc0.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_FONT"), 0u);
 	bindGroupDesc0.entryCount = (uint32_t)bindGroupEntries0.size();
 	bindGroupDesc0.entries = bindGroupEntries0.data();
-
 	bindGroups[0] = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc0);
+
+	std::vector<WGPUBindGroupEntry> bindGroupEntries1(1);
+	bindGroupEntries1[0].binding = 0u;
+	bindGroupEntries1[0].textureView = m_characterSet.m_texture.getTextureView();
+
+	WGPUBindGroupDescriptor bindGroupDesc1 = {};
+	bindGroupDesc1.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_FONT"), 1u);
+	bindGroupDesc1.entryCount = (uint32_t)bindGroupEntries1.size();
+	bindGroupDesc1.entries = bindGroupEntries1.data();
+	bindGroups[1] = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc1);
 
 	return bindGroups;
 }
