@@ -9,6 +9,14 @@ const Char& CharacterSet::getCharacter(const char c) const {
 	return characters.at(c);
 }
 
+const std::vector<Kerning>& CharacterSet::getKernings(const char c) const {
+	return kernings.at(c);
+}
+
+const bool CharacterSet::hasKernings() const {
+	return !kernings.empty();
+}
+
 void CharacterSet::loadMsdfFromFile(const std::string& pathJson, const std::string& pathTexture) {
 	std::ifstream file(pathJson, std::ios::in);
 	if (!file.is_open()) {
@@ -98,5 +106,33 @@ void CharacterSet::loadMsdfBmFromFile(const std::string& pathJson, const std::st
 	for (auto& pair : characters) {
 		pair.second.offset[1] += (heightMax - pair.second.size[1]);
 	}
+
+	for (rapidjson::Value::ConstValueIterator kerning = doc["kernings"].GetArray().Begin(); kerning != doc["kernings"].GetArray().End(); ++kerning) {
+		char first = kerning->HasMember("first") ? (*kerning)["first"].GetUint() : 0;
+		char second = kerning->HasMember("second") ? (*kerning)["second"].GetUint() : 0;
+		float advance = kerning->HasMember("amount") ? (*kerning)["amount"].GetFloat() : 0.0f;
+		kernings[first].push_back({ second , advance });
+		//kernings.insert(std::pair<char, Kerning>(first, { second , advance }));
+	}
+
 	m_texture.loadFromFile(pathTexture);
+}
+
+const float CharacterSet::getWidth(const std::string& text) const {
+	float sizeX = 0.0f;
+	std::string::const_iterator c;
+	for (c = text.begin(); c != text.end(); c++) {
+		float kerningAmount = 0.0f;
+		if (hasKernings() && (c + 1) != text.end()) {
+			const std::vector<Kerning>& kernings = getKernings(*c);
+			for (const Kerning& kerning : kernings) {
+				if (kerning.nextChar == *(c + 1)) {
+					kerningAmount = kerning.amount;
+				}
+			}
+		}
+		const Char ch = getCharacter(*c);
+		sizeX = sizeX + (ch.advance) + kerningAmount;
+	}
+	return  sizeX;
 }

@@ -78,7 +78,7 @@ Application::~Application() {
 }
 
 void Application::createWindow() {
-
+	SetProcessDPIAware();
 	WNDCLASSEX windowClass = {};
 	windowClass.cbSize = sizeof(WNDCLASSEX);
 	windowClass.style = CS_HREDRAW | CS_VREDRAW;

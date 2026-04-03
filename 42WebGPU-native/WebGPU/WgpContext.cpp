@@ -416,24 +416,28 @@ void wgpCreateVertexBufferLayout(VertexLayoutSlot slot) {
 
 	}else if (wgpVertexBufferLayouts.count(VL_BATCH) == 0 && slot == VL_BATCH) {
 		std::vector<WGPUVertexAttribute>& wgpVertexAttribute = wgpVertexAttributes[VL_BATCH];
-		wgpVertexAttribute.resize(3);
+		wgpVertexAttribute.resize(4);
 
-		wgpVertexAttribute[0].shaderLocation = 0;
-		wgpVertexAttribute[0].format = WGPUVertexFormat::WGPUVertexFormat_Float32x4;
-		wgpVertexAttribute[0].offset = 0;
+		wgpVertexAttribute[0].shaderLocation = 0u;
+		wgpVertexAttribute[0].format = WGPUVertexFormat::WGPUVertexFormat_Float32x3;
+		wgpVertexAttribute[0].offset = 0u;
 
-		wgpVertexAttribute[1].shaderLocation = 1;
-		wgpVertexAttribute[1].format = WGPUVertexFormat::WGPUVertexFormat_Float32x4;
-		wgpVertexAttribute[1].offset = 4 * sizeof(float);
+		wgpVertexAttribute[1].shaderLocation = 1u;
+		wgpVertexAttribute[1].format = WGPUVertexFormat::WGPUVertexFormat_Float32x2;
+		wgpVertexAttribute[1].offset = 3 * sizeof(float);
 
-		wgpVertexAttribute[2].shaderLocation = 2;
-		wgpVertexAttribute[2].format = WGPUVertexFormat::WGPUVertexFormat_Uint32;
-		wgpVertexAttribute[2].offset = 8 * sizeof(float);
+		wgpVertexAttribute[2].shaderLocation = 2u;
+		wgpVertexAttribute[2].format = WGPUVertexFormat::WGPUVertexFormat_Float32x4;
+		wgpVertexAttribute[2].offset = 5 * sizeof(float);
+
+		wgpVertexAttribute[3].shaderLocation = 3u;
+		wgpVertexAttribute[3].format = WGPUVertexFormat::WGPUVertexFormat_Uint32;
+		wgpVertexAttribute[3].offset = 9 * sizeof(float);
 
 		WGPUVertexBufferLayout wgpVertexBufferLayout = {};
 		wgpVertexBufferLayout.attributeCount = (uint32_t)wgpVertexAttribute.size();
 		wgpVertexBufferLayout.attributes = wgpVertexAttribute.data();
-		wgpVertexBufferLayout.arrayStride = 8 * sizeof(float) + sizeof(unsigned int);
+		wgpVertexBufferLayout.arrayStride = 9 * sizeof(float) + sizeof(unsigned int);
 		wgpVertexBufferLayout.stepMode = WGPUVertexStepMode::WGPUVertexStepMode_Vertex;
 		wgpVertexBufferLayouts.emplace(VL_BATCH, wgpVertexBufferLayout);
 	}
@@ -563,7 +567,7 @@ void wgpDraw() {
 	renderPassColorAttachment.resolveTarget = NULL;
 	renderPassColorAttachment.loadOp = WGPULoadOp::WGPULoadOp_Clear;
 	renderPassColorAttachment.storeOp = WGPUStoreOp::WGPUStoreOp_Store;
-	renderPassColorAttachment.clearValue = WGPUColor{ 0.2f, 0.2f, 0.2f, 1.0f };
+	renderPassColorAttachment.clearValue = wgpContext.clearColor;
 	renderPassColorAttachment.depthSlice = WGPU_DEPTH_SLICE_UNDEFINED;
 	
 	WGPURenderPassDepthStencilAttachment depthStencilAttachment = {};
@@ -629,6 +633,10 @@ void WgpContext::addSahderModule(const std::string& shaderModuleName, const std:
 
 const WGPUShaderModule& WgpContext::getShaderModule(std::string shaderModuleName) {
 	return shaderModules.at(shaderModuleName);
+}
+
+void WgpContext::setClearColor(const WGPUColor& _clearColor) {
+	clearColor = _clearColor;
 }
 
 void WgpContext::createComputePipeline(std::string shaderModuleName, std::string pipelineLayoutName, const std::function<std::vector<WGPUBindGroupLayout>()>& onBindGroupLayouts) {

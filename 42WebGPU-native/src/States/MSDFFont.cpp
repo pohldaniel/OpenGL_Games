@@ -17,17 +17,18 @@ MSDFFont::MSDFFont(StateMachine& machine) : State(machine, States::MSDF_FONT) {
 	EventDispatcher::AddMouseListener(this);
 	WgpFontRenderer::Get().init();
 
-	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
+	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-	m_camera.lookAt(Vector3f(0.0f, 0.8f, 1.4f), Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.lookAt(Vector3f(0.0f, 0.0f, 5.0f), Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(10.0f);
 
 	m_characterSet.loadMsdfBmFromFile("res/fonts/YaHei_msdf_bm.json", "res/fonts/YaHei_msdf_bm.png");
+	//m_characterSet.loadMsdfBmFromFile("res/fonts/upheavtt_msdf_bm.json", "res/fonts/upheavtt_msdf_bm.png");
 	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	
 	wgpContext.addSampler(wgpCreateSampler());
-
+	wgpContext.setClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
 	wgpContext.addSahderModule("FONT", "res/shader/font.wgsl");
 	wgpContext.createRenderPipeline("FONT", "RP_FONT", VL_BATCH, std::bind(&MSDFFont::OnBindGroupLayouts, this));
 
@@ -37,7 +38,7 @@ MSDFFont::MSDFFont(StateMachine& machine) : State(machine, States::MSDF_FONT) {
 	m_trackball.reshape(Application::Width, Application::Height);
 	m_trackball.setTrackballScale(0.5f);
 
-	m_uniforms.projectionMatrix = m_camera.getOrthographicMatrix();
+	m_uniforms.projectionMatrix = m_camera.getPerspectiveMatrix();
 	m_uniforms.viewMatrix = m_camera.getViewMatrix();
 	m_uniforms.modelMatrix = Matrix4f::IDENTITY;
 	m_uniforms.normalMatrix = Matrix4f::IDENTITY;
@@ -116,10 +117,25 @@ void MSDFFont::update() {
 
 	m_trackball.idle();
 	applyTransformation(m_trackball);
+	 
+	float sec = Globals::clock.getElapsedTimeSec();
+	float crawl = fmodf((float)sec / 2.5f, 14.0f);
 
-	m_uniforms.projectionMatrix = m_camera.getOrthographicMatrix();
+	Matrix4f transOrigin;
+	transOrigin.translate(-(m_characterSet.getWidth("WebGPU") * 0.5f * largeScale), -(m_characterSet.lineHeight * 0.5f * largeScale), 0.0f);
+
+	Matrix4f rot;
+	rot.rotate(-22.5f, 0.0f, 0.0f);
+
+	Matrix4f trans;
+	trans.translate({ 0.0f, 7.0f -3.0f, 0.0f });
+
+
+	m_uniforms.projectionMatrix = m_camera.getPerspectiveMatrix();
 	m_uniforms.viewMatrix = m_camera.getViewMatrix();
 	m_uniforms.normalMatrix = Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_uniforms.modelMatrix);
+
+	m_model = rot * trans * transOrigin;
 }
 
 void MSDFFont::render() {
@@ -127,13 +143,22 @@ void MSDFFont::render() {
 }
 
 void MSDFFont::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
-	WgpFontRenderer::Get().addText(m_characterSet, static_cast<float>(Application::Width) * 0.5f, static_cast<float>(Application::Height) * 0.5f, "WHQH", {1.0f, 1.0f, 1.0f, 1.0f}, m_fontSize);
+	WgpFontRenderer::Get().reset();
+
 
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, projectionMatrix), &m_uniforms.projectionMatrix, sizeof(Uniforms::projectionMatrix));
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, viewMatrix), &m_uniforms.viewMatrix, sizeof(Uniforms::viewMatrix));
+	//wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, modelMatrix), &m_uniforms.modelMatrix, sizeof(Uniforms::modelMatrix));
 
 	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
 	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_FONT"));
 	
+	WgpFontRenderer::Get().addTextTransformed(m_characterSet, m_model[0], "WebGPU", {1.0f, 1.0f, 1.0f, 1.0f}, largeScale);
+	WgpFontRenderer::Get().draw(renderPassEncoder);
+
+	Matrix4f trans;
+	trans.translate({ -3.0f, -0.1f - m_characterSet.lineHeight * smallScale, 0.0f });
+	WgpFontRenderer::Get().addTextTransformed(m_characterSet, (m_model * trans)[0], "WebGPU exposes an API for performing operations", {1.0f, 1.0f, 1.0f, 1.0f}, smallScale);
 	WgpFontRenderer::Get().draw(renderPassEncoder);
 
 	if (m_drawUi)
@@ -194,8 +219,8 @@ void MSDFFont::OnKeyUp(const Event::KeyboardEvent& event) {
 }
 
 void MSDFFont::resize(int deltaW, int deltaH) {
-	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
-	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
+	//m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
+	//m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 }
 
 void MSDFFont::applyTransformation(TrackBall& arc) {

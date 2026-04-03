@@ -7,7 +7,7 @@
 class WgpBatchRenderer {
 
 	struct Vertex {
-		std::array<float, 4> posTex;
+		std::array<float, 5> posTex;
 		std::array<float, 4> color;
 		unsigned int layer;
 	};
@@ -18,18 +18,20 @@ class WgpBatchRenderer {
 	};
 
 public:
-
+	
 	WgpBatchRenderer();
 	~WgpBatchRenderer();
 
 	void draw(const WGPURenderPassEncoder& renderPassEncoder);
 
-	void init(size_t size = 400u, size_t batches = 4u);
-	void addQuadAA(std::array<float, 4> posSize, std::array<float, 4> texCoords = { 0.0f, 0.0f, 1.0f, 1.0f }, std::array<float, 4> color = { 1.0f, 1.0f, 1.0f, 1.0f }, uint32_t layer = 0u);
+	void init(size_t size = 400u, size_t maxBatches = 4u);
+	void addQuadAA(const std::array<float, 4>& posSize, const std::array<float, 4>& texCoords = { 0.0f, 0.0f, 1.0f, 1.0f }, const std::array<float, 4>& color = { 1.0f, 1.0f, 1.0f, 1.0f }, uint32_t layer = 0u);
+	void addQuad(const std::array<std::array<float,3>,4>& vertices, const std::array<float, 4>& texCoords = {0.0f, 0.0f, 1.0f, 1.0f}, const std::array<float, 4>& color = {1.0f, 1.0f, 1.0f, 1.0f}, uint32_t layer = 0u);
 	void setBindGroups(const std::function<std::vector<WGPUBindGroup>()>& onBindGroups);
 
 	void cleanup();
 	void markForDelete();
+	void reset();
 
 	static WgpBatchRenderer& Get();
 
@@ -46,7 +48,7 @@ private:
 	bool m_markForDelete;
 
 	std::vector<Batch> m_batches;
-	WgpBuffer m_vertexBuffer;
+	std::vector <WgpBuffer> m_vertexBuffers;
 	WgpBuffer m_indexBuffer;
 	mutable std::vector<WGPUBindGroup> m_bindGroups;
 

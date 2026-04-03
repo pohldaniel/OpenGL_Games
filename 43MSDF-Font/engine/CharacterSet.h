@@ -37,6 +37,9 @@ struct CharacterSet {
 	void setLinear();
 	void setLinearMipMap();
 	void setNearest();
+	const Char& getCharacter(const char c) const;
+	const float getWidth(const std::string& text) const;
+	void bind(unsigned int unit = 0u) const;
 
 	std::map<char, Char> characters;
 	unsigned int spriteSheet;
@@ -44,11 +47,7 @@ struct CharacterSet {
 	unsigned int maxHeight;
 	unsigned int lineHeight;
 	unsigned int frame;
-	float distanceRange;
-
-	const Char& getCharacter(const char c) const;
-	int getWidth(std::string text) const;
-	void bind(unsigned int unit = 0u) const;
+	float distanceRange;	
 };
 
 #endif

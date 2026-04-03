@@ -71,12 +71,14 @@ struct WgpContext {
 	const WGPUSampler& getSampler(SamplerSlot samplerSlot);
 	void addSahderModule(const std::string& shaderModuleName, const std::string& shaderModulePath);
 	const WGPUShaderModule& getShaderModule(std::string shaderModuleName);
+	void setClearColor(const WGPUColor& clearColor);
 
 	WGPUInstance instance = NULL;
 	WGPUAdapter adapter = NULL;
 	WGPUDevice device = NULL;
 	WGPUSurface surface = NULL;
 	WGPUQueue queue = NULL;
+	WGPUColor clearColor = { 0.2f, 0.2f, 0.2f, 1.0f };
 
 	WGPUTextureView depthTextureView = NULL;
 	WGPUTexture depthTexture = NULL;

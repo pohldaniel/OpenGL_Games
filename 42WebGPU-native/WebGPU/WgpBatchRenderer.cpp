@@ -1,6 +1,6 @@
 #include <WebGPU/WgpContext.h>
 #include "WgpBatchRenderer.h"
-
+#include<iostream>
 WgpBatchRenderer WgpBatchRenderer::s_instance;
 
 WgpBatchRenderer::WgpBatchRenderer() : 
@@ -28,20 +28,29 @@ void WgpBatchRenderer::cleanup() {
 }
 
 void WgpBatchRenderer::markForDelete() {
-	m_vertexBuffer.markForDelete();
+	for (WgpBuffer& buffer : m_vertexBuffers) {
+		buffer.markForDelete();
+	}
 	m_indexBuffer.markForDelete();
 	m_markForDelete = true;
 }
 
-void WgpBatchRenderer::init(size_t size, size_t batches) {
+void WgpBatchRenderer::reset() {
+	m_currentBatch = 0u;
+}
 
-	m_maxBatches = batches;
+void WgpBatchRenderer::init(size_t size, size_t maxBatches) {
+
+	m_maxBatches = maxBatches;
 	m_maxQuad = size;
 	m_maxVert = m_maxQuad * 4u;
 	m_maxIndex = m_maxQuad * 6u;
 
-	m_vertexBuffer.createBuffer(sizeof(Vertex) * m_maxVert, WGPUBufferUsage_Vertex | WGPUBufferUsage_Storage | WGPUBufferUsage_CopyDst);
+	m_vertexBuffers.resize(m_maxBatches);
 
+	for (WgpBuffer& buffer : m_vertexBuffers) {
+		buffer.createBuffer(sizeof(Vertex) * m_maxVert, WGPUBufferUsage_Vertex | WGPUBufferUsage_Storage | WGPUBufferUsage_CopyDst);
+	}
 
 	uint32_t* indices = new uint32_t[m_maxIndex];
 	uint32_t index_offset = 0u;
@@ -72,57 +81,80 @@ void WgpBatchRenderer::setBindGroups(const std::function<std::vector<WGPUBindGro
 	m_bindGroups = onBindGroups();
 }
 
-void WgpBatchRenderer::addQuadAA(std::array<float, 4> posSize, std::array<float, 4> texCoords, std::array<float, 4> color, uint32_t layer) {
+void WgpBatchRenderer::addQuadAA(const std::array<float, 4>& posSize, const std::array<float, 4>& texCoords, const std::array<float, 4>& color, uint32_t layer) {	
 	if (m_indexCount >= m_maxIndex) {
-		m_currentBatch++;
 		m_indexCount = 0u;
 	}
 
-	m_batches[m_currentBatch].bufferPtr->posTex = { posSize[0], posSize[1],  texCoords[0],  texCoords[1] };
+	m_batches[m_currentBatch].bufferPtr->posTex = { posSize[0], posSize[1], 0.0f, texCoords[0],  texCoords[1] };
 	m_batches[m_currentBatch].bufferPtr->color = { color[0], color[1], color[2], color[3] };
 	m_batches[m_currentBatch].bufferPtr->layer = layer;
 	m_batches[m_currentBatch].bufferPtr++;
 
-	m_batches[m_currentBatch].bufferPtr->posTex = { posSize[0] + posSize[2], posSize[1],  texCoords[0] + texCoords[2],  texCoords[1] };
+	m_batches[m_currentBatch].bufferPtr->posTex = { posSize[0] + posSize[2], posSize[1], 0.0f, texCoords[0] + texCoords[2],  texCoords[1] };
 	m_batches[m_currentBatch].bufferPtr->color = { color[0], color[1], color[2], color[3] };
 	m_batches[m_currentBatch].bufferPtr->layer = layer;
 	m_batches[m_currentBatch].bufferPtr++;
 
-	m_batches[m_currentBatch].bufferPtr->posTex = { posSize[0] + posSize[2], posSize[1] + posSize[3],  texCoords[0] + texCoords[2],  texCoords[1] + texCoords[3] };
+	m_batches[m_currentBatch].bufferPtr->posTex = { posSize[0] + posSize[2], posSize[1] + posSize[3], 0.0f, texCoords[0] + texCoords[2],  texCoords[1] + texCoords[3] };
 	m_batches[m_currentBatch].bufferPtr->color = { color[0], color[1], color[2], color[3] };
 	m_batches[m_currentBatch].bufferPtr->layer = layer;
 	m_batches[m_currentBatch].bufferPtr++;
 
-	m_batches[m_currentBatch].bufferPtr->posTex = { posSize[0], posSize[1] + posSize[3],  texCoords[0],  texCoords[1] + texCoords[3] };
+	m_batches[m_currentBatch].bufferPtr->posTex = { posSize[0], posSize[1] + posSize[3], 0.0f, texCoords[0],   texCoords[1] + texCoords[3] };
 	m_batches[m_currentBatch].bufferPtr->color = { color[0], color[1], color[2], color[3] };
 	m_batches[m_currentBatch].bufferPtr->layer = layer;
 	m_batches[m_currentBatch].bufferPtr++;
 
-	m_indexCount += 6;
+	m_indexCount += 6u;
+}
+
+void WgpBatchRenderer::addQuad(const std::array<std::array<float,3>,4>& vertices, const std::array<float, 4>& texCoords, const std::array<float, 4>& color, uint32_t layer) {
+	if (m_indexCount >= m_maxIndex) {
+		m_indexCount = 0u;
+	}
+
+	m_batches[m_currentBatch].bufferPtr->posTex = { vertices[0][0], vertices[0][1], vertices[0][2], texCoords[0],  texCoords[1] };
+	m_batches[m_currentBatch].bufferPtr->color =  { color[0], color[1], color[2], color[3] };
+	m_batches[m_currentBatch].bufferPtr->layer =  layer;
+	m_batches[m_currentBatch].bufferPtr++;
+
+	m_batches[m_currentBatch].bufferPtr->posTex = { vertices[1][0], vertices[1][1], vertices[1][2], texCoords[0] + texCoords[2],  texCoords[1] };
+	m_batches[m_currentBatch].bufferPtr->color =  { color[0], color[1], color[2], color[3] };
+	m_batches[m_currentBatch].bufferPtr->layer = layer;
+	m_batches[m_currentBatch].bufferPtr++;
+
+	m_batches[m_currentBatch].bufferPtr->posTex = { vertices[2][0], vertices[2][1], vertices[2][2], texCoords[0] + texCoords[2],  texCoords[1] + texCoords[3] };
+	m_batches[m_currentBatch].bufferPtr->color =  { color[0], color[1], color[2], color[3] };
+	m_batches[m_currentBatch].bufferPtr->layer =  layer;
+	m_batches[m_currentBatch].bufferPtr++;
+
+	m_batches[m_currentBatch].bufferPtr->posTex = { vertices[3][0], vertices[3][1], vertices[3][2], texCoords[0],  texCoords[1] + texCoords[3] };
+	m_batches[m_currentBatch].bufferPtr->color =  { color[0], color[1], color[2], color[3] };
+	m_batches[m_currentBatch].bufferPtr->layer =  layer;
+	m_batches[m_currentBatch].bufferPtr++;
+
+	m_indexCount += 6u;
 }
 
 void WgpBatchRenderer::draw(const WGPURenderPassEncoder& renderPassEncoder) {
 
-	for (uint32_t index = 0u; index  < m_currentBatch + 1u; index++) {
-		ptrdiff_t size = (uint8_t*)m_batches[index].bufferPtr - (uint8_t*)m_batches[index].buffer;
+	ptrdiff_t size = (uint8_t*)m_batches[m_currentBatch].bufferPtr - (uint8_t*)m_batches[m_currentBatch].buffer;
 
-		wgpuQueueWriteBuffer(wgpContext.queue, m_vertexBuffer.getBuffer(), 0u, reinterpret_cast<void*>(m_batches[index].buffer), size);
+	wgpuQueueWriteBuffer(wgpContext.queue, m_vertexBuffers[m_currentBatch].getBuffer(), 0u, reinterpret_cast<void*>(m_batches[m_currentBatch].buffer), size);
 
-
-		uint32_t indexCount = (size / (4u * sizeof(Vertex))) * 6u;
-
-		for (uint32_t i = 0u; i < m_bindGroups.size(); i++) {
-			wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, i, m_bindGroups[i], 0u, NULL);
-		}
-		wgpuRenderPassEncoderSetVertexBuffer(renderPassEncoder, 0u, m_vertexBuffer.getBuffer(), 0u, wgpuBufferGetSize(m_vertexBuffer.getBuffer()));
-		wgpuRenderPassEncoderSetIndexBuffer(renderPassEncoder, m_indexBuffer.getBuffer(), WGPUIndexFormat_Uint32, 0u, wgpuBufferGetSize(m_indexBuffer.getBuffer()));
-		wgpuRenderPassEncoderDrawIndexed(renderPassEncoder, indexCount, 1u, 0u, 0u, 0u);
-
-		m_batches[index].bufferPtr = m_batches[index].buffer;
+	uint32_t indexCount = (size / (4u * sizeof(Vertex))) * 6u;
+	for (uint32_t i = 0u; i < m_bindGroups.size(); i++) {
+		wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, i, m_bindGroups[i], 0u, NULL);
 	}
+	wgpuRenderPassEncoderSetVertexBuffer(renderPassEncoder, 0u, m_vertexBuffers[m_currentBatch].getBuffer(), 0u, wgpuBufferGetSize(m_vertexBuffers[m_currentBatch].getBuffer()));
+	wgpuRenderPassEncoderSetIndexBuffer(renderPassEncoder, m_indexBuffer.getBuffer(), WGPUIndexFormat_Uint32, 0u, wgpuBufferGetSize(m_indexBuffer.getBuffer()));
+	wgpuRenderPassEncoderDrawIndexed(renderPassEncoder, indexCount, 1u, 0u, 0u, 0u);
 
-	m_currentBatch = 0u;
+	m_batches[m_currentBatch].bufferPtr = m_batches[m_currentBatch].buffer;
+
 	m_indexCount = 0u;
+	m_currentBatch++;
 }
 
 WgpBatchRenderer& WgpBatchRenderer::Get() {
