@@ -24,6 +24,7 @@ struct CharacterSet {
 	const Char& getCharacter(const char c) const;
 	const std::vector<Kerning>& getKernings(const char c) const;
 	const bool hasKernings() const;
+	const bool kerningsHasChar(const char c) const;
 	const float getWidth(const std::string& text) const;
 
 	std::map<char, Char> characters;

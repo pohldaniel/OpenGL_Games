@@ -64,6 +64,6 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4f {
 	}
 
 	return vec4f(in.color.rgb, in.color.a * alpha);
-	
-	//return vec4f(1.0, 0.0, 0.0, 1.0);
+	//let sample = textureSample(fontTexture, fontSampler, in.uv);
+	//return vec4f(sample.rgb, 1.0);
 }

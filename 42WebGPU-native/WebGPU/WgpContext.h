@@ -49,6 +49,7 @@ extern "C" {
 	void wgpResize(uint32_t width, uint32_t height);
 	void wgpToggleVerticalSync();
 	void wgpConfigureSurface();
+	void wgpSetSurfaceColorFormat(WGPUTextureFormat textureFormat);
 }
 
 enum SamplerSlot {

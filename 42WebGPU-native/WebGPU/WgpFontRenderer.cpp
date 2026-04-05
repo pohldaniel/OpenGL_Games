@@ -31,8 +31,8 @@ void WgpFontRenderer::markForDelete() {
 	m_markForDelete = true;
 }
 
-void WgpFontRenderer::init(size_t size) {
-	m_wgpBatchRenderer->init(size);
+void WgpFontRenderer::init(size_t size, size_t maxBatches) {
+	m_wgpBatchRenderer->init(size, maxBatches);
 }
 
 void WgpFontRenderer::addText(const CharacterSet& characterSet, float posX, float posY, const std::string& text, const std::array<float, 4>& color, float size, bool flipGlyph) {
@@ -49,7 +49,7 @@ void WgpFontRenderer::addText(const CharacterSet& characterSet, float posX, floa
 		}
 		const Char& ch = characterSet.getCharacter(*c);
 		m_wgpBatchRenderer->addQuadAA({ posX + ch.offset[0] * size, posY + ch.offset[1] * size, static_cast<float>(ch.size[0]) * size, static_cast<float>(ch.size[1]) * size },  { flipGlyph ? ch.textureOffset[0] : ch.textureOffset[0], flipGlyph ? ch.textureOffset[1] + ch.textureSize[1] : ch.textureOffset[1], flipGlyph ? ch.textureSize[0] : ch.textureSize[0], flipGlyph ? -ch.textureSize[1] : ch.textureSize[1] }, color, characterSet.layer);
-		posX = posX + (ch.offset[0] + ch.advance + kerningAmount) * size;
+		posX = posX + (ch.advance + kerningAmount) * size;
 	}
 }
 
@@ -58,30 +58,30 @@ void WgpFontRenderer::addTextTransformed(const CharacterSet& characterSet, float
 	float offset = 0.0f;
 	for (c = text.begin(); c != text.end(); c++) {
 		float kerningAmount = 0.0f;
-		/*if (characterSet.hasKernings() && (c + 1) != text.end()) {
+		if (characterSet.hasKernings() && characterSet.kerningsHasChar(*c) && (c + 1) != text.end()) {
 			const std::vector<Kerning>& kernings = characterSet.getKernings(*c);
 			for (const Kerning& kerning : kernings) {
 				if (kerning.nextChar == *(c + 1)) {
 					kerningAmount = kerning.amount;
 				}
 			}
-		}*/
-		const Char& ch = characterSet.getCharacter(*c);
-	
-		/*float sx = sqrtf(transformation[0] * transformation[0] + transformation[4] * transformation[4] + transformation[8] * transformation[8]);
-		float sy = sqrtf(transformation[1] * transformation[1] + transformation[5] * transformation[5] + transformation[9] * transformation[9]);
-		float sz = sqrtf(transformation[2] * transformation[2] + transformation[6] * transformation[6] + transformation[10] * transformation[10]);
+		}
 
-		sx = (1.0f / sx) * size;
-		sy = (1.0f / sy) * size;
-		sz = (1.0f / sz) * size;*/
+		const Char& ch = characterSet.getCharacter(*c);	
+		//float sx = sqrtf(transformation[0] * transformation[0] + transformation[4] * transformation[4] + transformation[8] * transformation[8]);
+		//float sy = sqrtf(transformation[1] * transformation[1] + transformation[5] * transformation[5] + transformation[9] * transformation[9]);
+		//float sz = sqrtf(transformation[2] * transformation[2] + transformation[6] * transformation[6] + transformation[10] * transformation[10]);
+
+		//sx = (1.0f / sx) * size;
+		//sy = (1.0f / sy) * size;
+		//sz = (1.0f / sz) * size;
 
 		float v00 = offset +  ch.offset[0] * size;                                   float v01 =  ch.offset[1] * size;                                   //float v02 = 0.0f;
 		float v10 = offset + (ch.offset[0] + static_cast<float>(ch.size[0])) * size; float v11 =  ch.offset[1] * size;                                   //float v12 = 0.0f;
 		float v20 = offset + (ch.offset[0] + static_cast<float>(ch.size[0])) * size; float v21 = (ch.offset[1] + static_cast<float>(ch.size[1])) * size; //float v22 = 0.0f;
 		float v30 = offset +  ch.offset[0] * size;                                   float v31 = (ch.offset[1] + static_cast<float>(ch.size[1])) * size; //float v32 = 0.0f;
 
-		std::array<std::array<float, 3>, 4> vertices;
+		std::array<std::array<float,3>,4> vertices;
 		vertices[0][0] = v00 * transformation[0] + v01 * transformation[4] + transformation[12]; // + v02 * transformation[8];
 		vertices[0][1] = v00 * transformation[1] + v01 * transformation[5] + transformation[13]; // + v02 * transformation[9];
 		vertices[0][2] = v00 * transformation[2] + v01 * transformation[6] + transformation[14]; // + v02 * transformation[10];
@@ -99,7 +99,7 @@ void WgpFontRenderer::addTextTransformed(const CharacterSet& characterSet, float
 		vertices[3][2] = v30 * transformation[2] + v31 * transformation[6] + transformation[14]; // + v32 * transformation[10];
 
 		m_wgpBatchRenderer->addQuad(vertices, { flipGlyph ? ch.textureOffset[0] : ch.textureOffset[0], flipGlyph ? ch.textureOffset[1] + ch.textureSize[1] : ch.textureOffset[1], flipGlyph ? ch.textureSize[0] : ch.textureSize[0], flipGlyph ? -ch.textureSize[1] : ch.textureSize[1] }, color, characterSet.layer);
-		offset = offset + (ch.offset[0] + ch.advance + kerningAmount) * size;
+		offset = offset + (ch.advance + kerningAmount) * size;
 	}
 }
 

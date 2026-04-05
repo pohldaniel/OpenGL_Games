@@ -45,7 +45,7 @@ private:
 	void applyTransformation(TrackBall& arc);
 
 	bool m_initUi = true;
-	bool m_drawUi = true;
+	bool m_drawUi = false;
 
 	Camera m_camera;
 	TrackBall m_trackball;

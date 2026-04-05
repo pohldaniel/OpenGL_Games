@@ -305,7 +305,7 @@ WGPUSampler wgpCreateSampler(WGPUFilterMode filterMode) {
 	samplerDescriptor.lodMinClamp = 0.0f;
 	samplerDescriptor.lodMaxClamp = 1.0f;
 	samplerDescriptor.compare = WGPUCompareFunction_Undefined;
-	samplerDescriptor.maxAnisotropy = 1u;
+	samplerDescriptor.maxAnisotropy = 16u;
 	return wgpuDeviceCreateSampler(device, &samplerDescriptor);
 }
 
@@ -538,6 +538,14 @@ void wgpResize(uint32_t width, uint32_t height) {
 void wgpToggleVerticalSync() {
 	if (wgpContext.surface) {
 		wgpContext.config.presentMode = wgpContext.config.presentMode == WGPUPresentMode_Fifo ? WGPUPresentMode_Immediate : WGPUPresentMode_Fifo;
+		wgpuSurfaceConfigure(wgpContext.surface, &wgpContext.config);
+	}
+}
+
+void wgpSetSurfaceColorFormat(WGPUTextureFormat textureFormat) {
+	if (wgpContext.surface) {
+		wgpContext.colorformat = textureFormat;
+		wgpContext.config.format = wgpContext.colorformat;
 		wgpuSurfaceConfigure(wgpContext.surface, &wgpContext.config);
 	}
 }
