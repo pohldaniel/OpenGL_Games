@@ -15,6 +15,7 @@
 #include <WebGPU/WgpMesh.h>
 #include <WebGPU/WgpData.h>
 #include <WebGPU/WgpModel.h>
+#include <WebGPU/WgpFontRenderer.h>
 
 class MSDFFont : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -59,4 +60,6 @@ private:
 	float largeScale = 0.0078125f;
 	float smallScale = 0.00390625f;
 	Matrix4f m_model;
+
+	FormatedText m_formatedText;
 };

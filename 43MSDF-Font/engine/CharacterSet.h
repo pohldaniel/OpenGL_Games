@@ -21,6 +21,11 @@ struct Char {
 	float advance;
 };
 
+struct Kerning {
+	char nextChar;
+	float amount;
+};
+
 struct CharacterSet {
 	CharacterSet() = default;
 	CharacterSet(CharacterSet const& rhs);
@@ -38,10 +43,14 @@ struct CharacterSet {
 	void setLinearMipMap();
 	void setNearest();
 	const Char& getCharacter(const char c) const;
+	const std::vector<Kerning>& getKernings(const char c) const;
+	const bool hasKernings() const;
+	const bool kerningsHasChar(const char c) const;
 	const float getWidth(const std::string& text) const;
 	void bind(unsigned int unit = 0u) const;
 
 	std::map<char, Char> characters;
+	std::map<char, std::vector<Kerning>> kernings;
 	unsigned int spriteSheet;
 	unsigned int maxWidth;
 	unsigned int maxHeight;

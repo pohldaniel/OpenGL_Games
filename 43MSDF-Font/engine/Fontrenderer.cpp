@@ -47,9 +47,18 @@ void Fontrenderer::drawText(const CharacterSet& characterSet, float posX, float 
 	glBindTexture(GL_TEXTURE_2D_ARRAY, characterSet.spriteSheet);
 	std::string::const_iterator c;
 	for (c = text.begin(); c != text.end(); c++) {
+		float kerningAmount = 0.0f;
+		if (characterSet.hasKernings() && (c + 1) != text.end()) {
+			const std::vector<Kerning>& kernings = characterSet.getKernings(*c);
+			for (const Kerning& kerning : kernings) {
+				if (kerning.nextChar == *(c + 1)) {
+					kerningAmount = kerning.amount;
+				}
+			}
+		}
 		const Char& ch = characterSet.getCharacter(*c);
 		m_batchrenderer->addQuadAA(Vector4f(posX + ch.offset[0] * size, posY + ch.offset[1] * size, static_cast<float>(ch.size[0]) * size, static_cast<float>(ch.size[1]) * size), flipGlyph ? Vector4f(ch.textureOffset[0], ch.textureOffset[1] + ch.textureSize[1], ch.textureSize[0], -ch.textureSize[1]) : Vector4f(ch.textureOffset[0], ch.textureOffset[1], ch.textureSize[0], ch.textureSize[1]), color, characterSet.frame);
-		posX = posX + (ch.offset[0] + ch.advance) * size;
+		posX = posX + (ch.advance + kerningAmount) * size;
 	}
 	m_batchrenderer->drawBuffer();
 	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
@@ -58,9 +67,18 @@ void Fontrenderer::drawText(const CharacterSet& characterSet, float posX, float 
 void Fontrenderer::addText(const CharacterSet& characterSet, float posX, float posY, const std::string& text, const Vector4f& color, float size, bool flipGlyph) {
 	std::string::const_iterator c;
 	for (c = text.begin(); c != text.end(); c++) {
+		float kerningAmount = 0.0f;
+		if (characterSet.hasKernings() && (c + 1) != text.end()) {
+			const std::vector<Kerning>& kernings = characterSet.getKernings(*c);
+			for (const Kerning& kerning : kernings) {
+				if (kerning.nextChar == *(c + 1)) {
+					kerningAmount = kerning.amount;
+				}
+			}
+		}
 		const Char& ch = characterSet.getCharacter(*c);
 		m_batchrenderer->addQuadAA(Vector4f(posX + ch.offset[0] * size, posY + ch.offset[1] * size, static_cast<float>(ch.size[0]) * size, static_cast<float>(ch.size[1]) * size), flipGlyph ? Vector4f(ch.textureOffset[0], ch.textureOffset[1] + ch.textureSize[1], ch.textureSize[0], -ch.textureSize[1]) : Vector4f(ch.textureOffset[0], ch.textureOffset[1], ch.textureSize[0], ch.textureSize[1]), color, characterSet.frame);
-		posX = posX + (ch.offset[0] + ch.advance) * size;
+		posX = posX + (ch.advance + kerningAmount) * size;
 	}
 }
 
@@ -73,14 +91,22 @@ void Fontrenderer::addTextTransformed(const CharacterSet& characterSet, const Ma
 	std::string::const_iterator c;
 	float offset = 0.0f;
 	for (c = text.begin(); c != text.end(); c++) {
-		const Char& ch = characterSet.getCharacter(*c);
-		
-		verices[0] = transformation ^ Vector3f(offset + ch.offset[0],                                       ch.offset[1],                                       0.0f);
-		verices[1] = transformation ^ Vector3f(offset + ch.offset[0] + sx * static_cast<float>(ch.size[0]), ch.offset[1],                                       0.0f);
-		verices[2] = transformation ^ Vector3f(offset + ch.offset[0] + sx * static_cast<float>(ch.size[0]), ch.offset[1] + sy * static_cast<float>(ch.size[1]), 0.0f);
-		verices[3] = transformation ^ Vector3f(offset + ch.offset[0],                                       ch.offset[1] + sy * static_cast<float>(ch.size[1]), 0.0f);
+		float kerningAmount = 0.0f;
+		if (characterSet.hasKernings() && characterSet.kerningsHasChar(*c) && (c + 1) != text.end()) {
+			const std::vector<Kerning>& kernings = characterSet.getKernings(*c);
+			for (const Kerning& kerning : kernings) {
+				if (kerning.nextChar == *(c + 1)) {
+					kerningAmount = kerning.amount;
+				}
+			}
+		}
+		const Char& ch = characterSet.getCharacter(*c);	
+		verices[0] = transformation ^ Vector3f(offset + ch.offset[0] * sx,              ch.offset[1] * sy,              0.0f);
+		verices[1] = transformation ^ Vector3f(offset + ch.offset[0] + ch.size[0] * sx, ch.offset[1] * sy,              0.0f);
+		verices[2] = transformation ^ Vector3f(offset + ch.offset[0] + ch.size[0] * sx, ch.offset[1] + ch.size[1] * sy, 0.0f);
+		verices[3] = transformation ^ Vector3f(offset + ch.offset[0] * sx,              ch.offset[1] + ch.size[1] * sy, 0.0f);
 		m_batchrenderer->addQuad(verices, Vector4f(ch.textureOffset[0], ch.textureOffset[1], ch.textureSize[0], ch.textureSize[1]), color, characterSet.frame);
-		offset = offset + (ch.offset[0] + ch.advance) * sx;
+		offset = offset + (ch.advance + kerningAmount) * sx;
 	}
 }
 

@@ -31,7 +31,7 @@ struct CharacterSet {
 	std::map<char, std::vector<Kerning>> kernings;
 	uint32_t layer;
 	float distanceRange;
-	uint32_t lineHeight;
+	float lineHeight;
 
 	WgpTexture m_texture;
 };

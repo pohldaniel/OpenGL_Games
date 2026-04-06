@@ -135,7 +135,7 @@ const float CharacterSet::getWidth(const std::string& text) const {
 			}
 		}
 		const Char ch = getCharacter(*c);
-		sizeX = sizeX + (ch.advance) + kerningAmount;
+		sizeX = sizeX + ch.advance + kerningAmount;
 	}
 	return  sizeX;
 }

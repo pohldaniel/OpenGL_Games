@@ -4,7 +4,7 @@
 #include <imgui_internal.h>
 
 #include <WebGPU/WgpContext.h>
-#include <WebGPU/WgpFontRenderer.h>
+
 
 #include "MSDFFont.h"
 #include "Application.h"
@@ -15,7 +15,7 @@ MSDFFont::MSDFFont(StateMachine& machine) : State(machine, States::MSDF_FONT) {
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
-	WgpFontRenderer::Get().init();
+	WgpFontRenderer::Get().init(2400u);
 	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm);
 
 	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
@@ -48,6 +48,39 @@ MSDFFont::MSDFFont(StateMachine& machine) : State(machine, States::MSDF_FONT) {
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
 
 	WgpFontRenderer::Get().setBindGroups(std::bind(&MSDFFont::OnBindGroups, this));
+
+	static const char* text
+		= "\n"
+		"WebGPU exposes an API for performing operations, such as rendering\n"
+		"and computation, on a Graphics Processing Unit.\n"
+		"\n"
+		"Graphics Processing Units, or GPUs for short, have been essential\n"
+		"in enabling rich rendering and computational applications in personal\n"
+		"computing. WebGPU is an API that exposes the capabilities of GPU\n"
+		"hardware for the Web. The API is designed from the ground up to\n"
+		"efficiently map to (post-2014) native GPU APIs. WebGPU is not related\n"
+		"to WebGL and does not explicitly target OpenGL ES.\n"
+		"\n"
+		"WebGPU sees physical GPU hardware as GPUAdapters. It provides a\n"
+		"connection to an adapter via GPUDevice, which manages resources, and\n"
+		"the device's GPUQueues, which execute commands. GPUDevice may have\n"
+		"its own memory with high-speed access to the processing units.\n"
+		"GPUBuffer and GPUTexture are the physical resources backed by GPU\n"
+		"memory. GPUCommandBuffer and GPURenderBundle are containers for\n"
+		"user-recorded commands. GPUShaderModule contains shader code. The\n"
+		"other resources, such as GPUSampler or GPUBindGroup, configure the\n"
+		"way physical resources are used by the GPU.\n"
+		"\n"
+		"GPUs execute commands encoded in GPUCommandBuffers by feeding data\n"
+		"through a pipeline, which is a mix of fixed-function and programmable\n"
+		"stages. Programmable stages execute shaders, which are special\n"
+		"programs designed to run on GPU hardware. Most of the state of a\n"
+		"pipeline is defined by a GPURenderPipeline or a GPUComputePipeline\n"
+		"object. The state not included in these pipeline objects is set\n"
+		"during encoding with commands, such as beginRenderPass() or\n"
+		"setBlendConstant().";
+
+	m_formatedText.create(text);
 }
 
 MSDFFont::~MSDFFont() {
@@ -153,18 +186,13 @@ void MSDFFont::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
 	Matrix4f transOrigin;
 	transOrigin.translate(-(m_characterSet.getWidth("WebGPU") * 0.5f * largeScale), -(m_characterSet.lineHeight * 0.5f * largeScale), 0.0f);
 
-	WgpFontRenderer::Get().addTextTransformed(m_characterSet, (m_model * transOrigin)[0], "WebGPU", {1.0f, 1.0f, 1.0f, 1.0f}, largeScale);
+	WgpFontRenderer::Get().addTextTransformed(m_characterSet, "WebGPU", (m_model * transOrigin)[0],{1.0f, 1.0f, 1.0f, 1.0f}, largeScale);
 	WgpFontRenderer::Get().draw(renderPassEncoder);
 
-	Matrix4f trans;
-	trans.translate({ -3.0f, -0.1f -(m_characterSet.lineHeight * 0.5f * largeScale) - (m_characterSet.lineHeight * smallScale), 0.0f });
-	WgpFontRenderer::Get().addTextTransformed(m_characterSet, (m_model * trans)[0], "WebGPU exposes an API for performing operations, such as rendering", {1.0f, 1.0f, 1.0f, 1.0f}, smallScale);
-	trans.translate({ -3.0f, -0.1f - (m_characterSet.lineHeight * 0.5f * largeScale) - (m_characterSet.lineHeight * smallScale) * 2.0f, 0.0f });
-	WgpFontRenderer::Get().addTextTransformed(m_characterSet, (m_model * trans)[0], "and computation, on a Graphics Processing Unit.", { 1.0f, 1.0f, 1.0f, 1.0f }, smallScale);
-	WgpFontRenderer::Get().draw(renderPassEncoder);
+	transOrigin.translate({ -3.0f, -0.1f - (m_characterSet.lineHeight * 0.5f * largeScale), 0.0f });
+	WgpFontRenderer::Get().addTextTransformed(m_characterSet, m_formatedText, (m_model * transOrigin)[0], { 1.0f, 1.0f, 1.0f, 1.0f }, smallScale);
 
-	//WgpFontRenderer::Get().addTextTransformed(m_characterSet, (m_model * trans)[0], "po", { 1.0f, 1.0f, 1.0f, 1.0f }, smallScale);
-	//WgpFontRenderer::Get().draw(renderPassEncoder);
+	WgpFontRenderer::Get().draw(renderPassEncoder);
 
 	if (m_drawUi)
 		renderUi(renderPassEncoder);
@@ -341,3 +369,4 @@ std::vector<WGPUBindGroup> MSDFFont::OnBindGroups() {
 
 	return bindGroups;
 }
+
