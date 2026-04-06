@@ -84,15 +84,11 @@ void CharacterSet::loadMsdfBmFromFile(const std::string& pathJson, const std::st
 
 	for (rapidjson::Value::ConstValueIterator glyph = doc["chars"].GetArray().Begin(); glyph != doc["chars"].GetArray().End(); ++glyph) {
 		char code = (*glyph)["char"].GetString()[0];
-
-	
-
 		float advance = glyph->HasMember("xadvance") ? (*glyph)["xadvance"].GetFloat() : 0.0f;
 		float posX = glyph->HasMember("x") ? (*glyph)["x"].GetFloat() : 0.0f;
 		float posY = glyph->HasMember("y") ? (*glyph)["y"].GetFloat() : 0.0f;
 		float width = glyph->HasMember("width") ? (*glyph)["width"].GetFloat() : 0.0f;
 		float height = glyph->HasMember("height") ? (*glyph)["height"].GetFloat() : 0.0f;
-
 		float offsetX = glyph->HasMember("xoffset") ? (*glyph)["xoffset"].GetFloat() : 0.0f;
 		float offsetY = glyph->HasMember("yoffset") ? (*glyph)["yoffset"].GetFloat() : 0.0f;
 

@@ -43,14 +43,11 @@ private:
 	std::vector<WGPUBindGroup> OnBindGroups();
 
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
-	void applyTransformation(TrackBall& arc);
 
 	bool m_initUi = true;
 	bool m_drawUi = false;
 
 	Camera m_camera;
-	TrackBall m_trackball;
-
 	WgpBuffer m_uniformBuffer;
 	Uniforms m_uniforms;
 

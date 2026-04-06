@@ -1,5 +1,4 @@
 #pragma once
-
 #include <engine/CharacterSet.h>
 #include "WgpBatchRenderer.h"
 

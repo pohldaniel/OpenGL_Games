@@ -1,6 +1,6 @@
 #include <WebGPU/WgpContext.h>
 #include "WgpBatchRenderer.h"
-#include<iostream>
+
 WgpBatchRenderer WgpBatchRenderer::s_instance;
 
 WgpBatchRenderer::WgpBatchRenderer() : 

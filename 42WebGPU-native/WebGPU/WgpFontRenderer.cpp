@@ -1,5 +1,4 @@
 #include "WgpFontRenderer.h"
-#include <iostream>
 
 WgpFontRenderer WgpFontRenderer::s_instance;
 
@@ -39,7 +38,7 @@ void WgpFontRenderer::addText(const CharacterSet& characterSet, const std::strin
 	std::string::const_iterator c;
 	for (c = text.begin(); c != text.end(); c++) {
 		float kerningAmount = 0.0f;
-		if (characterSet.hasKernings() && (c + 1) != text.end()) {
+		if (characterSet.hasKernings() && characterSet.kerningsHasChar(*c) && (c + 1) != text.end()) {
 			const std::vector<Kerning>& kernings = characterSet.getKernings(*c);
 			for (const Kerning& kerning : kernings) {
 				if (kerning.nextChar == *(c + 1)) {
@@ -149,7 +148,6 @@ void FormatedText::create(const std::string& text) {
 	size_t len = text.length();
 	char nextChar = (len > 0u) ? text[0] : -1;
 	size_t offset = 0u;
-	size_t row = 0u;
 
 	for (size_t i = 0; i < len; ++i) {
 		char charCode = nextChar;
@@ -168,5 +166,9 @@ void FormatedText::create(const std::string& text) {
 		default:
 			break;
 		}
+	}
+
+	if(splittedText.empty()){
+		splittedText.push_back(text);
 	}
 }
