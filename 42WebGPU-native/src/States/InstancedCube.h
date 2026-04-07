@@ -4,17 +4,12 @@
 #include <engine/shape/Shape.h>
 
 #include <engine/Camera.h>
-#include <engine/ObjModel.h>
-#include <engine/CharacterSet.h>
 
 #include <States/StateMachine.h>
 
-#include <WebGPU/WgpTexture.h>
 #include <WebGPU/WgpBuffer.h>
 #include <WebGPU/WgpMesh.h>
-#include <WebGPU/WgpData.h>
 #include <WebGPU/WgpModel.h>
-#include <WebGPU/WgpFontRenderer.h>
 
 class InstancedCube : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -42,15 +37,16 @@ private:
 	std::vector<WGPUBindGroup> OnBindGroups();
 
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
-
+	void initMVPMatrices();
+	void updateMVPMatrices();
 
 	bool m_initUi = true;
 	bool m_drawUi = false;
 
 	Camera m_camera;
-	WgpBuffer m_uniformBuffer;
-	Uniforms m_uniforms;
+	WgpBuffer _uniformBuffer;
 
 	Shape m_cube;
 	WgpModel m_wgpCube;
+	Matrix4f m_mvps[16u];
 };

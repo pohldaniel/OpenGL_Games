@@ -43,8 +43,8 @@ const std::list<WgpMesh>& WgpModel::getMeshes() const{
 	return m_meshes;
 }
 
-void WgpModel::draw(const WGPURenderPassEncoder& renderPassEncoder) const {
+void WgpModel::draw(const WGPURenderPassEncoder& renderPassEncoder, uint32_t instanceCount) const {
 	for (std::list<WgpMesh>::const_iterator it = m_meshes.begin(); it != m_meshes.end(); ++it) {
-		(*it).draw(renderPassEncoder);
+		(*it).draw(renderPassEncoder, instanceCount);
 	}
 }

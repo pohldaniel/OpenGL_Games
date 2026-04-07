@@ -14,43 +14,37 @@ InstancedCube::InstancedCube(StateMachine& machine) : State(machine, States::INS
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
-	WgpFontRenderer::Get().init(2400u);
+
 	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm);
 
 	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-	m_camera.lookAt(Vector3f(0.0f, 0.0f, 5.0f), Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.lookAt(Vector3f(0.0f, 0.0f, 12.0f), Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(10.0f);
 
-	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
+	_uniformBuffer.createBuffer(1024u, WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 
 	wgpContext.addSampler(wgpCreateSampler());
-	wgpContext.setClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
-
-	m_uniforms.projectionMatrix = m_camera.getPerspectiveMatrix();
-	m_uniforms.viewMatrix = m_camera.getViewMatrix();
-	m_uniforms.modelMatrix = Matrix4f::IDENTITY;
-	m_uniforms.normalMatrix = Matrix4f::IDENTITY;
-
-	m_uniforms.color = { 0.0f, 1.0f, 0.4f, 1.0f };
-	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
-
-	wgpContext.addSahderModule("CUBE", "res/shader/cube.wgsl");
-	wgpContext.createRenderPipeline("CUBE", "RP_CUBE", VL_PTN, std::bind(&InstancedCube::OnBindGroupLayouts, this));
+	wgpContext.setClearColor({ 0.1f, 0.2f, 0.3f, 1.0f });
+	wgpContext.addSahderModule("CUBE", "res/shader/instance.wgsl");
+	wgpContext.createRenderPipeline("CUBE", "RP_INSTANCED", VL_PTN, std::bind(&InstancedCube::OnBindGroupLayouts, this));
 
 	m_cube.buildCube({ -1.0f, -1.0f, -1.0f }, { 2.0f, 2.0f, 2.0f }, 1u, 1u, true, true, false);
 	m_wgpCube.create(m_cube);
 	m_wgpCube.setBindGroups("BG", std::bind(&InstancedCube::OnBindGroups, this));
 
 	wgpContext.OnDraw = std::bind(&InstancedCube::OnDraw, this, std::placeholders::_1);
+
+	initMVPMatrices();
+
+	wgpuQueueWriteBuffer(wgpContext.queue, _uniformBuffer.getBuffer(), 0u, &m_mvps[0], 1024u);
 }
 
 InstancedCube::~InstancedCube() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
-
-	m_uniformBuffer.markForDelete();
+	_uniformBuffer.markForDelete();
 }
 
 void InstancedCube::fixedUpdate() {
@@ -111,11 +105,8 @@ void InstancedCube::update() {
 			m_camera.move(direction * m_dt);
 		}
 	}
-
-	m_uniforms.projectionMatrix = m_camera.getPerspectiveMatrix();
-	m_uniforms.viewMatrix = m_camera.getViewMatrix();
-	//m_uniforms.modelMatrix = transCube * rotCube;
-	m_uniforms.normalMatrix = Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_uniforms.modelMatrix);
+	updateMVPMatrices();
+	wgpuQueueWriteBuffer(wgpContext.queue, _uniformBuffer.getBuffer(), 0u, &m_mvps[0], 1024u);
 }
 
 void InstancedCube::render() {
@@ -123,17 +114,11 @@ void InstancedCube::render() {
 }
 
 void InstancedCube::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
-	WgpFontRenderer::Get().reset();
-
-
-	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, projectionMatrix), &m_uniforms.projectionMatrix, sizeof(Uniforms::projectionMatrix));
-	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, viewMatrix), &m_uniforms.viewMatrix, sizeof(Uniforms::viewMatrix));
-	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, modelMatrix), &m_uniforms.modelMatrix, sizeof(Uniforms::modelMatrix));
 
 	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
 
-	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_CUBE"));
-	m_wgpCube.draw(renderPassEncoder);
+	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_INSTANCED"));
+	m_wgpCube.draw(renderPassEncoder, 16u);
 
 	if (m_drawUi)
 		renderUi(renderPassEncoder);
@@ -230,7 +215,7 @@ std::vector<WGPUBindGroupLayout> InstancedCube::OnBindGroupLayouts() {
 	uniformLayout.binding = 0u;
 	uniformLayout.visibility = WGPUShaderStage_Vertex;
 	uniformLayout.buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
-	uniformLayout.buffer.minBindingSize = sizeof(Uniforms);
+	uniformLayout.buffer.minBindingSize = 1024u;
 
 	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
 	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
@@ -246,16 +231,43 @@ std::vector<WGPUBindGroup> InstancedCube::OnBindGroups() {
 
 	std::vector<WGPUBindGroupEntry> bindGroupEntries(1);
 	bindGroupEntries[0].binding = 0u;
-	bindGroupEntries[0].buffer = m_uniformBuffer.getBuffer();
+	bindGroupEntries[0].buffer = _uniformBuffer.getBuffer();
 	bindGroupEntries[0].offset = 0u;
-	bindGroupEntries[0].size = sizeof(Uniforms);
+	bindGroupEntries[0].size = 1024u;
 
 	WGPUBindGroupDescriptor bindGroupDesc = {};
-	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_CUBE"), 0u);
+	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_INSTANCED"), 0u);
 	bindGroupDesc.entryCount = (uint32_t)bindGroupEntries.size();
 	bindGroupDesc.entries = bindGroupEntries.data();
 
 	bindGroups[0] = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
 
 	return bindGroups;
+}
+
+void InstancedCube::initMVPMatrices() {
+	const float step = 4.0f;
+	uint32_t m = 0;
+	for (uint32_t x = 0; x < 4u; x++) {
+		for (uint32_t y = 0; y < 4u; y++) {
+			m_mvps[m].translate(step * (x - 4u / 2.0f + 0.5f), step * (y - 4u / 2.0f + 0.5f), 0.0f);
+			m_mvps[m] = m_camera.getPerspectiveMatrix() * m_camera.getViewMatrix() * m_mvps[m];
+			++m;
+		}
+	}
+}
+
+void InstancedCube::updateMVPMatrices() {
+	const float sec = Globals::clock.getElapsedTimeSec();
+	const float step = 4.0f;
+
+	uint32_t m = 0;
+	for (uint32_t x = 0; x < 4u; ++x) {
+		for (uint32_t y = 0; y < 4u; ++y) {
+			m_mvps[m] = Matrix4f::Rotate(Vector3f(sinf(((float)x + 0.5f) * sec), cosf(((float)y + 0.5f) * sec), 0.0f), 1.0f * _180_ON_PI);
+			m_mvps[m] = Matrix4f::Translate(step * (x - 4u / 2.0f + 0.5f), step * (y - 4u / 2.0f + 0.5f), 0.0f) * m_mvps[m];			
+			m_mvps[m] = m_camera.getPerspectiveMatrix() * m_camera.getViewMatrix() * m_mvps[m];
+			++m;
+		}
+	}
 }

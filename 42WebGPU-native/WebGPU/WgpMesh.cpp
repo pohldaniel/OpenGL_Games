@@ -106,7 +106,7 @@ const uint32_t WgpMesh::getDrawCount() const {
 	return m_drawCount;
 }
 
-void WgpMesh::draw(const WGPURenderPassEncoder& renderPassEncoder) const {
+void WgpMesh::draw(const WGPURenderPassEncoder& renderPassEncoder, uint32_t instanceCount) const {
 	const std::vector<WGPUBindGroup>& bindGroups = m_bindGroups.at(m_bindGroupsSlot);
 
 	for (uint32_t i = 0u; i < bindGroups.size(); i++) {
@@ -114,5 +114,5 @@ void WgpMesh::draw(const WGPURenderPassEncoder& renderPassEncoder) const {
 	}
 	wgpuRenderPassEncoderSetVertexBuffer(renderPassEncoder, 0u, m_vertexBuffer.m_buffer, 0u, wgpuBufferGetSize(m_vertexBuffer.m_buffer));
 	wgpuRenderPassEncoderSetIndexBuffer(renderPassEncoder, m_indexBuffer.m_buffer, WGPUIndexFormat_Uint32, 0u, wgpuBufferGetSize(m_indexBuffer.m_buffer));
-	wgpuRenderPassEncoderDrawIndexed(renderPassEncoder, m_drawCount, 1u, 0u, 0u, 0u);
+	wgpuRenderPassEncoderDrawIndexed(renderPassEncoder, m_drawCount, instanceCount, 0u, 0u, 0u);
 }

@@ -17,7 +17,7 @@ public:
 	WgpMesh(WgpMesh&& rhs) noexcept;
 	~WgpMesh();
 
-	void draw(const WGPURenderPassEncoder& renderPassEncoder) const;
+	void draw(const WGPURenderPassEncoder& renderPassEncoder, uint32_t instanceCount = 1u) const;
 
 	void cleanup();
 	void markForDelete();
