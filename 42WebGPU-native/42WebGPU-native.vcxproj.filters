@@ -195,6 +195,9 @@
     <ClCompile Include="engine\CharacterSet.cpp">
       <Filter>engine</Filter>
     </ClCompile>
+    <ClCompile Include="src\States\InstancedCube.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\input\ApplicationEventListener.h">
@@ -379,6 +382,9 @@
     </ClInclude>
     <ClInclude Include="engine\CharacterSet.h">
       <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\InstancedCube.h">
+      <Filter>Source Files\States</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

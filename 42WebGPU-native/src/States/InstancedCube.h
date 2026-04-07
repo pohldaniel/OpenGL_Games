@@ -16,12 +16,12 @@
 #include <WebGPU/WgpModel.h>
 #include <WebGPU/WgpFontRenderer.h>
 
-class MSDFFont : public State, public MouseEventListener, public KeyboardEventListener {
+class InstancedCube : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
 
-	MSDFFont(StateMachine& machine);
-	~MSDFFont();
+	InstancedCube(StateMachine& machine);
+	~InstancedCube();
 
 	void fixedUpdate() override;
 	void update() override;
@@ -41,11 +41,8 @@ private:
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayouts();
 	std::vector<WGPUBindGroup> OnBindGroups();
 
-	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsCube();
-	std::vector<WGPUBindGroup> OnBindGroupsCube();
-
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
-	void initTextTransforms();
+
 
 	bool m_initUi = true;
 	bool m_drawUi = false;
@@ -53,15 +50,6 @@ private:
 	Camera m_camera;
 	WgpBuffer m_uniformBuffer;
 	Uniforms m_uniforms;
-
-	CharacterSet m_characterSet;
-
-	float largeScale = 0.0078125f;
-	float smallScale = 0.00390625f;
-	Matrix4f m_model;
-	Matrix4f m_textTransforms[6];
-
-	FormatedText m_formatedText;
 
 	Shape m_cube;
 	WgpModel m_wgpCube;

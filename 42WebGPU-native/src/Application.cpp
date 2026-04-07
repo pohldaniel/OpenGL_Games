@@ -13,6 +13,7 @@
 #include <States/Specularity.h>
 #include <States/NormalMap.h>
 #include <States/MSDFFont.h>
+#include <States/InstancedCube.h>
 
 #include "Application.h"
 #include "Globals.h"
@@ -279,7 +280,6 @@ void Application::render() {
 void Application::update() {
 	Mouse::instance().update();
 	Keyboard::instance().update();
-	XInputController::instance().update();
 	
 	if (!Machine->isRunning()) {
 		SendMessage(Window, WM_DESTROY, NULL, NULL);
@@ -298,8 +298,8 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new Compute(*Machine));
 	//Machine->addStateAtTop(new Specularity(*Machine));
 	//Machine->addStateAtTop(new NormalMap(*Machine));
-	Machine->addStateAtTop(new MSDFFont(*Machine));
-	
+	//Machine->addStateAtTop(new MSDFFont(*Machine));
+	Machine->addStateAtTop(new InstancedCube(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

@@ -7,7 +7,8 @@ enum States {
 	COMPUTE,
 	SPECULARITY,
 	NORMAL_MAP,
-	MSDF_FONT
+	MSDF_FONT,
+	INSTANCED_CUBE
 };
 
 class State;

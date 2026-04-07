@@ -1,0 +1,261 @@
+#include <imgui.h>
+#include <imgui_impl_win32.h>
+#include <imgui_impl_wgpu.h>
+#include <imgui_internal.h>
+
+#include <WebGPU/WgpContext.h>
+
+#include "InstancedCube.h"
+#include "Application.h"
+#include "Globals.h"
+
+InstancedCube::InstancedCube(StateMachine& machine) : State(machine, States::INSTANCED_CUBE) {
+
+	Application::SetCursorIcon(IDC_ARROW);
+	EventDispatcher::AddKeyboardListener(this);
+	EventDispatcher::AddMouseListener(this);
+	WgpFontRenderer::Get().init(2400u);
+	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm);
+
+	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
+	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
+	m_camera.lookAt(Vector3f(0.0f, 0.0f, 5.0f), Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.setRotationSpeed(0.1f);
+	m_camera.setMovingSpeed(10.0f);
+
+	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
+
+	wgpContext.addSampler(wgpCreateSampler());
+	wgpContext.setClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
+
+	m_uniforms.projectionMatrix = m_camera.getPerspectiveMatrix();
+	m_uniforms.viewMatrix = m_camera.getViewMatrix();
+	m_uniforms.modelMatrix = Matrix4f::IDENTITY;
+	m_uniforms.normalMatrix = Matrix4f::IDENTITY;
+
+	m_uniforms.color = { 0.0f, 1.0f, 0.4f, 1.0f };
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
+
+	wgpContext.addSahderModule("CUBE", "res/shader/cube.wgsl");
+	wgpContext.createRenderPipeline("CUBE", "RP_CUBE", VL_PTN, std::bind(&InstancedCube::OnBindGroupLayouts, this));
+
+	m_cube.buildCube({ -1.0f, -1.0f, -1.0f }, { 2.0f, 2.0f, 2.0f }, 1u, 1u, true, true, false);
+	m_wgpCube.create(m_cube);
+	m_wgpCube.setBindGroups("BG", std::bind(&InstancedCube::OnBindGroups, this));
+
+	wgpContext.OnDraw = std::bind(&InstancedCube::OnDraw, this, std::placeholders::_1);
+}
+
+InstancedCube::~InstancedCube() {
+	EventDispatcher::RemoveKeyboardListener(this);
+	EventDispatcher::RemoveMouseListener(this);
+
+	m_uniformBuffer.markForDelete();
+}
+
+void InstancedCube::fixedUpdate() {
+
+}
+
+void InstancedCube::update() {
+	Keyboard& keyboard = Keyboard::instance();
+	Vector3f direction = Vector3f();
+
+	float dx = 0.0f;
+	float dy = 0.0f;
+	bool move = false;
+
+	if (keyboard.keyDown(Keyboard::KEY_W)) {
+		direction += Vector3f(0.0f, 0.0f, 1.0f);
+		move |= true;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_S)) {
+		direction += Vector3f(0.0f, 0.0f, -1.0f);
+		move |= true;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_A)) {
+		direction += Vector3f(-1.0f, 0.0f, 0.0f);
+		move |= true;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_D)) {
+		direction += Vector3f(1.0f, 0.0f, 0.0f);
+		move |= true;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_Q)) {
+		direction += Vector3f(0.0f, -1.0f, 0.0f);
+		move |= true;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_E)) {
+		direction += Vector3f(0.0f, 1.0f, 0.0f);
+		move |= true;
+	}
+
+	Mouse& mouse = Mouse::instance();
+
+	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {
+		dx = mouse.xDelta();
+		dy = mouse.yDelta();
+	}
+
+	if (move || dx != 0.0f || dy != 0.0f) {
+		if (dx || dy) {
+			m_camera.rotate(dx, dy);
+		}
+
+		if (move) {
+			m_camera.move(direction * m_dt);
+		}
+	}
+
+	m_uniforms.projectionMatrix = m_camera.getPerspectiveMatrix();
+	m_uniforms.viewMatrix = m_camera.getViewMatrix();
+	//m_uniforms.modelMatrix = transCube * rotCube;
+	m_uniforms.normalMatrix = Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_uniforms.modelMatrix);
+}
+
+void InstancedCube::render() {
+	wgpDraw();
+}
+
+void InstancedCube::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
+	WgpFontRenderer::Get().reset();
+
+
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, projectionMatrix), &m_uniforms.projectionMatrix, sizeof(Uniforms::projectionMatrix));
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, viewMatrix), &m_uniforms.viewMatrix, sizeof(Uniforms::viewMatrix));
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, modelMatrix), &m_uniforms.modelMatrix, sizeof(Uniforms::modelMatrix));
+
+	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
+
+	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_CUBE"));
+	m_wgpCube.draw(renderPassEncoder);
+
+	if (m_drawUi)
+		renderUi(renderPassEncoder);
+}
+
+void InstancedCube::OnMouseMotion(const Event::MouseMoveEvent& event) {
+
+}
+
+void InstancedCube::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
+	if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT) {
+		Mouse::instance().attach(Application::GetWindow());
+	}
+}
+
+void InstancedCube::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
+	if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT) {
+		Mouse::instance().detach();
+	}
+}
+
+void InstancedCube::OnMouseWheel(const Event::MouseWheelEvent& event) {
+
+}
+
+void InstancedCube::OnKeyDown(const Event::KeyboardEvent& event) {
+#if DEVBUILD
+	if (event.keyCode == VK_LMENU) {
+		m_drawUi = !m_drawUi;
+	}
+#endif
+
+	if (event.keyCode == VK_ESCAPE) {
+		m_isRunning = false;
+	}
+}
+
+void InstancedCube::OnKeyUp(const Event::KeyboardEvent& event) {
+
+}
+
+void InstancedCube::resize(int deltaW, int deltaH) {
+	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
+	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
+}
+
+void InstancedCube::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
+	ImGui_ImplWGPU_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+
+	ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar |
+		ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
+		ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus |
+		ImGuiWindowFlags_NoBackground;
+
+	ImGuiViewport* viewport = ImGui::GetMainViewport();
+	ImGui::SetNextWindowPos(viewport->Pos);
+	ImGui::SetNextWindowSize(viewport->Size);
+	ImGui::SetNextWindowViewport(viewport->ID);
+
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+	ImGui::Begin("InvisibleWindow", nullptr, windowFlags);
+	ImGui::PopStyleVar(3);
+
+	ImGuiID dockSpaceId = ImGui::GetID("MainDockSpace");
+	ImGui::DockSpace(dockSpaceId, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
+	ImGui::End();
+
+	if (m_initUi) {
+		m_initUi = false;
+		ImGuiID dock_id_left = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Left, 0.2f, nullptr, &dockSpaceId);
+		ImGuiID dock_id_right = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Right, 0.2f, nullptr, &dockSpaceId);
+		ImGuiID dock_id_down = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Down, 0.2f, nullptr, &dockSpaceId);
+		ImGuiID dock_id_up = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Up, 0.2f, nullptr, &dockSpaceId);
+		ImGui::DockBuilderDockWindow("Settings", dock_id_left);
+	}
+
+	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+
+	ImGui::End();
+
+	ImGui::Render();
+	ImGui_ImplWGPU_RenderDrawData(ImGui::GetDrawData(), renderPassEncoder);
+}
+
+std::vector<WGPUBindGroupLayout> InstancedCube::OnBindGroupLayouts() {
+	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
+
+	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(1);
+	WGPUBindGroupLayoutEntry& uniformLayout = bindingLayoutEntries[0];
+	uniformLayout.binding = 0u;
+	uniformLayout.visibility = WGPUShaderStage_Vertex;
+	uniformLayout.buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
+	uniformLayout.buffer.minBindingSize = sizeof(Uniforms);
+
+	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
+	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
+	bindGroupLayoutDescriptor.entries = bindingLayoutEntries.data();
+
+	bindingLayouts[0] = wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor);
+
+	return bindingLayouts;
+}
+
+std::vector<WGPUBindGroup> InstancedCube::OnBindGroups() {
+	std::vector<WGPUBindGroup> bindGroups(1);
+
+	std::vector<WGPUBindGroupEntry> bindGroupEntries(1);
+	bindGroupEntries[0].binding = 0u;
+	bindGroupEntries[0].buffer = m_uniformBuffer.getBuffer();
+	bindGroupEntries[0].offset = 0u;
+	bindGroupEntries[0].size = sizeof(Uniforms);
+
+	WGPUBindGroupDescriptor bindGroupDesc = {};
+	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_CUBE"), 0u);
+	bindGroupDesc.entryCount = (uint32_t)bindGroupEntries.size();
+	bindGroupDesc.entries = bindGroupEntries.data();
+
+	bindGroups[0] = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
+
+	return bindGroups;
+}
