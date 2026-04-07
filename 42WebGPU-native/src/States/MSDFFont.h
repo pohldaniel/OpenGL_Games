@@ -56,7 +56,6 @@ private:
 	Uniforms m_uniforms;
 
 	CharacterSet m_characterSet;
-	float m_fontSize = 0.6f;
 
 	float largeScale = 0.0078125f;
 	float smallScale = 0.00390625f;

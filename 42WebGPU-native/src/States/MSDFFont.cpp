@@ -247,15 +247,7 @@ void MSDFFont::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
 }
 
 void MSDFFont::OnMouseWheel(const Event::MouseWheelEvent& event) {
-	if (event.direction == 1u) {
-		m_fontSize = m_fontSize - 0.05f;
-		m_fontSize = Math::Clamp(m_fontSize, 0.0f, 5.0f);
-	}
-
-	if (event.direction == 0u) {
-		m_fontSize = m_fontSize + 0.05f;
-		m_fontSize = Math::Clamp(m_fontSize, 0.0f, 5.0f);
-	}
+	
 }
 
 void MSDFFont::OnKeyDown(const Event::KeyboardEvent& event) {
