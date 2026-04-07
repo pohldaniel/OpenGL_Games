@@ -21,7 +21,6 @@ public:
 
 	void cleanup();
 	void markForDelete();
-	void setRenderPipelineSlot(const std::string& renderPipelineSlot);
 	void setBindGroupsSlot(const std::string& bindGroupsSlot);
 
 	void setBindGroups(std::string bindGroupsName, const std::function<std::vector<WGPUBindGroup>()>& onBindGroups);
@@ -43,7 +42,7 @@ private:
 	mutable std::unordered_map<std::string, std::vector<WGPUBindGroup>> m_bindGroups;
 
 	uint32_t m_drawCount;
-	std::string m_renderPipelineSlot, m_bindGroupsSlot;
+	std::string m_bindGroupsSlot;
 	bool m_markForDelete;
 
 	const std::vector<float>& vertexBuffer;

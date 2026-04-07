@@ -85,3 +85,7 @@ const std::vector<float>& Shape::getVertexBuffer() const {
 const std::vector<unsigned int>& Shape::getIndexBuffer() const {
 	return m_indexBuffer;
 }
+
+const unsigned int Shape::getStride() const {
+	return m_stride;
+}

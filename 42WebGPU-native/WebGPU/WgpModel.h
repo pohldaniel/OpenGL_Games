@@ -19,7 +19,6 @@ public:
 
 	void create(const ObjModel& model);
 	void create(const Shape& shape);
-	void setRenderPipelineSlot(const std::string& renderPipelineSlot);
 	void setBindGroupsSlot(const std::string& bindGroupsSlot);
 	void setBindGroups(std::string bindGroupsName, const std::function <std::vector<WGPUBindGroup>()>& onBindGroups);
 

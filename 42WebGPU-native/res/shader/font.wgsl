@@ -29,7 +29,7 @@ struct Uniforms {
 @vertex
 fn vs_main(in: VertexInput) -> VertexOutput {
 	var out: VertexOutput;
-	out.position = uniforms.projectionMatrix * uniforms.viewMatrix * uniforms.modelMatrix * vec4<f32>(in.pos, 1.0);
+	out.position = uniforms.projectionMatrix * uniforms.viewMatrix * vec4<f32>(in.pos, 1.0);
 	out.uv = in.tex;
 	out.color = in.color;
 	out.layer = in.layer;

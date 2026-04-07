@@ -143,8 +143,11 @@ void WgpFontRenderer::reset() {
 FormatedText::FormatedText(const std::string& text) {
 	FormatedText::create(text);
 }
-
+#include <iostream>
 void FormatedText::create(const std::string& text) {
+	if (text.empty())
+		return;
+
 	size_t len = text.length();
 	char nextChar = (len > 0u) ? text[0] : -1;
 	size_t offset = 0u;
@@ -168,7 +171,5 @@ void FormatedText::create(const std::string& text) {
 		}
 	}
 
-	if(splittedText.empty()){
-		splittedText.push_back(text);
-	}
+	splittedText.push_back(text.substr(offset, text.length() - offset));
 }

@@ -36,7 +36,6 @@ Wireframe::Wireframe(StateMachine& machine) : State(machine, States::WIREFRAME) 
 	m_wgpMammoth.create(m_mammoth);	
 	m_wgpMammoth.setBindGroups("BG_WF", std::bind(&Wireframe::OnBindGroupsWF, this));
 	m_wgpMammoth.setBindGroups("BG", std::bind(&Wireframe::OnBindGroups, this));
-	m_wgpMammoth.setRenderPipelineSlot("RP_PTNC");
 	AddBindgroups(m_wgpMammoth);
 
 	m_dragon.loadModel("res/models/dragon/dragon.obj", Vector3f(0.0f, 1.0f, 0.0f), 90.0f, Vector3f(0.0f, -1.0f, 0.0f), 0.1f, false, false, false, false, false, true);
@@ -46,7 +45,6 @@ Wireframe::Wireframe(StateMachine& machine) : State(machine, States::WIREFRAME) 
 	m_wgpDragon.create(m_dragon);
 	m_wgpDragon.setBindGroups("BG_WF", std::bind(&Wireframe::OnBindGroupsWF, this));
 	m_wgpDragon.setBindGroups("BG", std::bind(&Wireframe::OnBindGroups, this));
-	m_wgpDragon.setRenderPipelineSlot("RP_PTNC");
 	AddBindgroups(m_wgpDragon);
 
 	m_trackball.reshape(Application::Width, Application::Height);
@@ -258,9 +256,6 @@ void Wireframe::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 	// render widgets
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	if (ImGui::Checkbox("Draw Wirframe", &StateMachine::GetWireframeEnabled())  || StateMachine::IsWireframeToggled()) {
-		m_wgpMammoth.setRenderPipelineSlot(StateMachine::GetWireframeEnabled() ? "RP_WF" : "RP_PTNC");
-		m_wgpDragon.setRenderPipelineSlot(StateMachine::GetWireframeEnabled() ? "RP_WF" : "RP_PTNC");
-
 		m_wgpMammoth.setBindGroupsSlot(StateMachine::GetWireframeEnabled() ? "BG_WF" : "BG");
 		m_wgpDragon.setBindGroupsSlot(StateMachine::GetWireframeEnabled() ? "BG_WF" : "BG");
 	}

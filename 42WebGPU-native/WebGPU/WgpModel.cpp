@@ -27,12 +27,6 @@ void WgpModel::create(const Shape& shape) {
 	m_meshes.back().markForDelete();
 }
 
-void WgpModel::setRenderPipelineSlot(const std::string& renderPipelineSlot) {
-	for (WgpMesh& mesh : m_meshes) {
-		mesh.setRenderPipelineSlot(renderPipelineSlot);
-	}
-}
-
 void WgpModel::setBindGroupsSlot(const std::string& bindGroupsSlot) {
 	for (WgpMesh& mesh : m_meshes) {
 		mesh.setBindGroupsSlot(bindGroupsSlot);

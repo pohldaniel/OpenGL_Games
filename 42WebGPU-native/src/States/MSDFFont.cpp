@@ -78,6 +78,15 @@ MSDFFont::MSDFFont(StateMachine& machine) : State(machine, States::MSDF_FONT) {
 		"setBlendConstant().";
 
 	m_formatedText.create(text);
+
+	wgpContext.addSahderModule("CUBE", "res/shader/cube.wgsl");
+	wgpContext.createRenderPipeline("CUBE", "RP_CUBE", VL_PTN, std::bind(&MSDFFont::OnBindGroupLayoutsCube, this));
+
+	m_cube.buildCube({ -1.0f, -1.0f, -1.0f }, { 2.0f, 2.0f, 2.0f }, 1u, 1u, true, true, false);
+	m_wgpCube.create(m_cube);
+	m_wgpCube.setBindGroups("BG", std::bind(&MSDFFont::OnBindGroupsCube, this));
+
+	initTextTransforms();
 }
 
 MSDFFont::~MSDFFont() {
@@ -147,21 +156,28 @@ void MSDFFont::update() {
 	}
  
 	float sec = Globals::clock.getElapsedTimeSec();
+	float now = sec / 5.0f;
+
+	Matrix4f transCube;
+	transCube.translate(0.0f, 2.0f, -3.0f);
+
+	Matrix4f rotCube;
+	rotCube.rotate(Vector3f(sinf(now), cosf(now), 0.0f), 1.0f * _180_ON_PI);
+
 	float crawl = fmodf(sec / 2.5f, 14.0f);
 
 	Matrix4f rot;
 	rot.rotate(-22.5f, 0.0f, 0.0f);
 
 	Matrix4f trans;
-	trans.translate({ 0.0f, 7.0f -3.0f, 0.0f });
+	trans.translate({ 0.0f, crawl -3.0f, 0.0f });
 
 	m_model = rot * trans;
 
 	m_uniforms.projectionMatrix = m_camera.getPerspectiveMatrix();
 	m_uniforms.viewMatrix = m_camera.getViewMatrix();
-	m_uniforms.normalMatrix = Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_model);
-
-	m_model.print();
+	m_uniforms.modelMatrix = transCube * rotCube;
+	m_uniforms.normalMatrix = Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_uniforms.modelMatrix);
 }
 
 void MSDFFont::render() {
@@ -174,12 +190,32 @@ void MSDFFont::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
 
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, projectionMatrix), &m_uniforms.projectionMatrix, sizeof(Uniforms::projectionMatrix));
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, viewMatrix), &m_uniforms.viewMatrix, sizeof(Uniforms::viewMatrix));
-	//wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, modelMatrix), &m_uniforms.modelMatrix, sizeof(Uniforms::modelMatrix));
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, modelMatrix), &m_uniforms.modelMatrix, sizeof(Uniforms::modelMatrix));
 
 	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
-	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_FONT"));
 	
+	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_CUBE"));
+	m_wgpCube.draw(renderPassEncoder);
+	
+	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_FONT"));
+
 	Matrix4f transOrigin;
+
+	transOrigin.translate(-m_characterSet.getWidth("Front") * 0.5f * largeScale, -m_characterSet.lineHeight * 0.5f * largeScale, 0.0f);
+	WgpFontRenderer::Get().addTextTransformed(m_characterSet, "Front", (m_uniforms.modelMatrix * m_textTransforms[0] * transOrigin)[0], { 1.0f, 0.0f, 0.0f, 1.0f }, largeScale);
+	transOrigin.translate(-m_characterSet.getWidth("Back") * 0.5f * largeScale, -m_characterSet.lineHeight * 0.5f * largeScale, 0.0f);
+	WgpFontRenderer::Get().addTextTransformed(m_characterSet, "Back", (m_uniforms.modelMatrix * m_textTransforms[1] * transOrigin)[0], { 0.0f, 1.0f, 1.0f, 1.0f }, largeScale);
+	transOrigin.translate(-m_characterSet.getWidth("Right") * 0.5f * largeScale, -m_characterSet.lineHeight * 0.5f * largeScale, 0.0f);
+	WgpFontRenderer::Get().addTextTransformed(m_characterSet, "Right", (m_uniforms.modelMatrix * m_textTransforms[2] * transOrigin)[0], { 0.0f, 1.0f, 0.0f, 1.0f }, largeScale);
+	transOrigin.translate(-m_characterSet.getWidth("Left") * 0.5f * largeScale, -m_characterSet.lineHeight * 0.5f * largeScale, 0.0f);
+	WgpFontRenderer::Get().addTextTransformed(m_characterSet, "Left", (m_uniforms.modelMatrix * m_textTransforms[3] * transOrigin)[0], { 1.0f, 0.0f, 1.0f, 1.0f }, largeScale);
+	transOrigin.translate(-m_characterSet.getWidth("Top") * 0.5f * largeScale, -m_characterSet.lineHeight * 0.5f * largeScale, 0.0f);
+	WgpFontRenderer::Get().addTextTransformed(m_characterSet, "Top", (m_uniforms.modelMatrix * m_textTransforms[4] * transOrigin)[0], { 0.0f, 0.0f, 1.0f, 1.0f }, largeScale);
+	transOrigin.translate(-m_characterSet.getWidth("Bottom") * 0.5f * largeScale, -m_characterSet.lineHeight * 0.5f * largeScale, 0.0f);
+	WgpFontRenderer::Get().addTextTransformed(m_characterSet, "Bottom", (m_uniforms.modelMatrix * m_textTransforms[5] * transOrigin)[0], { 1.0f, 1.0f, 0.0f, 1.0f }, largeScale);
+
+	WgpFontRenderer::Get().draw(renderPassEncoder);
+
 	transOrigin.translate(-m_characterSet.getWidth("WebGPU") * 0.5f * largeScale, -m_characterSet.lineHeight * 0.5f * largeScale, 0.0f);
 
 	WgpFontRenderer::Get().addTextTransformed(m_characterSet, "WebGPU", (m_model * transOrigin)[0], {1.0f, 1.0f, 1.0f, 1.0f}, largeScale);
@@ -353,3 +389,49 @@ std::vector<WGPUBindGroup> MSDFFont::OnBindGroups() {
 	return bindGroups;
 }
 
+std::vector<WGPUBindGroupLayout> MSDFFont::OnBindGroupLayoutsCube() {
+	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
+
+	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(1);
+	WGPUBindGroupLayoutEntry& uniformLayout = bindingLayoutEntries[0];
+	uniformLayout.binding = 0u;
+	uniformLayout.visibility = WGPUShaderStage_Vertex;
+	uniformLayout.buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
+	uniformLayout.buffer.minBindingSize = sizeof(Uniforms);
+
+	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
+	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
+	bindGroupLayoutDescriptor.entries = bindingLayoutEntries.data();
+
+	bindingLayouts[0] = wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor);
+
+	return bindingLayouts;
+}
+
+std::vector<WGPUBindGroup> MSDFFont::OnBindGroupsCube() {
+	std::vector<WGPUBindGroup> bindGroups(1);
+
+	std::vector<WGPUBindGroupEntry> bindGroupEntries(1);
+	bindGroupEntries[0].binding = 0u;
+	bindGroupEntries[0].buffer = m_uniformBuffer.getBuffer();
+	bindGroupEntries[0].offset = 0u;
+	bindGroupEntries[0].size = sizeof(Uniforms);
+
+	WGPUBindGroupDescriptor bindGroupDesc = {};
+	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_CUBE"), 0u);
+	bindGroupDesc.entryCount = (uint32_t)bindGroupEntries.size();
+	bindGroupDesc.entries = bindGroupEntries.data();
+
+	bindGroups[0] = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
+
+	return bindGroups;
+}
+
+void MSDFFont::initTextTransforms() {
+	m_textTransforms[0] = Matrix4f::Translate(0.0f, 0.0f, 1.1f) * Matrix4f::Rotate(0.0f, 0.0f, 0.0f);
+	m_textTransforms[1] = Matrix4f::Translate(0.0f, 0.0f, -1.1f) * Matrix4f::Rotate(0.0f, 180.0f, 0.0f);
+	m_textTransforms[2] = Matrix4f::Translate(1.1f, 0.0f, 0.0f) * Matrix4f::Rotate(0.0f, 90.0f, 0.0f);
+	m_textTransforms[3] = Matrix4f::Translate(-1.1f, 0.0f, 0.0f) * Matrix4f::Rotate(0.0f, -90.0f, 0.0f);
+	m_textTransforms[4] = Matrix4f::Translate(0.0f, 1.1f, 0.0f) * Matrix4f::Rotate(-90.0f, 0.0f, 0.0f);
+	m_textTransforms[5] = Matrix4f::Translate(0.0f, -1.1f, 0.0f) * Matrix4f::Rotate(90.0f, 0.0f, 0.0f);
+}
