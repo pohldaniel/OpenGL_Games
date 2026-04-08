@@ -35,7 +35,7 @@ extern "C" {
 	WGPUBuffer wgpCreateBuffer(const void* data, uint32_t size, WGPUBufferUsage bufferUsage);
 	WGPUTexture wgpCreateTexture(uint32_t width, uint32_t height, WGPUTextureUsage textureUsage, WGPUTextureFormat textureFormat, WGPUTextureFormat viewFormat = WGPUTextureFormat_Undefined);
 	WGPUTextureView wgpCreateTextureView(WGPUTextureFormat textureFormat, WGPUTextureAspect aspect, const WGPUTexture& texture);
-	WGPUSampler wgpCreateSampler(WGPUFilterMode filterMode = WGPUFilterMode_Linear);
+	WGPUSampler wgpCreateSampler(WGPUFilterMode filterMode = WGPUFilterMode_Linear, WGPUAddressMode addressMode = WGPUAddressMode_ClampToEdge);
 	WGPUShaderModule wgpCreateShader(std::string path);
 
 	void wgpCreateVertexBufferLayout(VertexLayoutSlot slot = VL_PTN);

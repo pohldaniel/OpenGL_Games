@@ -1,31 +1,23 @@
 #pragma once
-
-#include <webgpu.h>
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
-#include <engine/Camera.h>
-#include <engine/ObjModel.h>
+#include <engine/shape/Shape.h>
+#include <engine/AssimpModel.h>
 #include <engine/TrackBall.h>
+#include <engine/Camera.h>
 
 #include <States/StateMachine.h>
 
-#include <WebGPU/WgpTexture.h>
 #include <WebGPU/WgpBuffer.h>
-#include <WebGPU/WgpMesh.h>
-#include <WebGPU/WgpData.h>
 #include <WebGPU/WgpModel.h>
+#include <WebGPU/WgpData.h>
 
-enum SelectedModel {
-	MAMMOTH,
-	DRAGON
-};
-
-class Wireframe : public State, public MouseEventListener, public KeyboardEventListener {
+class ImageBasedLighting : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
 
-	Wireframe(StateMachine& machine);
-	~Wireframe();
+	ImageBasedLighting(StateMachine& machine);
+	~ImageBasedLighting();
 
 	void fixedUpdate() override;
 	void update() override;
@@ -39,27 +31,25 @@ public:
 	void OnMouseButtonUp(const Event::MouseButtonEvent& event) override;
 	void OnKeyDown(const Event::KeyboardEvent& event) override;
 	void OnKeyUp(const Event::KeyboardEvent& event) override;
-	
+
 private:
 
-	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsPTN();
-	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsWF();
-
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayouts();
 	std::vector<WGPUBindGroup> OnBindGroups();
-	std::vector<WGPUBindGroup> OnBindGroupsWF();
 
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 	void applyTransformation(TrackBall& arc);
 
 	bool m_initUi = true;
-	bool m_drawUi = true;
-	SelectedModel m_model = SelectedModel::DRAGON;
-	Camera m_camera;
-	ObjModel m_mammoth, m_dragon;
-	TrackBall m_trackball;
-	Uniforms m_uniforms;
+	bool m_drawUi = false;
 
-	WgpModel m_wgpDragon, m_wgpMammoth;
+	TrackBall m_trackball;
+	Camera m_camera;
+	Uniforms m_uniforms;
 	WgpBuffer m_uniformBuffer;
+
+	AssimpModel m_helmet;
+	WgpModel m_wgpHelmet;
+
 	static void AddBindgroups(const WgpModel& model);
 };

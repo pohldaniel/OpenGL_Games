@@ -44,7 +44,7 @@ private:
 	bool m_drawUi = false;
 
 	Camera m_camera;
-	WgpBuffer _uniformBuffer;
+	WgpBuffer m_uniformBuffer;
 
 	Shape m_cube;
 	WgpModel m_wgpCube;

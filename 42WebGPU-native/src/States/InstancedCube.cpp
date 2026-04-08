@@ -23,28 +23,26 @@ InstancedCube::InstancedCube(StateMachine& machine) : State(machine, States::INS
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(10.0f);
 
-	_uniformBuffer.createBuffer(1024u, WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
+	m_uniformBuffer.createBuffer(1024u, WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 
 	wgpContext.addSampler(wgpCreateSampler());
 	wgpContext.setClearColor({ 0.1f, 0.2f, 0.3f, 1.0f });
 	wgpContext.addSahderModule("CUBE", "res/shader/instance.wgsl");
 	wgpContext.createRenderPipeline("CUBE", "RP_INSTANCED", VL_PTN, std::bind(&InstancedCube::OnBindGroupLayouts, this));
+	wgpContext.OnDraw = std::bind(&InstancedCube::OnDraw, this, std::placeholders::_1);
 
 	m_cube.buildCube({ -1.0f, -1.0f, -1.0f }, { 2.0f, 2.0f, 2.0f }, 1u, 1u, true, true, false);
 	m_wgpCube.create(m_cube);
 	m_wgpCube.setBindGroups("BG", std::bind(&InstancedCube::OnBindGroups, this));
 
-	wgpContext.OnDraw = std::bind(&InstancedCube::OnDraw, this, std::placeholders::_1);
-
 	initMVPMatrices();
-
-	wgpuQueueWriteBuffer(wgpContext.queue, _uniformBuffer.getBuffer(), 0u, &m_mvps[0], 1024u);
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0u, &m_mvps[0], 1024u);
 }
 
 InstancedCube::~InstancedCube() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
-	_uniformBuffer.markForDelete();
+	m_uniformBuffer.markForDelete();
 }
 
 void InstancedCube::fixedUpdate() {
@@ -106,7 +104,7 @@ void InstancedCube::update() {
 		}
 	}
 	updateMVPMatrices();
-	wgpuQueueWriteBuffer(wgpContext.queue, _uniformBuffer.getBuffer(), 0u, &m_mvps[0], 1024u);
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0u, &m_mvps[0], 1024u);
 }
 
 void InstancedCube::render() {
@@ -231,7 +229,7 @@ std::vector<WGPUBindGroup> InstancedCube::OnBindGroups() {
 
 	std::vector<WGPUBindGroupEntry> bindGroupEntries(1);
 	bindGroupEntries[0].binding = 0u;
-	bindGroupEntries[0].buffer = _uniformBuffer.getBuffer();
+	bindGroupEntries[0].buffer = m_uniformBuffer.getBuffer();
 	bindGroupEntries[0].offset = 0u;
 	bindGroupEntries[0].size = 1024u;
 
@@ -247,7 +245,7 @@ std::vector<WGPUBindGroup> InstancedCube::OnBindGroups() {
 
 void InstancedCube::initMVPMatrices() {
 	const float step = 4.0f;
-	uint32_t m = 0;
+	uint32_t m = 0u;
 	for (uint32_t x = 0; x < 4u; x++) {
 		for (uint32_t y = 0; y < 4u; y++) {
 			m_mvps[m].translate(step * (x - 4u / 2.0f + 0.5f), step * (y - 4u / 2.0f + 0.5f), 0.0f);
@@ -261,7 +259,7 @@ void InstancedCube::updateMVPMatrices() {
 	const float sec = Globals::clock.getElapsedTimeSec();
 	const float step = 4.0f;
 
-	uint32_t m = 0;
+	uint32_t m = 0u;
 	for (uint32_t x = 0; x < 4u; ++x) {
 		for (uint32_t y = 0; y < 4u; ++y) {
 			m_mvps[m] = Matrix4f::Rotate(Vector3f(sinf(((float)x + 0.5f) * sec), cosf(((float)y + 0.5f) * sec), 0.0f), 1.0f * _180_ON_PI);

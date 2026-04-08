@@ -5,26 +5,17 @@
 #include <fstream>
 #include <map>
 #include <string>
-#include <algorithm>
 #include <memory>
 #include <unordered_map>
 #include <functional>
 #include <filesystem>
 #include <numeric>
 
+#include "Model.h"
 #include "Mesh.h"
 #include "Vector.h"
 #include "Transform.h"
 #include "Material.h"
-
-enum ModelColor {
-	MC_WHITE,
-	MC_RED,
-	MC_GREEN,
-	MC_BLUE,
-	MC_BLACK,
-	MC_POSITION
-};
 
 struct IndexBufferCreator {
 
@@ -46,7 +37,7 @@ private:
 };
 
 class ObjMesh;
-class ObjModel {
+class ObjModel : public Model {
 
 	friend ObjMesh;
 
@@ -70,9 +61,11 @@ public:
 	void scale(float sx, float sy, float sz);
 	void setPosition(float x, float y, float z);
 
-	const Vector3f& getCenter() const;
 	const Matrix4f& getTransformationMatrix() const;
 	const Matrix4f& getInvTransformationMatrix();
+	const Vector3f& getCenter() const;
+
+	const unsigned int getStride() const override;
 	const std::string& getMltPath();
 	const std::string& getModelDirectory();
 	const Transform& getTransform() const;
@@ -80,15 +73,16 @@ public:
 	const std::vector<ObjMesh*>& getMeshes() const;
 	const std::vector<float>& getVertexBuffer() const;
 	const std::vector<unsigned int>& getIndexBuffer() const;
-	unsigned int getNumberOfTriangles();
+	const unsigned int getNumberOfTriangles() const;
 	
 	void generateNormals();
 	void generateTangents();
+	void rewind();
+
 	void generateColors(ModelColor modelColor = MC_WHITE);
 	void packBuffer();
 	void cleanup();
-	void rewind();
-
+	
 private:
 
 	unsigned int m_numberOfVertices, m_numberOfTriangles, m_numberOfMeshes, m_stride;
@@ -111,8 +105,6 @@ private:
 
 	void static GenerateNormals(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, ObjModel& model, bool& hasNormals, unsigned int& stride, unsigned int startIndex, unsigned int endIndex);
 	void static GenerateTangents(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, ObjModel& model, bool& hasNormals, bool& hasTangents, unsigned int& stride, unsigned int startIndex, unsigned int endIndex);
-	void static GenerateColors(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, ObjModel& model, unsigned int& stride, unsigned int startIndex, unsigned int endIndex, ModelColor modelColor);
-	void static PackBuffer(std::vector<float>& vertexBuffer, unsigned int stride);
 	void static Rewind(const std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, unsigned int stride);
 
 	void static GenerateNormals(std::vector<float>& vertexCoords, std::vector<std::array<int, 10>>& face, std::vector<float>& normalCoords);
@@ -140,7 +132,8 @@ public:
 
 	const std::vector<float>& getVertexBuffer() const override;
 	const std::vector<unsigned int>& getIndexBuffer() const override;
-	unsigned int getStride() override;
+	const unsigned int getStride() const override;
+
 	short getMaterialIndex() const;
 	void setMaterialIndex(short index) const;
 	short getTextureIndex() const;

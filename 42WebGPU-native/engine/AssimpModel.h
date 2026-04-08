@@ -2,11 +2,13 @@
 
 #include <functional>
 #include <numeric>
+#include <unordered_map>
 
 #include <assimp/Importer.hpp> 
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include "Model.h"
 #include "Mesh.h"
 #include "Camera.h"
 #include "Transform.h"
@@ -16,7 +18,7 @@
 #define ASSIMP_LOAD_FLAGS (aiProcess_Triangulate | aiProcess_FindDegenerates | aiProcess_GenUVCoords)
 
 class AssimpMesh;
-class AssimpModel {
+class AssimpModel : public Model {
 
 	friend AssimpMesh;
 
@@ -44,13 +46,17 @@ public:
 	const Matrix4f& getTransformationMatrix() const;
 	const Matrix4f& getInvTransformationMatrix();
 
+	const unsigned int getStride() const override;
 	const std::string& getModelDirectory();
 	const Transform& getTransform() const;
-	const AssimpMesh* getMesh(unsigned short index = 0u) const;
+	const Mesh* getMesh(unsigned short index = 0u) const;
 	const std::vector<AssimpMesh*>& getMeshes() const;
 	const std::vector<float>& getVertexBuffer() const;
 	const std::vector<unsigned int>& getIndexBuffer() const;
+	const unsigned int getNumberOfTriangles() const;
 
+	void generateColors(ModelColor modelColor = MC_WHITE);
+	void packBuffer();
 	void cleanup();
 
 private:
@@ -61,7 +67,6 @@ private:
 	bool m_isStacked;
 
 	std::vector<AssimpMesh*> m_meshes;
-
 
 	std::string m_modelDirectory;
 	Vector3f m_center;
@@ -90,7 +95,7 @@ public:
 
 	const std::vector<float>& getVertexBuffer() const override;
 	const std::vector<unsigned int>& getIndexBuffer() const override;
-	unsigned int getStride() override;
+	const unsigned int getStride() const override;
 	short getMaterialIndex() const;
 	void setMaterialIndex(short index) const;
 	short getTextureIndex() const;
@@ -98,6 +103,9 @@ public:
 
 	const Material& getMaterial() const;
 	void cleanup();
+
+	const std::unordered_map<TextureSlot, std::pair<unsigned char*, unsigned int>>& getEmbeddedTextures() const;
+	const void removeEmbeddedTexture(TextureSlot textureSlot) const;
 
 private:
 
@@ -109,4 +117,6 @@ private:
 	unsigned int m_numberOfTriangles, m_stride, m_baseVertex, m_baseIndex;	
 	mutable short m_materialIndex;
 	mutable short m_textureIndex;
+
+	mutable std::unordered_map<TextureSlot, std::pair<unsigned char*, unsigned int>> m_embeddedTextures;
 };

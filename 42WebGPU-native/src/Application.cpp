@@ -14,6 +14,7 @@
 #include <States/NormalMap.h>
 #include <States/MSDFFont.h>
 #include <States/InstancedCube.h>
+#include <States/ImageBasedLighting.h>
 
 #include "Application.h"
 #include "Globals.h"
@@ -299,7 +300,9 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new Specularity(*Machine));
 	//Machine->addStateAtTop(new NormalMap(*Machine));
 	//Machine->addStateAtTop(new MSDFFont(*Machine));
-	Machine->addStateAtTop(new InstancedCube(*Machine));
+	//Machine->addStateAtTop(new InstancedCube(*Machine));
+	Machine->addStateAtTop(new ImageBasedLighting(*Machine));
+	
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

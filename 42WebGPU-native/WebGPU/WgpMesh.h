@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <string>
+
 #include "WgpBuffer.h"
 #include "WgpTexture.h"
 
@@ -12,7 +13,8 @@ public:
 
 	WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer);
 	WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, const std::string& texturePath);
-	
+	WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, const std::pair<unsigned char*, unsigned int>& texture);
+
 	WgpMesh(WgpMesh const& rhs);
 	WgpMesh(WgpMesh&& rhs) noexcept;
 	~WgpMesh();

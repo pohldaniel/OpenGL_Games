@@ -173,19 +173,19 @@ void Wireframe::OnMouseMotion(const Event::MouseMoveEvent& event) {
 }
 
 void Wireframe::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
-	if (event.button == 1u) {
+	if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {
 		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, true, event.x, event.y);
 		applyTransformation(m_trackball);
-	}else if (event.button == 2u) {
+	}else if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT) {
 		Mouse::instance().attach(Application::GetWindow());
 	}
 }
 
 void Wireframe::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
-	if (event.button == 1u) {
+	if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {
 		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, false, event.x, event.y);
 		applyTransformation(m_trackball);
-	}else if (event.button == 2u) {
+	}else if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT) {
 		Mouse::instance().detach();
 	}
 }
@@ -262,7 +262,7 @@ void Wireframe::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 
 	int currentModel = m_model;
 	if (ImGui::Combo("Model", &currentModel, "Mammoth\0Dragon\0\0")) {
-		m_model = static_cast<Model>(currentModel);
+		m_model = static_cast<SelectedModel>(currentModel);
 	}
 	ImGui::End();
 

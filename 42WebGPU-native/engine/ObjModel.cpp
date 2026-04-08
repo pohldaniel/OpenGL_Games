@@ -140,6 +140,10 @@ const Vector3f &ObjModel::getCenter() const {
 	return m_center;
 }
 
+const unsigned int ObjModel::getStride() const {
+	return m_isStacked ? m_stride : m_meshes.back()->getStride();
+}
+
 const std::string& ObjModel::getMltPath() {
 	return m_mltPath;
 }
@@ -633,6 +637,10 @@ const Transform& ObjModel::getTransform() const {
 	return m_transform;
 }
 
+const Mesh* ObjModel::getMesh(unsigned short index) const {
+	return m_meshes[index];
+}
+
 const std::vector<ObjMesh*>& ObjModel::getMeshes() const {
 	return m_meshes;
 }
@@ -645,7 +653,7 @@ const std::vector<unsigned int>& ObjModel::getIndexBuffer() const {
 	return m_indexBuffer;
 }
 
-unsigned int ObjModel::getNumberOfTriangles() {
+const unsigned int ObjModel::getNumberOfTriangles() const {
 	return m_drawCount / 3;
 }
 
@@ -673,32 +681,32 @@ void ObjModel::generateTangents() {
 	}
 }
 
-void ObjModel::generateColors(ModelColor modelColor) {
+void ObjModel::rewind() {
 	if (m_isStacked) {
-		ObjModel::GenerateColors(m_vertexBuffer, m_indexBuffer, *this, m_stride, 0, m_meshes.size(), modelColor);
+		ObjModel::Rewind(m_vertexBuffer, m_indexBuffer, m_stride);
 	}else {
 		for (int j = 0; j < m_meshes.size(); j++) {
-			ObjModel::GenerateColors(m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_indexBuffer, *this, m_meshes[j]->m_stride, j, j + 1, modelColor);
+			ObjModel::Rewind(m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_indexBuffer, m_meshes[j]->m_stride);
+		}
+	}
+}
+
+void ObjModel::generateColors(ModelColor modelColor) {
+	if (m_isStacked) {
+		Model::GenerateColors(m_vertexBuffer, m_indexBuffer, m_stride, 0, m_meshes.size(), modelColor);
+	}else {
+		for (int j = 0; j < m_meshes.size(); j++) {
+			Model::GenerateColors(m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_indexBuffer, m_meshes[j]->m_stride, j, j + 1, modelColor);
 		}
 	}
 }
 
 void ObjModel::packBuffer() {
 	if (m_isStacked) {
-		ObjModel::PackBuffer(m_vertexBuffer, m_stride);
+		Model::PackBuffer(m_vertexBuffer, m_stride);
 	}else {
 		for (int j = 0; j < m_meshes.size(); j++) {
-			ObjModel::PackBuffer(m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_stride);
-		}
-	}
-}
-
-void ObjModel::rewind() {
-	if (m_isStacked) {
-		ObjModel::Rewind(m_vertexBuffer,m_indexBuffer, m_stride);
-	}else {
-		for (int j = 0; j < m_meshes.size(); j++) {
-			ObjModel::Rewind(m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_indexBuffer, m_meshes[j]->m_stride);
+			Model::PackBuffer(m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_stride);
 		}
 	}
 }
@@ -958,147 +966,7 @@ void ObjModel::GenerateTangents(std::vector<float>& vertexBuffer, std::vector<un
 	stride = 14;
 }
 
-void ObjModel::GenerateColors(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, ObjModel& model, unsigned int& stride, unsigned int startIndex, unsigned int endIndex, ModelColor modelColor) {		
-	if (stride < 8)
-		return;
-	
-	std::vector<float> tmpVertex;
-	for (int i = 0; i < vertexBuffer.size(); i++) {
-		tmpVertex.push_back(vertexBuffer[i]);
 
-		if ((i + 1) % stride == 0) {
-			if (modelColor == ModelColor::MC_POSITION) {
-				tmpVertex.push_back(vertexBuffer[i - stride + 1]);
-				tmpVertex.push_back(vertexBuffer[i - stride + 2]);
-				tmpVertex.push_back(vertexBuffer[i - stride + 3]);
-				tmpVertex.push_back(1.0f);
-			}else if(modelColor == ModelColor::MC_WHITE){
-				tmpVertex.push_back(1.0f);
-				tmpVertex.push_back(1.0f);
-				tmpVertex.push_back(1.0f);
-				tmpVertex.push_back(1.0f);
-			}else if (modelColor == ModelColor::MC_RED) {
-				tmpVertex.push_back(1.0f);
-				tmpVertex.push_back(0.0f);
-				tmpVertex.push_back(0.0f);
-				tmpVertex.push_back(1.0f);
-			}else if (modelColor == ModelColor::MC_GREEN) {
-				tmpVertex.push_back(0.0f);
-				tmpVertex.push_back(1.0f);
-				tmpVertex.push_back(0.0f);
-				tmpVertex.push_back(1.0f);
-			}else if (modelColor == ModelColor::MC_BLUE) {
-				tmpVertex.push_back(0.0f);
-				tmpVertex.push_back(0.0f);
-				tmpVertex.push_back(1.0f);
-				tmpVertex.push_back(1.0f);
-			}else if (modelColor == ModelColor::MC_BLACK) {
-				tmpVertex.push_back(0.0f);
-				tmpVertex.push_back(0.0f);
-				tmpVertex.push_back(0.0f);
-				tmpVertex.push_back(1.0f);
-			}
-		}
-	}
-
-	vertexBuffer.clear();
-	vertexBuffer.shrink_to_fit();
-	copy(tmpVertex.begin(), tmpVertex.end(), back_inserter(vertexBuffer));
-	tmpVertex.clear();
-	stride += 4;
-}
-
-void ObjModel::PackBuffer(std::vector<float>& vertexBuffer, unsigned int stride) {
-	std::vector<float> vertexBufferNew;
-	unsigned int strideNew = 0u;
-
-	if (stride == 3) {
-		vertexBufferNew.resize(vertexBuffer.size() / 3 * 4);
-
-		for (unsigned int i = 0, k = 0; i < vertexBufferNew.size(); i = i + 4, k = k + 3) {
-			vertexBufferNew[i] = vertexBuffer[k];
-			vertexBufferNew[i + 1] = vertexBuffer[k + 1];
-			vertexBufferNew[i + 2] = vertexBuffer[k + 2];
-			vertexBufferNew[i + 3] = 0.0f;
-		}
-		strideNew = 4;
-	}
-
-	if (stride == 5) {
-		vertexBufferNew.resize(vertexBuffer.size() / 5 * 8);
-
-		for (unsigned int i = 0, k = 0; i < vertexBufferNew.size(); i = i + 8, k = k + 5) {
-			vertexBufferNew[i] = vertexBuffer[k];
-			vertexBufferNew[i + 1] = vertexBuffer[k + 1];
-			vertexBufferNew[i + 2] = vertexBuffer[k + 2];
-			vertexBufferNew[i + 3] = 0.0f;
-
-			vertexBufferNew[i + 4] = vertexBuffer[k + 3];
-			vertexBufferNew[i + 5] = vertexBuffer[k + 4];
-			vertexBufferNew[i + 6] = 0.0f;
-			vertexBufferNew[i + 7] = 0.0f;
-		}
-		strideNew = 8;
-	}
-
-	if (stride == 8) {
-		vertexBufferNew.resize(vertexBuffer.size() / 8 * 12);
-
-		for (unsigned int i = 0, k = 0; i < vertexBufferNew.size(); i = i + 12, k = k + 8) {
-			vertexBufferNew[i] = vertexBuffer[k];
-			vertexBufferNew[i + 1] = vertexBuffer[k + 1];
-			vertexBufferNew[i + 2] = vertexBuffer[k + 2];
-			vertexBufferNew[i + 3] = 0.0f;
-
-			vertexBufferNew[i + 4] = vertexBuffer[k + 3];
-			vertexBufferNew[i + 5] = vertexBuffer[k + 4];
-			vertexBufferNew[i + 6] = 0.0f;
-			vertexBufferNew[i + 7] = 0.0f;
-
-			vertexBufferNew[i + 8] = vertexBuffer[k + 5];
-			vertexBufferNew[i + 9] = vertexBuffer[k + 6];
-			vertexBufferNew[i + 10] = vertexBuffer[k + 7];
-			vertexBufferNew[i + 11] = 0.0f;
-		}
-		strideNew = 12;
-	}
-
-	if (stride == 14) {
-		vertexBufferNew.resize(vertexBuffer.size() / 14 * 20);
-
-		for (unsigned int i = 0, k = 0; i < vertexBufferNew.size(); i = i + 16, k = k + 20) {
-			vertexBufferNew[i] = vertexBuffer[k];
-			vertexBufferNew[i + 1] = vertexBuffer[k + 1];
-			vertexBufferNew[i + 2] = vertexBuffer[k + 2];
-			vertexBufferNew[i + 3] = 0.0f;
-
-			vertexBufferNew[i + 4] = vertexBuffer[k + 3];
-			vertexBufferNew[i + 5] = vertexBuffer[k + 4];
-			vertexBufferNew[i + 6] = 0.0f;
-			vertexBufferNew[i + 7] = 0.0f;
-
-			vertexBufferNew[i + 8] = vertexBuffer[k + 5];
-			vertexBufferNew[i + 9] = vertexBuffer[k + 6];
-			vertexBufferNew[i + 10] = vertexBuffer[k + 7];
-			vertexBufferNew[i + 11] = 0.0f;
-
-			vertexBufferNew[i + 12] = vertexBuffer[k + 8];
-			vertexBufferNew[i + 13] = vertexBuffer[k + 9];
-			vertexBufferNew[i + 14] = vertexBuffer[k + 10];
-			vertexBufferNew[i + 15] = 0.0f;
-
-			vertexBufferNew[i + 16] = vertexBuffer[k + 11];
-			vertexBufferNew[i + 17] = vertexBuffer[k + 12];
-			vertexBufferNew[i + 18] = vertexBuffer[k + 13];
-			vertexBufferNew[i + 19] = 0.0f;
-		}
-		strideNew = 20;
-	}
-	stride = strideNew;
-	vertexBuffer.clear();
-	vertexBuffer.shrink_to_fit();
-	vertexBuffer.insert(vertexBuffer.end(), vertexBufferNew.begin(), vertexBufferNew.end());
-}
 
 void ObjModel::Rewind(const std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, unsigned int stride) {
 	if(stride < 6)
@@ -1395,13 +1263,13 @@ std::string ObjModel::GetTexturePath(std::string texPath, std::string modelDirec
 }
 
 void ObjModel::ReadMaterialFromFile(std::string path, std::string mltLib, std::string mltName, short& index) {
-	std::vector<Material>::iterator it = std::find_if(Material::GetMaterials().begin(), Material::GetMaterials().end(), std::bind([](Material const& s1, std::string const& s2) -> bool { return s1.name == s2;}, std::placeholders::_1, mltName));
+	std::vector<Material>::iterator it = std::find_if(Material::GetMaterials().begin(), Material::GetMaterials().end(), std::bind([](Material const& s1, std::string const& s2) -> bool { return s1.m_name == s2;}, std::placeholders::_1, mltName));
 	if (it == Material::GetMaterials().end()) {
 
 		Material::GetMaterials().resize(Material::GetMaterials().size() + 1);
 		index = Material::GetMaterials().size() - 1;
 		Material& material = Material::GetMaterials().back();
-		material.name = mltName;
+		material.m_name = mltName;
 
 		std::vector<std::string> lines;
 		int start = -1;
@@ -1513,7 +1381,7 @@ ObjMesh::ObjMesh(unsigned int numberTriangles, ObjModel* model){
 	m_textureIndex = -1;
 }
 
-ObjMesh::ObjMesh(ObjMesh const& rhs) {
+ObjMesh::ObjMesh(ObjMesh const& rhs) : Mesh(rhs) {
 	m_model = rhs.m_model;
 	m_mltName = rhs.m_mltName;
 	m_numberOfTriangles = rhs.m_numberOfTriangles;
@@ -1530,7 +1398,7 @@ ObjMesh::ObjMesh(ObjMesh const& rhs) {
 	m_textureIndex = rhs.m_textureIndex;
 }
 
-ObjMesh::ObjMesh(ObjMesh&& rhs) noexcept {
+ObjMesh::ObjMesh(ObjMesh&& rhs) noexcept : Mesh(rhs) {
 	m_model = rhs.m_model;
 	m_mltName = rhs.m_mltName;
 	m_numberOfTriangles = rhs.m_numberOfTriangles;
@@ -1548,6 +1416,7 @@ ObjMesh::ObjMesh(ObjMesh&& rhs) noexcept {
 }
 
 ObjMesh& ObjMesh::operator=(const ObjMesh& rhs) {
+	Mesh::operator=(rhs);
 	m_model = rhs.m_model;
 	m_mltName = rhs.m_mltName;
 	m_numberOfTriangles = rhs.m_numberOfTriangles;
@@ -1566,6 +1435,7 @@ ObjMesh& ObjMesh::operator=(const ObjMesh& rhs) {
 }
 
 ObjMesh& ObjMesh::operator=(ObjMesh&& rhs) noexcept {
+	Mesh::operator=(rhs);
 	m_model = rhs.m_model;
 	m_mltName = rhs.m_mltName;
 	m_numberOfTriangles = rhs.m_numberOfTriangles;
@@ -1602,7 +1472,7 @@ const std::vector<unsigned int>& ObjMesh::getIndexBuffer() const {
 	return m_indexBuffer;
 }
 
-unsigned int ObjMesh::getStride() {
+const unsigned int ObjMesh::getStride() const {
 	return m_stride;
 }
 

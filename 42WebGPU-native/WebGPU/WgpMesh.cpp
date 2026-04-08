@@ -24,6 +24,18 @@ WgpMesh::WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsig
 	m_texture.loadFromFile(texturePath);
 }
 
+WgpMesh::WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, const std::pair<unsigned char*, unsigned int>& texture) :
+	m_drawCount(indexBuffer.size()),
+	m_bindGroupsSlot("BG"),
+	m_markForDelete(false),
+	vertexBuffer(vertexBuffer),
+	indexBuffer(indexBuffer) {
+
+	m_vertexBuffer.createBuffer(reinterpret_cast<const void*>(vertexBuffer.data()), sizeof(float) * vertexBuffer.size(), WGPUBufferUsage_Vertex | WGPUBufferUsage_Storage);
+	m_indexBuffer.createBuffer(reinterpret_cast<const void*>(indexBuffer.data()), sizeof(unsigned int) * indexBuffer.size(), WGPUBufferUsage_Index | WGPUBufferUsage_Storage);
+	m_texture.loadFromMemory(texture.first, texture.second);
+}
+
 WgpMesh::WgpMesh(WgpMesh const& rhs) :
 	m_vertexBuffer(rhs.m_vertexBuffer),
 	m_indexBuffer(rhs.m_indexBuffer),

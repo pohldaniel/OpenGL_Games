@@ -198,6 +198,12 @@
     <ClCompile Include="src\States\InstancedCube.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
+    <ClCompile Include="src\States\ImageBasedLighting.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\Model.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\input\ApplicationEventListener.h">
@@ -385,6 +391,12 @@
     </ClInclude>
     <ClInclude Include="src\States\InstancedCube.h">
       <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\ImageBasedLighting.h">
+      <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\Model.h">
+      <Filter>engine</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

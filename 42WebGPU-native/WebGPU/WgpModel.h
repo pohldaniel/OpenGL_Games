@@ -2,9 +2,10 @@
 #include <list>
 #include <webgpu.h>
 
-class WgpMesh;
-class WgpBuffer;
+#include "WgpMesh.h"
+
 class ObjModel;
+class AssimpModel;
 class Shape;
 
 class WgpModel {
@@ -18,7 +19,9 @@ public:
 	void draw(const WGPURenderPassEncoder& renderPassEncoder, uint32_t instanceCount = 1u) const;
 
 	void create(const ObjModel& model);
+	void create(const AssimpModel& model);
 	void create(const Shape& shape);
+
 	void setBindGroupsSlot(const std::string& bindGroupsSlot);
 	void setBindGroups(std::string bindGroupsName, const std::function <std::vector<WGPUBindGroup>()>& onBindGroups);
 

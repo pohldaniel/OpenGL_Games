@@ -1,7 +1,9 @@
+#include <FreeImage.h>
+#include <Utilities.h>
 #include "AssimpModel.h"
 
 bool compareMaterial(Material const& s1, std::string const& s2) {
-	return s1.name == s2;
+	return s1.m_name == s2;
 }
 
 AssimpModel::AssimpModel() {
@@ -140,12 +142,20 @@ const Vector3f &AssimpModel::getCenter() const {
 	return m_center;
 }
 
+const unsigned int AssimpModel::getStride() const {
+	return m_isStacked ? m_stride : m_meshes.back()->getStride();
+}
+
 const std::string& AssimpModel::getModelDirectory() {
 	return m_modelDirectory;
 }
 
 const Transform& AssimpModel::getTransform() const {
 	return m_transform;
+}
+
+const Mesh* AssimpModel::getMesh(unsigned short index) const {
+	return m_meshes[index];
 }
 
 const std::vector<AssimpMesh*>& AssimpModel::getMeshes() const {
@@ -160,8 +170,28 @@ const std::vector<unsigned int>& AssimpModel::getIndexBuffer() const {
 	return m_indexBuffer;
 }
 
-const AssimpMesh* AssimpModel::getMesh(unsigned short index) const {
-	return m_meshes[index];
+const unsigned int AssimpModel::getNumberOfTriangles() const {
+	return m_drawCount / 3;
+}
+
+void AssimpModel::generateColors(ModelColor modelColor) {
+	if (m_isStacked) {
+		Model::GenerateColors(m_vertexBuffer, m_indexBuffer, m_stride, 0, m_meshes.size(), modelColor);
+	}else {
+		for (int j = 0; j < m_meshes.size(); j++) {
+			Model::GenerateColors(m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_indexBuffer, m_meshes[j]->m_stride, j, j + 1, modelColor);
+		}
+	}
+}
+
+void AssimpModel::packBuffer() {
+	if (m_isStacked) {
+		Model::PackBuffer(m_vertexBuffer, m_stride);
+	}else {
+		for (int j = 0; j < m_meshes.size(); j++) {
+			Model::PackBuffer(m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_stride);
+		}
+	}
 }
 
 void AssimpModel::loadModel(const char* filename, bool isStacked, bool generateNormals, bool generateTangents, bool flipYZ, bool flipWinding) {
@@ -295,7 +325,17 @@ void AssimpModel::loadModelCpu(const char* _filename, const Vector3f& axis, floa
 		}
 
 		mesh->m_drawCount = aiMesh->mNumFaces * 3;
+
+		for (std::unordered_map<TextureSlot, std::string>::const_iterator it = mesh->getMaterial().getTextures().begin(); it != Material::GetMaterials().back().getTextures().end(); it++) {
+			const aiTexture* texture = pScene->GetEmbeddedTexture(it->second.c_str());
+			if (texture) {
+				mesh->m_embeddedTextures[it->first].second = texture->mWidth;
+				mesh->m_embeddedTextures[it->first].first = (unsigned char*)malloc(texture->mWidth);
+				std::memcpy(mesh->m_embeddedTextures[it->first].first, texture->pcData, texture->mWidth);
+			}
+		}
 	}
+
 
 	m_center = Vector3f((xmax + xmin) * 0.5f, (ymax + ymin) * 0.5f, (zmax + zmin) * 0.5f);
 }
@@ -323,7 +363,7 @@ void AssimpModel::ReadAiMaterial(const aiMaterial* aiMaterial, short& index, std
 		Material::GetMaterials().resize(Material::GetMaterials().size() + 1);
 		index = Material::GetMaterials().size() - 1;
 		Material& material = Material::GetMaterials().back();
-		material.name = mltName;
+		material.m_name = mltName;
 		
 		float shininess = 0.0f;
 		aiColor4D diffuse = aiColor4D(0.0f, 0.0f, 0.0f, 0.0f);
@@ -344,25 +384,146 @@ void AssimpModel::ReadAiMaterial(const aiMaterial* aiMaterial, short& index, std
 		material.setShininess(shininess);
 
 		int numTextures = aiMaterial->GetTextureCount(aiTextureType_DIFFUSE);
+
 		if (numTextures > 0) {
 			aiString name;
 			aiMaterial->Get(AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE, 0), name);
-			material.addTexture(TextureSlot::TEXTURE_DIFFUSE, GetTexturePath(name.data, modelDirectory));
+			material.addTexture(TextureSlot::TEXTURE_DIFFUSE, name.data[0] == '*' ? name.data : GetTexturePath(name.data, modelDirectory));		
 		}
 
 		numTextures = aiMaterial->GetTextureCount(aiTextureType_NORMALS);
-		if (numTextures > 0) {
+		if (numTextures > 0) {			
 			aiString name;
 			aiMaterial->Get(AI_MATKEY_TEXTURE(aiTextureType_NORMALS, 0), name);
-			material.addTexture(TextureSlot::TEXTURE_NORMAL, GetTexturePath(name.data, modelDirectory));
+			material.addTexture(TextureSlot::TEXTURE_NORMAL, name.data[0] == '*' ? name.data : GetTexturePath(name.data, modelDirectory));
 		}
 
 		numTextures = aiMaterial->GetTextureCount(aiTextureType_SPECULAR);
 		if (numTextures > 0) {
 			aiString name;
 			aiMaterial->Get(AI_MATKEY_TEXTURE(aiTextureType_SPECULAR, 0), name);
-			material.addTexture(TextureSlot::TEXTURE_SPECULAR, GetTexturePath(name.data, modelDirectory));
+			material.addTexture(TextureSlot::TEXTURE_SPECULAR, name.data[0] == '*' ? name.data : GetTexturePath(name.data, modelDirectory));
 		}
+
+		numTextures = aiMaterial->GetTextureCount(aiTextureType_AMBIENT);
+		if (numTextures > 0) {
+			aiString name;
+			aiMaterial->Get(AI_MATKEY_TEXTURE(aiTextureType_AMBIENT, 0), name);
+			material.addTexture(TextureSlot::TEXTURE_AMBIENT, name.data[0] == '*' ? name.data : GetTexturePath(name.data, modelDirectory));
+		}
+
+		numTextures = aiMaterial->GetTextureCount(aiTextureType_EMISSIVE);
+		if (numTextures > 0) {
+			aiString name;
+			aiMaterial->Get(AI_MATKEY_TEXTURE(aiTextureType_EMISSIVE, 0), name);
+			material.addTexture(TextureSlot::TEXTURE_EMISSIVE, name.data[0] == '*' ? name.data : GetTexturePath(name.data, modelDirectory));
+		}
+
+		numTextures = aiMaterial->GetTextureCount(aiTextureType_HEIGHT);
+		if (numTextures > 0) {
+			aiString name;
+			aiMaterial->Get(AI_MATKEY_TEXTURE(aiTextureType_HEIGHT, 0), name);
+			material.addTexture(TextureSlot::TEXTURE_HEIGHT, name.data[0] == '*' ? name.data : GetTexturePath(name.data, modelDirectory));
+		}
+
+		numTextures = aiMaterial->GetTextureCount(aiTextureType_SHININESS);
+		if (numTextures > 0) {
+			aiString name;
+			aiMaterial->Get(AI_MATKEY_TEXTURE(aiTextureType_SHININESS, 0), name);
+			material.addTexture(TextureSlot::TEXTURE_SHININESS, name.data[0] == '*' ? name.data : GetTexturePath(name.data, modelDirectory));
+		}
+
+		numTextures = aiMaterial->GetTextureCount(aiTextureType_OPACITY);
+		if (numTextures > 0) {
+			aiString name;
+			aiMaterial->Get(AI_MATKEY_TEXTURE(aiTextureType_OPACITY, 0), name);
+			material.addTexture(TextureSlot::TEXTURE_OPACITY, name.data[0] == '*' ? name.data : GetTexturePath(name.data, modelDirectory));
+		}
+
+		numTextures = aiMaterial->GetTextureCount(aiTextureType_DISPLACEMENT);
+		if (numTextures > 0) {
+			aiString name;
+			aiMaterial->Get(AI_MATKEY_TEXTURE(aiTextureType_DISPLACEMENT, 0), name);
+			material.addTexture(TextureSlot::TEXTURE_DISPLACEMENT, name.data[0] == '*' ? name.data : GetTexturePath(name.data, modelDirectory));
+		}
+
+		numTextures = aiMaterial->GetTextureCount(aiTextureType_LIGHTMAP);
+		if (numTextures > 0) {
+			aiString name;
+			aiMaterial->Get(AI_MATKEY_TEXTURE(aiTextureType_LIGHTMAP, 0), name);
+			material.addTexture(TextureSlot::TEXTURE_LIGHTMAP, name.data[0] == '*' ? name.data : GetTexturePath(name.data, modelDirectory));
+		}
+
+		numTextures = aiMaterial->GetTextureCount(aiTextureType_REFLECTION);
+		if (numTextures > 0) {
+			aiString name;
+			aiMaterial->Get(AI_MATKEY_TEXTURE(aiTextureType_REFLECTION, 0), name);
+			material.addTexture(TextureSlot::TEXTURE_REFLECTION, name.data[0] == '*' ? name.data : GetTexturePath(name.data, modelDirectory));
+		}
+		
+		numTextures = aiMaterial->GetTextureCount(aiTextureType_BASE_COLOR);
+		if (numTextures > 0 && !material.hasTexture(TEXTURE_DIFFUSE)) {
+			aiString name;
+			aiMaterial->Get(AI_MATKEY_TEXTURE(aiTextureType_BASE_COLOR, 0), name);
+			material.addTexture(TextureSlot::TEXTURE_BASE_COLOR, name.data[0] == '*' ? name.data : GetTexturePath(name.data, modelDirectory));
+		}
+
+		numTextures = aiMaterial->GetTextureCount(aiTextureType_NORMAL_CAMERA);
+		if (numTextures > 0) {
+			aiString name;
+			aiMaterial->Get(AI_MATKEY_TEXTURE(aiTextureType_NORMAL_CAMERA, 0), name);
+			material.addTexture(TextureSlot::TEXTURE_NORMAL_CAMERA, name.data[0] == '*' ? name.data : GetTexturePath(name.data, modelDirectory));
+		}
+
+		numTextures = aiMaterial->GetTextureCount(aiTextureType_EMISSION_COLOR);
+		if (numTextures > 0) {
+			aiString name;
+			aiMaterial->Get(AI_MATKEY_TEXTURE(aiTextureType_EMISSION_COLOR, 0), name);
+			material.addTexture(TextureSlot::TEXTURE_EMISSION_COLOR, name.data[0] == '*' ? name.data : GetTexturePath(name.data, modelDirectory));
+		}
+
+		numTextures = aiMaterial->GetTextureCount(aiTextureType_METALNESS);
+		if (numTextures > 0) {
+			aiString name;
+			aiMaterial->Get(AI_MATKEY_TEXTURE(aiTextureType_METALNESS, 0), name);
+			material.addTexture(TextureSlot::TEXTURE_METALNESS, name.data[0] == '*' ? name.data : GetTexturePath(name.data, modelDirectory));
+		}
+
+		numTextures = aiMaterial->GetTextureCount(aiTextureType_DIFFUSE_ROUGHNESS);
+		if (numTextures > 0 && !material.hasTexture(TEXTURE_METALNESS)) {
+			aiString name;
+			aiMaterial->Get(AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE_ROUGHNESS, 0), name);
+			material.addTexture(TextureSlot::TEXTURE_DIFFUSE_ROUGHNESS, name.data[0] == '*' ? name.data : GetTexturePath(name.data, modelDirectory));
+		}
+
+		numTextures = aiMaterial->GetTextureCount(aiTextureType_AMBIENT_OCCLUSION);
+		if (numTextures > 0) {
+			aiString name;
+			aiMaterial->Get(AI_MATKEY_TEXTURE(aiTextureType_AMBIENT_OCCLUSION, 0), name);
+			material.addTexture(TextureSlot::TEXTURE_AMBIENT_OCCLUSION, name.data[0] == '*' ? name.data : GetTexturePath(name.data, modelDirectory));
+		}
+
+		numTextures = aiMaterial->GetTextureCount(aiTextureType_SHEEN);
+		if (numTextures > 0) {
+			aiString name;
+			aiMaterial->Get(AI_MATKEY_TEXTURE(aiTextureType_SHEEN, 0), name);
+			material.addTexture(TextureSlot::TEXTURE_SHEEN, name.data[0] == '*' ? name.data : GetTexturePath(name.data, modelDirectory));
+		}
+
+		numTextures = aiMaterial->GetTextureCount(aiTextureType_CLEARCOAT);
+		if (numTextures > 0) {
+			aiString name;
+			aiMaterial->Get(AI_MATKEY_TEXTURE(aiTextureType_CLEARCOAT, 0), name);
+			material.addTexture(TextureSlot::TEXTURE_CLEARCOAT, name.data[0] == '*' ? name.data : GetTexturePath(name.data, modelDirectory));
+		}
+
+		numTextures = aiMaterial->GetTextureCount(aiTextureType_TRANSMISSION);
+		if (numTextures > 0) {
+			aiString name;
+			aiMaterial->Get(AI_MATKEY_TEXTURE(aiTextureType_TRANSMISSION, 0), name);
+			material.addTexture(TextureSlot::TEXTURE_TRANSMISSION, name.data[0] == '*' ? name.data : GetTexturePath(name.data, modelDirectory));
+		}
+
 	}else {
 		index = std::distance(Material::GetMaterials().begin(), it);
 	}
@@ -384,7 +545,7 @@ AssimpMesh::AssimpMesh(AssimpModel* model) {
 	m_textureIndex = -1;
 }
 
-AssimpMesh::AssimpMesh(AssimpMesh const& rhs) {
+AssimpMesh::AssimpMesh(AssimpMesh const& rhs) : Mesh(rhs) {
 	m_stride = rhs.m_stride;
 	m_model = rhs.m_model;
 	m_drawCount = rhs.m_drawCount;
@@ -398,7 +559,7 @@ AssimpMesh::AssimpMesh(AssimpMesh const& rhs) {
 	m_textureIndex = rhs.m_textureIndex;
 }
 
-AssimpMesh::AssimpMesh(AssimpMesh&& rhs) noexcept {
+AssimpMesh::AssimpMesh(AssimpMesh&& rhs) noexcept : Mesh(rhs) {
 	m_stride = rhs.m_stride;
 	m_model = rhs.m_model;
 	m_drawCount = rhs.m_drawCount;
@@ -413,6 +574,7 @@ AssimpMesh::AssimpMesh(AssimpMesh&& rhs) noexcept {
 }
 
 AssimpMesh& AssimpMesh::operator=(const AssimpMesh& rhs) {
+	Mesh::operator=(rhs);
 	m_stride = rhs.m_stride;
 	m_model = rhs.m_model;
 	m_drawCount = rhs.m_drawCount;
@@ -428,6 +590,7 @@ AssimpMesh& AssimpMesh::operator=(const AssimpMesh& rhs) {
 }
 
 AssimpMesh& AssimpMesh::operator=(AssimpMesh&& rhs) noexcept {
+	Mesh::operator=(rhs);
 	m_stride = rhs.m_stride;
 	m_model = rhs.m_model;
 	m_drawCount = rhs.m_drawCount;
@@ -461,7 +624,7 @@ const std::vector<unsigned int>& AssimpMesh::getIndexBuffer() const {
 	return m_indexBuffer;
 }
 
-unsigned int AssimpMesh::getStride() {
+const unsigned int AssimpMesh::getStride() const {
 	return m_stride;
 }
 
@@ -483,4 +646,16 @@ void AssimpMesh::setTextureIndex(short index) const {
 
 const Material& AssimpMesh::getMaterial() const {
 	return Material::GetMaterials()[m_materialIndex];
+}
+
+const std::unordered_map<TextureSlot, std::pair<unsigned char*, unsigned int>>& AssimpMesh::getEmbeddedTextures() const {
+	return m_embeddedTextures;
+}
+
+const void AssimpMesh::removeEmbeddedTexture(TextureSlot textureSlot) const {
+	if (m_embeddedTextures.count(textureSlot)) {
+		std::pair<unsigned char*, unsigned int>& texture = m_embeddedTextures.at(textureSlot);
+		free(texture.first);
+		m_embeddedTextures.erase(textureSlot);
+	}
 }

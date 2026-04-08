@@ -183,6 +183,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClCompile Include="engine\AssimpModel.cpp" />
     <ClCompile Include="engine\CharacterSet.cpp" />
     <ClCompile Include="engine\input\GamePad.cpp" />
+    <ClCompile Include="engine\Model.cpp" />
     <ClCompile Include="engine\Object.cpp" />
     <ClCompile Include="engine\RandomColor.cpp" />
     <ClCompile Include="engine\RandomNew.cpp" />
@@ -204,6 +205,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClCompile Include="src\ImguiExtension.cpp" />
     <ClCompile Include="src\LoadingManager.cpp" />
     <ClCompile Include="src\States\Compute.cpp" />
+    <ClCompile Include="src\States\ImageBasedLighting.cpp" />
     <ClCompile Include="src\States\InstancedCube.cpp" />
     <ClCompile Include="src\States\MSDFFont.cpp" />
     <ClCompile Include="src\States\NormalMap.cpp" />
@@ -241,6 +243,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClInclude Include="engine\interfaces\ICounter.h" />
     <ClInclude Include="engine\interfaces\IStateMachine.h" />
     <ClInclude Include="engine\Mesh.h" />
+    <ClInclude Include="engine\Model.h" />
     <ClInclude Include="engine\Object.h" />
     <ClInclude Include="engine\Camera.h" />
     <ClInclude Include="engine\Clock.h" />
@@ -281,6 +284,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClInclude Include="src\ImguiExtension.h" />
     <ClInclude Include="src\LoadingManager.h" />
     <ClInclude Include="src\States\Compute.h" />
+    <ClInclude Include="src\States\ImageBasedLighting.h" />
     <ClInclude Include="src\States\InstancedCube.h" />
     <ClInclude Include="src\States\MSDFFont.h" />
     <ClInclude Include="src\States\NormalMap.h" />
