@@ -12,7 +12,7 @@ public:
 	WgpTexture(WgpTexture&& rhs) noexcept;
 	~WgpTexture();
 
-	void loadFromFile(std::string fileName, const bool flipVertical = false, const short alphaChannel = -1);
+	void loadFromFile(const std::string& fileName, const bool flipVertical = false, const short alphaChannel = -1);
 	void loadFromMemory(unsigned char* data, uint32_t size, const bool flipVertical = false, const short alphaChannel = -1);
 	void createEmpty(uint32_t width, uint32_t height, WGPUTextureUsage textureUsage, WGPUTextureFormat textureFormat);
 	void cleanup();
@@ -28,7 +28,8 @@ public:
 	static unsigned char* LoadFromFile(std::string fileName, const bool flipVertical = false, const short alphaChannel = -1);
 	static unsigned char* LoadFromFile(std::string fileName, uint32_t& width, uint32_t& height, const bool flipVertical = false, const short alphaChannel = -1);
 	static unsigned char* LoadFromMemory(unsigned char* data, uint32_t size, uint32_t& width, uint32_t& height, const bool flipVertical = false, const short alphaChannel = -1);
-	static void Safe(std::string fileOut, unsigned char* bytes, uint32_t width, uint32_t height, uint32_t channels);
+	static void Safe(const std::string& fileOut, unsigned char* bytes, uint32_t width, uint32_t height, uint32_t channels);
+	static void Safe(const std::string& fileOut, unsigned char* bytes, uint32_t size);
 
 private:
 

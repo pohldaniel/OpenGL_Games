@@ -13,7 +13,10 @@ enum ModelColor {
 };
 
 class Model {
-	
+
+public:
+
+	virtual ~Model() = default;
 	virtual const unsigned int getStride() const = 0;
 
 protected:

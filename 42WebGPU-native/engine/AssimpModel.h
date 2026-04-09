@@ -5,6 +5,7 @@
 #include <unordered_map>
 
 #include <assimp/Importer.hpp> 
+#include <assimp/Exporter.hpp> 
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
@@ -32,9 +33,9 @@ public:
 	~AssimpModel();
 
 	void loadModel(const char* filename, bool isStacked = false, bool generateNormals = false, bool generateTangents = false, bool flipYZ = false, bool flipWinding = false);
-	void loadModel(const char* filename, const Vector3f& axis, float degree, const Vector3f& translate = Vector3f(0.0f, 0.0f, 0.0f), float scale = 1.0f, bool isStacked = false, bool generateNormals = false, bool generateTangents = false, bool flipYZ = false, bool flipWinding = false);
+	void loadModel(const char* filename, const Vector3f& axis, float degrees, const Vector3f& translate = Vector3f(0.0f, 0.0f, 0.0f), float scale = 1.0f, bool isStacked = false, bool generateNormals = false, bool generateTangents = false, bool flipYZ = false, bool flipWinding = false);
 	void loadModelCpu(const char* filename, bool isStacked = false, bool generateNormals = false, bool generateTangents = false, bool flipYZ = false, bool flipWinding = false);
-	void loadModelCpu(const char* filename, const Vector3f& axis, float degree, const Vector3f& translate = Vector3f(0.0f, 0.0f, 0.0f), float scale = 1.0f, bool isStacked = false, bool generateNormals = false, bool generateTangents = false, bool flipYZ = false, bool flipWinding = false);
+	void loadModelCpu(const char* filename, const Vector3f& axis, float degrees, const Vector3f& translate = Vector3f(0.0f, 0.0f, 0.0f), float scale = 1.0f, bool isStacked = false, bool generateNormals = false, bool generateTangents = false, bool flipYZ = false, bool flipWinding = false);
 	
 	void rotate(const Vector3f& axis, float degrees);
 	void rotate(float pitch, float yaw, float roll);
@@ -106,6 +107,7 @@ public:
 
 	const std::unordered_map<TextureSlot, std::pair<unsigned char*, unsigned int>>& getEmbeddedTextures() const;
 	const void removeEmbeddedTexture(TextureSlot textureSlot) const;
+	const bool hasMaterial() const;
 
 private:
 

@@ -1,5 +1,3 @@
-#include <FreeImage.h>
-#include <Utilities.h>
 #include "AssimpModel.h"
 
 bool compareMaterial(Material const& s1, std::string const& s2) {
@@ -198,19 +196,18 @@ void AssimpModel::loadModel(const char* filename, bool isStacked, bool generateN
 	loadModelCpu(filename, Vector3f(0.0, 1.0, 0.0), 0.0, Vector3f(0.0, 0.0, 0.0), 1.0, isStacked, generateNormals, generateTangents, flipYZ, flipWinding);
 }
 
-void AssimpModel::loadModel(const char* filename, const Vector3f& axis, float degree, const Vector3f& translate, float scale, bool isStacked, bool generateNormals, bool generateTangents, bool flipYZ, bool flipWinding) {
-	loadModelCpu(filename, axis, degree, translate, scale, isStacked, generateNormals, generateTangents, flipYZ, flipWinding);
+void AssimpModel::loadModel(const char* filename, const Vector3f& axis, float degrees, const Vector3f& translate, float scale, bool isStacked, bool generateNormals, bool generateTangents, bool flipYZ, bool flipWinding) {
+	loadModelCpu(filename, axis, degrees, translate, scale, isStacked, generateNormals, generateTangents, flipYZ, flipWinding);
 }
 
 void AssimpModel::loadModelCpu(const char* filename, bool isStacked, bool generateNormals, bool generateTangents, bool flipYZ, bool flipWinding) {
 	loadModelCpu(filename, Vector3f(0.0, 1.0, 0.0), 0.0, Vector3f(0.0, 0.0, 0.0), 1.0, isStacked, generateNormals, generateTangents, flipYZ, flipWinding);
 }
 
-void AssimpModel::loadModelCpu(const char* _filename, const Vector3f& axis, float degree, const Vector3f& translate, float scale, bool isStacked, bool generateNormals, bool generateTangents, bool flipYZ, bool flipWinding) {
+void AssimpModel::loadModelCpu(const char* _filename, const Vector3f& axis, float degrees, const Vector3f& translate, float scale, bool isStacked, bool generateNormals, bool generateTangents, bool flipYZ, bool flipWinding) {
 	std::string filename(_filename);
 
 	const size_t index = filename.rfind('/');
-
 	if (std::string::npos != index) {
 		m_modelDirectory = filename.substr(0, index);
 	}
@@ -223,6 +220,11 @@ void AssimpModel::loadModelCpu(const char* _filename, const Vector3f& axis, floa
 
 	const aiScene* pScene = Importer.ReadFile(_filename, flag);
 
+	/*Assimp::Exporter Exporter;
+	const aiExportFormatDesc* format = Exporter.GetExportFormatDescription(4);
+	std::cout << format->fileExtension << std::endl;
+	Exporter.Export(pScene, format->id, std::string("res/helmet.") + format->fileExtension);*/
+
 	bool exportTangents = generateTangents;
 
 	m_numberOfMeshes = pScene->mNumMeshes;
@@ -233,7 +235,6 @@ void AssimpModel::loadModelCpu(const char* _filename, const Vector3f& axis, floa
 
 	for (int j = 0; j < pScene->mNumMeshes; j++) {
 		const aiMesh* aiMesh = pScene->mMeshes[j];
-
 		m_meshes.push_back(new AssimpMesh(this));
 		AssimpMesh* mesh = m_meshes.back();
 		mesh->m_numberOfTriangles = aiMesh->mNumFaces;
@@ -265,7 +266,7 @@ void AssimpModel::loadModelCpu(const char* _filename, const Vector3f& axis, floa
 			float posZ = flipYZ ? aiMesh->mVertices[i].y : aiMesh->mVertices[i].z;
 
 			Matrix4f rot;
-			rot.rotate(axis, degree);
+			rot.rotate(axis, degrees);
 			Vector3f pos = rot * Vector3f(posX, posY, posZ);
 
 			posX = pos[0] * scale + translate[0];
@@ -291,7 +292,7 @@ void AssimpModel::loadModelCpu(const char* _filename, const Vector3f& axis, floa
 				float normZ = flipYZ ? aiMesh->mNormals[i].y : aiMesh->mNormals[i].z;
 
 				Matrix4f rot;
-				rot.rotate(axis, degree);
+				rot.rotate(axis, degrees);
 
 				Vector3f normal = rot * Vector3f(aiMesh->mNormals[i].x, normY, normZ);
 				vertexBuffer.push_back(normal[0]); vertexBuffer.push_back(normal[1]); vertexBuffer.push_back(normal[2]);
@@ -306,7 +307,7 @@ void AssimpModel::loadModelCpu(const char* _filename, const Vector3f& axis, floa
 				float bitangZ = flipYZ ? aiMesh->mBitangents[i].y : aiMesh->mBitangents[i].z;
 
 				Matrix4f rot;
-				rot.rotate(axis, degree);
+				rot.rotate(axis, degrees);
 
 				Vector3f tangent = rot * Vector3f(aiMesh->mTangents[i].x, tangY, tangZ);
 				Vector3f bitangent = rot * Vector3f(aiMesh->mBitangents[i].x, bitangY, bitangZ);
@@ -324,32 +325,30 @@ void AssimpModel::loadModelCpu(const char* _filename, const Vector3f& axis, floa
 			indexBuffer.push_back(face->mIndices[2]);
 		}
 
-		mesh->m_drawCount = aiMesh->mNumFaces * 3;
+		mesh->m_drawCount = aiMesh->mNumFaces * 3u;
 
-		for (std::unordered_map<TextureSlot, std::string>::const_iterator it = mesh->getMaterial().getTextures().begin(); it != Material::GetMaterials().back().getTextures().end(); it++) {
-			const aiTexture* texture = pScene->GetEmbeddedTexture(it->second.c_str());
-			if (texture) {
-				mesh->m_embeddedTextures[it->first].second = texture->mWidth;
-				mesh->m_embeddedTextures[it->first].first = (unsigned char*)malloc(texture->mWidth);
-				std::memcpy(mesh->m_embeddedTextures[it->first].first, texture->pcData, texture->mWidth);
+		if (mesh->hasMaterial()) {
+			std::vector<const aiTexture*> oldTextures;
+			for (std::unordered_map<TextureSlot, std::string>::const_iterator it = mesh->getMaterial().getTextures().begin(); it != Material::GetMaterials().back().getTextures().end(); it++) {							
+				const aiTexture* texture = pScene->GetEmbeddedTexture(it->second.c_str());
+				if (texture && std::find(oldTextures.begin(), oldTextures.end(), texture) == oldTextures.end()) {
+					oldTextures.push_back(texture);
+					mesh->m_embeddedTextures[it->first].second = texture->mWidth;
+					mesh->m_embeddedTextures[it->first].first = (unsigned char*)malloc(texture->mWidth);
+					std::memcpy(mesh->m_embeddedTextures[it->first].first, texture->pcData, texture->mWidth);
+				}
 			}
 		}
 	}
-
-
 	m_center = Vector3f((xmax + xmin) * 0.5f, (ymax + ymin) * 0.5f, (zmax + zmin) * 0.5f);
 }
 
 std::string AssimpModel::GetTexturePath(std::string texPath, std::string modelDirectory) {
-
 	int foundSlash = texPath.find_last_of("/\\");
-
 	int foundDot = texPath.find_last_of(".");
 	foundDot = (foundDot < 0 ? texPath.length() : foundDot);
 	foundDot = foundSlash < 0 ? foundDot : foundDot - 1;
-	std::string textureName = texPath.substr(foundSlash + 1, foundDot);
-
-	return textureName, foundSlash < 0 ? modelDirectory + "/" + texPath.substr(foundSlash + 1) : texPath;
+	return foundSlash < 0 ? modelDirectory + "/" + texPath.substr(foundSlash + 1) : texPath;
 }
 
 void AssimpModel::ReadAiMaterial(const aiMaterial* aiMaterial, short& index, std::string modelDirectory, std::string mltName) {
@@ -490,7 +489,7 @@ void AssimpModel::ReadAiMaterial(const aiMaterial* aiMaterial, short& index, std
 		}
 
 		numTextures = aiMaterial->GetTextureCount(aiTextureType_DIFFUSE_ROUGHNESS);
-		if (numTextures > 0 && !material.hasTexture(TEXTURE_METALNESS)) {
+		if (numTextures > 0) {
 			aiString name;
 			aiMaterial->Get(AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE_ROUGHNESS, 0), name);
 			material.addTexture(TextureSlot::TEXTURE_DIFFUSE_ROUGHNESS, name.data[0] == '*' ? name.data : GetTexturePath(name.data, modelDirectory));
@@ -658,4 +657,8 @@ const void AssimpMesh::removeEmbeddedTexture(TextureSlot textureSlot) const {
 		free(texture.first);
 		m_embeddedTextures.erase(textureSlot);
 	}
+}
+
+const bool AssimpMesh::hasMaterial() const {
+	return m_materialIndex >= 0;
 }

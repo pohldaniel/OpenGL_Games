@@ -1258,7 +1258,6 @@ std::string ObjModel::GetTexturePath(std::string texPath, std::string modelDirec
 	int foundDot = texPath.find_last_of(".");
 	foundDot = (foundDot < 0 ? texPath.length() : foundDot);
 	foundDot = foundSlash < 0 ? foundDot : foundDot - 1;
-	std::string textureName = texPath.substr(foundSlash + 1, foundDot);
 	return foundSlash < 0 ? modelDirectory + texPath.substr(foundSlash + 1) : texPath;
 }
 
@@ -1334,6 +1333,12 @@ void ObjModel::ReadMaterialFromFile(std::string path, std::string mltLib, std::s
 					material.addTexture(TextureSlot::TEXTURE_NORMAL, GetTexturePath(valueBuffer, path));
 				}else if (strstr(identifierBuffer, "map_Ks") != 0 && valueBuffer[0] != 0) {
 					material.addTexture(TextureSlot::TEXTURE_SPECULAR, GetTexturePath(valueBuffer, path));
+				}else if (strstr(identifierBuffer, "map_Ke") != 0 && valueBuffer[0] != 0) {
+					material.addTexture(TextureSlot::TEXTURE_EMISSIVE, GetTexturePath(valueBuffer, path));
+				}else if (strstr(identifierBuffer, "map_Pm") != 0 && valueBuffer[0] != 0) {
+					material.addTexture(TextureSlot::TEXTURE_METALNESS, GetTexturePath(valueBuffer, path));
+				}else if (strstr(identifierBuffer, "map_Pr") != 0 && valueBuffer[0] != 0) {
+					material.addTexture(TextureSlot::TEXTURE_DIFFUSE_ROUGHNESS, GetTexturePath(valueBuffer, path));
 				}
 			}
 		}

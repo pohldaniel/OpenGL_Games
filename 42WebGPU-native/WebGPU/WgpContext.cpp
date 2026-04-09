@@ -292,7 +292,7 @@ WGPUTextureView wgpCreateTextureView(WGPUTextureFormat textureFormat, WGPUTextur
 	return wgpuTextureCreateView(texture, &textureViewDescriptor);
 }
 
-WGPUSampler wgpCreateSampler(WGPUFilterMode filterMode, WGPUAddressMode addressMode) {
+WGPUSampler wgpCreateSampler(WGPUFilterMode filterMode, WGPUAddressMode addressMode, uint16_t maxAnisotropy) {
 	const WGPUDevice& device = wgpContext.device;
 	WGPUSamplerDescriptor samplerDescriptor = {};
 	samplerDescriptor.label = WGPU_STR("sampler");
@@ -305,7 +305,7 @@ WGPUSampler wgpCreateSampler(WGPUFilterMode filterMode, WGPUAddressMode addressM
 	samplerDescriptor.lodMinClamp = 0.0f;
 	samplerDescriptor.lodMaxClamp = 1.0f;
 	samplerDescriptor.compare = WGPUCompareFunction_Undefined;
-	samplerDescriptor.maxAnisotropy = 1u;
+	samplerDescriptor.maxAnisotropy = maxAnisotropy;
 	return wgpuDeviceCreateSampler(device, &samplerDescriptor);
 }
 

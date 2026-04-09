@@ -1,8 +1,6 @@
 #ifndef __materialH__
 #define __materialH__
 
-#pragma once
-
 #include <unordered_map>
 #include <array>
 #include <string>
