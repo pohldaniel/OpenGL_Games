@@ -106,7 +106,7 @@ void WgpTexture::loadFromFile(const std::string& fileName, const bool flipVertic
     m_height = height;
     m_channels = bpp;
 
-    convertBack(bytesNew ? bytesNew : imageData, m_width, m_height);
+    bytesNew ? bytesNew = convertBack(bytesNew, m_width, m_height) : imageData = convertBack(imageData, m_width, m_height);
 
     m_format = WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm;
     m_texture = wgpCreateTexture(m_width, m_height, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst, m_format);
@@ -227,7 +227,7 @@ void WgpTexture::loadHDRIFromFile(const std::string& fileName, const bool flipVe
     m_height = height;
     m_channels = bpp;
 
-    convertBackHDRI(bytesNew ? bytesNew : imageData, m_width, m_height);
+    bytesNew? bytesNew = convertBackHDRI(bytesNew, m_width, m_height) : imageData = convertBackHDRI(imageData, m_width, m_height);
 
     m_format = WGPUTextureFormat::WGPUTextureFormat_RGBA32Float;
     m_texture = wgpCreateTexture(m_width, m_height, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst, m_format);
@@ -303,7 +303,7 @@ float WgpTexture::bytesToFloatBE(unsigned char b0, unsigned char b1, unsigned ch
     return f;
 }
 
-unsigned char* WgpTexture::convertBack(unsigned char* source, uint32_t width, uint32_t height) {
+unsigned char* WgpTexture::convertBack(unsigned char* source, uint32_t width, uint32_t& height) {
     
     uint32_t heightNew = (width * 3u) / 4u;
     unsigned char* bytesNew = (unsigned char*)malloc(4u * width * heightNew);
@@ -372,12 +372,13 @@ unsigned char* WgpTexture::convertBack(unsigned char* source, uint32_t width, ui
             bytesNew[pixelIndex + 3] = round(a);           
         }      
     }
-
-    Safe("res/tmp.png", bytesNew, width, heightNew, 4u);
+    height = heightNew;
+    free(source);
+    //Safe("res/tmp.png", bytesNew, width, heightNew, 4u);
     return bytesNew;
 }
 
-unsigned char* WgpTexture::convertBackHDRI(unsigned char* source, uint32_t width, uint32_t height) {
+unsigned char* WgpTexture::convertBackHDRI(unsigned char* source, uint32_t width, uint32_t& height) {
     uint32_t heightNew = (width * 3u) / 4u;
     unsigned char* bytesNew = (unsigned char*)malloc(sizeof(float) * 4u * width * heightNew);
     memset(bytesNew, 0, sizeof(float) * 4u * width * heightNew);
@@ -446,8 +447,9 @@ unsigned char* WgpTexture::convertBackHDRI(unsigned char* source, uint32_t width
             bytesNew[pixelIndex + 12] = 0; bytesNew[pixelIndex + 13] = 0; bytesNew[pixelIndex + 14] = 0; bytesNew[pixelIndex + 15] = 0;            
         }
     }
-
-    SafeHDRI("res/tmp.hdr", bytesNew, width, heightNew, 4u);
+    height = heightNew;
+    free(source);
+    //SafeHDRI("res/tmp.hdr", bytesNew, width, heightNew, 4u);
     return bytesNew;
 }
 

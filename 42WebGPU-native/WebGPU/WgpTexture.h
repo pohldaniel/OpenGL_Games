@@ -43,8 +43,8 @@ public:
 private:
 
 	std::array<float, 3> outImgToXYZ(int i, int j, int face, float edge);
-	unsigned char* convertBack(unsigned char* source, uint32_t width, uint32_t height);
-	unsigned char* convertBackHDRI(unsigned char* source, uint32_t width, uint32_t height);
+	unsigned char* convertBack(unsigned char* source, uint32_t width, uint32_t& height);
+	unsigned char* convertBackHDRI(unsigned char* source, uint32_t width, uint32_t& height);
 	float bytesToFloatLE(unsigned char b0, unsigned char b1, unsigned char b2, unsigned char b3);
 	float bytesToFloatBE(unsigned char b0, unsigned char b1, unsigned char b2, unsigned char b3);
 
