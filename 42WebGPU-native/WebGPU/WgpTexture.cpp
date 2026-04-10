@@ -2,7 +2,6 @@
 #include <math.h>
 #include <FreeImage.h>
 #include <Utilities.h>
-#include <iostream>
 
 #include "WgpContext.h"
 #include "WgpTexture.h"
@@ -105,8 +104,6 @@ void WgpTexture::loadFromFile(const std::string& fileName, const bool flipVertic
     m_width = width;
     m_height = height;
     m_channels = bpp;
-
-    bytesNew ? bytesNew = convertBack(bytesNew, m_width, m_height) : imageData = convertBack(imageData, m_width, m_height);
 
     m_format = WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm;
     m_texture = wgpCreateTexture(m_width, m_height, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst, m_format);
@@ -227,7 +224,7 @@ void WgpTexture::loadHDRIFromFile(const std::string& fileName, const bool flipVe
     m_height = height;
     m_channels = bpp;
 
-    bytesNew? bytesNew = convertBackHDRI(bytesNew, m_width, m_height) : imageData = convertBackHDRI(imageData, m_width, m_height);
+    bytesNew ? bytesNew = convertBackHDRI(bytesNew, m_width, m_height) : imageData = convertBackHDRI(imageData, m_width, m_height);
 
     m_format = WGPUTextureFormat::WGPUTextureFormat_RGBA32Float;
     m_texture = wgpCreateTexture(m_width, m_height, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst, m_format);
@@ -364,7 +361,11 @@ unsigned char* WgpTexture::convertBack(unsigned char* source, uint32_t width, ui
             float b = Ab * (1 - mu) * (1 - nu) + Bb * (mu) * (1 - nu) + Cb * (1 - mu) * nu + Db * mu * nu;
             float a = 255;
 
-            uint32_t pixelIndex = (clamp(j, 0, heightNew - 1) * width) * 4u + (i % width) * 4u;
+            uint32_t offset = j * width * 4u;
+            if (edge < offset)
+                offset = offset - (edge * 4u);
+
+            uint32_t pixelIndex = offset + i * 4u;
 
             bytesNew[pixelIndex + 0] = round(r);
             bytesNew[pixelIndex + 1] = round(g);
@@ -437,14 +438,18 @@ unsigned char* WgpTexture::convertBackHDRI(unsigned char* source, uint32_t width
             float g = Ag;
             float b = Ab;
 
-            uint32_t pixelIndex = (j * width * 4u * sizeof(float)) + (i * 4u * sizeof(float));
+            uint32_t offset = j * width * 4u * sizeof(float);
+            if (edge < offset)
+                offset = offset - (edge * 4u * sizeof(float));
 
+            uint32_t pixelIndex = offset + i * 4u * sizeof(float);
+    
             UFloat R, G, B;
             R.flt = r; G.flt = g; B.flt = b;
             bytesNew[pixelIndex + 0] = R.c[0]; bytesNew[pixelIndex + 1] = R.c[1]; bytesNew[pixelIndex + 2] = R.c[2]; bytesNew[pixelIndex + 3] = R.c[3];
             bytesNew[pixelIndex + 4] = G.c[0]; bytesNew[pixelIndex + 5] = G.c[1]; bytesNew[pixelIndex + 6] = G.c[2]; bytesNew[pixelIndex + 7] = G.c[3];
             bytesNew[pixelIndex + 8] = B.c[0]; bytesNew[pixelIndex + 9] = B.c[1]; bytesNew[pixelIndex + 10] = B.c[2]; bytesNew[pixelIndex + 11] = B.c[3];
-            bytesNew[pixelIndex + 12] = 0; bytesNew[pixelIndex + 13] = 0; bytesNew[pixelIndex + 14] = 0; bytesNew[pixelIndex + 15] = 0;            
+            bytesNew[pixelIndex + 12] = 0; bytesNew[pixelIndex + 13] = 0; bytesNew[pixelIndex + 14] = 0; bytesNew[pixelIndex + 15] = 0;           
         }
     }
     height = heightNew;
