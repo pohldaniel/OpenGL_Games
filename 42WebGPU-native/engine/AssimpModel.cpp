@@ -330,7 +330,7 @@ void AssimpModel::loadModelCpu(const char* _filename, const Vector3f& axis, floa
 		if (mesh->hasMaterial()) {
 			std::vector<const aiTexture*> oldTextures;
 			for (std::unordered_map<TextureSlot, std::string>::const_iterator it = mesh->getMaterial().getTextures().begin(); it != Material::GetMaterials().back().getTextures().end(); it++) {							
-				const aiTexture* texture = pScene->GetEmbeddedTexture(it->second.c_str());
+				const aiTexture* texture = pScene->GetEmbeddedTexture(it->second.c_str());				
 				if (texture && std::find(oldTextures.begin(), oldTextures.end(), texture) == oldTextures.end()) {
 					oldTextures.push_back(texture);
 					mesh->m_embeddedTextures[it->first].second = texture->mWidth;

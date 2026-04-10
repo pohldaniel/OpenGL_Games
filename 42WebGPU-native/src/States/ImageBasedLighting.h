@@ -11,6 +11,7 @@
 #include <WebGPU/WgpBuffer.h>
 #include <WebGPU/WgpModel.h>
 #include <WebGPU/WgpData.h>
+#include <WebGPU/WgpTexture.h>
 
 class ImageBasedLighting : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -50,6 +51,7 @@ private:
 
 	AssimpModel m_helmet;
 	WgpModel m_wgpHelmet;
+	WgpTexture m_wgpTexture;
 
 	static void AddBindgroups(const WgpModel& model);
 };
