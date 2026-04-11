@@ -228,6 +228,8 @@ void WgpTexture::loadHDRIFromFile(const std::string& fileName, const bool flipVe
 
     bytesNew ? bytesNew = EquirectangularToCross(bytesNew, m_width, sizeof(float), m_height) : imageData = EquirectangularToCross(imageData, m_width, sizeof(float), m_height);
 
+    CrossToFaces(bytesNew ? bytesNew : imageData, m_width, sizeof(float), m_height);
+
     m_format = WGPUTextureFormat::WGPUTextureFormat_RGBA32Float;
     m_texture = wgpCreateTexture(m_width, m_height, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst, m_format);
 
@@ -427,9 +429,86 @@ void WgpTexture::SafeHDRI(const std::string& fileOut, unsigned char* bytes, uint
         free(bytesNew);
 }
 
+std::vector<unsigned char*> WgpTexture::CrossToFaces(unsigned char* source, uint32_t width, uint32_t bytesPerChannel, uint32_t height) {
+    std::vector<unsigned char*> faces;
+
+    uint32_t fWidth = width > height ?  width / 4u : width / 3u;
+    uint32_t fHeight = height > width ?  height / 4u : height / 3u;
+    uint32_t channels = 4u;
+
+    unsigned char* face = new unsigned char[fWidth * fHeight * channels * bytesPerChannel];
+    unsigned char* ptr;
+
+    // positive X
+    ptr = face;
+    for (uint32_t j = 0; j < fHeight; j++) {
+        //flip
+        //memcpy(ptr, &source[((height - (fHeight + 1) - j) * width + 2u * fWidth) * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
+ 
+        memcpy(ptr, &source[((height - 2u * fHeight + j) * width + 2u * fWidth) * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
+        ptr += fWidth * channels * bytesPerChannel;
+    }
+    faces.push_back(face);
+
+    // negativ x
+    ptr = face;
+    for (uint32_t j = 0; j < fHeight; j++) {
+        //flip
+        //memcpy(ptr, &source[(height - (fHeight + 1) - j) * width * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
+
+        memcpy(ptr, &source[(height - 2u * fHeight + j) * width * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
+        ptr += fWidth * channels * bytesPerChannel;
+    }
+
+    // positive z
+    ptr = face;
+    for (uint32_t j = 0; j < fHeight; j++) {
+        //flip
+        //memcpy(ptr, &source[((height - (fHeight + 1) - j) * width + 3u * fWidth) * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
+
+        memcpy(ptr, &source[((height - 2u * fHeight + j) * width + 3u * fWidth) * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
+        ptr += fWidth * channels * bytesPerChannel;
+    }
+
+    // negativ z
+    ptr = face;
+    for (uint32_t j = 0; j < fHeight; j++) {
+        //flip
+        //memcpy(ptr, &source[((height - (fHeight + 1) - j) * width + fWidth) * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
+
+        memcpy(ptr, &source[((height - 2u * fHeight + j) * width + fWidth) * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
+        ptr += fWidth * channels * bytesPerChannel;
+    }
+
+    // positive y
+    ptr = face;
+    for (uint32_t j = 0; j < fHeight; j++) {
+        //flip
+        //memcpy(ptr, &source[((height - (0u * fHeight + 1) - j) * width + fWidth) * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
+
+        memcpy(ptr, &source[((height - 1u * fHeight + j) * width + fWidth) * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
+        ptr += fWidth * channels * bytesPerChannel;
+    }
+
+    // negative y
+    ptr = face;
+    for (uint32_t j = 0; j < fHeight; j++) {
+        //flip
+        //memcpy(ptr, &source[((height - (2u * fHeight + 1) - j) * width + fWidth) * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
+
+        memcpy(ptr, &source[((height - 3u * fHeight + j) * width + fWidth) * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
+        ptr += fWidth * channels * bytesPerChannel;
+    }
+
+    faces.push_back(face);
+
+    return faces;
+}
+
 unsigned char* WgpTexture::EquirectangularToCross(unsigned char* source, uint32_t width, uint32_t bytesPerChannel, uint32_t& height) {
     uint32_t channels = 4u;
     uint32_t heightNew = (width * 3u) / 4u;
+
     unsigned char* bytesNew = (unsigned char*)malloc(bytesPerChannel * channels * width * heightNew);
     memset(bytesNew, 0, bytesPerChannel * channels * width * heightNew);
 
@@ -488,20 +567,17 @@ unsigned char* WgpTexture::EquirectangularToCross(unsigned char* source, uint32_
                 float g = Ag * (1 - mu) * (1 - nu) + Bg * (mu) * (1 - nu) + Cg * (1 - mu) * nu + Dg * mu * nu;
                 float b = Ab * (1 - mu) * (1 - nu) + Bb * (mu) * (1 - nu) + Cb * (1 - mu) * nu + Db * mu * nu;
                 float a = Aa * (1 - mu) * (1 - nu) + Ba * (mu) * (1 - nu) + Ca * (1 - mu) * nu + Da * mu * nu;
-
-                uint32_t offset = j * width * channels * bytesPerChannel;
-                if (edge < offset)
-                    offset = offset - (edge * channels * bytesPerChannel);
-
+  
+                uint32_t offset = (j + (face == 0)) * width * channels * bytesPerChannel - (edge * channels * bytesPerChannel);                
                 uint32_t pixelIndex = offset + i * channels * bytesPerChannel;
 
                 UFloat R, G, B, A;
-                R.flt = r; G.flt = g; B.flt = b;
+                R.flt = r; G.flt = g; B.flt = b;              
                 bytesNew[pixelIndex + 0] = R.c[0]; bytesNew[pixelIndex + 1] = R.c[1]; bytesNew[pixelIndex + 2] = R.c[2]; bytesNew[pixelIndex + 3] = R.c[3];
                 bytesNew[pixelIndex + 4] = G.c[0]; bytesNew[pixelIndex + 5] = G.c[1]; bytesNew[pixelIndex + 6] = G.c[2]; bytesNew[pixelIndex + 7] = G.c[3];
                 bytesNew[pixelIndex + 8] = B.c[0]; bytesNew[pixelIndex + 9] = B.c[1]; bytesNew[pixelIndex + 10] = B.c[2]; bytesNew[pixelIndex + 11] = B.c[3];
                 bytesNew[pixelIndex + 12] = A.c[0]; bytesNew[pixelIndex + 13] = A.c[1]; bytesNew[pixelIndex + 14] = A.c[2]; bytesNew[pixelIndex + 15] = A.c[3];
-
+                
             }else if (bytesPerChannel == sizeof(unsigned char)) {
                 float Ar = static_cast<float>(source[pixelIndexA + 0]);
                 float Ag = static_cast<float>(source[pixelIndexA + 1]);
@@ -528,11 +604,8 @@ unsigned char* WgpTexture::EquirectangularToCross(unsigned char* source, uint32_
                 float b = Ab * (1 - mu) * (1 - nu) + Bb * (mu) * (1 - nu) + Cb * (1 - mu) * nu + Db * mu * nu;
                 float a = Aa * (1 - mu) * (1 - nu) + Ba * (mu) * (1 - nu) + Ca * (1 - mu) * nu + Da * mu * nu;
 
-                uint32_t offset = j * width * 4u;
-                if (edge < offset)
-                    offset = offset - (edge * 4u);
-
-                uint32_t pixelIndex = offset + i * 4u;
+                uint32_t offset = (j + (face == 0)) * width * channels * bytesPerChannel - (edge * channels * bytesPerChannel);
+                uint32_t pixelIndex = offset + i * channels * bytesPerChannel;
 
                 bytesNew[pixelIndex + 0] = round(r);
                 bytesNew[pixelIndex + 1] = round(g);

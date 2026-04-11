@@ -43,6 +43,7 @@ public:
 
 private:
 	
+	static std::vector<unsigned char*> CrossToFaces(unsigned char* source, uint32_t width, uint32_t bytesPerChannel, uint32_t height);
 	static unsigned char* EquirectangularToCross(unsigned char* source, uint32_t width, uint32_t bytesPerChannel, uint32_t& height);
 	static float Clamp(const float& n, const float& lower, const float& upper);
 	static std::array<float, 3> OutImgToXYZ(int i, int j, int face, float edge);
