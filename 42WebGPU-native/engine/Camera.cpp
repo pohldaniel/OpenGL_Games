@@ -1263,9 +1263,9 @@ const Matrix4f Camera::getInvPerspectiveMatrixNew() const {
 
 const Matrix4f Camera::getRotationMatrix(const Vector3f &position) const {
 	
-	return Matrix4f(m_viewMatrix[0][0], m_viewMatrix[1][0], m_viewMatrix[2][0], 0.0f,
-					m_viewMatrix[0][1], m_viewMatrix[1][1], m_viewMatrix[2][1], 0.0f,
-					m_viewMatrix[0][2], m_viewMatrix[1][2], m_viewMatrix[2][2], 0.0f,
+	return Matrix4f(m_viewMatrix[0][0], m_viewMatrix[0][1], m_viewMatrix[0][2], 0.0f,
+					m_viewMatrix[1][0], m_viewMatrix[1][1], m_viewMatrix[1][2], 0.0f,
+					m_viewMatrix[2][0], m_viewMatrix[2][1], m_viewMatrix[2][2], 0.0f,
 					position[0], position[1], position[2], 1.0);
 }
 

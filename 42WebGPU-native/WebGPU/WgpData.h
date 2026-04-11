@@ -5,6 +5,7 @@
 struct Uniforms {
 	Matrix4f projectionMatrix;
 	Matrix4f viewMatrix;
+	Matrix4f envMatrix;
 	Matrix4f modelMatrix;
 	Matrix4f normalMatrix;
 	std::array<float, 4> color;

@@ -71,7 +71,7 @@ public:
 	const Matrix4f& getInvOrthographicMatrix() const;
 	const Matrix4f  getInvOrthographicMatrixNew() const;
 
-	const Matrix4f  getRotationMatrix(const Vector3f &position = Vector3f(0.0f, 0.0f, 0.0f)) const;
+	const Matrix4f getRotationMatrix(const Vector3f &position = Vector3f(0.0f, 0.0f, 0.0f)) const;
 
 	const Vector3f& getPosition() const;
 	const float getPositionX() const;

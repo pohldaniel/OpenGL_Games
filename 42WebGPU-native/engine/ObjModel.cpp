@@ -966,8 +966,6 @@ void ObjModel::GenerateTangents(std::vector<float>& vertexBuffer, std::vector<un
 	stride = 14;
 }
 
-
-
 void ObjModel::Rewind(const std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, unsigned int stride) {
 	if(stride < 6)
 		return;

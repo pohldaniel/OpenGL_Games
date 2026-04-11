@@ -27,8 +27,11 @@ public:
 	const std::vector<float>& getVertexBuffer() const;
 	const std::vector<unsigned int>& getIndexBuffer() const;
 	const unsigned int getStride() const;
+	void rewind();
 
 private:
+
+	void Rewind(std::vector<unsigned int>& indexBuffer);
 
 	std::vector<unsigned int> m_indexBuffer;
 	std::vector<float> m_vertexBuffer;

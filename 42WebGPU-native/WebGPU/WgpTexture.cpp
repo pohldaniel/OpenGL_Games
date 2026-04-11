@@ -2,7 +2,6 @@
 #include <math.h>
 #include <FreeImage.h>
 #include <Utilities.h>
-#include <iostream>
 
 #include "WgpContext.h"
 #include "WgpTexture.h"
@@ -212,13 +211,16 @@ void WgpTexture::loadHDRIFromFile(const std::string& fileName, const bool flipVe
     unsigned char* imageData = FreeImage_GetBits(sourceBitmap);
     unsigned char* bytesNew = nullptr;
 
+    UFloat one;
+    one.flt = 1.0f;
+
     if (bpp == 3) {     
         bytesNew = (unsigned char*)malloc(sizeof(float) * 4u * width * height);
         for (unsigned int i = 0, k = 0; i < static_cast<unsigned int>(width * height * 4u * sizeof(float)); i = i + 4u * sizeof(float), k = k + 3u * sizeof(float)) {
             bytesNew[i + 0] = imageData[k + 0]; bytesNew[i + 1] = imageData[k + 1]; bytesNew[i + 2]  = imageData[k + 2];  bytesNew[i + 3]  = imageData[k + 3];
             bytesNew[i + 4] = imageData[k + 4]; bytesNew[i + 5] = imageData[k + 5]; bytesNew[i + 6]  = imageData[k + 6];  bytesNew[i + 7]  = imageData[k + 7];
             bytesNew[i + 8] = imageData[k + 8]; bytesNew[i + 9] = imageData[k + 9]; bytesNew[i + 10] = imageData[k + 10]; bytesNew[i + 11] = imageData[k + 11];
-            bytesNew[i + 12] = 255; bytesNew[i + 13] = 255; bytesNew[i + 14] = 255; bytesNew[i + 15] = 255;
+            bytesNew[i + 12] = one.c[0]; bytesNew[i + 13] = one.c[1]; bytesNew[i + 14] = one.c[2]; bytesNew[i + 15] = one.c[3];
         }
         bpp = 4;
     }
@@ -264,10 +266,12 @@ void WgpTexture::loadHDRIFromFile(const std::string& fileName, const bool flipVe
         destination.mipLevel = 0u;
         destination.origin = { 0u, 0u, face };
         destination.aspect = WGPUTextureAspect_All;
-
+        
         WGPUExtent3D extent3D = { faceWidth, faceHeight, 1u };
         wgpuQueueWriteTexture(wgpContext.queue, &destination, faces[face], sizeof(float) * m_channels * faceWidth * faceWidth, &source, &extent3D);
+        //free(faces[face]);
     }
+
     if (bytesNew)
         free(bytesNew);
 
@@ -467,74 +471,74 @@ std::vector<unsigned char*> WgpTexture::CrossToFaces(unsigned char* source, uint
     uint32_t fHeight = height > width ?  height / 4u : height / 3u;
     uint32_t channels = 4u;
 
-    unsigned char* face = new unsigned char[fWidth * fHeight * channels * bytesPerChannel];
-    unsigned char* ptr;
+    faces.resize(6u);
+    for (size_t face = 0u; face < faces.size(); ++face) {
+        faces[face] = new unsigned char[fWidth * fHeight * channels * bytesPerChannel];
+    }
 
+    unsigned char* ptr;
     // positive X
-    ptr = face;
+    ptr = faces[0];
     for (uint32_t j = 0; j < fHeight; j++) {
         //flip
-        //memcpy(ptr, &source[((height - (fHeight + 1) - j) * width + 2u * fWidth) * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
+        memcpy(ptr, &source[((height - (fHeight + 1) - j) * width + 2u * fWidth) * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
  
-        memcpy(ptr, &source[((height - 2u * fHeight + j) * width + 2u * fWidth) * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
+        //memcpy(ptr, &source[((height - 2u * fHeight + j) * width + 2u * fWidth) * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
         ptr += fWidth * channels * bytesPerChannel;
     }
-    faces.push_back(face);
 
     // negativ x
-    ptr = face;
+    ptr = faces[1];
     for (uint32_t j = 0; j < fHeight; j++) {
         //flip
-        //memcpy(ptr, &source[(height - (fHeight + 1) - j) * width * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
+        memcpy(ptr, &source[(height - (fHeight + 1) - j) * width * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
 
-        memcpy(ptr, &source[(height - 2u * fHeight + j) * width * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
+        //memcpy(ptr, &source[(height - 2u * fHeight + j) * width * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
         ptr += fWidth * channels * bytesPerChannel;
     }
-    faces.push_back(face);
 
     // positive z
-    ptr = face;
+    ptr = faces[2];
     for (uint32_t j = 0; j < fHeight; j++) {
         //flip
-        //memcpy(ptr, &source[((height - (fHeight + 1) - j) * width + 3u * fWidth) * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
+        memcpy(ptr, &source[((height - (0u * fHeight + 1) - j) * width + fWidth) * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
 
-        memcpy(ptr, &source[((height - 2u * fHeight + j) * width + 3u * fWidth) * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
+        //memcpy(ptr, &source[((height - 1u * fHeight + j) * width + fWidth) * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
         ptr += fWidth * channels * bytesPerChannel;
     }
-    faces.push_back(face);
+    
 
     // negativ z
-    ptr = face;
+    ptr = faces[3];
     for (uint32_t j = 0; j < fHeight; j++) {
         //flip
-        //memcpy(ptr, &source[((height - (fHeight + 1) - j) * width + fWidth) * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
+        memcpy(ptr, &source[((height - (2u * fHeight + 1) - j) * width + fWidth) * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
 
-        memcpy(ptr, &source[((height - 2u * fHeight + j) * width + fWidth) * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
+        //memcpy(ptr, &source[((height - 3u * fHeight + j) * width + fWidth) * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
         ptr += fWidth * channels * bytesPerChannel;
     }
-    faces.push_back(face);
+    
 
     // positive y
-    ptr = face;
+    ptr = faces[4];
     for (uint32_t j = 0; j < fHeight; j++) {
         //flip
-        //memcpy(ptr, &source[((height - (0u * fHeight + 1) - j) * width + fWidth) * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
+        memcpy(ptr, &source[((height - (fHeight + 1) - j) * width + fWidth) * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
 
-        memcpy(ptr, &source[((height - 1u * fHeight + j) * width + fWidth) * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
+        //memcpy(ptr, &source[((height - 2u * fHeight + j) * width + fWidth) * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
         ptr += fWidth * channels * bytesPerChannel;
     }
-    faces.push_back(face);
 
     // negative y
-    ptr = face;
+    ptr = faces[5];
     for (uint32_t j = 0; j < fHeight; j++) {
         //flip
-        //memcpy(ptr, &source[((height - (2u * fHeight + 1) - j) * width + fWidth) * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
+        memcpy(ptr, &source[((height - (fHeight + 1) - j) * width + 3u * fWidth) * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
 
-        memcpy(ptr, &source[((height - 3u * fHeight + j) * width + fWidth) * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
+        //memcpy(ptr, &source[((height - 2u * fHeight + j) * width + 3u * fWidth) * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
         ptr += fWidth * channels * bytesPerChannel;
     }
-    faces.push_back(face);
+    
 
     return faces;
 }
@@ -606,11 +610,11 @@ unsigned char* WgpTexture::EquirectangularToCross(unsigned char* source, uint32_
                 uint32_t pixelIndex = offset + i * channels * bytesPerChannel;
 
                 UFloat R, G, B, A;
-                R.flt = r; G.flt = g; B.flt = b;              
+                R.flt = r; G.flt = g; B.flt = b; A.flt = a;
                 bytesNew[pixelIndex + 0] = R.c[0]; bytesNew[pixelIndex + 1] = R.c[1]; bytesNew[pixelIndex + 2] = R.c[2]; bytesNew[pixelIndex + 3] = R.c[3];
                 bytesNew[pixelIndex + 4] = G.c[0]; bytesNew[pixelIndex + 5] = G.c[1]; bytesNew[pixelIndex + 6] = G.c[2]; bytesNew[pixelIndex + 7] = G.c[3];
                 bytesNew[pixelIndex + 8] = B.c[0]; bytesNew[pixelIndex + 9] = B.c[1]; bytesNew[pixelIndex + 10] = B.c[2]; bytesNew[pixelIndex + 11] = B.c[3];
-                bytesNew[pixelIndex + 12] = 255; bytesNew[pixelIndex + 13] = 255; bytesNew[pixelIndex + 14] = 255; bytesNew[pixelIndex + 15] = 255;
+                bytesNew[pixelIndex + 12] = A.c[0]; bytesNew[pixelIndex + 13] = A.c[1]; bytesNew[pixelIndex + 14] = A.c[2]; bytesNew[pixelIndex + 15] = A.c[3];
                 
             }else if (bytesPerChannel == sizeof(unsigned char)) {
                 float Ar = static_cast<float>(source[pixelIndexA + 0]);

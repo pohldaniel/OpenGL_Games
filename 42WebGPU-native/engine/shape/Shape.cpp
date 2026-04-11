@@ -89,3 +89,15 @@ const std::vector<unsigned int>& Shape::getIndexBuffer() const {
 const unsigned int Shape::getStride() const {
 	return m_stride;
 }
+
+void Shape::rewind() {
+	Shape::Rewind(m_indexBuffer);
+}
+
+void Shape::Rewind(std::vector<unsigned int>& indexBuffer) {
+	for (unsigned int i = 0; i < indexBuffer.size(); i = i + 3) {
+		unsigned int index2 = indexBuffer[i + 1];
+		indexBuffer[i + 1] = indexBuffer[i + 2];
+		indexBuffer[i + 2] = index2;
+	}
+}
