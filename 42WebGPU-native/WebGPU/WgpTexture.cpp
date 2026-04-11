@@ -217,7 +217,7 @@ void WgpTexture::loadHDRIFromFile(const std::string& fileName, const bool flipVe
             bytesNew[i + 0] = imageData[k + 0]; bytesNew[i + 1] = imageData[k + 1]; bytesNew[i + 2]  = imageData[k + 2];  bytesNew[i + 3]  = imageData[k + 3];
             bytesNew[i + 4] = imageData[k + 4]; bytesNew[i + 5] = imageData[k + 5]; bytesNew[i + 6]  = imageData[k + 6];  bytesNew[i + 7]  = imageData[k + 7];
             bytesNew[i + 8] = imageData[k + 8]; bytesNew[i + 9] = imageData[k + 9]; bytesNew[i + 10] = imageData[k + 10]; bytesNew[i + 11] = imageData[k + 11];
-            bytesNew[i + 12] = 0; bytesNew[i + 13] = 0; bytesNew[i + 14] = 0; bytesNew[i + 15] = 0;
+            bytesNew[i + 12] = 255; bytesNew[i + 13] = 255; bytesNew[i + 14] = 255; bytesNew[i + 15] = 255;
         }
         bpp = 4;
     }
@@ -228,34 +228,64 @@ void WgpTexture::loadHDRIFromFile(const std::string& fileName, const bool flipVe
 
     bytesNew ? bytesNew = EquirectangularToCross(bytesNew, m_width, sizeof(float), m_height) : imageData = EquirectangularToCross(imageData, m_width, sizeof(float), m_height);
 
-    CrossToFaces(bytesNew ? bytesNew : imageData, m_width, sizeof(float), m_height);
+    std::vector<unsigned char*> faces = CrossToFaces(bytesNew ? bytesNew : imageData, m_width, sizeof(float), m_height);
 
     m_format = WGPUTextureFormat::WGPUTextureFormat_RGBA32Float;
-    m_texture = wgpCreateTexture(m_width, m_height, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst, m_format);
+
+    uint32_t faceWidth = m_width > m_height ? m_width / 4u : m_width / 3u;
+    uint32_t faceHeight = m_height > m_width ? m_height / 4u : m_height / 3u;
+
+    const WGPUDevice& device = wgpContext.device;
+    WGPUTextureDescriptor textureDescriptor = {};
+    textureDescriptor.label = WGPU_STR("texture");
+    textureDescriptor.dimension = WGPUTextureDimension::WGPUTextureDimension_2D;
+    textureDescriptor.size = { faceWidth, faceHeight, 6u };
+    textureDescriptor.format = m_format;
+    textureDescriptor.usage = WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst;
+    textureDescriptor.mipLevelCount = 1u;
+    textureDescriptor.sampleCount = 1u;
+    textureDescriptor.nextInChain = NULL;
+    //if (viewFormat != WGPUTextureFormat_Undefined) {
+    //    textureDescriptor.viewFormatCount = 1;
+    //    textureDescriptor.viewFormats = &m_format;
+    //}
+
+    m_texture = wgpuDeviceCreateTexture(device, &textureDescriptor);
 
     WGPUTexelCopyBufferLayout source = {};
     source.offset = 0u;
-    source.bytesPerRow = sizeof(float) * m_channels * m_width;
-    source.rowsPerImage = m_height;
+    source.bytesPerRow = sizeof(float) * m_channels * faceWidth;
+    source.rowsPerImage = faceHeight;
 
-    WGPUTexelCopyTextureInfo destination = {};
-    destination.texture = m_texture;
-    destination.mipLevel = 0u;
-    destination.origin = { 0u, 0u, 0u };
-    destination.aspect = WGPUTextureAspect_All;
+    for (uint32_t face = 0u; face < faces.size(); ++face) {
+        WGPUTexelCopyTextureInfo destination = {};
+        destination.texture = m_texture;
+        destination.mipLevel = 0u;
+        destination.origin = { 0u, 0u, face };
+        destination.aspect = WGPUTextureAspect_All;
 
-    unsigned char* _bytesNew = (unsigned char*)malloc(sizeof(float) * m_channels * m_width * m_height);
-
-    WGPUExtent3D extent3D = { m_width, m_height, 1u };
-    wgpuQueueWriteTexture(wgpContext.queue, &destination, bytesNew ? bytesNew : imageData, sizeof(float) * m_channels * m_width * m_height, &source, &extent3D);
-
+        WGPUExtent3D extent3D = { faceWidth, faceHeight, 1u };
+        wgpuQueueWriteTexture(wgpContext.queue, &destination, bytesNew ? bytesNew : imageData, sizeof(float) * m_channels * faceWidth * faceWidth, &source, &extent3D);
+    }
     if (bytesNew)
         free(bytesNew);
 
     FreeImage_Unload(sourceBitmap);
     FreeImage_DeInitialise();
 
-    m_textureView = wgpCreateTextureView(m_format, WGPUTextureAspect::WGPUTextureAspect_All, m_texture);
+    WGPUTextureViewDescriptor textureViewDescriptor = {};
+    textureViewDescriptor.label = WGPU_STR("texture_view");
+    textureViewDescriptor.aspect = WGPUTextureAspect::WGPUTextureAspect_All;
+    textureViewDescriptor.baseArrayLayer = 0u;
+    textureViewDescriptor.arrayLayerCount = 6u;
+    textureViewDescriptor.baseMipLevel = 0u;
+    textureViewDescriptor.mipLevelCount = 1u;
+    textureViewDescriptor.dimension = WGPUTextureViewDimension::WGPUTextureViewDimension_Cube;
+    textureViewDescriptor.format = m_format;
+    textureViewDescriptor.nextInChain = NULL;
+
+    m_textureView = wgpuTextureCreateView(m_texture, &textureViewDescriptor);  
+    //m_textureView = wgpCreateTextureView(m_format, WGPUTextureAspect::WGPUTextureAspect_All, m_texture);
 }
 
 void WgpTexture::createEmpty(uint32_t width, uint32_t height, WGPUTextureUsage textureUsage, WGPUTextureFormat textureFormat) {
@@ -576,7 +606,7 @@ unsigned char* WgpTexture::EquirectangularToCross(unsigned char* source, uint32_
                 bytesNew[pixelIndex + 0] = R.c[0]; bytesNew[pixelIndex + 1] = R.c[1]; bytesNew[pixelIndex + 2] = R.c[2]; bytesNew[pixelIndex + 3] = R.c[3];
                 bytesNew[pixelIndex + 4] = G.c[0]; bytesNew[pixelIndex + 5] = G.c[1]; bytesNew[pixelIndex + 6] = G.c[2]; bytesNew[pixelIndex + 7] = G.c[3];
                 bytesNew[pixelIndex + 8] = B.c[0]; bytesNew[pixelIndex + 9] = B.c[1]; bytesNew[pixelIndex + 10] = B.c[2]; bytesNew[pixelIndex + 11] = B.c[3];
-                bytesNew[pixelIndex + 12] = A.c[0]; bytesNew[pixelIndex + 13] = A.c[1]; bytesNew[pixelIndex + 14] = A.c[2]; bytesNew[pixelIndex + 15] = A.c[3];
+                bytesNew[pixelIndex + 12] = 255; bytesNew[pixelIndex + 13] = 255; bytesNew[pixelIndex + 14] = 255; bytesNew[pixelIndex + 15] = 255;
                 
             }else if (bytesPerChannel == sizeof(unsigned char)) {
                 float Ar = static_cast<float>(source[pixelIndexA + 0]);

@@ -38,6 +38,9 @@ private:
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayouts();
 	std::vector<WGPUBindGroup> OnBindGroups();
 
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsEnv();
+	std::vector<WGPUBindGroup> OnBindGroupsEnv();
+
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 	void applyTransformation(TrackBall& arc);
 
@@ -50,8 +53,10 @@ private:
 	WgpBuffer m_uniformBuffer;
 
 	AssimpModel m_helmet;
-	WgpModel m_wgpHelmet;
+	Shape m_cube;
+	WgpModel m_wgpHelmet, m_wgpCube;
 	WgpTexture m_wgpTexture;
 
 	static void AddBindgroups(const WgpModel& model);
+	static void AddBindgroups(const WgpModel& model, const WgpTexture& texture);
 };
