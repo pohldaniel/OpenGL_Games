@@ -36,17 +36,18 @@ public:
 	static unsigned char* LoadFromFile(std::string fileName, const bool flipVertical = false, const short alphaChannel = -1);
 	static unsigned char* LoadFromFile(std::string fileName, uint32_t& width, uint32_t& height, const bool flipVertical = false, const short alphaChannel = -1);
 	static unsigned char* LoadFromMemory(unsigned char* data, uint32_t size, uint32_t& width, uint32_t& height, const bool flipVertical = false, const short alphaChannel = -1);
+	
 	static void Safe(const std::string& fileOut, unsigned char* bytes, uint32_t width, uint32_t height, uint32_t channels);
 	static void Safe(const std::string& fileOut, unsigned char* bytes, uint32_t size);
 	static void SafeHDRI(const std::string& fileOut, unsigned char* bytes, uint32_t width, uint32_t height, uint32_t channels);
 
 private:
-
-	std::array<float, 3> outImgToXYZ(int i, int j, int face, float edge);
-	unsigned char* convertBack(unsigned char* source, uint32_t width, uint32_t& height);
-	unsigned char* convertBackHDRI(unsigned char* source, uint32_t width, uint32_t& height);
-	float bytesToFloatLE(unsigned char b0, unsigned char b1, unsigned char b2, unsigned char b3);
-	float bytesToFloatBE(unsigned char b0, unsigned char b1, unsigned char b2, unsigned char b3);
+	
+	static unsigned char* EquirectangularToCross(unsigned char* source, uint32_t width, uint32_t bytesPerChannel, uint32_t& height);
+	static float Clamp(const float& n, const float& lower, const float& upper);
+	static std::array<float, 3> OutImgToXYZ(int i, int j, int face, float edge);
+	static float BytesToFloatLE(unsigned char b0, unsigned char b1, unsigned char b2, unsigned char b3);
+	static float BytesToFloatBE(unsigned char b0, unsigned char b1, unsigned char b2, unsigned char b3);
 
 	WGPUTexture m_texture;
 	WGPUTextureFormat m_format;

@@ -105,6 +105,8 @@ void WgpTexture::loadFromFile(const std::string& fileName, const bool flipVertic
     m_height = height;
     m_channels = bpp;
 
+    //bytesNew ? bytesNew = EquirectangularToCross(bytesNew, m_width, sizeof(unsigned char), m_height) : imageData = EquirectangularToCross(imageData, m_width, sizeof(unsigned char), m_height);
+
     m_format = WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm;
     m_texture = wgpCreateTexture(m_width, m_height, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst, m_format);
     
@@ -120,7 +122,7 @@ void WgpTexture::loadFromFile(const std::string& fileName, const bool flipVertic
     source.rowsPerImage = m_height;
 
     WGPUExtent3D extent3D = { m_width, m_height, 1u };
-    wgpuQueueWriteTexture(wgpContext.queue, &destination, bytesNew ? bytesNew : imageData, width * height * bpp, &source, &extent3D);
+    wgpuQueueWriteTexture(wgpContext.queue, &destination, bytesNew ? bytesNew : imageData, m_width * m_height * m_channels, &source, &extent3D);
   
     if (bytesNew)
         free(bytesNew);
@@ -179,7 +181,7 @@ void WgpTexture::loadFromMemory(unsigned char* data, uint32_t size, const bool f
     source.rowsPerImage = m_height;
 
     WGPUExtent3D extent3D = { m_width, m_height, 1u };
-    wgpuQueueWriteTexture(wgpContext.queue, &destination, bytesNew ? bytesNew : imageData, width * height * bpp, &source, &extent3D);
+    wgpuQueueWriteTexture(wgpContext.queue, &destination, bytesNew ? bytesNew : imageData, m_width * m_height * m_channels, &source, &extent3D);
   
     if (bytesNew)
         free(bytesNew);
@@ -224,7 +226,7 @@ void WgpTexture::loadHDRIFromFile(const std::string& fileName, const bool flipVe
     m_height = height;
     m_channels = bpp;
 
-    bytesNew ? bytesNew = convertBackHDRI(bytesNew, m_width, m_height) : imageData = convertBackHDRI(imageData, m_width, m_height);
+    bytesNew ? bytesNew = EquirectangularToCross(bytesNew, m_width, sizeof(float), m_height) : imageData = EquirectangularToCross(imageData, m_width, sizeof(float), m_height);
 
     m_format = WGPUTextureFormat::WGPUTextureFormat_RGBA32Float;
     m_texture = wgpCreateTexture(m_width, m_height, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst, m_format);
@@ -261,201 +263,6 @@ void WgpTexture::createEmpty(uint32_t width, uint32_t height, WGPUTextureUsage t
     m_format = textureFormat;
     m_texture = wgpCreateTexture(m_width, m_height, textureUsage, m_format);
     m_textureView = wgpCreateTextureView(m_format, WGPUTextureAspect::WGPUTextureAspect_All, m_texture);
-}
-
-std::array<float, 3> WgpTexture::outImgToXYZ(int i, int j, int face, float edge) {
-    float a = 2.0 * static_cast<float>(i) / edge;
-    float b = 2.0 * static_cast<float>(j) / edge;
-    if (face == 0) {
-        return { -1.0f, 1.0f - a, 3.0f - b };
-    }else if (face == 1) {
-        return { a - 3.0f, -1.0f, 3.0f - b };
-    }else if (face == 2) {
-        return { 1.0f, a - 5.0f, 3.0f - b };
-    }else if (face == 3) {
-        return { 7.0f - a, 1.0f, 3.0f - b };
-    }else if (face == 4) {
-        return { b - 1.0f, a - 5.0f, 1.0f };
-    }else if (face == 5) {
-        return { 5.0f - b, a - 5.0f, -1.0f };
-    }
-    return { 0.0f, 0.0f, 0.0f };
-}
-
-float clamp(const float& n, const float& lower, const float& upper) {
-    return std::max(lower, std::min(n, upper));
-}
-
-float WgpTexture::bytesToFloatLE(unsigned char b0, unsigned char b1, unsigned char b2, unsigned char b3) {
-    float f;
-    unsigned char b[] = { b0, b1, b2, b3 };
-    memcpy(&f, &b, sizeof(float));
-    return f;
-}
-
-float WgpTexture::bytesToFloatBE(unsigned char b0, unsigned char b1, unsigned char b2, unsigned char b3) {
-    float f;
-    unsigned char b[] = { b3, b2, b1, b0 };
-    memcpy(&f, &b, sizeof(float));
-    return f;
-}
-
-unsigned char* WgpTexture::convertBack(unsigned char* source, uint32_t width, uint32_t& height) {
-    
-    uint32_t heightNew = (width * 3u) / 4u;
-    unsigned char* bytesNew = (unsigned char*)malloc(4u * width * heightNew);
-    memset(bytesNew, 0, 4u * width * heightNew);
-
-    uint32_t edge = width / 4u;
-    for (uint32_t i = 0u; i < width; ++i) {
-        int face = int(i / edge);
-        uint32_t range = face == 2 ? edge * 3u : edge * 2u;
-        uint32_t offset = face == 2 ? 0u : edge;
-
-        for (uint32_t j = offset; j < range; ++j) {
-            int face2 = j < edge ? 4 : j >= 2u * edge ? 5 : face;
-
-            std::array<float, 3> coord = outImgToXYZ(i, j, face2, static_cast<float>(edge));
-            float theta = std::atan2f(coord[1], coord[0]);
-            float radius = std::sqrtf((coord[0] * coord[0]) + (coord[1] * coord[1]));
-            float phi = std::atan2(coord[2], radius);
-
-            //source img coords
-            float uf = (2.0f * edge * (theta + M_PI) / M_PI);
-            float vf = (2.0f * edge * (M_PI_2 - phi) / M_PI);
-           
-            int ui = floor(uf); // coord of pixel to bottom left
-            int vi = floor(vf);
-            int u2 = ui + 1;    // coords of pixel to top right
-            int v2 = vi + 1;
-            float mu = uf - ui;   // fraction of way across pixel
-            float nu = vf - vi;
-
-            uint32_t pixelIndexA = (clamp(vi, 0, height - 1) * width) * 4u + (ui % width) * 4u;
-            uint32_t pixelIndexB = (clamp(vi, 0, height - 1) * width) * 4u + (u2 % width) * 4u;
-            uint32_t pixelIndexC = (clamp(v2, 0, height - 1) * width) * 4u + (ui % width) * 4u;
-            uint32_t pixelIndexD = (clamp(v2, 0, height - 1) * width) * 4u + (u2 % width) * 4u;
-
-            float Ar = static_cast<float>(source[pixelIndexA + 0]); 
-            float Ag = static_cast<float>(source[pixelIndexA + 1]);
-            float Ab = static_cast<float>(source[pixelIndexA + 2]);
-            float Aa = static_cast<float>(source[pixelIndexA + 3]);
-
-            float Br = static_cast<float>(source[pixelIndexB + 0]);
-            float Bg = static_cast<float>(source[pixelIndexB + 1]);
-            float Bb = static_cast<float>(source[pixelIndexB + 2]);
-            float Ba = static_cast<float>(source[pixelIndexB + 3]);
-
-            float Cr = static_cast<float>(source[pixelIndexC + 0]);
-            float Cg = static_cast<float>(source[pixelIndexC + 1]);
-            float Cb = static_cast<float>(source[pixelIndexC + 2]);
-            float Ca = static_cast<float>(source[pixelIndexC + 3]);
-
-            float Dr = static_cast<float>(source[pixelIndexD + 0]);
-            float Dg = static_cast<float>(source[pixelIndexD + 1]);
-            float Db = static_cast<float>(source[pixelIndexD + 2]);
-            float Da = static_cast<float>(source[pixelIndexD + 3]);
-
-            float r = Ar * (1 - mu) * (1 - nu) + Br * (mu) * (1 - nu) + Cr * (1 - mu) * nu + Dr * mu * nu;
-            float g = Ag * (1 - mu) * (1 - nu) + Bg * (mu) * (1 - nu) + Cg * (1 - mu) * nu + Dg * mu * nu;
-            float b = Ab * (1 - mu) * (1 - nu) + Bb * (mu) * (1 - nu) + Cb * (1 - mu) * nu + Db * mu * nu;
-            float a = 255;
-
-            uint32_t offset = j * width * 4u;
-            if (edge < offset)
-                offset = offset - (edge * 4u);
-
-            uint32_t pixelIndex = offset + i * 4u;
-
-            bytesNew[pixelIndex + 0] = round(r);
-            bytesNew[pixelIndex + 1] = round(g);
-            bytesNew[pixelIndex + 2] = round(b);
-            bytesNew[pixelIndex + 3] = round(a);           
-        }      
-    }
-    height = heightNew;
-    free(source);
-    //Safe("res/tmp.png", bytesNew, width, heightNew, 4u);
-    return bytesNew;
-}
-
-unsigned char* WgpTexture::convertBackHDRI(unsigned char* source, uint32_t width, uint32_t& height) {
-    uint32_t heightNew = (width * 3u) / 4u;
-    unsigned char* bytesNew = (unsigned char*)malloc(sizeof(float) * 4u * width * heightNew);
-    memset(bytesNew, 0, sizeof(float) * 4u * width * heightNew);
-
-    uint32_t edge = width / 4u;
-    for (uint32_t i = 0u; i < width; ++i) {
-        int face = int(i / edge);
-        uint32_t range = face == 2 ? edge * 3u : edge * 2u;
-        uint32_t offset = face == 2 ? 0u : edge;
-
-        for (uint32_t j = offset; j < range; ++j) {
-            int face2 = j < edge ? 4 : j >= 2u * edge ? 5 : face;
-
-            std::array<float, 3> coord = outImgToXYZ(i, j, face2, static_cast<float>(edge));
-            float theta = std::atan2f(coord[1], coord[0]);
-            float radius = std::sqrtf((coord[0] * coord[0]) + (coord[1] * coord[1]));
-            float phi = std::atan2(coord[2], radius);
-
-            //source img coords
-            float uf = (2.0f * edge * (theta + M_PI) / M_PI);
-            float vf = (2.0f * edge * (M_PI_2 - phi) / M_PI);
-
-            int ui = floor(uf); // coord of pixel to bottom left
-            int vi = floor(vf);
-            int u2 = ui + 1;    // coords of pixel to top right
-            int v2 = vi + 1;
-            float mu = uf - ui;   // fraction of way across pixel
-            float nu = vf - vi;
-
-            uint32_t pixelIndexA = (clamp(vi, 0, height - 1) * width) * 4u * sizeof(float) + (ui % width) * 4u * sizeof(float);
-            uint32_t pixelIndexB = (clamp(vi, 0, height - 1) * width) * 4u * sizeof(float) + (u2 % width) * 4u * sizeof(float);
-            uint32_t pixelIndexC = (clamp(v2, 0, height - 1) * width) * 4u * sizeof(float) + (ui % width) * 4u * sizeof(float);
-            uint32_t pixelIndexD = (clamp(v2, 0, height - 1) * width) * 4u * sizeof(float) + (u2 % width) * 4u * sizeof(float);
-
-            float Ar = bytesToFloatLE(source[pixelIndexA + 0], source[pixelIndexA + 1], source[pixelIndexA + 2], source[pixelIndexA + 3]);
-            float Ag = bytesToFloatLE(source[pixelIndexA + 4], source[pixelIndexA + 5], source[pixelIndexA + 6], source[pixelIndexA + 7]);
-            float Ab = bytesToFloatLE(source[pixelIndexA + 8], source[pixelIndexA + 9], source[pixelIndexA + 10], source[pixelIndexA + 11]);
-            float Aa = bytesToFloatLE(source[pixelIndexA + 12], source[pixelIndexA + 13], source[pixelIndexA + 14], source[pixelIndexA + 15]);
-
-            float Br = bytesToFloatLE(source[pixelIndexB + 0], source[pixelIndexB + 1], source[pixelIndexB + 2], source[pixelIndexB + 3]);
-            float Bg = bytesToFloatLE(source[pixelIndexB + 4], source[pixelIndexB + 5], source[pixelIndexB + 6], source[pixelIndexB + 7]);
-            float Bb = bytesToFloatLE(source[pixelIndexB + 8], source[pixelIndexB + 9], source[pixelIndexB + 10], source[pixelIndexB + 11]);
-            float Ba = bytesToFloatLE(source[pixelIndexB + 12], source[pixelIndexB + 13], source[pixelIndexB + 14], source[pixelIndexB + 15]);
-
-            float Cr = bytesToFloatLE(source[pixelIndexC + 0], source[pixelIndexC + 1], source[pixelIndexC + 2], source[pixelIndexC + 3]);
-            float Cg = bytesToFloatLE(source[pixelIndexC + 4], source[pixelIndexC + 5], source[pixelIndexC + 6], source[pixelIndexC + 7]);
-            float Cb = bytesToFloatLE(source[pixelIndexC + 8], source[pixelIndexC + 9], source[pixelIndexC + 10], source[pixelIndexC + 11]);
-            float Ca = bytesToFloatLE(source[pixelIndexC + 12], source[pixelIndexC + 13], source[pixelIndexC + 14], source[pixelIndexC + 15]);
-
-            float Dr = bytesToFloatLE(source[pixelIndexD + 0], source[pixelIndexD + 1], source[pixelIndexD + 2], source[pixelIndexD + 3]);
-            float Dg = bytesToFloatLE(source[pixelIndexD + 4], source[pixelIndexD + 5], source[pixelIndexD + 6], source[pixelIndexD + 7]);
-            float Db = bytesToFloatLE(source[pixelIndexD + 8], source[pixelIndexD + 9], source[pixelIndexD + 10], source[pixelIndexD + 11]);
-            float Da = bytesToFloatLE(source[pixelIndexD + 12], source[pixelIndexD + 13], source[pixelIndexD + 14], source[pixelIndexD + 15]);
-
-            float r = Ar;
-            float g = Ag;
-            float b = Ab;
-
-            uint32_t offset = j * width * 4u * sizeof(float);
-            if (edge < offset)
-                offset = offset - (edge * 4u * sizeof(float));
-
-            uint32_t pixelIndex = offset + i * 4u * sizeof(float);
-    
-            UFloat R, G, B;
-            R.flt = r; G.flt = g; B.flt = b;
-            bytesNew[pixelIndex + 0] = R.c[0]; bytesNew[pixelIndex + 1] = R.c[1]; bytesNew[pixelIndex + 2] = R.c[2]; bytesNew[pixelIndex + 3] = R.c[3];
-            bytesNew[pixelIndex + 4] = G.c[0]; bytesNew[pixelIndex + 5] = G.c[1]; bytesNew[pixelIndex + 6] = G.c[2]; bytesNew[pixelIndex + 7] = G.c[3];
-            bytesNew[pixelIndex + 8] = B.c[0]; bytesNew[pixelIndex + 9] = B.c[1]; bytesNew[pixelIndex + 10] = B.c[2]; bytesNew[pixelIndex + 11] = B.c[3];
-            bytesNew[pixelIndex + 12] = 0; bytesNew[pixelIndex + 13] = 0; bytesNew[pixelIndex + 14] = 0; bytesNew[pixelIndex + 15] = 0;           
-        }
-    }
-    height = heightNew;
-    free(source);
-    //SafeHDRI("res/tmp.hdr", bytesNew, width, heightNew, 4u);
-    return bytesNew;
 }
 
 unsigned char* WgpTexture::LoadFromFile(std::string fileName, const bool flipVertical, const short alphaChannel) {
@@ -588,6 +395,16 @@ void WgpTexture::Safe(const std::string& fileOut, unsigned char* bytes, uint32_t
     FreeImage_DeInitialise();
 }
 
+void WgpTexture::Safe(const std::string& fileOut, unsigned char* bytes, uint32_t size) {
+    FreeImage_Initialise();
+    FIMEMORY* hmem = FreeImage_OpenMemory(bytes, size);
+    FREE_IMAGE_FORMAT fif = FreeImage_GetFileTypeFromMemory(hmem);
+    FIBITMAP* sourceBitmap = FreeImage_LoadFromMemory(fif, hmem);
+    FreeImage_Save(FIF_PNG, sourceBitmap, fileOut.c_str(), PNG_DEFAULT);
+    FreeImage_Unload(sourceBitmap);
+    FreeImage_DeInitialise();
+}
+
 void WgpTexture::SafeHDRI(const std::string& fileOut, unsigned char* bytes, uint32_t width, uint32_t height, uint32_t channels) {
     unsigned char* bytesNew = nullptr;
     if (channels == 4u) {
@@ -610,12 +427,159 @@ void WgpTexture::SafeHDRI(const std::string& fileOut, unsigned char* bytes, uint
         free(bytesNew);
 }
 
-void WgpTexture::Safe(const std::string& fileOut, unsigned char* bytes, uint32_t size) {
-    FreeImage_Initialise();
-    FIMEMORY* hmem = FreeImage_OpenMemory(bytes, size);
-    FREE_IMAGE_FORMAT fif = FreeImage_GetFileTypeFromMemory(hmem);
-    FIBITMAP* sourceBitmap = FreeImage_LoadFromMemory(fif, hmem);
-    FreeImage_Save(FIF_PNG, sourceBitmap, fileOut.c_str(), PNG_DEFAULT);
-    FreeImage_Unload(sourceBitmap);
-    FreeImage_DeInitialise();
+unsigned char* WgpTexture::EquirectangularToCross(unsigned char* source, uint32_t width, uint32_t bytesPerChannel, uint32_t& height) {
+    uint32_t channels = 4u;
+    uint32_t heightNew = (width * 3u) / 4u;
+    unsigned char* bytesNew = (unsigned char*)malloc(bytesPerChannel * channels * width * heightNew);
+    memset(bytesNew, 0, bytesPerChannel * channels * width * heightNew);
+
+    uint32_t edge = width / 4u;
+    for (uint32_t i = 0u; i < width; ++i) {
+        int face = int(i / edge);
+        uint32_t range = face == 2 ? edge * 3u : edge * 2u;
+        uint32_t offset = face == 2 ? 0u : edge;
+
+        for (uint32_t j = offset; j < range; ++j) {
+            int face2 = j < edge ? 4 : j >= 2u * edge ? 5 : face;
+
+            std::array<float, 3> coord = OutImgToXYZ(i, j, face2, static_cast<float>(edge));
+            float theta = std::atan2f(coord[1], coord[0]);
+            float radius = std::sqrtf((coord[0] * coord[0]) + (coord[1] * coord[1]));
+            float phi = std::atan2(coord[2], radius);
+
+            //source img coords
+            float uf = (2.0f * edge * (theta + M_PI) / M_PI);
+            float vf = (2.0f * edge * (M_PI_2 - phi) / M_PI);
+
+            int ui = floor(uf); // coord of pixel to bottom left
+            int vi = floor(vf);
+            int u2 = ui + 1;    // coords of pixel to top right
+            int v2 = vi + 1;
+            float mu = uf - ui;   // fraction of way across pixel
+            float nu = vf - vi;
+
+            uint32_t pixelIndexA = (Clamp(vi, 0, height - 1) * width) * channels * bytesPerChannel + (ui % width) * channels * bytesPerChannel;
+            uint32_t pixelIndexB = (Clamp(vi, 0, height - 1) * width) * channels * bytesPerChannel + (u2 % width) * channels * bytesPerChannel;
+            uint32_t pixelIndexC = (Clamp(v2, 0, height - 1) * width) * channels * bytesPerChannel + (ui % width) * channels * bytesPerChannel;
+            uint32_t pixelIndexD = (Clamp(v2, 0, height - 1) * width) * channels * bytesPerChannel + (u2 % width) * channels * bytesPerChannel;
+
+            if (bytesPerChannel == sizeof(float)) {
+                float Ar = BytesToFloatLE(source[pixelIndexA + 0], source[pixelIndexA + 1], source[pixelIndexA + 2], source[pixelIndexA + 3]);
+                float Ag = BytesToFloatLE(source[pixelIndexA + 4], source[pixelIndexA + 5], source[pixelIndexA + 6], source[pixelIndexA + 7]);
+                float Ab = BytesToFloatLE(source[pixelIndexA + 8], source[pixelIndexA + 9], source[pixelIndexA + 10], source[pixelIndexA + 11]);
+                float Aa = BytesToFloatLE(source[pixelIndexA + 12], source[pixelIndexA + 13], source[pixelIndexA + 14], source[pixelIndexA + 15]);
+
+                float Br = BytesToFloatLE(source[pixelIndexB + 0], source[pixelIndexB + 1], source[pixelIndexB + 2], source[pixelIndexB + 3]);
+                float Bg = BytesToFloatLE(source[pixelIndexB + 4], source[pixelIndexB + 5], source[pixelIndexB + 6], source[pixelIndexB + 7]);
+                float Bb = BytesToFloatLE(source[pixelIndexB + 8], source[pixelIndexB + 9], source[pixelIndexB + 10], source[pixelIndexB + 11]);
+                float Ba = BytesToFloatLE(source[pixelIndexB + 12], source[pixelIndexB + 13], source[pixelIndexB + 14], source[pixelIndexB + 15]);
+
+                float Cr = BytesToFloatLE(source[pixelIndexC + 0], source[pixelIndexC + 1], source[pixelIndexC + 2], source[pixelIndexC + 3]);
+                float Cg = BytesToFloatLE(source[pixelIndexC + 4], source[pixelIndexC + 5], source[pixelIndexC + 6], source[pixelIndexC + 7]);
+                float Cb = BytesToFloatLE(source[pixelIndexC + 8], source[pixelIndexC + 9], source[pixelIndexC + 10], source[pixelIndexC + 11]);
+                float Ca = BytesToFloatLE(source[pixelIndexC + 12], source[pixelIndexC + 13], source[pixelIndexC + 14], source[pixelIndexC + 15]);
+
+                float Dr = BytesToFloatLE(source[pixelIndexD + 0], source[pixelIndexD + 1], source[pixelIndexD + 2], source[pixelIndexD + 3]);
+                float Dg = BytesToFloatLE(source[pixelIndexD + 4], source[pixelIndexD + 5], source[pixelIndexD + 6], source[pixelIndexD + 7]);
+                float Db = BytesToFloatLE(source[pixelIndexD + 8], source[pixelIndexD + 9], source[pixelIndexD + 10], source[pixelIndexD + 11]);
+                float Da = BytesToFloatLE(source[pixelIndexD + 12], source[pixelIndexD + 13], source[pixelIndexD + 14], source[pixelIndexD + 15]);
+
+                float r = Ar * (1 - mu) * (1 - nu) + Br * (mu) * (1 - nu) + Cr * (1 - mu) * nu + Dr * mu * nu;
+                float g = Ag * (1 - mu) * (1 - nu) + Bg * (mu) * (1 - nu) + Cg * (1 - mu) * nu + Dg * mu * nu;
+                float b = Ab * (1 - mu) * (1 - nu) + Bb * (mu) * (1 - nu) + Cb * (1 - mu) * nu + Db * mu * nu;
+                float a = Aa * (1 - mu) * (1 - nu) + Ba * (mu) * (1 - nu) + Ca * (1 - mu) * nu + Da * mu * nu;
+
+                uint32_t offset = j * width * channels * bytesPerChannel;
+                if (edge < offset)
+                    offset = offset - (edge * channels * bytesPerChannel);
+
+                uint32_t pixelIndex = offset + i * channels * bytesPerChannel;
+
+                UFloat R, G, B, A;
+                R.flt = r; G.flt = g; B.flt = b;
+                bytesNew[pixelIndex + 0] = R.c[0]; bytesNew[pixelIndex + 1] = R.c[1]; bytesNew[pixelIndex + 2] = R.c[2]; bytesNew[pixelIndex + 3] = R.c[3];
+                bytesNew[pixelIndex + 4] = G.c[0]; bytesNew[pixelIndex + 5] = G.c[1]; bytesNew[pixelIndex + 6] = G.c[2]; bytesNew[pixelIndex + 7] = G.c[3];
+                bytesNew[pixelIndex + 8] = B.c[0]; bytesNew[pixelIndex + 9] = B.c[1]; bytesNew[pixelIndex + 10] = B.c[2]; bytesNew[pixelIndex + 11] = B.c[3];
+                bytesNew[pixelIndex + 12] = A.c[0]; bytesNew[pixelIndex + 13] = A.c[1]; bytesNew[pixelIndex + 14] = A.c[2]; bytesNew[pixelIndex + 15] = A.c[3];
+
+            }else if (bytesPerChannel == sizeof(unsigned char)) {
+                float Ar = static_cast<float>(source[pixelIndexA + 0]);
+                float Ag = static_cast<float>(source[pixelIndexA + 1]);
+                float Ab = static_cast<float>(source[pixelIndexA + 2]);
+                float Aa = static_cast<float>(source[pixelIndexA + 3]);
+
+                float Br = static_cast<float>(source[pixelIndexB + 0]);
+                float Bg = static_cast<float>(source[pixelIndexB + 1]);
+                float Bb = static_cast<float>(source[pixelIndexB + 2]);
+                float Ba = static_cast<float>(source[pixelIndexB + 3]);
+
+                float Cr = static_cast<float>(source[pixelIndexC + 0]);
+                float Cg = static_cast<float>(source[pixelIndexC + 1]);
+                float Cb = static_cast<float>(source[pixelIndexC + 2]);
+                float Ca = static_cast<float>(source[pixelIndexC + 3]);
+
+                float Dr = static_cast<float>(source[pixelIndexD + 0]);
+                float Dg = static_cast<float>(source[pixelIndexD + 1]);
+                float Db = static_cast<float>(source[pixelIndexD + 2]);
+                float Da = static_cast<float>(source[pixelIndexD + 3]);
+
+                float r = Ar * (1 - mu) * (1 - nu) + Br * (mu) * (1 - nu) + Cr * (1 - mu) * nu + Dr * mu * nu;
+                float g = Ag * (1 - mu) * (1 - nu) + Bg * (mu) * (1 - nu) + Cg * (1 - mu) * nu + Dg * mu * nu;
+                float b = Ab * (1 - mu) * (1 - nu) + Bb * (mu) * (1 - nu) + Cb * (1 - mu) * nu + Db * mu * nu;
+                float a = Aa * (1 - mu) * (1 - nu) + Ba * (mu) * (1 - nu) + Ca * (1 - mu) * nu + Da * mu * nu;
+
+                uint32_t offset = j * width * 4u;
+                if (edge < offset)
+                    offset = offset - (edge * 4u);
+
+                uint32_t pixelIndex = offset + i * 4u;
+
+                bytesNew[pixelIndex + 0] = round(r);
+                bytesNew[pixelIndex + 1] = round(g);
+                bytesNew[pixelIndex + 2] = round(b);
+                bytesNew[pixelIndex + 3] = round(a);
+            }
+        }
+    }
+    height = heightNew;
+    free(source);
+    //bytesPerChannel == sizeof(float) ? SafeHDRI("res/sunset_cross.hdr", bytesNew, width, heightNew, 4u) : Safe("res/palace_cross.png", bytesNew, width, heightNew, 4u);
+    return bytesNew;
+}
+
+float WgpTexture::Clamp(const float& n, const float& lower, const float& upper) {
+    return std::max(lower, std::min(n, upper));
+}
+
+std::array<float, 3> WgpTexture::OutImgToXYZ(int i, int j, int face, float edge) {
+    float a = 2.0 * static_cast<float>(i) / edge;
+    float b = 2.0 * static_cast<float>(j) / edge;
+    if (face == 0) {
+        return { -1.0f, 1.0f - a, 3.0f - b };
+    }else if (face == 1) {
+        return { a - 3.0f, -1.0f, 3.0f - b };
+    }else if (face == 2) {
+        return { 1.0f, a - 5.0f, 3.0f - b };
+    }else if (face == 3) {
+        return { 7.0f - a, 1.0f, 3.0f - b };
+    }else if (face == 4) {
+        return { b - 1.0f, a - 5.0f, 1.0f };
+    }else if (face == 5) {
+        return { 5.0f - b, a - 5.0f, -1.0f };
+    }
+    return { 0.0f, 0.0f, 0.0f };
+}
+
+float WgpTexture::BytesToFloatLE(unsigned char b0, unsigned char b1, unsigned char b2, unsigned char b3) {
+    float f;
+    unsigned char b[] = { b0, b1, b2, b3 };
+    memcpy(&f, &b, sizeof(float));
+    return f;
+}
+
+float WgpTexture::BytesToFloatBE(unsigned char b0, unsigned char b1, unsigned char b2, unsigned char b3) {
+    float f;
+    unsigned char b[] = { b3, b2, b1, b0 };
+    memcpy(&f, &b, sizeof(float));
+    return f;
 }
