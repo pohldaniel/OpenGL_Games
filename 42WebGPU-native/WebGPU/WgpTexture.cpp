@@ -2,6 +2,7 @@
 #include <math.h>
 #include <FreeImage.h>
 #include <Utilities.h>
+#include <iostream>
 
 #include "WgpContext.h"
 #include "WgpTexture.h"
@@ -265,7 +266,7 @@ void WgpTexture::loadHDRIFromFile(const std::string& fileName, const bool flipVe
         destination.aspect = WGPUTextureAspect_All;
 
         WGPUExtent3D extent3D = { faceWidth, faceHeight, 1u };
-        wgpuQueueWriteTexture(wgpContext.queue, &destination, bytesNew ? bytesNew : imageData, sizeof(float) * m_channels * faceWidth * faceWidth, &source, &extent3D);
+        wgpuQueueWriteTexture(wgpContext.queue, &destination, faces[face], sizeof(float) * m_channels * faceWidth * faceWidth, &source, &extent3D);
     }
     if (bytesNew)
         free(bytesNew);
@@ -489,6 +490,7 @@ std::vector<unsigned char*> WgpTexture::CrossToFaces(unsigned char* source, uint
         memcpy(ptr, &source[(height - 2u * fHeight + j) * width * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
         ptr += fWidth * channels * bytesPerChannel;
     }
+    faces.push_back(face);
 
     // positive z
     ptr = face;
@@ -499,6 +501,7 @@ std::vector<unsigned char*> WgpTexture::CrossToFaces(unsigned char* source, uint
         memcpy(ptr, &source[((height - 2u * fHeight + j) * width + 3u * fWidth) * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
         ptr += fWidth * channels * bytesPerChannel;
     }
+    faces.push_back(face);
 
     // negativ z
     ptr = face;
@@ -509,6 +512,7 @@ std::vector<unsigned char*> WgpTexture::CrossToFaces(unsigned char* source, uint
         memcpy(ptr, &source[((height - 2u * fHeight + j) * width + fWidth) * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
         ptr += fWidth * channels * bytesPerChannel;
     }
+    faces.push_back(face);
 
     // positive y
     ptr = face;
@@ -519,6 +523,7 @@ std::vector<unsigned char*> WgpTexture::CrossToFaces(unsigned char* source, uint
         memcpy(ptr, &source[((height - 1u * fHeight + j) * width + fWidth) * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
         ptr += fWidth * channels * bytesPerChannel;
     }
+    faces.push_back(face);
 
     // negative y
     ptr = face;
@@ -529,7 +534,6 @@ std::vector<unsigned char*> WgpTexture::CrossToFaces(unsigned char* source, uint
         memcpy(ptr, &source[((height - 3u * fHeight + j) * width + fWidth) * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
         ptr += fWidth * channels * bytesPerChannel;
     }
-
     faces.push_back(face);
 
     return faces;

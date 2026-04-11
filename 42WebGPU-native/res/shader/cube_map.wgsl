@@ -38,5 +38,7 @@ fn vs_main(in: VertexInput) -> VertexOutput {
 @fragment
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
 	let sample = textureSample(texture, textureSampler, in.texcoord_env);
-	return vec4(in.texcoord_env, 1.0);
+	let mappedColor = sample.rgb / (sample.rgb + vec3f(1.0));
+	
+	return vec4(sample.rgb, 1.0);
 }

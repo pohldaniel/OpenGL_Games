@@ -43,7 +43,7 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 	wgpContext.createRenderPipeline("ENV", "RP_ENV", VL_PTN, std::bind(&ImageBasedLighting::OnBindGroupLayoutsEnv, this));
 
 	wgpContext.OnDraw = std::bind(&ImageBasedLighting::OnDraw, this, std::placeholders::_1);
-
+	
 	m_wgpHelmet.create(m_helmet);
 	m_wgpHelmet.setBindGroups("BG", std::bind(&ImageBasedLighting::OnBindGroups, this));
 	AddBindgroups(m_wgpHelmet);
@@ -57,8 +57,6 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
 
 	m_trackball.reshape(Application::Width, Application::Height);
-
-
 	m_cube.buildCube({ -1.0f, -1.0f, -1.0f }, { 2.0f, 2.0f, 2.0f }, 1u, 1u, true, true, false);
 	m_wgpCube.create(m_cube);
 	m_wgpCube.setBindGroups("BG", std::bind(&ImageBasedLighting::OnBindGroupsEnv, this));
@@ -349,6 +347,7 @@ std::vector<WGPUBindGroupLayout> ImageBasedLighting::OnBindGroupLayoutsEnv() {
 	samplerBindingLayout.binding = 1u;
 	samplerBindingLayout.visibility = WGPUShaderStage_Fragment;
 	samplerBindingLayout.sampler.type = WGPUSamplerBindingType_NonFiltering;
+	//samplerBindingLayout.sampler.type = WGPUSamplerBindingType_Filtering;
 
 	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor0 = {};
 	bindGroupLayoutDescriptor0.entryCount = (uint32_t)bindingLayoutEntries0.size();
@@ -362,6 +361,7 @@ std::vector<WGPUBindGroupLayout> ImageBasedLighting::OnBindGroupLayoutsEnv() {
 	textureBindingLayout.binding = 0u;
 	textureBindingLayout.visibility = WGPUShaderStage_Fragment;
 	textureBindingLayout.texture.sampleType = WGPUTextureSampleType_UnfilterableFloat;
+	//textureBindingLayout.texture.sampleType = WGPUTextureSampleType_Float;
 	textureBindingLayout.texture.viewDimension = WGPUTextureViewDimension_Cube;
 
 
