@@ -11,6 +11,11 @@ class WgpTexture {
 		unsigned char c[4];
 	};
 
+	union UUint16 {
+		uint16_t flt;
+		unsigned char c[2];
+	};
+
 public:
 
 	WgpTexture();
@@ -54,7 +59,12 @@ private:
 	static std::array<float, 3> OutImgToXYZ(int i, int j, int face, float edge);
 	static float BytesToFloatLE(unsigned char b0, unsigned char b1, unsigned char b2, unsigned char b3);
 	static float BytesToFloatBE(unsigned char b0, unsigned char b1, unsigned char b2, unsigned char b3);
+	static uint16_t BytesToUint16LE(unsigned char b0, unsigned char b1);
+	static uint16_t BytesToUint16BE(unsigned char b0, unsigned char b1);
 	static uint16_t Float32Tofloat16(float value);
+	static uint32_t BitWidth(uint32_t m);
+	static void WriteMipMaps(WGPUTexture& texture, WGPUExtent3D textureSize, uint32_t mipLevelCount, uint32_t bytesPerChannel, const unsigned char* pixelData, uint32_t layer = 0u);
+
 	WGPUTexture m_texture;
 	WGPUTextureFormat m_format;
 	WGPUTextureView m_textureView;

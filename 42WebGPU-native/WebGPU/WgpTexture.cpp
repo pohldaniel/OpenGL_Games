@@ -108,22 +108,11 @@ void WgpTexture::loadFromFile(const std::string& fileName, const bool flipVertic
     //bytesNew ? bytesNew = EquirectangularToCross(bytesNew, m_width, sizeof(unsigned char), m_height) : imageData = EquirectangularToCross(imageData, m_width, sizeof(unsigned char), m_height);
 
     m_format = WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm;
-    m_texture = wgpCreateTexture(m_width, m_height, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst, m_format);
-    
-    WGPUTexelCopyTextureInfo destination = {};
-    destination.texture = m_texture;
-    destination.mipLevel = 0u;
-    destination.origin = { 0u, 0u, 0u };
-    destination.aspect = WGPUTextureAspect_All;
 
-    WGPUTexelCopyBufferLayout source = {};
-    source.offset = 0u;
-    source.bytesPerRow = m_channels * m_width;
-    source.rowsPerImage = m_height;
+    uint32_t mipLevelCount = BitWidth(std::max(m_width, m_height));
+    m_texture = wgpCreateTexture(m_width, m_height, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst, m_format, mipLevelCount);
+    WriteMipMaps(m_texture, { m_width, m_height, 1u }, mipLevelCount, sizeof(unsigned char), bytesNew ? bytesNew : imageData);
 
-    WGPUExtent3D extent3D = { m_width, m_height, 1u };
-    wgpuQueueWriteTexture(wgpContext.queue, &destination, bytesNew ? bytesNew : imageData, m_width * m_height * m_channels, &source, &extent3D);
-  
     if (bytesNew)
         free(bytesNew);
 
@@ -167,22 +156,11 @@ void WgpTexture::loadFromMemory(unsigned char* data, uint32_t size, const bool f
     m_height = height;
     m_channels = bpp;
     m_format = WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm;
-    m_texture = wgpCreateTexture(m_width, m_height, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst, m_format);
 
-    WGPUTexelCopyTextureInfo destination = {};
-    destination.texture = m_texture;
-    destination.mipLevel = 0u;
-    destination.origin = { 0u, 0u, 0u };
-    destination.aspect = WGPUTextureAspect_All;
+    uint32_t mipLevelCount = BitWidth(std::max(m_width, m_height));
+    m_texture = wgpCreateTexture(m_width, m_height, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst, m_format, mipLevelCount);
+    WriteMipMaps(m_texture, { m_width, m_height, 1u }, mipLevelCount, sizeof(unsigned char), bytesNew ? bytesNew : imageData);
 
-    WGPUTexelCopyBufferLayout source = {};
-    source.offset = 0u;
-    source.bytesPerRow = m_channels * m_width;
-    source.rowsPerImage = m_height;
-
-    WGPUExtent3D extent3D = { m_width, m_height, 1u };
-    wgpuQueueWriteTexture(wgpContext.queue, &destination, bytesNew ? bytesNew : imageData, m_width * m_height * m_channels, &source, &extent3D);
-  
     if (bytesNew)
         free(bytesNew);
 
@@ -250,6 +228,7 @@ void WgpTexture::loadHDRICubeFromFile(const std::string& fileName, const bool fl
 
     uint32_t faceWidth = m_width > m_height ? m_width / 4u : m_width / 3u;
     uint32_t faceHeight = m_height > m_width ? m_height / 4u : m_height / 3u;
+    uint32_t mipLevelCount = BitWidth(std::max(faceWidth, faceHeight));
 
     WGPUTextureDescriptor textureDescriptor = {};
     textureDescriptor.label = WGPU_STR("texture");
@@ -257,26 +236,14 @@ void WgpTexture::loadHDRICubeFromFile(const std::string& fileName, const bool fl
     textureDescriptor.size = { faceWidth, faceHeight, 6u };
     textureDescriptor.format = m_format;
     textureDescriptor.usage = WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst;
-    textureDescriptor.mipLevelCount = 1u;
+    textureDescriptor.mipLevelCount = mipLevelCount;
     textureDescriptor.sampleCount = 1u;
     textureDescriptor.nextInChain = NULL;
 
     m_texture = wgpuDeviceCreateTexture(wgpContext.device, &textureDescriptor);
 
-    WGPUTexelCopyBufferLayout source = {};
-    source.offset = 0u;
-    source.bytesPerRow = halfBPP ? sizeof(uint16_t) * m_channels * faceWidth : sizeof(float) * m_channels * faceWidth;
-    source.rowsPerImage = faceHeight;
-
     for (uint32_t face = 0u; face < faces.size(); ++face) {
-        WGPUTexelCopyTextureInfo destination = {};
-        destination.texture = m_texture;
-        destination.mipLevel = 0u;
-        destination.origin = { 0u, 0u, face };
-        destination.aspect = WGPUTextureAspect_All;
-        
-        WGPUExtent3D extent3D = { faceWidth, faceHeight, 1u };
-        wgpuQueueWriteTexture(wgpContext.queue, &destination, faces[face], halfBPP ? sizeof(uint16_t) * m_channels * faceWidth * faceWidth : sizeof(float) * m_channels * faceWidth * faceWidth, &source, &extent3D);
+        WriteMipMaps(m_texture, { faceWidth, faceHeight, 1u }, mipLevelCount, halfBPP ? sizeof(uint16_t) : sizeof(float), faces[face], face);
         free(faces[face]);
     }
 
@@ -367,22 +334,15 @@ void WgpTexture::loadHDRIFromFile(const std::string& fileName, const bool flipVe
 
     m_texture = wgpuDeviceCreateTexture(wgpContext.device, &textureDescriptor);
 
-    WGPUTexelCopyBufferLayout source = {};
-    source.offset = 0u;
-    source.bytesPerRow = halfBPP ? sizeof(uint16_t) * m_channels * m_width : sizeof(float) * m_channels * m_width;
-    source.rowsPerImage = m_height;
-
-    WGPUTexelCopyTextureInfo destination = {};
-    destination.texture = m_texture;
-    destination.mipLevel = 0u;
-    destination.origin = { 0u, 0u, 0u };
-    destination.aspect = WGPUTextureAspect_All;
-
-    WGPUExtent3D extent3D = { m_width, m_height, 1u };
-    wgpuQueueWriteTexture(wgpContext.queue, &destination, halfBPP ? reinterpret_cast<unsigned char*>(float16) : bytesNew ? bytesNew : imageData, halfBPP ? sizeof(uint16_t) * m_width * m_height * m_channels : sizeof(float) * m_width * m_height * m_channels, &source, &extent3D);
+    uint32_t mipLevelCount = BitWidth(std::max(m_width, m_height));
+    m_texture = wgpCreateTexture(m_width, m_height, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst, m_format, mipLevelCount);
+    WriteMipMaps(m_texture, { m_width, m_height, 1u }, mipLevelCount, halfBPP ? sizeof(uint16_t) : sizeof(float), halfBPP ? reinterpret_cast<unsigned char*>(float16) : bytesNew ? bytesNew : imageData);
 
     if (bytesNew)
         free(bytesNew);
+
+    if (float16)
+        free(float16);
 
     FreeImage_Unload(sourceBitmap);
     FreeImage_DeInitialise();
@@ -878,6 +838,20 @@ float WgpTexture::BytesToFloatBE(unsigned char b0, unsigned char b1, unsigned ch
     return f;
 }
 
+uint16_t WgpTexture::BytesToUint16LE(unsigned char b0, unsigned char b1) {
+    uint16_t u;
+    unsigned char b[] = {b0, b1 };
+    memcpy(&u, &b, sizeof(uint16_t));
+    return u;
+}
+
+uint16_t WgpTexture::BytesToUint16BE(unsigned char b0, unsigned char b1) {
+    uint16_t u;
+    unsigned char b[] = { b1, b0 };
+    memcpy(&u, &b, sizeof(uint16_t));
+    return u;
+}
+
 uint16_t WgpTexture::Float32Tofloat16(float value){
     union {
         float f;
@@ -905,4 +879,151 @@ uint16_t WgpTexture::Float32Tofloat16(float value){
 
     /* Normalized value */
     return sign | (exponent << 10) | (mantissa >> 13);
+}
+
+uint32_t WgpTexture::BitWidth(uint32_t m) {
+    if (m == 0) return 0;
+    else { uint32_t w = 0; while (m >>= 1) ++w; return w; }
+}
+
+void WgpTexture::WriteMipMaps(WGPUTexture& texture, WGPUExtent3D textureSize, uint32_t mipLevelCount, uint32_t bytesPerChannel, const unsigned char* pixelData, uint32_t layer) {
+    uint32_t channels = 4u;
+    
+    WGPUTexelCopyTextureInfo destination = {};
+    destination.texture = texture;
+    destination.mipLevel = 0u;
+    destination.origin = { 0u, 0u, layer };
+    destination.aspect = WGPUTextureAspect_All;
+
+    WGPUTexelCopyBufferLayout source = {};
+    source.offset = 0u;
+
+    // Create image data
+    WGPUExtent3D mipLevelSize = textureSize;
+    std::vector<unsigned char> previousLevelPixels;
+    WGPUExtent3D previousMipLevelSize;
+    for (uint32_t level = 0u; level < mipLevelCount; ++level) {
+        std::vector<unsigned char> pixels( bytesPerChannel * channels * mipLevelSize.width * mipLevelSize.height);
+        if (level == 0u) {
+            memcpy(pixels.data(), pixelData, pixels.size());
+        }else {
+            // Create mip level data
+            for (uint32_t i = 0u; i < mipLevelSize.width; ++i) {
+                for (uint32_t j = 0u; j < mipLevelSize.height; ++j) {
+                    unsigned char* p = &pixels[bytesPerChannel * channels * (j * mipLevelSize.width + i)];
+
+                    uint32_t pixelIndexA = ((2 * j + 0) * previousMipLevelSize.width + (2 * i + 0)) * channels * bytesPerChannel;
+                    uint32_t pixelIndexB = ((2 * j + 0) * previousMipLevelSize.width + (2 * i + 1)) * channels * bytesPerChannel;
+                    uint32_t pixelIndexC = ((2 * j + 1) * previousMipLevelSize.width + (2 * i + 0)) * channels * bytesPerChannel;
+                    uint32_t pixelIndexD = ((2 * j + 1) * previousMipLevelSize.width + (2 * i + 1)) * channels * bytesPerChannel;
+                   // for(uint32_t k = 0u; k < )
+
+                    if (bytesPerChannel == sizeof(float)) {
+                        float Ar = BytesToFloatLE(previousLevelPixels[pixelIndexA + 0], previousLevelPixels[pixelIndexA + 1], previousLevelPixels[pixelIndexA + 2], previousLevelPixels[pixelIndexA + 3]);
+                        float Ag = BytesToFloatLE(previousLevelPixels[pixelIndexA + 4], previousLevelPixels[pixelIndexA + 5], previousLevelPixels[pixelIndexA + 6], previousLevelPixels[pixelIndexA + 7]);
+                        float Ab = BytesToFloatLE(previousLevelPixels[pixelIndexA + 8], previousLevelPixels[pixelIndexA + 9], previousLevelPixels[pixelIndexA + 10], previousLevelPixels[pixelIndexA + 11]);
+                        float Aa = BytesToFloatLE(previousLevelPixels[pixelIndexA + 12], previousLevelPixels[pixelIndexA + 13], previousLevelPixels[pixelIndexA + 14], previousLevelPixels[pixelIndexA + 15]);
+
+                        float Br = BytesToFloatLE(previousLevelPixels[pixelIndexB + 0], previousLevelPixels[pixelIndexB + 1], previousLevelPixels[pixelIndexB + 2], previousLevelPixels[pixelIndexB + 3]);
+                        float Bg = BytesToFloatLE(previousLevelPixels[pixelIndexB + 4], previousLevelPixels[pixelIndexB + 5], previousLevelPixels[pixelIndexB + 6], previousLevelPixels[pixelIndexB + 7]);
+                        float Bb = BytesToFloatLE(previousLevelPixels[pixelIndexB + 8], previousLevelPixels[pixelIndexB + 9], previousLevelPixels[pixelIndexB + 10], previousLevelPixels[pixelIndexB + 11]);
+                        float Ba = BytesToFloatLE(previousLevelPixels[pixelIndexB + 12], previousLevelPixels[pixelIndexB + 13], previousLevelPixels[pixelIndexB + 14], previousLevelPixels[pixelIndexB + 15]);
+
+                        float Cr = BytesToFloatLE(previousLevelPixels[pixelIndexC + 0], previousLevelPixels[pixelIndexC + 1], previousLevelPixels[pixelIndexC + 2], previousLevelPixels[pixelIndexC + 3]);
+                        float Cg = BytesToFloatLE(previousLevelPixels[pixelIndexC + 4], previousLevelPixels[pixelIndexC + 5], previousLevelPixels[pixelIndexC + 6], previousLevelPixels[pixelIndexC + 7]);
+                        float Cb = BytesToFloatLE(previousLevelPixels[pixelIndexC + 8], previousLevelPixels[pixelIndexC + 9], previousLevelPixels[pixelIndexC + 10], previousLevelPixels[pixelIndexC + 11]);
+                        float Ca = BytesToFloatLE(previousLevelPixels[pixelIndexC + 12], previousLevelPixels[pixelIndexC + 13], previousLevelPixels[pixelIndexC + 14], previousLevelPixels[pixelIndexC + 15]);
+
+                        float Dr = BytesToFloatLE(previousLevelPixels[pixelIndexD + 0], previousLevelPixels[pixelIndexD + 1], previousLevelPixels[pixelIndexD + 2], previousLevelPixels[pixelIndexD + 3]);
+                        float Dg = BytesToFloatLE(previousLevelPixels[pixelIndexD + 4], previousLevelPixels[pixelIndexD + 5], previousLevelPixels[pixelIndexD + 6], previousLevelPixels[pixelIndexD + 7]);
+                        float Db = BytesToFloatLE(previousLevelPixels[pixelIndexD + 8], previousLevelPixels[pixelIndexD + 9], previousLevelPixels[pixelIndexD + 10], previousLevelPixels[pixelIndexD + 11]);
+                        float Da = BytesToFloatLE(previousLevelPixels[pixelIndexD + 12], previousLevelPixels[pixelIndexD + 13], previousLevelPixels[pixelIndexD + 14], previousLevelPixels[pixelIndexD + 15]);
+
+                        float r = (Ar + Br + Cr + Dr) / 4.0f;
+                        float g = (Ag + Bg + Cg + Dg) / 4.0f;
+                        float b = (Ab + Bb + Cb + Db) / 4.0f;
+                        float a = (Aa + Ba + Ca + Da) / 4.0f;
+
+                        UFloat R, G, B, A;
+                        R.flt = r; G.flt = g; B.flt = b; A.flt = a;
+                        p[0] = R.c[0]; p[1] = R.c[1]; p[2] = R.c[2]; p[3] = R.c[3];
+                        p[4] = G.c[0]; p[5] = G.c[1]; p[6] = G.c[2]; p[7] = G.c[3];
+                        p[8] = B.c[0]; p[9] = B.c[1]; p[10] = B.c[2]; p[11] = B.c[3];
+                        p[12] = A.c[0]; p[13] = A.c[1]; p[14] = A.c[2]; p[15] = A.c[3];
+
+                    }else if (bytesPerChannel == sizeof(uint16_t)) {
+                        float Ar = static_cast<float>(BytesToUint16LE(previousLevelPixels[pixelIndexA + 0], previousLevelPixels[pixelIndexA + 1]));
+                        float Ag = static_cast<float>(BytesToUint16LE(previousLevelPixels[pixelIndexA + 2], previousLevelPixels[pixelIndexA + 3]));
+                        float Ab = static_cast<float>(BytesToUint16LE(previousLevelPixels[pixelIndexA + 4], previousLevelPixels[pixelIndexA + 5]));
+                        float Aa = static_cast<float>(BytesToUint16LE(previousLevelPixels[pixelIndexA + 6], previousLevelPixels[pixelIndexA + 7]));
+
+                        float Br = static_cast<float>(BytesToUint16LE(previousLevelPixels[pixelIndexB + 0], previousLevelPixels[pixelIndexB + 1]));
+                        float Bg = static_cast<float>(BytesToUint16LE(previousLevelPixels[pixelIndexB + 2], previousLevelPixels[pixelIndexB + 3]));
+                        float Bb = static_cast<float>(BytesToUint16LE(previousLevelPixels[pixelIndexB + 4], previousLevelPixels[pixelIndexB + 7]));
+                        float Ba = static_cast<float>(BytesToUint16LE(previousLevelPixels[pixelIndexB + 6], previousLevelPixels[pixelIndexB + 5]));
+
+                        float Cr = static_cast<float>(BytesToUint16LE(previousLevelPixels[pixelIndexC + 0], previousLevelPixels[pixelIndexC + 1]));
+                        float Cg = static_cast<float>(BytesToUint16LE(previousLevelPixels[pixelIndexC + 2], previousLevelPixels[pixelIndexC + 3]));
+                        float Cb = static_cast<float>(BytesToUint16LE(previousLevelPixels[pixelIndexC + 4], previousLevelPixels[pixelIndexC + 7]));
+                        float Ca = static_cast<float>(BytesToUint16LE(previousLevelPixels[pixelIndexC + 6], previousLevelPixels[pixelIndexC + 5]));
+
+                        float Dr = static_cast<float>(BytesToUint16LE(previousLevelPixels[pixelIndexD + 0], previousLevelPixels[pixelIndexD + 1]));
+                        float Dg = static_cast<float>(BytesToUint16LE(previousLevelPixels[pixelIndexD + 2], previousLevelPixels[pixelIndexD + 3]));
+                        float Db = static_cast<float>(BytesToUint16LE(previousLevelPixels[pixelIndexD + 4], previousLevelPixels[pixelIndexD + 7]));
+                        float Da = static_cast<float>(BytesToUint16LE(previousLevelPixels[pixelIndexD + 6], previousLevelPixels[pixelIndexD + 5]));
+
+                        float r = (Ar + Br + Cr + Dr) / 4.0f;
+                        float g = (Ag + Bg + Cg + Dg) / 4.0f;
+                        float b = (Ab + Bb + Cb + Db) / 4.0f;
+                        float a = (Aa + Ba + Ca + Da) / 4.0f;
+
+                        UUint16 R, G, B, A;
+                        R.flt = Float32Tofloat16(r); G.flt = Float32Tofloat16(g); B.flt = Float32Tofloat16(b); A.flt = Float32Tofloat16(a);
+
+                        p[0] = R.c[0]; p[1] = R.c[1];
+                        p[4] = G.c[0]; p[5] = G.c[1];
+                        p[8] = B.c[0]; p[9] = B.c[1];
+                        p[12] = A.c[0]; p[13] = A.c[1];
+                    }else if (bytesPerChannel == sizeof(unsigned char)) {
+                        float Ar = static_cast<float>(previousLevelPixels[pixelIndexA + 0]);
+                        float Ag = static_cast<float>(previousLevelPixels[pixelIndexA + 1]);
+                        float Ab = static_cast<float>(previousLevelPixels[pixelIndexA + 2]);
+                        float Aa = static_cast<float>(previousLevelPixels[pixelIndexA + 3]);
+
+                        float Br = static_cast<float>(previousLevelPixels[pixelIndexB + 0]);
+                        float Bg = static_cast<float>(previousLevelPixels[pixelIndexB + 1]);
+                        float Bb = static_cast<float>(previousLevelPixels[pixelIndexB + 2]);
+                        float Ba = static_cast<float>(previousLevelPixels[pixelIndexB + 3]);
+
+                        float Cr = static_cast<float>(previousLevelPixels[pixelIndexC + 0]);
+                        float Cg = static_cast<float>(previousLevelPixels[pixelIndexC + 1]);
+                        float Cb = static_cast<float>(previousLevelPixels[pixelIndexC + 2]);
+                        float Ca = static_cast<float>(previousLevelPixels[pixelIndexC + 3]);
+
+                        float Dr = static_cast<float>(previousLevelPixels[pixelIndexD + 0]);
+                        float Dg = static_cast<float>(previousLevelPixels[pixelIndexD + 1]);
+                        float Db = static_cast<float>(previousLevelPixels[pixelIndexD + 2]);
+                        float Da = static_cast<float>(previousLevelPixels[pixelIndexD + 3]);
+
+                        float r = (Ar + Br + Cr + Dr) / 4.0f;
+                        float g = (Ag + Bg + Cg + Dg) / 4.0f;
+                        float b = (Ab + Bb + Cb + Db) / 4.0f;
+                        float a = (Aa + Ba + Ca + Da) / 4.0f;
+
+                        p[0] = round(r); p[1] = round(g); p[2] = round(b); p[3] = round(a);
+                    }
+                }
+            }
+        }
+
+        // Upload data to the GPU texture
+        destination.mipLevel = level;
+        source.bytesPerRow = bytesPerChannel * channels * mipLevelSize.width;
+        source.rowsPerImage = mipLevelSize.height;
+        wgpuQueueWriteTexture(wgpContext.queue, &destination, pixels.data(), pixels.size(), &source, &mipLevelSize);
+        previousLevelPixels = std::move(pixels);
+        previousMipLevelSize = mipLevelSize;
+        mipLevelSize.width /= 2;
+        mipLevelSize.height /= 2;
+    }
 }
