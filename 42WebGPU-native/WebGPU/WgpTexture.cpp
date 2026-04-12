@@ -192,7 +192,7 @@ void WgpTexture::loadFromMemory(unsigned char* data, uint32_t size, const bool f
     m_textureView = wgpCreateTextureView(m_format, WGPUTextureAspect::WGPUTextureAspect_All, m_texture);
 }
 
-void WgpTexture::loadHDRIFromFile(const std::string& fileName, const bool flipVertical) {
+void WgpTexture::loadHDRIFromFile(const std::string& fileName, const bool flipVertical, const bool halfBPP) {
     std::filesystem::path filePath = fileName;
 
     FreeImage_Initialise();
@@ -231,9 +231,22 @@ void WgpTexture::loadHDRIFromFile(const std::string& fileName, const bool flipVe
 
     bytesNew ? bytesNew = EquirectangularToCross(bytesNew, m_width, sizeof(float), m_height) : imageData = EquirectangularToCross(imageData, m_width, sizeof(float), m_height);
 
-    std::vector<unsigned char*> faces = CrossToFaces(bytesNew ? bytesNew : imageData, m_width, sizeof(float), m_height);
+    uint16_t* float16 = nullptr;
+    if (halfBPP) {
+        const size_t count = m_width * m_height * m_channels;
+        float16 = (uint16_t*)malloc(m_width * m_height * m_channels * sizeof(uint16_t));
+        float* floats = reinterpret_cast<float*>(bytesNew ? bytesNew : imageData);
+        float maxVal = 0.0f;
+        for (size_t i = 0; i < count; i++) {
+            float16[i] = Float32Tofloat16(floats[i]);
+            if (floats[i] > maxVal)
+                maxVal = floats[i];
+        }
+    }
 
-    m_format = WGPUTextureFormat::WGPUTextureFormat_RGBA32Float;
+    std::vector<unsigned char*> faces = CrossToFaces(halfBPP ? reinterpret_cast<unsigned char*>(float16) : bytesNew ? bytesNew : imageData, m_width, halfBPP ? sizeof(uint16_t) : sizeof(float), m_height);
+
+    m_format = halfBPP ? WGPUTextureFormat::WGPUTextureFormat_RGBA16Float : WGPUTextureFormat::WGPUTextureFormat_RGBA32Float;
 
     uint32_t faceWidth = m_width > m_height ? m_width / 4u : m_width / 3u;
     uint32_t faceHeight = m_height > m_width ? m_height / 4u : m_height / 3u;
@@ -248,16 +261,12 @@ void WgpTexture::loadHDRIFromFile(const std::string& fileName, const bool flipVe
     textureDescriptor.mipLevelCount = 1u;
     textureDescriptor.sampleCount = 1u;
     textureDescriptor.nextInChain = NULL;
-    //if (viewFormat != WGPUTextureFormat_Undefined) {
-    //    textureDescriptor.viewFormatCount = 1;
-    //    textureDescriptor.viewFormats = &m_format;
-    //}
 
     m_texture = wgpuDeviceCreateTexture(device, &textureDescriptor);
 
     WGPUTexelCopyBufferLayout source = {};
     source.offset = 0u;
-    source.bytesPerRow = sizeof(float) * m_channels * faceWidth;
+    source.bytesPerRow = halfBPP ? sizeof(uint16_t) * m_channels * faceWidth : sizeof(float) * m_channels * faceWidth;
     source.rowsPerImage = faceHeight;
 
     for (uint32_t face = 0u; face < faces.size(); ++face) {
@@ -268,12 +277,15 @@ void WgpTexture::loadHDRIFromFile(const std::string& fileName, const bool flipVe
         destination.aspect = WGPUTextureAspect_All;
         
         WGPUExtent3D extent3D = { faceWidth, faceHeight, 1u };
-        wgpuQueueWriteTexture(wgpContext.queue, &destination, faces[face], sizeof(float) * m_channels * faceWidth * faceWidth, &source, &extent3D);
-        //free(faces[face]);
+        wgpuQueueWriteTexture(wgpContext.queue, &destination, faces[face], halfBPP ? sizeof(uint16_t) * m_channels * faceWidth * faceWidth : sizeof(float) * m_channels * faceWidth * faceWidth, &source, &extent3D);
+        free(faces[face]);
     }
 
     if (bytesNew)
         free(bytesNew);
+
+    if (float16)
+        free(float16);
 
     FreeImage_Unload(sourceBitmap);
     FreeImage_DeInitialise();
@@ -693,4 +705,33 @@ float WgpTexture::BytesToFloatBE(unsigned char b0, unsigned char b1, unsigned ch
     unsigned char b[] = { b3, b2, b1, b0 };
     memcpy(&f, &b, sizeof(float));
     return f;
+}
+
+uint16_t WgpTexture::Float32Tofloat16(float value){
+    union {
+        float f;
+        uint32_t i;
+    } v;
+    v.f = value;
+    uint32_t i = v.i;
+
+    uint32_t sign = (i >> 16) & 0x8000;
+    int32_t exponent = ((i >> 23) & 0xFF) - 127 + 15;
+    uint32_t mantissa = i & 0x007FFFFF;
+
+    /* Handle special cases */
+    if (exponent <= 0) {
+        /* Underflow or zero */
+        if (exponent < -10)
+            return sign; /* Too small, flush to zero */
+        mantissa = (mantissa | 0x00800000) >> (1 - exponent);
+        return sign | (mantissa >> 13);
+    }
+    else if (exponent >= 0x1F) {
+        /* Overflow or infinity */
+        return sign | 0x7C00 | (mantissa ? 0x0200 : 0);
+    }
+
+    /* Normalized value */
+    return sign | (exponent << 10) | (mantissa >> 13);
 }

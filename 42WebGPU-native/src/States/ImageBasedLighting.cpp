@@ -23,7 +23,7 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(10.0f);
 
-	m_wgpTexture.loadHDRIFromFile("res/textures/venice_sunset_1k.hdr");
+	m_wgpTexture.loadHDRIFromFile("res/textures/venice_sunset_1k.hdr", false, false);
 	//m_wgpTexture.loadFromFile("res/textures/palace.jpg");
 	
 	//m_helmet.loadModel("res/models/helmet.glb", Vector3f(0.0f, 0.0f, 1.0f), 180.0f, Vector3f(0.0f, 0.0f, 0.0f), 1.0f, false, false, false, true, true);
@@ -33,7 +33,7 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 
 	wgpContext.addSampler(wgpCreateSampler(WGPUFilterMode_Linear, WGPUAddressMode_Repeat));
-	wgpContext.addSampler(wgpCreateSampler(WGPUFilterMode_Nearest, WGPUAddressMode_ClampToEdge), SS_NEAREST);
+	wgpContext.addSampler(wgpCreateSampler(WGPUFilterMode_Linear, WGPUAddressMode_ClampToEdge), SS_NEAREST);
 
 	wgpContext.setClearColor({ 0.1f, 0.2f, 0.3f, 1.0f });
 	wgpContext.addSahderModule("TEXTURE", "res/shader/texture.wgsl");
@@ -288,7 +288,6 @@ std::vector<WGPUBindGroupLayout> ImageBasedLighting::OnBindGroupLayouts() {
 	textureBindingLayout.texture.sampleType = WGPUTextureSampleType_Float;
 	textureBindingLayout.texture.viewDimension = WGPUTextureViewDimension_2D;
 
-
 	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor1 = {};
 	bindGroupLayoutDescriptor1.entryCount = (uint32_t)bindingLayoutEntries1.size();
 	bindGroupLayoutDescriptor1.entries = bindingLayoutEntries1.data();
@@ -366,11 +365,10 @@ std::vector<WGPUBindGroupLayout> ImageBasedLighting::OnBindGroupLayoutsEnv() {
 	WGPUBindGroupLayoutEntry& textureBindingLayout = bindingLayoutEntries1[0];
 	textureBindingLayout.binding = 0u;
 	textureBindingLayout.visibility = WGPUShaderStage_Fragment;
+	textureBindingLayout.texture.viewDimension = WGPUTextureViewDimension_Cube;
 	textureBindingLayout.texture.sampleType = WGPUTextureSampleType_UnfilterableFloat;
 	//textureBindingLayout.texture.sampleType = WGPUTextureSampleType_Float;
-	textureBindingLayout.texture.viewDimension = WGPUTextureViewDimension_Cube;
-
-
+	
 	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor1 = {};
 	bindGroupLayoutDescriptor1.entryCount = (uint32_t)bindingLayoutEntries1.size();
 	bindGroupLayoutDescriptor1.entries = bindingLayoutEntries1.data();

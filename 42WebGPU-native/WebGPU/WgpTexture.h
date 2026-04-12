@@ -20,7 +20,7 @@ public:
 
 	void loadFromFile(const std::string& fileName, const bool flipVertical = false, const short alphaChannel = -1);
 	void loadFromMemory(unsigned char* data, uint32_t size, const bool flipVertical = false, const short alphaChannel = -1);
-	void loadHDRIFromFile(const std::string& fileName, const bool flipVertical = false);
+	void loadHDRIFromFile(const std::string& fileName, const bool flipVertical = false, const bool halfBPP = false);
 
 	void createEmpty(uint32_t width, uint32_t height, WGPUTextureUsage textureUsage, WGPUTextureFormat textureFormat);
 	void cleanup();
@@ -49,7 +49,7 @@ private:
 	static std::array<float, 3> OutImgToXYZ(int i, int j, int face, float edge);
 	static float BytesToFloatLE(unsigned char b0, unsigned char b1, unsigned char b2, unsigned char b3);
 	static float BytesToFloatBE(unsigned char b0, unsigned char b1, unsigned char b2, unsigned char b3);
-
+	static uint16_t Float32Tofloat16(float value);
 	WGPUTexture m_texture;
 	WGPUTextureFormat m_format;
 	WGPUTextureView m_textureView;
