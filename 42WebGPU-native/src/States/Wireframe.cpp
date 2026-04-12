@@ -359,7 +359,7 @@ std::vector<WGPUBindGroup> Wireframe::OnBindGroups() {
 	bindGroupEntries[0].size = wgpuBufferGetSize(m_uniformBuffer.getBuffer());
 
 	bindGroupEntries[1].binding = 1u;
-	bindGroupEntries[1].sampler = wgpContext.getSampler(SS_LINEAR);
+	bindGroupEntries[1].sampler = wgpContext.getSampler(SS_LINEAR_CLAMP);
 
 	WGPUBindGroupDescriptor bindGroupDesc = {};
 	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_PTNC"), 0u);

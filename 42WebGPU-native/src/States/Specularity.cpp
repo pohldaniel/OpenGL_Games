@@ -242,7 +242,7 @@ std::vector<WGPUBindGroup> Specularity::OnBindGroups() {
 	bindings[1].textureView = m_wgpBoat.getMeshes().begin()->getTexture().getTextureView();
 
 	bindings[2].binding = 2;
-	bindings[2].sampler = wgpContext.getSampler(SS_LINEAR);
+	bindings[2].sampler = wgpContext.getSampler(SS_LINEAR_CLAMP);
 
 	bindings[3].binding = 3;
 	bindings[3].buffer = m_uniformLigthBuffer.getBuffer();

@@ -192,7 +192,7 @@ void WgpTexture::loadFromMemory(unsigned char* data, uint32_t size, const bool f
     m_textureView = wgpCreateTextureView(m_format, WGPUTextureAspect::WGPUTextureAspect_All, m_texture);
 }
 
-void WgpTexture::loadHDRIFromFile(const std::string& fileName, const bool flipVertical, const bool halfBPP) {
+void WgpTexture::loadHDRICubeFromFile(const std::string& fileName, const bool flipVertical, const bool halfBPP) {
     std::filesystem::path filePath = fileName;
 
     FreeImage_Initialise();
@@ -251,7 +251,6 @@ void WgpTexture::loadHDRIFromFile(const std::string& fileName, const bool flipVe
     uint32_t faceWidth = m_width > m_height ? m_width / 4u : m_width / 3u;
     uint32_t faceHeight = m_height > m_width ? m_height / 4u : m_height / 3u;
 
-    const WGPUDevice& device = wgpContext.device;
     WGPUTextureDescriptor textureDescriptor = {};
     textureDescriptor.label = WGPU_STR("texture");
     textureDescriptor.dimension = WGPUTextureDimension::WGPUTextureDimension_2D;
@@ -262,7 +261,7 @@ void WgpTexture::loadHDRIFromFile(const std::string& fileName, const bool flipVe
     textureDescriptor.sampleCount = 1u;
     textureDescriptor.nextInChain = NULL;
 
-    m_texture = wgpuDeviceCreateTexture(device, &textureDescriptor);
+    m_texture = wgpuDeviceCreateTexture(wgpContext.device, &textureDescriptor);
 
     WGPUTexelCopyBufferLayout source = {};
     source.offset = 0u;
@@ -302,7 +301,104 @@ void WgpTexture::loadHDRIFromFile(const std::string& fileName, const bool flipVe
     textureViewDescriptor.nextInChain = NULL;
 
     m_textureView = wgpuTextureCreateView(m_texture, &textureViewDescriptor);  
-    //m_textureView = wgpCreateTextureView(m_format, WGPUTextureAspect::WGPUTextureAspect_All, m_texture);
+}
+
+void WgpTexture::loadHDRIFromFile(const std::string& fileName, const bool flipVertical, const bool halfBPP) {
+    std::filesystem::path filePath = fileName;
+
+    FreeImage_Initialise();
+    FIBITMAP* sourceBitmap = filePath.extension() == ".png" ? FreeImage_Load(FIF_PNG, fileName.c_str(), PNG_DEFAULT) :
+        filePath.extension() == ".jpg" ? FreeImage_Load(FIF_JPEG, fileName.c_str(), JPEG_DEFAULT) :
+        filePath.extension() == ".hdr" ? FreeImage_Load(FIF_HDR, fileName.c_str(), HDR_DEFAULT) :
+        FreeImage_Load(FIF_BMP, fileName.c_str(), BMP_DEFAULT);
+
+    if (flipVertical)
+        FreeImage_FlipVertical(sourceBitmap);
+
+    unsigned int bpp = FreeImage_GetBPP(sourceBitmap) / (8u * sizeof(float));
+    unsigned int width = FreeImage_GetWidth(sourceBitmap);
+    unsigned int height = FreeImage_GetHeight(sourceBitmap);
+
+    unsigned char* imageData = FreeImage_GetBits(sourceBitmap);
+    unsigned char* bytesNew = nullptr;
+
+    UFloat one;
+    one.flt = 1.0f;
+
+    if (bpp == 3) {
+        bytesNew = (unsigned char*)malloc(sizeof(float) * 4u * width * height);
+        for (unsigned int i = 0, k = 0; i < static_cast<unsigned int>(width * height * 4u * sizeof(float)); i = i + 4u * sizeof(float), k = k + 3u * sizeof(float)) {
+            bytesNew[i + 0] = imageData[k + 0]; bytesNew[i + 1] = imageData[k + 1]; bytesNew[i + 2] = imageData[k + 2];  bytesNew[i + 3] = imageData[k + 3];
+            bytesNew[i + 4] = imageData[k + 4]; bytesNew[i + 5] = imageData[k + 5]; bytesNew[i + 6] = imageData[k + 6];  bytesNew[i + 7] = imageData[k + 7];
+            bytesNew[i + 8] = imageData[k + 8]; bytesNew[i + 9] = imageData[k + 9]; bytesNew[i + 10] = imageData[k + 10]; bytesNew[i + 11] = imageData[k + 11];
+            bytesNew[i + 12] = one.c[0]; bytesNew[i + 13] = one.c[1]; bytesNew[i + 14] = one.c[2]; bytesNew[i + 15] = one.c[3];
+        }
+        bpp = 4;
+    }
+
+    m_width = width;
+    m_height = height;
+    m_channels = bpp;
+    m_format = halfBPP ? WGPUTextureFormat::WGPUTextureFormat_RGBA16Float : WGPUTextureFormat::WGPUTextureFormat_RGBA32Float;
+
+
+    uint16_t* float16 = nullptr;
+    if (halfBPP) {
+        const size_t count = m_width * m_height * m_channels;
+        float16 = (uint16_t*)malloc(m_width * m_height * m_channels * sizeof(uint16_t));
+        float* floats = reinterpret_cast<float*>(bytesNew ? bytesNew : imageData);
+        float maxVal = 0.0f;
+        for (size_t i = 0; i < count; i++) {
+            float16[i] = Float32Tofloat16(floats[i]);
+            if (floats[i] > maxVal)
+                maxVal = floats[i];
+        }
+    }
+
+    WGPUTextureDescriptor textureDescriptor = {};
+    textureDescriptor.label = WGPU_STR("texture");
+    textureDescriptor.dimension = WGPUTextureDimension::WGPUTextureDimension_2D;
+    textureDescriptor.size = { m_width, m_height, 1u };
+    textureDescriptor.format = m_format;
+    textureDescriptor.usage = WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst;
+    textureDescriptor.mipLevelCount = 1u;
+    textureDescriptor.sampleCount = 1u;
+    textureDescriptor.nextInChain = NULL;
+
+    m_texture = wgpuDeviceCreateTexture(wgpContext.device, &textureDescriptor);
+
+    WGPUTexelCopyBufferLayout source = {};
+    source.offset = 0u;
+    source.bytesPerRow = halfBPP ? sizeof(uint16_t) * m_channels * m_width : sizeof(float) * m_channels * m_width;
+    source.rowsPerImage = m_height;
+
+    WGPUTexelCopyTextureInfo destination = {};
+    destination.texture = m_texture;
+    destination.mipLevel = 0u;
+    destination.origin = { 0u, 0u, 0u };
+    destination.aspect = WGPUTextureAspect_All;
+
+    WGPUExtent3D extent3D = { m_width, m_height, 1u };
+    wgpuQueueWriteTexture(wgpContext.queue, &destination, halfBPP ? reinterpret_cast<unsigned char*>(float16) : bytesNew ? bytesNew : imageData, halfBPP ? sizeof(uint16_t) * m_width * m_height * m_channels : sizeof(float) * m_width * m_height * m_channels, &source, &extent3D);
+
+    if (bytesNew)
+        free(bytesNew);
+
+    FreeImage_Unload(sourceBitmap);
+    FreeImage_DeInitialise();
+
+    WGPUTextureViewDescriptor textureViewDescriptor = {};
+    textureViewDescriptor.label = WGPU_STR("texture_view");
+    textureViewDescriptor.aspect = WGPUTextureAspect::WGPUTextureAspect_All;
+    textureViewDescriptor.baseArrayLayer = 0u;
+    textureViewDescriptor.arrayLayerCount = 1u;
+    textureViewDescriptor.baseMipLevel = 0u;
+    textureViewDescriptor.mipLevelCount = 1u;
+    textureViewDescriptor.dimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
+    textureViewDescriptor.format = m_format;
+    textureViewDescriptor.nextInChain = NULL;
+
+    m_textureView = wgpuTextureCreateView(m_texture, &textureViewDescriptor);
 }
 
 void WgpTexture::createEmpty(uint32_t width, uint32_t height, WGPUTextureUsage textureUsage, WGPUTextureFormat textureFormat) {
@@ -476,6 +572,76 @@ void WgpTexture::SafeHDRI(const std::string& fileOut, unsigned char* bytes, uint
         free(bytesNew);
 }
 
+void WgpTexture::FlipVertical(unsigned char* data, uint32_t width, uint32_t bytesPerChannel, uint32_t height) {
+    uint32_t channels = 4u;
+    
+    std::vector<unsigned char> srcPixels(bytesPerChannel * channels * width * height);
+    memcpy(&srcPixels[0], data, bytesPerChannel * channels * width * height);
+
+    unsigned char* pSrcRow = 0;
+    unsigned char* pDestRow = 0;
+
+    for (unsigned int i = 0; i < height; ++i) {
+        pSrcRow = &srcPixels[(height - 1 - i) * bytesPerChannel * channels * width];
+        pDestRow = &data[i * bytesPerChannel * channels * width];
+        memcpy(pDestRow, pSrcRow, bytesPerChannel * channels * width);
+    }
+}
+
+void WgpTexture::FlipHorizontal(unsigned char* data, uint32_t width, uint32_t bytesPerChannel, uint32_t height) {
+    uint32_t channels = 4u;
+
+    unsigned char* pFront = 0;
+    unsigned char* pBack = 0;
+    std::vector<unsigned char> pixel;
+    pixel.resize(bytesPerChannel * channels);
+
+    for (uint32_t i = 0; i < height; ++i) {
+        pFront = &data[i * width * bytesPerChannel * channels];
+        pBack = &pFront[(width - 1) * bytesPerChannel * channels];
+
+        while (pFront < pBack) {
+            // Save current pixel at position pFront.
+            for (uint32_t j = 0; j < channels * bytesPerChannel; j++) {
+                pixel[j] = pFront[j];
+            }
+
+            // Copy new pixel from position pBack into pFront.
+            for (uint32_t j = 0; j < channels * bytesPerChannel; j++) {
+                pFront[j] = pBack[j];
+            }
+
+            // Copy old pixel at position pFront into pBack.
+            for (uint32_t j = 0; j < channels * bytesPerChannel; j++) {
+                pBack[j] = pixel[j];
+            }
+
+            pFront += bytesPerChannel * channels;
+            pBack -= bytesPerChannel * channels;
+        }
+    }
+}
+
+void WgpTexture::Rotate90(unsigned char*& source, uint32_t width, uint32_t bytesPerChannel, uint32_t height, bool ccw) {
+    uint32_t channels = 4u;
+    unsigned char* bytesNew = (unsigned char*)malloc(bytesPerChannel * channels * width * height);
+    
+    for (uint32_t y = 0u; y < height; ++y) {
+        for (uint32_t x = 0u; x < width; ++x) {
+            uint32_t oldPixelPos = (y * width + x) * channels * bytesPerChannel;
+            uint32_t newX = ccw ? y : height - 1u - y;
+            uint32_t newY = ccw ? (width - 1u) - x : x;
+
+            uint32_t newPixelPos = (newY * height + newX) * channels * bytesPerChannel;
+            for (uint32_t j = 0u; j < channels * bytesPerChannel; j++) {
+                bytesNew[newPixelPos + j] = source[oldPixelPos + j];
+            }
+        }
+    }
+    free(source);
+    source = bytesNew;
+}
+
 std::vector<unsigned char*> WgpTexture::CrossToFaces(unsigned char* source, uint32_t width, uint32_t bytesPerChannel, uint32_t height) {
     std::vector<unsigned char*> faces;
 
@@ -488,28 +654,8 @@ std::vector<unsigned char*> WgpTexture::CrossToFaces(unsigned char* source, uint
         faces[face] = new unsigned char[fWidth * fHeight * channels * bytesPerChannel];
     }
 
-    unsigned char* ptr;
-    // positive X
-    ptr = faces[0];
-    for (uint32_t j = 0; j < fHeight; j++) {
-        //flip
-        memcpy(ptr, &source[((height - (fHeight + 1) - j) * width + 2u * fWidth) * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
- 
-        //memcpy(ptr, &source[((height - 2u * fHeight + j) * width + 2u * fWidth) * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
-        ptr += fWidth * channels * bytesPerChannel;
-    }
-
-    // negativ x
-    ptr = faces[1];
-    for (uint32_t j = 0; j < fHeight; j++) {
-        //flip
-        memcpy(ptr, &source[(height - (fHeight + 1) - j) * width * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
-
-        //memcpy(ptr, &source[(height - 2u * fHeight + j) * width * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
-        ptr += fWidth * channels * bytesPerChannel;
-    }
-
-    // positive z
+    unsigned char* ptr;   
+    // positive y
     ptr = faces[2];
     for (uint32_t j = 0; j < fHeight; j++) {
         //flip
@@ -518,9 +664,10 @@ std::vector<unsigned char*> WgpTexture::CrossToFaces(unsigned char* source, uint
         //memcpy(ptr, &source[((height - 1u * fHeight + j) * width + fWidth) * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
         ptr += fWidth * channels * bytesPerChannel;
     }
-    
+    Rotate90(faces[2], fWidth, bytesPerChannel, fHeight, true);
+    FlipVertical(faces[2], fWidth, bytesPerChannel, fHeight);
 
-    // negativ z
+    // negativ y
     ptr = faces[3];
     for (uint32_t j = 0; j < fHeight; j++) {
         //flip
@@ -529,28 +676,52 @@ std::vector<unsigned char*> WgpTexture::CrossToFaces(unsigned char* source, uint
         //memcpy(ptr, &source[((height - 3u * fHeight + j) * width + fWidth) * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
         ptr += fWidth * channels * bytesPerChannel;
     }
-    
+    Rotate90(faces[3], fWidth, bytesPerChannel, fHeight);
+    FlipVertical(faces[3], fWidth, bytesPerChannel, fHeight);
 
-    // positive y
-    ptr = faces[4];
+    // positive X
+    ptr = faces[0];
     for (uint32_t j = 0; j < fHeight; j++) {
         //flip
         memcpy(ptr, &source[((height - (fHeight + 1) - j) * width + fWidth) * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
 
         //memcpy(ptr, &source[((height - 2u * fHeight + j) * width + fWidth) * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
         ptr += fWidth * channels * bytesPerChannel;
-    }
+    } 
+    FlipHorizontal(faces[0], fWidth, bytesPerChannel, fHeight);
 
-    // negative y
-    ptr = faces[5];
+    // negativ x
+    ptr = faces[1];
     for (uint32_t j = 0; j < fHeight; j++) {
         //flip
         memcpy(ptr, &source[((height - (fHeight + 1) - j) * width + 3u * fWidth) * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
 
         //memcpy(ptr, &source[((height - 2u * fHeight + j) * width + 3u * fWidth) * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
         ptr += fWidth * channels * bytesPerChannel;
+    }   
+    FlipHorizontal(faces[1], fWidth, bytesPerChannel, fHeight);
+
+    // positive z
+    ptr = faces[4];
+    for (uint32_t j = 0; j < fHeight; j++) {
+        //flip
+        memcpy(ptr, &source[((height - (fHeight + 1) - j) * width + 2u * fWidth) * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
+
+        //memcpy(ptr, &source[((height - 2u * fHeight + j) * width + 2u * fWidth) * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
+        ptr += fWidth * channels * bytesPerChannel;
     }
-    
+    FlipHorizontal(faces[4], fWidth, bytesPerChannel, fHeight);
+
+    // negative z
+    ptr = faces[5];
+    for (uint32_t j = 0; j < fHeight; j++) {
+        //flip
+        memcpy(ptr, &source[(height - (fHeight + 1) - j) * width * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
+
+        //memcpy(ptr, &source[(height - 2u * fHeight + j) * width * channels * bytesPerChannel], fWidth * channels * bytesPerChannel);
+        ptr += fWidth * channels * bytesPerChannel;
+    }
+    FlipHorizontal(faces[5], fWidth, bytesPerChannel, fHeight);
 
     return faces;
 }

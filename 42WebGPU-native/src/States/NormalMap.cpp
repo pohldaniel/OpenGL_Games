@@ -421,7 +421,7 @@ std::vector<WGPUBindGroup> NormalMap::OnBindGroups() {
 	bindGroupEntries0[1].size = sizeof(NormalUniforms);
 
 	bindGroupEntries0[2].binding = 2u;
-	bindGroupEntries0[2].sampler = wgpContext.getSampler(SS_LINEAR);
+	bindGroupEntries0[2].sampler = wgpContext.getSampler(SS_LINEAR_CLAMP);
 
 	WGPUBindGroupDescriptor bindGroupDesc0 = {};
 	bindGroupDesc0.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_PTNTB"), 0u);

@@ -53,8 +53,10 @@ extern "C" {
 }
 
 enum SamplerSlot {
-	SS_LINEAR,
-	SS_NEAREST
+	SS_LINEAR_CLAMP,
+	SS_LINEAR_REPEAT,
+	SS_NEAREST_CLAMP,
+	SS_NEAREST_REPEAT
 };
 
 struct WgpContext {
@@ -68,7 +70,7 @@ struct WgpContext {
 	void createRenderPipeline(std::string shaderModuleName, std::string pipelineLayoutName, const VertexLayoutSlot vertexLayoutSlot, const std::function<std::vector<WGPUBindGroupLayout>()>& onBindGroupLayouts, WGPUPrimitiveTopology primitiveTopology = WGPUPrimitiveTopology::WGPUPrimitiveTopology_TriangleList);
 
 	void createVertexBufferLayout(VertexLayoutSlot slot = VL_PTN);
-	void addSampler(const WGPUSampler& sampler, SamplerSlot samplerSlot = SS_LINEAR);
+	void addSampler(const WGPUSampler& sampler, SamplerSlot samplerSlot = SS_LINEAR_CLAMP);
 	const WGPUSampler& getSampler(SamplerSlot samplerSlot);
 	void addSahderModule(const std::string& shaderModuleName, const std::string& shaderModulePath);
 	const WGPUShaderModule& getShaderModule(std::string shaderModuleName);

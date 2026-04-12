@@ -20,6 +20,7 @@ public:
 
 	void loadFromFile(const std::string& fileName, const bool flipVertical = false, const short alphaChannel = -1);
 	void loadFromMemory(unsigned char* data, uint32_t size, const bool flipVertical = false, const short alphaChannel = -1);
+	void loadHDRICubeFromFile(const std::string& fileName, const bool flipVertical = false, const bool halfBPP = false);
 	void loadHDRIFromFile(const std::string& fileName, const bool flipVertical = false, const bool halfBPP = false);
 
 	void createEmpty(uint32_t width, uint32_t height, WGPUTextureUsage textureUsage, WGPUTextureFormat textureFormat);
@@ -43,6 +44,10 @@ public:
 
 private:
 	
+	static void FlipVertical(unsigned char* data, uint32_t width, uint32_t bytesPerChannel, uint32_t height);
+	static void FlipHorizontal(unsigned char* data, uint32_t width, uint32_t bytesPerChannel, uint32_t height);
+	static void Rotate90(unsigned char*& source, uint32_t width, uint32_t bytesPerChannel, uint32_t height, bool ccw = false);
+
 	static std::vector<unsigned char*> CrossToFaces(unsigned char* source, uint32_t width, uint32_t bytesPerChannel, uint32_t height);
 	static unsigned char* EquirectangularToCross(unsigned char* source, uint32_t width, uint32_t bytesPerChannel, uint32_t& height);
 	static float Clamp(const float& n, const float& lower, const float& upper);

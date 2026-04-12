@@ -23,7 +23,9 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(10.0f);
 
-	m_wgpTexture.loadHDRIFromFile("res/textures/venice_sunset_1k.hdr", false, false);
+	m_wgpTextureCube.loadHDRICubeFromFile("res/textures/venice_sunset_1k.hdr", false, false);
+	m_wgpTexture.loadHDRIFromFile("res/textures/venice_sunset_1k.hdr", false, true);
+
 	//m_wgpTexture.loadFromFile("res/textures/palace.jpg");
 	
 	//m_helmet.loadModel("res/models/helmet.glb", Vector3f(0.0f, 0.0f, 1.0f), 180.0f, Vector3f(0.0f, 0.0f, 0.0f), 1.0f, false, false, false, true, true);
@@ -32,15 +34,19 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 
 	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 
-	wgpContext.addSampler(wgpCreateSampler(WGPUFilterMode_Linear, WGPUAddressMode_Repeat));
-	wgpContext.addSampler(wgpCreateSampler(WGPUFilterMode_Linear, WGPUAddressMode_ClampToEdge), SS_NEAREST);
+	wgpContext.addSampler(wgpCreateSampler(WGPUFilterMode_Linear, WGPUAddressMode_ClampToEdge));
+	wgpContext.addSampler(wgpCreateSampler(WGPUFilterMode_Linear, WGPUAddressMode_Repeat), SS_LINEAR_REPEAT);
+	wgpContext.addSampler(wgpCreateSampler(WGPUFilterMode_Nearest, WGPUAddressMode_ClampToEdge), SS_NEAREST_CLAMP);
 
 	wgpContext.setClearColor({ 0.1f, 0.2f, 0.3f, 1.0f });
 	wgpContext.addSahderModule("TEXTURE", "res/shader/texture.wgsl");
 	wgpContext.createRenderPipeline("TEXTURE", "RP_PTN", VL_PTN, std::bind(&ImageBasedLighting::OnBindGroupLayouts, this));
 
-	wgpContext.addSahderModule("ENV", "res/shader/cube_map.wgsl");
-	wgpContext.createRenderPipeline("ENV", "RP_ENV", VL_P, std::bind(&ImageBasedLighting::OnBindGroupLayoutsEnv, this));
+	wgpContext.addSahderModule("ENV_CUBE", "res/shader/env_cube.wgsl");
+	wgpContext.createRenderPipeline("ENV_CUBE", "RP_ENV_CUBE", VL_P, std::bind(&ImageBasedLighting::OnBindGroupLayoutsEnvCube, this));
+
+	wgpContext.addSahderModule("ENV_SPHERE", "res/shader/env_sphere.wgsl");
+	wgpContext.createRenderPipeline("ENV_SPHERE", "RP_ENV_SPHERE", VL_P, std::bind(&ImageBasedLighting::OnBindGroupLayoutsEnvSphere, this));
 
 	wgpContext.OnDraw = std::bind(&ImageBasedLighting::OnDraw, this, std::placeholders::_1);
 	
@@ -58,12 +64,20 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
 
 	m_trackball.reshape(Application::Width, Application::Height);
-	m_cube.buildCube({ -1.0f, -1.0f, -1.0f }, { 2.0f, 2.0f, 2.0f }, 1u, 1u, false, false, false);
+
+	m_cube.buildCube({ -0.5f, -0.5f, -0.5f }, { 1.0f, 1.0f, 1.0f }, 1u, 1u, false, false);
 	m_cube.rewind();
 
 	m_wgpCube.create(m_cube);
-	m_wgpCube.setBindGroups("BG", std::bind(&ImageBasedLighting::OnBindGroupsEnv, this));
-	AddBindgroups(m_wgpCube, m_wgpTexture);
+	m_wgpCube.setBindGroups("BG", std::bind(&ImageBasedLighting::OnBindGroupsEnvCube, this));
+	AddBindgroups(m_wgpCube, m_wgpTextureCube, "RP_ENV_CUBE");
+
+	m_sphere.buildSphere({ 0.0f, 0.0f, 0.0f }, 1.0f, 49u, 49u, false, false);
+	m_sphere.rewind();
+
+	m_wgpSphere.create(m_sphere);
+	m_wgpSphere.setBindGroups("BG", std::bind(&ImageBasedLighting::OnBindGroupsEnvSphere, this));
+	AddBindgroups(m_wgpSphere, m_wgpTexture, "RP_ENV_SPHERE");
 }
 
 ImageBasedLighting::~ImageBasedLighting() {
@@ -153,12 +167,14 @@ void ImageBasedLighting::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) 
 
 	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
 
-	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_ENV"));
+	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_ENV_CUBE"));
 	m_wgpCube.draw(renderPassEncoder);
 
-	
-	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_PTN"));
-	m_wgpHelmet.draw(renderPassEncoder);
+	//wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_ENV_SPHERE"));
+	//m_wgpSphere.draw(renderPassEncoder);
+
+	//wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_PTN"));
+	//m_wgpHelmet.draw(renderPassEncoder);
 
 	if (m_drawUi)
 		renderUi(renderPassEncoder);
@@ -308,7 +324,7 @@ std::vector<WGPUBindGroup> ImageBasedLighting::OnBindGroups() {
 	bindGroupEntries0[0].size = wgpuBufferGetSize(m_uniformBuffer.getBuffer());
 
 	bindGroupEntries0[1].binding = 1u;
-	bindGroupEntries0[1].sampler = wgpContext.getSampler(SS_LINEAR);
+	bindGroupEntries0[1].sampler = wgpContext.getSampler(SS_LINEAR_REPEAT);
 
 	WGPUBindGroupDescriptor bindGroupDesc0 = {};
 	bindGroupDesc0.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_PTN"), 0u);
@@ -337,7 +353,7 @@ void ImageBasedLighting::AddBindgroups(const WgpModel& model) {
 	}
 }
 
-std::vector<WGPUBindGroupLayout> ImageBasedLighting::OnBindGroupLayoutsEnv() {
+std::vector<WGPUBindGroupLayout> ImageBasedLighting::OnBindGroupLayoutsEnvCube() {
 	std::vector<WGPUBindGroupLayout> bindingLayouts(2);
 
 	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries0(2);
@@ -378,7 +394,7 @@ std::vector<WGPUBindGroupLayout> ImageBasedLighting::OnBindGroupLayoutsEnv() {
 	return bindingLayouts;
 }
 
-std::vector<WGPUBindGroup> ImageBasedLighting::OnBindGroupsEnv() {
+std::vector<WGPUBindGroup> ImageBasedLighting::OnBindGroupsEnvCube() {
 	std::vector<WGPUBindGroup> bindGroups(1);
 
 	std::vector<WGPUBindGroupEntry> bindGroupEntries0(2);
@@ -389,10 +405,10 @@ std::vector<WGPUBindGroup> ImageBasedLighting::OnBindGroupsEnv() {
 	bindGroupEntries0[0].size = wgpuBufferGetSize(m_uniformBuffer.getBuffer());
 
 	bindGroupEntries0[1].binding = 1u;
-	bindGroupEntries0[1].sampler = wgpContext.getSampler(SS_NEAREST);
+	bindGroupEntries0[1].sampler = wgpContext.getSampler(SS_NEAREST_CLAMP);
 
 	WGPUBindGroupDescriptor bindGroupDesc0 = {};
-	bindGroupDesc0.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_ENV"), 0u);
+	bindGroupDesc0.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_ENV_CUBE"), 0u);
 	bindGroupDesc0.entryCount = (uint32_t)bindGroupEntries0.size();
 	bindGroupDesc0.entries = bindGroupEntries0.data();
 
@@ -401,7 +417,71 @@ std::vector<WGPUBindGroup> ImageBasedLighting::OnBindGroupsEnv() {
 	return bindGroups;
 }
 
-void ImageBasedLighting::AddBindgroups(const WgpModel& model, const WgpTexture& texture) {
+std::vector<WGPUBindGroupLayout> ImageBasedLighting::OnBindGroupLayoutsEnvSphere() {
+	std::vector<WGPUBindGroupLayout> bindingLayouts(2);
+
+	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries0(2);
+
+	WGPUBindGroupLayoutEntry& uniformLayout = bindingLayoutEntries0[0];
+	uniformLayout.binding = 0u;
+	uniformLayout.visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
+	uniformLayout.buffer.type = WGPUBufferBindingType_Uniform;
+	uniformLayout.buffer.minBindingSize = sizeof(Uniforms);
+
+	WGPUBindGroupLayoutEntry& samplerBindingLayout = bindingLayoutEntries0[1];
+	samplerBindingLayout.binding = 1u;
+	samplerBindingLayout.visibility = WGPUShaderStage_Fragment;
+	//samplerBindingLayout.sampler.type = WGPUSamplerBindingType_NonFiltering;
+	samplerBindingLayout.sampler.type = WGPUSamplerBindingType_Filtering;
+
+	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor0 = {};
+	bindGroupLayoutDescriptor0.entryCount = (uint32_t)bindingLayoutEntries0.size();
+	bindGroupLayoutDescriptor0.entries = bindingLayoutEntries0.data();
+
+	bindingLayouts[0] = wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor0);
+
+	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries1(1);
+
+	WGPUBindGroupLayoutEntry& textureBindingLayout = bindingLayoutEntries1[0];
+	textureBindingLayout.binding = 0u;
+	textureBindingLayout.visibility = WGPUShaderStage_Fragment;
+	textureBindingLayout.texture.viewDimension = WGPUTextureViewDimension_2D;
+	//textureBindingLayout.texture.sampleType = WGPUTextureSampleType_UnfilterableFloat;
+	textureBindingLayout.texture.sampleType = WGPUTextureSampleType_Float;
+
+	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor1 = {};
+	bindGroupLayoutDescriptor1.entryCount = (uint32_t)bindingLayoutEntries1.size();
+	bindGroupLayoutDescriptor1.entries = bindingLayoutEntries1.data();
+
+	bindingLayouts[1] = wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor1);
+
+	return bindingLayouts;
+}
+
+std::vector<WGPUBindGroup> ImageBasedLighting::OnBindGroupsEnvSphere() {
+	std::vector<WGPUBindGroup> bindGroups(1);
+
+	std::vector<WGPUBindGroupEntry> bindGroupEntries0(2);
+
+	bindGroupEntries0[0].binding = 0u;
+	bindGroupEntries0[0].buffer = m_uniformBuffer.getBuffer();
+	bindGroupEntries0[0].offset = 0u;
+	bindGroupEntries0[0].size = wgpuBufferGetSize(m_uniformBuffer.getBuffer());
+
+	bindGroupEntries0[1].binding = 1u;
+	bindGroupEntries0[1].sampler = wgpContext.getSampler(SS_LINEAR_CLAMP);
+
+	WGPUBindGroupDescriptor bindGroupDesc0 = {};
+	bindGroupDesc0.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_ENV_SPHERE"), 0u);
+	bindGroupDesc0.entryCount = (uint32_t)bindGroupEntries0.size();
+	bindGroupDesc0.entries = bindGroupEntries0.data();
+
+	bindGroups[0] = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc0);
+
+	return bindGroups;
+}
+
+void ImageBasedLighting::AddBindgroups(const WgpModel& model, const WgpTexture& texture, std::string pipelineName) {
 	for (std::list<WgpMesh>::const_iterator it = model.getMeshes().begin(); it != model.getMeshes().end(); ++it) {
 		const WgpMesh& mesh = *it;
 
@@ -410,7 +490,7 @@ void ImageBasedLighting::AddBindgroups(const WgpModel& model, const WgpTexture& 
 		bindingGroupEntries[0].textureView = texture.getTextureView();
 
 		WGPUBindGroupDescriptor bindGroupDesc = {};
-		bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_ENV"), 1u);
+		bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at(pipelineName), 1u);
 		bindGroupDesc.entryCount = (uint32_t)bindingGroupEntries.size();
 		bindGroupDesc.entries = bindingGroupEntries.data();
 

@@ -266,7 +266,7 @@ WGPUTexture wgpCreateTexture(uint32_t width, uint32_t height, WGPUTextureUsage t
 	WGPUTextureDescriptor textureDescriptor = {};
 	textureDescriptor.label = WGPU_STR("texture");
 	textureDescriptor.dimension = WGPUTextureDimension::WGPUTextureDimension_2D;
-	textureDescriptor.size = { width, height, 1 };
+	textureDescriptor.size = { width, height, 1u };
 	textureDescriptor.format = textureFormat;
 	textureDescriptor.usage = textureUsage;
 	textureDescriptor.mipLevelCount = 1u;
