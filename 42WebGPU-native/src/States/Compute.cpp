@@ -22,8 +22,8 @@ Compute::Compute(StateMachine& machine) : State(machine, States::COMPUTE) {
 
 	m_inputTexture.loadFromFile("res/textures/input.jpg", true);
 	m_outputTexture.createEmpty(m_inputTexture.getWidth(), m_inputTexture.getHeight(), WGPUTextureUsage_TextureBinding | WGPUTextureUsage_StorageBinding | WGPUTextureUsage_CopySrc, WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm);
-	m_inputTextureView = wgpCreateTextureView(m_inputTexture.getFormat(), WGPUTextureAspect::WGPUTextureAspect_All, m_inputTexture.getTexture());
-	m_outputTextureView = wgpCreateTextureView(m_outputTexture.getFormat(), WGPUTextureAspect::WGPUTextureAspect_All, m_outputTexture.getTexture());
+	m_inputTextureView = wgpCreateTextureView(m_inputTexture.getFormat(), WGPUTextureAspect::WGPUTextureAspect_All, 1u, m_inputTexture.getTexture());
+	m_outputTextureView = wgpCreateTextureView(m_outputTexture.getFormat(), WGPUTextureAspect::WGPUTextureAspect_All, 1u, m_outputTexture.getTexture());
 	m_bindGroup = createBindGroup(m_inputTextureView, m_outputTextureView, m_uniformBuffer.getBuffer());
 
 	wgpContext.OnDraw = std::bind(&Compute::OnDraw, this, std::placeholders::_1);

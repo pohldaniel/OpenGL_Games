@@ -119,7 +119,7 @@ void WgpTexture::loadFromFile(const std::string& fileName, const bool flipVertic
     FreeImage_Unload(sourceBitmap);
     FreeImage_DeInitialise();
 
-    m_textureView = wgpCreateTextureView(m_format, WGPUTextureAspect::WGPUTextureAspect_All, m_texture);
+    m_textureView = wgpCreateTextureView(m_format, WGPUTextureAspect::WGPUTextureAspect_All, mipLevelCount, m_texture);
 }
 
 void WgpTexture::loadFromMemory(unsigned char* data, uint32_t size, const bool flipVertical, const short alphaChannel) {
@@ -167,7 +167,7 @@ void WgpTexture::loadFromMemory(unsigned char* data, uint32_t size, const bool f
     FreeImage_Unload(sourceBitmap);
     FreeImage_DeInitialise();
 
-    m_textureView = wgpCreateTextureView(m_format, WGPUTextureAspect::WGPUTextureAspect_All, m_texture);
+    m_textureView = wgpCreateTextureView(m_format, WGPUTextureAspect::WGPUTextureAspect_All, mipLevelCount, m_texture);
 }
 
 void WgpTexture::loadHDRICubeFromFile(const std::string& fileName, const bool flipVertical, const bool halfBPP) {
@@ -262,7 +262,7 @@ void WgpTexture::loadHDRICubeFromFile(const std::string& fileName, const bool fl
     textureViewDescriptor.baseArrayLayer = 0u;
     textureViewDescriptor.arrayLayerCount = 6u;
     textureViewDescriptor.baseMipLevel = 0u;
-    textureViewDescriptor.mipLevelCount = 1u;
+    textureViewDescriptor.mipLevelCount = mipLevelCount;
     textureViewDescriptor.dimension = WGPUTextureViewDimension::WGPUTextureViewDimension_Cube;
     textureViewDescriptor.format = m_format;
     textureViewDescriptor.nextInChain = NULL;
@@ -353,7 +353,7 @@ void WgpTexture::loadHDRIFromFile(const std::string& fileName, const bool flipVe
     textureViewDescriptor.baseArrayLayer = 0u;
     textureViewDescriptor.arrayLayerCount = 1u;
     textureViewDescriptor.baseMipLevel = 0u;
-    textureViewDescriptor.mipLevelCount = 1u;
+    textureViewDescriptor.mipLevelCount = mipLevelCount;
     textureViewDescriptor.dimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
     textureViewDescriptor.format = m_format;
     textureViewDescriptor.nextInChain = NULL;
@@ -367,7 +367,7 @@ void WgpTexture::createEmpty(uint32_t width, uint32_t height, WGPUTextureUsage t
     m_channels = 4u;
     m_format = textureFormat;
     m_texture = wgpCreateTexture(m_width, m_height, textureUsage, m_format);
-    m_textureView = wgpCreateTextureView(m_format, WGPUTextureAspect::WGPUTextureAspect_All, m_texture);
+    m_textureView = wgpCreateTextureView(m_format, WGPUTextureAspect::WGPUTextureAspect_All, 1u, m_texture);
 }
 
 unsigned char* WgpTexture::LoadFromFile(std::string fileName, const bool flipVertical, const short alphaChannel) {
