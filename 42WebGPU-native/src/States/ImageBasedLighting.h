@@ -37,7 +37,6 @@ private:
 
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayouts();
 	std::vector<WGPUBindGroup> OnBindGroups();
-
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsEnvCube();
 	std::vector<WGPUBindGroup> OnBindGroupsEnvCube();
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsEnvSphere();

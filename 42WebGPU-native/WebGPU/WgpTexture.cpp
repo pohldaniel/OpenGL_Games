@@ -2,9 +2,7 @@
 #include <math.h>
 #include <FreeImage.h>
 #include <Utilities.h>
-#include <iostream>
 
-#include "WgpContext.h"
 #include "WgpTexture.h"
 
 WgpTexture::WgpTexture() :
@@ -69,6 +67,102 @@ const WGPUTextureFormat WgpTexture::getFormat() const {
     return m_format;
 }
 
+static uint16_t Float32Tofloat16(float value) {
+    union {
+        float f;
+        uint32_t i;
+    } v;
+    v.f = value;
+    uint32_t i = v.i;
+
+    uint32_t sign = (i >> 16) & 0x8000;
+    int32_t exponent = ((i >> 23) & 0xFF) - 127 + 15;
+    uint32_t mantissa = i & 0x007FFFFF;
+
+    //Handle special cases 
+    if (exponent <= 0) {
+        ///nderflow or zero
+        if (exponent < -10)
+            return sign; //Too small, flush to zero
+        mantissa = (mantissa | 0x00800000) >> (1 - exponent);
+        return sign | (mantissa >> 13);
+    }else if (exponent >= 0x1F) {
+        //Overflow or infinity
+        return sign | 0x7C00 | (mantissa ? 0x0200 : 0);
+    }
+    //Normalized value
+    return sign | (exponent << 10) | (mantissa >> 13);
+}
+
+static uint16_t* GetFloat16(float* data, uint32_t width, uint32_t height, uint32_t channels) {
+    const size_t count = width * height * channels;
+    uint16_t* float16 = (uint16_t*)malloc(count * sizeof(uint16_t));
+
+    for (size_t i = 0; i < count; i++) {
+        float16[i] = Float32Tofloat16(data[i]);
+    }
+
+    return float16;
+}
+
+template<typename component_t>
+static void WriteMipMaps(WGPUTexture& texture, WGPUExtent3D textureSize, uint32_t mipLevelCount, component_t* pixelData, uint32_t layer = 0u, const bool halfBPP = false) {
+    uint32_t channels = 4u;
+
+    WGPUTexelCopyTextureInfo destination = {};
+    destination.texture = texture;
+    destination.mipLevel = 0u;
+    destination.origin = { 0u, 0u, layer };
+    destination.aspect = WGPUTextureAspect_All;
+
+    WGPUTexelCopyBufferLayout source = {};
+    source.offset = 0u;
+
+    // Create image data
+    WGPUExtent3D mipLevelSize = textureSize;
+    std::vector<component_t> previousLevelPixels;
+    WGPUExtent3D previousMipLevelSize;
+    for (uint32_t level = 0; level < mipLevelCount; ++level) {
+        std::vector<component_t> pixels(channels * mipLevelSize.width * mipLevelSize.height);
+        if (level == 0) {
+            memcpy(pixels.data(), pixelData, pixels.size() * sizeof(component_t));
+        }else {
+            for (uint32_t i = 0; i < mipLevelSize.width; ++i) {
+                for (uint32_t j = 0; j < mipLevelSize.height; ++j) {
+                    component_t* p = &pixels[channels * (j * mipLevelSize.width + i)];
+                    // Get the corresponding 4 pixels from the previous level
+                    component_t* p00 = &previousLevelPixels[channels * ((2 * j + 0) * previousMipLevelSize.width + (2 * i + 0))];
+                    component_t* p01 = &previousLevelPixels[channels * ((2 * j + 0) * previousMipLevelSize.width + (2 * i + 1))];
+                    component_t* p10 = &previousLevelPixels[channels * ((2 * j + 1) * previousMipLevelSize.width + (2 * i + 0))];
+                    component_t* p11 = &previousLevelPixels[channels * ((2 * j + 1) * previousMipLevelSize.width + (2 * i + 1))];
+                    // Average
+                    p[0] = (p00[0] + p01[0] + p10[0] + p11[0]) / (component_t)4;
+                    p[1] = (p00[1] + p01[1] + p10[1] + p11[1]) / (component_t)4;
+                    p[2] = (p00[2] + p01[2] + p10[2] + p11[2]) / (component_t)4;
+                    p[3] = (p00[3] + p01[3] + p10[3] + p11[3]) / (component_t)4;
+                }
+            }
+        }
+
+        // Upload data to the GPU texture
+        destination.mipLevel = level;
+        source.bytesPerRow = channels * mipLevelSize.width * sizeof(component_t);
+        source.rowsPerImage = mipLevelSize.height;
+        if (halfBPP) {
+            source.bytesPerRow = channels * mipLevelSize.width * sizeof(uint16_t);
+            uint16_t* float16 = GetFloat16(reinterpret_cast<float*>(pixels.data()), mipLevelSize.width, mipLevelSize.height, channels);
+            wgpuQueueWriteTexture(wgpContext.queue, &destination, float16, mipLevelSize.width * mipLevelSize.height * channels * sizeof(uint16_t), &source, &mipLevelSize);
+            free(float16);
+        }else
+            wgpuQueueWriteTexture(wgpContext.queue, &destination, pixels.data(), pixels.size() * sizeof(component_t), &source, &mipLevelSize);
+
+        previousLevelPixels = std::move(pixels);
+        previousMipLevelSize = mipLevelSize;
+        mipLevelSize.width /= 2;
+        mipLevelSize.height /= 2;
+    }
+}
+
 void WgpTexture::loadFromFile(const std::string& fileName, const bool flipVertical, const short alphaChannel) {
     std::filesystem::path filePath = fileName;
     
@@ -85,14 +179,14 @@ void WgpTexture::loadFromFile(const std::string& fileName, const bool flipVertic
 
     sourceBitmap = AddAlphaChannel(sourceBitmap, alphaChannel);
 
-    unsigned int bpp = FreeImage_GetBPP(sourceBitmap) / 8;
+    unsigned int channels = FreeImage_GetBPP(sourceBitmap) / 8;
     unsigned int width = FreeImage_GetWidth(sourceBitmap);
     unsigned int height = FreeImage_GetHeight(sourceBitmap);
     unsigned char* imageData =  FreeImage_GetBits(sourceBitmap);
 
     m_width = width;
     m_height = height;
-    m_channels = bpp;
+    m_channels = channels;
     m_format = WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm;
 
     uint32_t mipLevelCount = BitWidth(std::max(m_width, m_height));
@@ -154,14 +248,14 @@ void WgpTexture::loadHDRICubeFromFile(const std::string& fileName, const bool fl
 
     sourceBitmap = AddAlphaChannel(sourceBitmap);
 
-    unsigned int bpp = FreeImage_GetBPP(sourceBitmap) / (8u * sizeof(float));
+    unsigned int channels = FreeImage_GetBPP(sourceBitmap) / (8u * sizeof(float));
     unsigned int width = FreeImage_GetWidth(sourceBitmap);
     unsigned int height = FreeImage_GetHeight(sourceBitmap);
     unsigned char* imageData = FreeImage_GetBits(sourceBitmap);
 
     m_width = width;
     m_height = height;
-    m_channels = bpp; 
+    m_channels = channels;
 
     unsigned char* pixels = (unsigned char*)malloc(sizeof(float) * m_channels * m_width * m_height);
     memcpy(pixels, imageData, sizeof(float) * m_channels * m_width * m_height);
@@ -222,14 +316,14 @@ void WgpTexture::loadHDRIFromFile(const std::string& fileName, const bool flipVe
 
     sourceBitmap = AddAlphaChannel(sourceBitmap);
 
-    unsigned int bpp = FreeImage_GetBPP(sourceBitmap) / (8u * sizeof(float));
+    unsigned int channels = FreeImage_GetBPP(sourceBitmap) / (8u * sizeof(float));
     unsigned int width = FreeImage_GetWidth(sourceBitmap);
     unsigned int height = FreeImage_GetHeight(sourceBitmap);
     unsigned char* imageData = FreeImage_GetBits(sourceBitmap);
    
     m_width = width;
     m_height = height;
-    m_channels = bpp;
+    m_channels = channels;
     m_format = halfBPP ? WGPUTextureFormat::WGPUTextureFormat_RGBA16Float : WGPUTextureFormat::WGPUTextureFormat_RGBA32Float;
 
     WGPUTextureDescriptor textureDescriptor = {};
@@ -289,12 +383,12 @@ unsigned char* WgpTexture::LoadFromFile(std::string fileName, const bool flipVer
 
     sourceBitmap = AddAlphaChannel(sourceBitmap, alphaChannel);
 
-    unsigned int bpp = FreeImage_GetBPP(sourceBitmap) / 8;
+    unsigned int channels = FreeImage_GetBPP(sourceBitmap) / 8;
     unsigned int width = FreeImage_GetWidth(sourceBitmap);
     unsigned int height = FreeImage_GetHeight(sourceBitmap);
 
-    unsigned char* pixels = (unsigned char*)malloc(bpp * width * height);
-    memcpy(pixels, FreeImage_GetBits(sourceBitmap), bpp * width * height);
+    unsigned char* pixels = (unsigned char*)malloc(channels * width * height);
+    memcpy(pixels, FreeImage_GetBits(sourceBitmap), channels * width * height);
 
     FreeImage_Unload(sourceBitmap);
     FreeImage_DeInitialise();
@@ -317,13 +411,13 @@ unsigned char* WgpTexture::LoadFromFile(std::string fileName, uint32_t& width, u
 
     sourceBitmap = AddAlphaChannel(sourceBitmap, alphaChannel);
 
-    unsigned int bpp = FreeImage_GetBPP(sourceBitmap) / 8;
-    unsigned int width = FreeImage_GetWidth(sourceBitmap);
-    unsigned int height = FreeImage_GetHeight(sourceBitmap);
+    unsigned int channels = FreeImage_GetBPP(sourceBitmap) / 8;
+    width = FreeImage_GetWidth(sourceBitmap);
+    height = FreeImage_GetHeight(sourceBitmap);
 
 
-    unsigned char* pixels = (unsigned char*)malloc(bpp * width * height);
-    memcpy(pixels, FreeImage_GetBits(sourceBitmap), bpp * width * height);
+    unsigned char* pixels = (unsigned char*)malloc(channels * width * height);
+    memcpy(pixels, FreeImage_GetBits(sourceBitmap), channels * width * height);
 
     FreeImage_Unload(sourceBitmap);
     FreeImage_DeInitialise();
@@ -345,13 +439,13 @@ unsigned char* WgpTexture::LoadFromMemory(unsigned char* data, uint32_t size, ui
 
     sourceBitmap = AddAlphaChannel(sourceBitmap, alphaChannel);
 
-    unsigned int bpp = FreeImage_GetBPP(sourceBitmap) / 8;
-    unsigned int width = FreeImage_GetWidth(sourceBitmap);
-    unsigned int height = FreeImage_GetHeight(sourceBitmap);
+    unsigned int channels = FreeImage_GetBPP(sourceBitmap) / 8;
+    width = FreeImage_GetWidth(sourceBitmap);
+    height = FreeImage_GetHeight(sourceBitmap);
 
 
-    unsigned char* pixels = (unsigned char*)malloc(bpp * width * height);
-    memcpy(pixels, FreeImage_GetBits(sourceBitmap), bpp * width * height);
+    unsigned char* pixels = (unsigned char*)malloc(channels * width * height);
+    memcpy(pixels, FreeImage_GetBits(sourceBitmap), channels * width * height);
 
     FreeImage_Unload(sourceBitmap);
     FreeImage_DeInitialise();
@@ -760,42 +854,4 @@ float WgpTexture::BytesToFloatBE(unsigned char b0, unsigned char b1, unsigned ch
 uint32_t WgpTexture::BitWidth(uint32_t m) {
     if (m == 0) return 0;
     else { uint32_t w = 0; while (m >>= 1) ++w; return w; }
-}
-
-uint16_t WgpTexture::Float32Tofloat16(float value) {
-    union {
-        float f;
-        uint32_t i;
-    } v;
-    v.f = value;
-    uint32_t i = v.i;
-
-    uint32_t sign = (i >> 16) & 0x8000;
-    int32_t exponent = ((i >> 23) & 0xFF) - 127 + 15;
-    uint32_t mantissa = i & 0x007FFFFF;
-
-    //Handle special cases 
-    if (exponent <= 0) {
-        ///nderflow or zero
-        if (exponent < -10)
-            return sign; //Too small, flush to zero
-        mantissa = (mantissa | 0x00800000) >> (1 - exponent);
-        return sign | (mantissa >> 13);
-    } else if (exponent >= 0x1F) {
-        //Overflow or infinity
-        return sign | 0x7C00 | (mantissa ? 0x0200 : 0);
-    }
-    //Normalized value
-    return sign | (exponent << 10) | (mantissa >> 13);
-}
-
-uint16_t* WgpTexture::GetFloat16(float* data, uint32_t width, uint32_t height, uint32_t channels) {
-    const size_t count = width * height * channels;
-    uint16_t* float16 = (uint16_t*)malloc(count * sizeof(uint16_t));
-
-    for (size_t i = 0; i < count; i++) {
-        float16[i] = Float32Tofloat16(data[i]);
-    }
-
-    return float16;
 }

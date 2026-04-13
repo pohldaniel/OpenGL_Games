@@ -148,6 +148,7 @@ void ImageBasedLighting::update() {
 	m_trackball.idle();
 	applyTransformation(m_trackball);
 
+	m_uniforms.projectionMatrix = m_camera.getPerspectiveMatrix();
 	m_uniforms.viewMatrix = m_camera.getViewMatrix();
 	m_uniforms.envMatrix = m_camera.getRotationMatrix();
 	m_uniforms.normalMatrix = Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_uniforms.modelMatrix);
