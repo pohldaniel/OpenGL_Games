@@ -287,31 +287,19 @@ unsigned char* WgpTexture::LoadFromFile(std::string fileName, const bool flipVer
     if (flipVertical)
         FreeImage_FlipVertical(sourceBitmap);
 
+    sourceBitmap = AddAlphaChannel(sourceBitmap, alphaChannel);
+
     unsigned int bpp = FreeImage_GetBPP(sourceBitmap) / 8;
     unsigned int width = FreeImage_GetWidth(sourceBitmap);
     unsigned int height = FreeImage_GetHeight(sourceBitmap);
-    unsigned char* imageData = FreeImage_GetBits(sourceBitmap);
-    unsigned char* bytesNew = nullptr;
 
-    if (bpp == 3) {
-        bytesNew = (unsigned char*)malloc(width * height * 4);
+    unsigned char* pixels = (unsigned char*)malloc(bpp * width * height);
+    memcpy(pixels, FreeImage_GetBits(sourceBitmap), bpp * width * height);
 
-        for (unsigned int i = 0, k = 0; i < static_cast<unsigned int>(width * height * 4); i = i + 4, k = k + 3) {
-            bytesNew[i] = imageData[k];
-            bytesNew[i + 1] = imageData[k + 1];
-            bytesNew[i + 2] = imageData[k + 2];
-            bytesNew[i + 3] = alphaChannel == -1 ? 255 : alphaChannel;
-        }
-        bpp = 4;
-    }
-
-    if (bytesNew) {
-        FreeImage_Unload(sourceBitmap);
-        FreeImage_DeInitialise();
-        return bytesNew;
-    }
+    FreeImage_Unload(sourceBitmap);
     FreeImage_DeInitialise();
-    return imageData;
+
+    return pixels;
 }
 
 unsigned char* WgpTexture::LoadFromFile(std::string fileName, uint32_t& width, uint32_t& height, const bool flipVertical, const short alphaChannel) {
@@ -327,31 +315,20 @@ unsigned char* WgpTexture::LoadFromFile(std::string fileName, uint32_t& width, u
     if (flipVertical)
         FreeImage_FlipVertical(sourceBitmap);
 
+    sourceBitmap = AddAlphaChannel(sourceBitmap, alphaChannel);
+
     unsigned int bpp = FreeImage_GetBPP(sourceBitmap) / 8;
-    width = FreeImage_GetWidth(sourceBitmap);
-    height = FreeImage_GetHeight(sourceBitmap);
-    unsigned char* imageData = FreeImage_GetBits(sourceBitmap);
-    unsigned char* bytesNew = nullptr;
+    unsigned int width = FreeImage_GetWidth(sourceBitmap);
+    unsigned int height = FreeImage_GetHeight(sourceBitmap);
 
-    if (bpp == 3) {
-        bytesNew = (unsigned char*)malloc(width * height * 4);
 
-        for (unsigned int i = 0, k = 0; i < static_cast<unsigned int>(width * height * 4); i = i + 4, k = k + 3) {
-            bytesNew[i] = imageData[k];
-            bytesNew[i + 1] = imageData[k + 1];
-            bytesNew[i + 2] = imageData[k + 2];
-            bytesNew[i + 3] = alphaChannel == -1 ? 255 : alphaChannel;
-        }
-        bpp = 4;
-    }
+    unsigned char* pixels = (unsigned char*)malloc(bpp * width * height);
+    memcpy(pixels, FreeImage_GetBits(sourceBitmap), bpp * width * height);
 
-    if (bytesNew) {
-        FreeImage_Unload(sourceBitmap);
-        FreeImage_DeInitialise();
-        return bytesNew;
-    }
+    FreeImage_Unload(sourceBitmap);
     FreeImage_DeInitialise();
-    return imageData;
+
+    return pixels;
 }
 
 unsigned char* WgpTexture::LoadFromMemory(unsigned char* data, uint32_t size, uint32_t& width, uint32_t& height, const bool flipVertical, const short alphaChannel) {
@@ -366,33 +343,20 @@ unsigned char* WgpTexture::LoadFromMemory(unsigned char* data, uint32_t size, ui
     if (flipVertical)
         FreeImage_FlipVertical(sourceBitmap);
 
+    sourceBitmap = AddAlphaChannel(sourceBitmap, alphaChannel);
+
     unsigned int bpp = FreeImage_GetBPP(sourceBitmap) / 8;
-    width = FreeImage_GetWidth(sourceBitmap);
-    height = FreeImage_GetHeight(sourceBitmap);
-    unsigned char* imageData = FreeImage_GetBits(sourceBitmap);
-    unsigned char* bytesNew = nullptr;
+    unsigned int width = FreeImage_GetWidth(sourceBitmap);
+    unsigned int height = FreeImage_GetHeight(sourceBitmap);
 
-    if (bpp == 3) {
-        bytesNew = (unsigned char*)malloc(width * height * 4);
 
-        for (unsigned int i = 0, k = 0; i < static_cast<unsigned int>(width * height * 4); i = i + 4, k = k + 3) {
-            bytesNew[i] = imageData[k];
-            bytesNew[i + 1] = imageData[k + 1];
-            bytesNew[i + 2] = imageData[k + 2];
-            bytesNew[i + 3] = alphaChannel == -1 ? 255 : alphaChannel;
-        }
-        bpp = 4;
-    }
+    unsigned char* pixels = (unsigned char*)malloc(bpp * width * height);
+    memcpy(pixels, FreeImage_GetBits(sourceBitmap), bpp * width * height);
 
-    if (bytesNew) {
-        FreeImage_Unload(sourceBitmap);
-        FreeImage_CloseMemory(hmem);
-        FreeImage_DeInitialise();
-        return bytesNew;
-    }
-    FreeImage_CloseMemory(hmem);
+    FreeImage_Unload(sourceBitmap);
     FreeImage_DeInitialise();
-    return imageData;
+
+    return pixels;
 }
 
 void WgpTexture::Safe(const std::string& fileOut, unsigned char* bytes, uint32_t width, uint32_t height, uint32_t channels) {
