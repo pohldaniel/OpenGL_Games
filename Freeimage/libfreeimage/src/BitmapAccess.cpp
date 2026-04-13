@@ -326,6 +326,9 @@ FreeImage_AllocateBitmap(BOOL header_only, BYTE *ext_bits, unsigned ext_pitch, F
 				case 24:
 				case 32:
 					break;
+				case 96:
+				case 128:
+					break;
 				default:
 					bpp = 8;
 					break;
