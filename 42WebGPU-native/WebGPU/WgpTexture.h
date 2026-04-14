@@ -4,15 +4,8 @@
 #include <array>
 #include <webgpu.h>
 
-#include "WgpContext.h"
-
 struct FIBITMAP;
 class WgpTexture {
-
-	union UFloat {
-		float flt;
-		unsigned char c[4];
-	};
 
 public:
 
@@ -52,13 +45,7 @@ private:
 	static void FlipVertical(unsigned char* data, uint32_t width, uint32_t bytesPerChannel, uint32_t height);
 	static void FlipHorizontal(unsigned char* data, uint32_t width, uint32_t bytesPerChannel, uint32_t height);
 	static void Rotate90(unsigned char*& sourceInOut, uint32_t width, uint32_t bytesPerChannel, uint32_t height, bool ccw = false);
-
 	static std::vector<unsigned char*> CrossToFaces(unsigned char* source, uint32_t width, uint32_t bytesPerChannel, uint32_t height);
-	static void EquirectangularToCross(unsigned char*& sourceInOut, uint32_t width, uint32_t bytesPerChannel, uint32_t& height);
-	static float Clamp(const float& n, const float& lower, const float& upper);
-	static std::array<float, 3> OutImgToXYZ(int i, int j, int face, float edge);
-	static float BytesToFloatLE(unsigned char b0, unsigned char b1, unsigned char b2, unsigned char b3);
-	static float BytesToFloatBE(unsigned char b0, unsigned char b1, unsigned char b2, unsigned char b3);
 	static uint32_t BitWidth(uint32_t m);
 
 	WGPUTexture m_texture;
