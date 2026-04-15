@@ -198,6 +198,12 @@ bool wgpCreateDevice(WgpContext& wgpContext, void* window) {
 	wgpCreateVertexBufferLayout(VL_PTNC);
 	wgpCreateVertexBufferLayout(VL_PTNTB);
 	wgpCreateVertexBufferLayout(VL_BATCH);	
+
+	wgpContext.addSampler(wgpCreateSampler(WGPUFilterMode_Linear, WGPUAddressMode_ClampToEdge), SS_LINEAR_CLAMP);
+	wgpContext.addSampler(wgpCreateSampler(WGPUFilterMode_Linear, WGPUAddressMode_Repeat), SS_LINEAR_REPEAT);
+	wgpContext.addSampler(wgpCreateSampler(WGPUFilterMode_Nearest, WGPUAddressMode_ClampToEdge), SS_NEAREST_CLAMP);
+	wgpContext.addSampler(wgpCreateSampler(WGPUFilterMode_Nearest, WGPUAddressMode_Repeat), SS_NEAREST_REPEAT);
+
 	return true;
 }
 
@@ -293,7 +299,7 @@ WGPUTextureView wgpCreateTextureView(WGPUTextureFormat textureFormat, WGPUTextur
 	return wgpuTextureCreateView(texture, &textureViewDescriptor);
 }
 
-WGPUSampler wgpCreateSampler(WGPUFilterMode filterMode, WGPUAddressMode addressMode, uint16_t maxAnisotropy) {
+WGPUSampler wgpCreateSampler(WGPUFilterMode filterMode, WGPUAddressMode addressMode, uint16_t maxAnisotropy, WGPUMipmapFilterMode mipmapFilterMode) {
 	const WGPUDevice& device = wgpContext.device;
 	WGPUSamplerDescriptor samplerDescriptor = {};
 	samplerDescriptor.label = WGPU_STR("sampler");
@@ -302,7 +308,7 @@ WGPUSampler wgpCreateSampler(WGPUFilterMode filterMode, WGPUAddressMode addressM
 	samplerDescriptor.addressModeW = addressMode;
 	samplerDescriptor.magFilter = filterMode;
 	samplerDescriptor.minFilter = filterMode;
-	samplerDescriptor.mipmapFilter = (filterMode == WGPUFilterMode_Nearest) ? WGPUMipmapFilterMode_Nearest : WGPUMipmapFilterMode_Linear;
+	samplerDescriptor.mipmapFilter = mipmapFilterMode == WGPUMipmapFilterMode_Undefined ? ((filterMode == WGPUFilterMode_Nearest) ? WGPUMipmapFilterMode_Nearest : WGPUMipmapFilterMode_Linear) : mipmapFilterMode;
 	samplerDescriptor.lodMinClamp = 0.0f;
 	samplerDescriptor.lodMaxClamp = 1.0f;
 	samplerDescriptor.compare = WGPUCompareFunction_Undefined;
@@ -743,12 +749,13 @@ void WgpContext::createRenderPipeline(std::string shaderModuleName,
 	bool addDepthStencilState,
 	bool addBlendState) {
 
-	std::vector<WGPUBindGroupLayout> bindGroupLayouts = onBindGroupLayouts();
-
-	WGPUPipelineLayoutDescriptor pipelineLayoutDescriptor = {};
-	pipelineLayoutDescriptor.bindGroupLayoutCount = bindGroupLayouts.size();
-	pipelineLayoutDescriptor.bindGroupLayouts = bindGroupLayouts.data();
-	pipelineLayouts[pipelineLayoutName] = wgpuDeviceCreatePipelineLayout(device, &pipelineLayoutDescriptor);
+	if (onBindGroupLayouts) {
+		std::vector<WGPUBindGroupLayout> bindGroupLayouts = onBindGroupLayouts();
+		WGPUPipelineLayoutDescriptor pipelineLayoutDescriptor = {};
+		pipelineLayoutDescriptor.bindGroupLayoutCount = bindGroupLayouts.size();
+		pipelineLayoutDescriptor.bindGroupLayouts = bindGroupLayouts.data();
+		pipelineLayouts[pipelineLayoutName] = wgpuDeviceCreatePipelineLayout(device, &pipelineLayoutDescriptor);
+	}	
 
 	WGPUVertexState vertexState = {};
 	vertexState.module = shaderModules.at(shaderModuleName);
@@ -756,8 +763,7 @@ void WgpContext::createRenderPipeline(std::string shaderModuleName,
 	vertexState.constantCount = 0u;
 	vertexState.constants = NULL;
 	vertexState.bufferCount = vertexLayoutSlot == VertexLayoutSlot::VL_NONE ? 0u : 1u;
-	if (vertexLayoutSlot != VertexLayoutSlot::VL_NONE)
-		vertexState.buffers = &wgpVertexBufferLayouts.at(vertexLayoutSlot);
+	vertexState.buffers = vertexLayoutSlot == VertexLayoutSlot::VL_NONE ? NULL : &wgpVertexBufferLayouts.at(vertexLayoutSlot);
 
 	WGPUBlendState blendState = {};
 	blendState.color.srcFactor = WGPUBlendFactor::WGPUBlendFactor_SrcAlpha;
@@ -789,7 +795,7 @@ void WgpContext::createRenderPipeline(std::string shaderModuleName,
 	depthStencilState.stencilWriteMask = 0u;
 
 	WGPURenderPipelineDescriptor renderPipelineDescriptor = {};
-	renderPipelineDescriptor.layout = pipelineLayouts.at(pipelineLayoutName);
+	renderPipelineDescriptor.layout = onBindGroupLayouts ? pipelineLayouts.at(pipelineLayoutName) : NULL;
 	renderPipelineDescriptor.multisample.count = msaaSampleCount;
 	renderPipelineDescriptor.multisample.mask = ~0u;
 	renderPipelineDescriptor.multisample.alphaToCoverageEnabled = WGPUOptionalBool::WGPUOptionalBool_False;

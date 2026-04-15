@@ -18,7 +18,6 @@ Specularity::Specularity(StateMachine& machine) : State(machine, States::SPECULA
 
 	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	m_uniformLigthBuffer.createBuffer(sizeof(LightingUniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
-	wgpContext.addSampler(wgpCreateSampler());
 
 	wgpContext.addSahderModule("BOAT", "res/shader/specularity.wgsl");
 	wgpContext.createRenderPipeline("BOAT", "RP_PTNC", VL_PTNC, std::bind(&Specularity::OnBindGroupLayouts, this));

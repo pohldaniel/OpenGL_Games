@@ -577,10 +577,17 @@ void Camera::move(const Vector3f &direction) {
 }
 
 void Camera::moveRelative(const Vector3f &direction) {
-
 	m_eye[0] += (m_xAxis[0] * direction[0] + m_yAxis[0] * direction[1] + m_viewDir[0] * direction[2]);
 	m_eye[1] += (m_xAxis[1] * direction[0] + m_yAxis[1] * direction[1] + m_viewDir[1] * direction[2]);
 	m_eye[2] += (m_xAxis[2] * direction[0] + m_yAxis[2] * direction[1] + m_viewDir[2] * direction[2]);
+
+	updateViewMatrix();
+}
+
+void Camera::move(float distance) {
+	m_eye[0] += (m_xAxis[0] * m_viewDir[0] + m_yAxis[0] * m_viewDir[1] + m_viewDir[0] * m_viewDir[2]) * distance;
+	m_eye[1] += (m_xAxis[1] * m_viewDir[0] + m_yAxis[1] * m_viewDir[1] + m_viewDir[1] * m_viewDir[2]) * distance;
+	m_eye[2] += (m_xAxis[2] * m_viewDir[0] + m_yAxis[2] * m_viewDir[1] + m_viewDir[2] * m_viewDir[2]) * distance;
 
 	updateViewMatrix();
 }

@@ -23,7 +23,6 @@ NormalMap::NormalMap(StateMachine& machine) : State(machine, States::NORMAL_MAP)
 
 	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	m_normalUniformBuffer.createBuffer(sizeof(NormalUniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
-	wgpContext.addSampler(wgpCreateSampler());
 
 	m_textureAW.loadFromFile("res/textures/wood_albedo.png");
 	m_textureAW.markForDelete();

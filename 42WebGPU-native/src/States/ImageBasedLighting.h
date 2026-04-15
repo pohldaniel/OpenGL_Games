@@ -45,15 +45,14 @@ private:
 
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsPBR();
 	std::vector<WGPUBindGroup> OnBindGroupsPBR();
-
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsIrradiance();
 	std::vector<WGPUBindGroup> OnBindGroupsIrradiance();
-
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsCube();
 	std::vector<WGPUBindGroup> OnBindGroupsCube();
-
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsPrefilter();
 	std::vector<WGPUBindGroup> OnBindGroupsPrefilter();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsSkybox();
+	std::vector<WGPUBindGroup> OnBindGroupsSkybox();
 
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 	void applyTransformation(TrackBall& arc);
@@ -63,9 +62,11 @@ private:
 	void renderCube();
 	void renderIrradiance();
 	void renderPrefilter();
+	void renderBrdf();
 
 	bool m_initUi = true;
 	bool m_drawUi = false;
+	float m_zoom = 1.0f;
 
 	TrackBall m_trackball;
 	Camera m_camera;
@@ -81,6 +82,7 @@ private:
 	PBRLightingUniforms m_lights[4];
 	Matrix4f m_mvpInvCube[6];
 	Matrix4f m_mvpCube[6];
+	Matrix4f m_model;
 
 	WGPUTexture irradianceTexture = NULL;
 	WGPUTextureView irradianceView = NULL;
@@ -90,6 +92,9 @@ private:
 
 	WGPUTexture prefilterTexture = NULL;
 	WGPUTextureView prefilterView = NULL;
+
+	WGPUTexture brdfTexture = NULL;
+	WGPUTextureView brdfView = NULL;
 
 	static void AddBindgroups(const WgpModel& model);
 	static void AddBindgroups(const WgpModel& model, const WgpTexture& texture, std::string pipelineName);

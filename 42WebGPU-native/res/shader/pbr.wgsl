@@ -28,7 +28,7 @@ struct Uniforms {
 @vertex
 fn vs_main(@builtin(instance_index) instanceIndex: u32, in: VertexInput) -> VertexOutput {
   var out: VertexOutput;
-  out.position = uniforms.projection * uniforms.view * modelMatrices[instanceIndex] * vec4f(in.position, 1);
+  out.position = uniforms.projection * uniforms.view * uniforms.model * modelMatrices[instanceIndex] * vec4f(in.position, 1);
   out.normal = in.normal;
   out.uv = in.uv;
   out.worldPosition = (modelMatrices[instanceIndex] * vec4f(in.position, 1)).xyz;
@@ -117,9 +117,7 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
 	var color = ambient + lo;
 	color     = toneMapping(color);
 	color     = pow(color, vec3f(1.0 / 2.2));
-	//return vec4f(color, 1.0);
-
-	return vec4(prefilteredColor, 1.0);
+	return vec4f(color, 1.0);
 }
 
 fn distributionGGX(n : vec3f, h : vec3f, roughness : f32)->f32 {

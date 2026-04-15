@@ -28,7 +28,6 @@ MSDFFont::MSDFFont(StateMachine& machine) : State(machine, States::MSDF_FONT) {
 	//m_characterSet.loadMsdfBmFromFile("res/fonts/upheavtt_msdf_bm.json", "res/fonts/upheavtt_msdf_bm.png");
 	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	
-	wgpContext.addSampler(wgpCreateSampler());
 	wgpContext.setClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
 	wgpContext.addSahderModule("FONT", "res/shader/font.wgsl");
 	wgpContext.createRenderPipeline("FONT", "RP_FONT", VL_BATCH, std::bind(&MSDFFont::OnBindGroupLayouts, this));

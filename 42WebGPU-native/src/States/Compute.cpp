@@ -15,7 +15,6 @@ Compute::Compute(StateMachine& machine) : State(machine, States::COMPUTE) {
 	EventDispatcher::AddMouseListener(this);
 
 	m_uniformBuffer.createBuffer(sizeof(UniformsCompute), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
-	wgpContext.addSampler(wgpCreateSampler());
 
 	wgpContext.addSahderModule("COMPUTE", "res/shader/compute.wgsl");
 	wgpContext.createComputePipeline("COMPUTE", "CP_COMPUTE", std::bind(&Compute::OnBindGroupLayouts, this));

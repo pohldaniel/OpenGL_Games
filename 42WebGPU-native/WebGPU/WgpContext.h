@@ -35,7 +35,7 @@ extern "C" {
 	WGPUBuffer wgpCreateBuffer(const void* data, uint32_t size, WGPUBufferUsage bufferUsage);
 	WGPUTexture wgpCreateTexture(uint32_t width, uint32_t height, WGPUTextureUsage textureUsage, WGPUTextureFormat textureFormat, uint32_t mipLevelCount = 1u, uint32_t sampleCount = 1u, WGPUTextureFormat viewFormat = WGPUTextureFormat_Undefined);
 	WGPUTextureView wgpCreateTextureView(WGPUTextureFormat textureFormat, WGPUTextureAspect aspect, uint32_t mipLevelCount, const WGPUTexture& texture);
-	WGPUSampler wgpCreateSampler(WGPUFilterMode filterMode = WGPUFilterMode_Linear, WGPUAddressMode addressMode = WGPUAddressMode_ClampToEdge, uint16_t maxAnisotropy = 1u);
+	WGPUSampler wgpCreateSampler(WGPUFilterMode filterMode = WGPUFilterMode_Linear, WGPUAddressMode addressMode = WGPUAddressMode_ClampToEdge, uint16_t maxAnisotropy = 1u, WGPUMipmapFilterMode mipmapFilterMode = WGPUMipmapFilterMode_Undefined);
 	WGPUShaderModule wgpCreateShader(std::string path);
 
 	void wgpCreateVertexBufferLayout(VertexLayoutSlot slot = VL_PTN);
@@ -56,7 +56,9 @@ enum SamplerSlot {
 	SS_LINEAR_CLAMP,
 	SS_LINEAR_REPEAT,
 	SS_NEAREST_CLAMP,
-	SS_NEAREST_REPEAT
+	SS_NEAREST_REPEAT,
+	SS_0,
+	SS_1
 };
 
 struct WgpContext {
@@ -70,7 +72,7 @@ struct WgpContext {
 	void createRenderPipeline(std::string shaderModuleName, 
 		std::string pipelineLayoutName, 
 		const VertexLayoutSlot vertexLayoutSlot, 
-		const std::function<std::vector<WGPUBindGroupLayout>()>& onBindGroupLayouts, 
+		const std::function<std::vector<WGPUBindGroupLayout>()>& onBindGroupLayouts = NULL, 
 		uint32_t msaaSampleCount = 1u, 
 		WGPUPrimitiveTopology primitiveTopology = WGPUPrimitiveTopology::WGPUPrimitiveTopology_TriangleList,
 		WGPUTextureFormat colorTextureFormat = WGPUTextureFormat::WGPUTextureFormat_Undefined,
@@ -78,7 +80,7 @@ struct WgpContext {
 		bool addBlendState = true);
 
 	void createVertexBufferLayout(VertexLayoutSlot slot = VL_PTN);
-	void addSampler(const WGPUSampler& sampler, SamplerSlot samplerSlot = SS_LINEAR_CLAMP);
+	void addSampler(const WGPUSampler& sampler, SamplerSlot samplerSlot);
 	const WGPUSampler& getSampler(SamplerSlot samplerSlot);
 	void addSahderModule(const std::string& shaderModuleName, const std::string& shaderModulePath);
 	const WGPUShaderModule& getShaderModule(std::string shaderModuleName);

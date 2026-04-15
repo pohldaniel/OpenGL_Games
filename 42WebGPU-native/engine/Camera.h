@@ -26,6 +26,7 @@ public:
 	void move(float dx, float dy, float dz);
 	void move(const Vector3f &direction);
 	void moveRelative(const Vector3f &direction);
+	void move(float distance);
 	void moveX(float dx);
 	void moveY(float dy);
 	void moveZ(float dx);

@@ -16,7 +16,6 @@ Wireframe::Wireframe(StateMachine& machine) : State(machine, States::WIREFRAME) 
 	EventDispatcher::AddMouseListener(this);
 
 	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);	
-	wgpContext.addSampler(wgpCreateSampler());
 
 	wgpContext.addSahderModule("PTN", "res/shader/shader.wgsl");
 	wgpContext.createRenderPipeline("PTN", "RP_PTNC", VL_PTNC, std::bind(&Wireframe::OnBindGroupLayoutsPTN, this));
@@ -51,8 +50,8 @@ Wireframe::Wireframe(StateMachine& machine) : State(machine, States::WIREFRAME) 
 	m_trackball.setTrackballScale(0.5f);
 	m_uniforms.projectionMatrix = Matrix4f::IDENTITY;
 	m_uniforms.viewMatrix = Matrix4f::IDENTITY;
+	m_uniforms.envMatrix = Matrix4f::IDENTITY;
 	m_uniforms.modelMatrix = Matrix4f::IDENTITY;
-
 	m_uniforms.color = { 1.0f, 1.0f, 1.0f, 1.0f };
 	
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));

@@ -13,14 +13,12 @@ struct VertexOutput {
 	@location(3) viewDirection: vec3<f32>
 };
 
-/**
- * A structure holding the value of our uniforms
- */
 struct Uniforms {
-    projectionMatrix: mat4x4f,
-    viewMatrix: mat4x4f,
-    modelMatrix: mat4x4f,
-	normalMatrix: mat4x4f,
+    projection: mat4x4f,
+    view: mat4x4f,
+	env: mat4x4<f32>,
+    model: mat4x4f,
+	normal: mat4x4f,
     color: vec4f,
 	camPosition: vec3f,
 };
@@ -41,9 +39,9 @@ struct LightingUniforms {
 @vertex
 fn vs_main(in: VertexInput) -> VertexOutput {
 	var out: VertexOutput;
-	let worldPosition = uniforms.modelMatrix * vec4<f32>(in.position, 1.0);
-	out.position = uniforms.projectionMatrix * uniforms.viewMatrix * worldPosition;
-    out.normal = (uniforms.modelMatrix * vec4f(in.normal, 0.0)).xyz;
+	let worldPosition = uniforms.model * vec4<f32>(in.position, 1.0);
+	out.position = uniforms.projection * uniforms.view * worldPosition;
+    out.normal = (uniforms.model * vec4f(in.normal, 0.0)).xyz;
 	out.color = in.color;
 	out.uv = in.uv;
 	out.viewDirection = uniforms.camPosition - worldPosition.xyz;

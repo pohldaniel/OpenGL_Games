@@ -13,14 +13,14 @@ struct VertexOutput {
 };
 
 struct Uniforms {
-    projectionMatrix: mat4x4f,
-    viewMatrix: mat4x4f,
-    modelMatrix: mat4x4f,
-	normalMatrix: mat4x4f,
+    projection: mat4x4f,
+    view: mat4x4f,
+	env: mat4x4<f32>,
+    model: mat4x4f,
+	normal: mat4x4f,
     color: vec4f,
 	camPosition: vec3f,
 };
-
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
 @group(0) @binding(1) var fontSampler: sampler;
 
@@ -29,7 +29,7 @@ struct Uniforms {
 @vertex
 fn vs_main(in: VertexInput) -> VertexOutput {
 	var out: VertexOutput;
-	out.position = uniforms.projectionMatrix * uniforms.viewMatrix * vec4<f32>(in.pos, 1.0);
+	out.position = uniforms.projection * uniforms.view * vec4<f32>(in.pos, 1.0);
 	out.uv = in.tex;
 	out.color = in.color;
 	out.layer = in.layer;

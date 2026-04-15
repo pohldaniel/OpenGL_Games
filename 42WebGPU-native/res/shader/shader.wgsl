@@ -15,6 +15,7 @@ struct VertexOutput {
 struct Uniforms {
     projection: mat4x4<f32>,
 	view: mat4x4<f32>,
+	env: mat4x4<f32>,
     model: mat4x4<f32>,    
 	normal: mat4x4<f32>,
 	color: vec4<f32>,
@@ -51,5 +52,5 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4f {
 
 	// Gamma-correction
 	let corrected_color = pow(color.xyz, vec3f(2.2));
-	return vec4f(corrected_color, in.color.a) * diffuse_color;	
+	return vec4f(corrected_color, in.color.a) * diffuse_color;
 }
