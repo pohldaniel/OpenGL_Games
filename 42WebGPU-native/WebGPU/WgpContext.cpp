@@ -190,7 +190,7 @@ bool wgpCreateDevice(WgpContext& wgpContext, void* window) {
 	//wgpContext.colorformat = wgpContext.surfaceCapabilities.formats[0];
 
 	wgpContext.queue = wgpuDeviceGetQueue(wgpContext.device);
-	wgpContext.depthTexture = wgpCreateTexture(static_cast<uint32_t>(Application::Width), static_cast<uint32_t>(Application::Height), WGPUTextureUsage_RenderAttachment, wgpContext.depthformat, 1u, wgpContext.depthformat);
+	wgpContext.depthTexture = wgpCreateTexture(static_cast<uint32_t>(Application::Width), static_cast<uint32_t>(Application::Height), WGPUTextureUsage_RenderAttachment, wgpContext.depthformat, 1u, wgpContext.msaaSampleCount, wgpContext.depthformat);
 	wgpContext.depthTextureView = wgpCreateTextureView(wgpContext.depthformat, WGPUTextureAspect::WGPUTextureAspect_All, 1u, wgpContext.depthTexture);
 
 	wgpCreateVertexBufferLayout(VL_P);
@@ -261,7 +261,7 @@ WGPUBuffer wgpCreateEmptyBuffer(uint32_t size, WGPUBufferUsage bufferUsage) {
 	return wgpuDeviceCreateBuffer(device, &bufferDesc);
 }
 
-WGPUTexture wgpCreateTexture(uint32_t width, uint32_t height, WGPUTextureUsage textureUsage, WGPUTextureFormat textureFormat, uint32_t mipLevelCount, WGPUTextureFormat viewFormat) {
+WGPUTexture wgpCreateTexture(uint32_t width, uint32_t height, WGPUTextureUsage textureUsage, WGPUTextureFormat textureFormat, uint32_t mipLevelCount, uint32_t sampleCount, WGPUTextureFormat viewFormat) {
 	const WGPUDevice& device = wgpContext.device;
 	WGPUTextureDescriptor textureDescriptor = {};
 	textureDescriptor.label = WGPU_STR("texture");
@@ -270,7 +270,7 @@ WGPUTexture wgpCreateTexture(uint32_t width, uint32_t height, WGPUTextureUsage t
 	textureDescriptor.format = textureFormat;
 	textureDescriptor.usage = textureUsage;
 	textureDescriptor.mipLevelCount = mipLevelCount;
-	textureDescriptor.sampleCount = 1u;	
+	textureDescriptor.sampleCount = sampleCount;
 	textureDescriptor.nextInChain = NULL;
 	if (viewFormat != WGPUTextureFormat_Undefined) {
 		textureDescriptor.viewFormatCount = 1u;
@@ -286,7 +286,7 @@ WGPUTextureView wgpCreateTextureView(WGPUTextureFormat textureFormat, WGPUTextur
 	textureViewDescriptor.baseArrayLayer = 0u;
 	textureViewDescriptor.arrayLayerCount = 1u;
 	textureViewDescriptor.baseMipLevel = 0u;
-	textureViewDescriptor.mipLevelCount = 1u;
+	textureViewDescriptor.mipLevelCount = mipLevelCount;
 	textureViewDescriptor.dimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
 	textureViewDescriptor.format = textureFormat;
 	textureViewDescriptor.nextInChain = NULL;
@@ -519,6 +519,17 @@ void wgpShutDown() {
 	wgpuTextureRelease(wgpContext.depthTexture);
 	wgpContext.depthTexture = NULL;
 
+	if (wgpContext.msaaTextureView) {
+		wgpuTextureViewRelease(wgpContext.msaaTextureView);
+		wgpContext.msaaTextureView = NULL;
+	}
+
+	if (wgpContext.msaaTexture) {
+		wgpuTextureDestroy(wgpContext.msaaTexture);
+		wgpuTextureRelease(wgpContext.msaaTexture);
+		wgpContext.msaaTexture = NULL;
+	}
+
 	wgpuQueueRelease(wgpContext.queue);
 	wgpContext.queue = NULL;
 
@@ -542,8 +553,17 @@ void wgpResize(uint32_t width, uint32_t height) {
 		wgpuTextureDestroy(wgpContext.depthTexture);
 		wgpuTextureRelease(wgpContext.depthTexture);
 
-		wgpContext.depthTexture = wgpCreateTexture(width, height, WGPUTextureUsage_RenderAttachment, wgpContext.depthformat, 1u, wgpContext.depthformat);
+		wgpContext.depthTexture = wgpCreateTexture(width, height, WGPUTextureUsage_RenderAttachment, wgpContext.depthformat, 1u, wgpContext.msaaSampleCount, wgpContext.depthformat);
 		wgpContext.depthTextureView = wgpCreateTextureView(wgpContext.depthformat, WGPUTextureAspect::WGPUTextureAspect_All, 1u, wgpContext.depthTexture);
+
+		if (wgpContext.msaaSampleCount > 1u) {
+			wgpuTextureViewRelease(wgpContext.msaaTextureView);
+			wgpuTextureDestroy(wgpContext.msaaTexture);
+			wgpuTextureRelease(wgpContext.msaaTexture);
+
+			wgpContext.msaaTexture = wgpCreateTexture(width, height, WGPUTextureUsage_RenderAttachment, wgpContext.colorformat, 1u, wgpContext.msaaSampleCount, wgpContext.colorformat);
+			wgpContext.msaaTextureView = wgpCreateTextureView(wgpContext.colorformat, WGPUTextureAspect::WGPUTextureAspect_All, 1u, wgpContext.msaaTexture);
+		}
 
 		wgpContext.config.width = width;
 		wgpContext.config.height = height;
@@ -563,6 +583,19 @@ void wgpSetSurfaceColorFormat(WGPUTextureFormat textureFormat) {
 		wgpContext.colorformat = textureFormat;
 		wgpContext.config.format = wgpContext.colorformat;
 		wgpuSurfaceConfigure(wgpContext.surface, &wgpContext.config);
+
+		if (wgpContext.msaaSampleCount > 1u) {
+			uint32_t width = wgpuTextureGetWidth(wgpContext.msaaTexture);
+			uint32_t height = wgpuTextureGetHeight(wgpContext.msaaTexture);
+
+			wgpuTextureViewRelease(wgpContext.msaaTextureView);
+			wgpuTextureDestroy(wgpContext.msaaTexture);
+			wgpuTextureRelease(wgpContext.msaaTexture);
+
+			wgpContext.msaaTexture = wgpCreateTexture(width, height, WGPUTextureUsage_RenderAttachment, wgpContext.colorformat, 1u, wgpContext.msaaSampleCount, wgpContext.colorformat);
+			wgpContext.msaaTextureView = wgpCreateTextureView(wgpContext.colorformat, WGPUTextureAspect::WGPUTextureAspect_All, 1u, wgpContext.msaaTexture);
+		}
+
 	}
 }
 
@@ -587,8 +620,8 @@ void wgpDraw() {
 	WGPUTextureView texureView = wgpuTextureCreateView(surfaceTexture.texture, NULL);
 
 	WGPURenderPassColorAttachment renderPassColorAttachment = {};
-	renderPassColorAttachment.view = texureView;
-	renderPassColorAttachment.resolveTarget = NULL;
+	renderPassColorAttachment.view = wgpContext.msaaSampleCount == 1u ? texureView  : wgpContext.msaaTextureView;
+	renderPassColorAttachment.resolveTarget = wgpContext.msaaSampleCount == 1u ? NULL : texureView;
 	renderPassColorAttachment.loadOp = WGPULoadOp::WGPULoadOp_Clear;
 	renderPassColorAttachment.storeOp = WGPUStoreOp::WGPUStoreOp_Store;
 	renderPassColorAttachment.clearValue = wgpContext.clearColor;
@@ -663,6 +696,24 @@ void WgpContext::setClearColor(const WGPUColor& _clearColor) {
 	clearColor = _clearColor;
 }
 
+void WgpContext::setMSAASampleCount(const uint32_t count) {
+	msaaSampleCount = count;
+
+	uint32_t width = wgpuTextureGetWidth(depthTexture);
+	uint32_t height = wgpuTextureGetHeight(depthTexture);
+
+	msaaTexture = wgpCreateTexture(width, height, WGPUTextureUsage_RenderAttachment, colorformat, 1u, msaaSampleCount, colorformat);
+	msaaTextureView = wgpCreateTextureView(colorformat, WGPUTextureAspect::WGPUTextureAspect_All, 1u, msaaTexture);
+
+	wgpuTextureViewRelease(depthTextureView);
+	wgpuTextureDestroy(depthTexture);
+	wgpuTextureRelease(depthTexture);
+
+	depthTexture = wgpCreateTexture(width, height, WGPUTextureUsage_RenderAttachment, depthformat, 1u, msaaSampleCount, depthformat);
+	depthTextureView = wgpCreateTextureView(depthformat, WGPUTextureAspect::WGPUTextureAspect_All, 1u, depthTexture);
+
+}
+
 void WgpContext::createComputePipeline(std::string shaderModuleName, std::string pipelineLayoutName, const std::function<std::vector<WGPUBindGroupLayout>()>& onBindGroupLayouts) {
 	std::vector<WGPUBindGroupLayout> bindGroupLayouts = onBindGroupLayouts();
 
@@ -682,13 +733,22 @@ void WgpContext::createComputePipeline(std::string shaderModuleName, std::string
 	wgpContext.computePipelines[pipelineLayoutName] = wgpuDeviceCreateComputePipeline(wgpContext.device, &computePipelineDesc);
 }
 
-void WgpContext::createRenderPipeline(std::string shaderModuleName, std::string pipelineLayoutName, const VertexLayoutSlot vertexLayoutSlot, const std::function<std::vector<WGPUBindGroupLayout>()>& onBindGroupLayouts, WGPUPrimitiveTopology primitiveTopology) {
+void WgpContext::createRenderPipeline(std::string shaderModuleName, 
+	std::string pipelineLayoutName, 
+	const VertexLayoutSlot vertexLayoutSlot, 
+	const std::function<std::vector<WGPUBindGroupLayout>()>& onBindGroupLayouts, 
+	uint32_t msaaSampleCount, 
+	WGPUPrimitiveTopology primitiveTopology,
+	WGPUTextureFormat colorTextureFormat,
+	bool addDepthStencilState,
+	bool addBlendState) {
+
 	std::vector<WGPUBindGroupLayout> bindGroupLayouts = onBindGroupLayouts();
 
 	WGPUPipelineLayoutDescriptor pipelineLayoutDescriptor = {};
 	pipelineLayoutDescriptor.bindGroupLayoutCount = bindGroupLayouts.size();
 	pipelineLayoutDescriptor.bindGroupLayouts = bindGroupLayouts.data();
-	pipelineLayouts[pipelineLayoutName] = wgpuDeviceCreatePipelineLayout(wgpContext.device, &pipelineLayoutDescriptor);
+	pipelineLayouts[pipelineLayoutName] = wgpuDeviceCreatePipelineLayout(device, &pipelineLayoutDescriptor);
 
 	WGPUVertexState vertexState = {};
 	vertexState.module = shaderModules.at(shaderModuleName);
@@ -708,8 +768,8 @@ void WgpContext::createRenderPipeline(std::string shaderModuleName, std::string 
 	blendState.alpha.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
 
 	WGPUColorTargetState colorTarget = {};
-	colorTarget.format = colorformat;
-	colorTarget.blend = &blendState;
+	colorTarget.format = colorTextureFormat == WGPUTextureFormat_Undefined ? colorformat : colorTextureFormat;
+	colorTarget.blend = addBlendState ? &blendState : NULL;
 	colorTarget.writeMask = WGPUColorWriteMask_All;
 
 	WGPUFragmentState fragmentState = {};
@@ -724,24 +784,24 @@ void WgpContext::createRenderPipeline(std::string shaderModuleName, std::string 
 	setDefault(depthStencilState);
 	depthStencilState.depthCompare = WGPUCompareFunction::WGPUCompareFunction_Less;
 	depthStencilState.depthWriteEnabled = WGPUOptionalBool::WGPUOptionalBool_True;
-	depthStencilState.format = wgpContext.depthformat;
+	depthStencilState.format = depthformat;
 	depthStencilState.stencilReadMask = 0u;
 	depthStencilState.stencilWriteMask = 0u;
 
 	WGPURenderPipelineDescriptor renderPipelineDescriptor = {};
 	renderPipelineDescriptor.layout = pipelineLayouts.at(pipelineLayoutName);
-	renderPipelineDescriptor.multisample.count = 1u;
+	renderPipelineDescriptor.multisample.count = msaaSampleCount;
 	renderPipelineDescriptor.multisample.mask = ~0u;
 	renderPipelineDescriptor.multisample.alphaToCoverageEnabled = WGPUOptionalBool::WGPUOptionalBool_False;
 
 	renderPipelineDescriptor.vertex = vertexState;
 	renderPipelineDescriptor.fragment = &fragmentState;
-	renderPipelineDescriptor.depthStencil = &depthStencilState;
+	renderPipelineDescriptor.depthStencil = addDepthStencilState ? &depthStencilState : NULL;
 
 	renderPipelineDescriptor.primitive.topology = primitiveTopology;
 	renderPipelineDescriptor.primitive.stripIndexFormat = WGPUIndexFormat::WGPUIndexFormat_Undefined;
 	renderPipelineDescriptor.primitive.frontFace = WGPUFrontFace::WGPUFrontFace_CCW;
-	renderPipelineDescriptor.primitive.cullMode = WGPUCullMode::WGPUCullMode_Back;
+	renderPipelineDescriptor.primitive.cullMode = WGPUCullMode::WGPUCullMode_None;
 
-	wgpContext.renderPipelines[pipelineLayoutName] = wgpuDeviceCreateRenderPipeline(wgpContext.device, &renderPipelineDescriptor);
+	renderPipelines[pipelineLayoutName] = wgpuDeviceCreateRenderPipeline(device, &renderPipelineDescriptor);
 }

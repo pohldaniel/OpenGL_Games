@@ -33,7 +33,7 @@ extern "C" {
 
 	WGPUBuffer wgpCreateEmptyBuffer(uint32_t size, WGPUBufferUsage bufferUsage);
 	WGPUBuffer wgpCreateBuffer(const void* data, uint32_t size, WGPUBufferUsage bufferUsage);
-	WGPUTexture wgpCreateTexture(uint32_t width, uint32_t height, WGPUTextureUsage textureUsage, WGPUTextureFormat textureFormat, uint32_t mipLevelCount = 1u, WGPUTextureFormat viewFormat = WGPUTextureFormat_Undefined);
+	WGPUTexture wgpCreateTexture(uint32_t width, uint32_t height, WGPUTextureUsage textureUsage, WGPUTextureFormat textureFormat, uint32_t mipLevelCount = 1u, uint32_t sampleCount = 1u, WGPUTextureFormat viewFormat = WGPUTextureFormat_Undefined);
 	WGPUTextureView wgpCreateTextureView(WGPUTextureFormat textureFormat, WGPUTextureAspect aspect, uint32_t mipLevelCount, const WGPUTexture& texture);
 	WGPUSampler wgpCreateSampler(WGPUFilterMode filterMode = WGPUFilterMode_Linear, WGPUAddressMode addressMode = WGPUAddressMode_ClampToEdge, uint16_t maxAnisotropy = 1u);
 	WGPUShaderModule wgpCreateShader(std::string path);
@@ -67,7 +67,15 @@ struct WgpContext {
 	friend void wgpPipelineLayoutsRelease();
 
 	void createComputePipeline(std::string shaderModuleName, std::string pipelineLayoutName, const std::function<std::vector<WGPUBindGroupLayout>()>& onBindGroupLayouts);
-	void createRenderPipeline(std::string shaderModuleName, std::string pipelineLayoutName, const VertexLayoutSlot vertexLayoutSlot, const std::function<std::vector<WGPUBindGroupLayout>()>& onBindGroupLayouts, WGPUPrimitiveTopology primitiveTopology = WGPUPrimitiveTopology::WGPUPrimitiveTopology_TriangleList);
+	void createRenderPipeline(std::string shaderModuleName, 
+		std::string pipelineLayoutName, 
+		const VertexLayoutSlot vertexLayoutSlot, 
+		const std::function<std::vector<WGPUBindGroupLayout>()>& onBindGroupLayouts, 
+		uint32_t msaaSampleCount = 1u, 
+		WGPUPrimitiveTopology primitiveTopology = WGPUPrimitiveTopology::WGPUPrimitiveTopology_TriangleList,
+		WGPUTextureFormat colorTextureFormat = WGPUTextureFormat::WGPUTextureFormat_Undefined,
+		bool addDepthStencilState = true,
+		bool addBlendState = true);
 
 	void createVertexBufferLayout(VertexLayoutSlot slot = VL_PTN);
 	void addSampler(const WGPUSampler& sampler, SamplerSlot samplerSlot = SS_LINEAR_CLAMP);
@@ -75,6 +83,7 @@ struct WgpContext {
 	void addSahderModule(const std::string& shaderModuleName, const std::string& shaderModulePath);
 	const WGPUShaderModule& getShaderModule(std::string shaderModuleName);
 	void setClearColor(const WGPUColor& clearColor);
+	void setMSAASampleCount(const uint32_t count);
 
 	WGPUInstance instance = NULL;
 	WGPUAdapter adapter = NULL;
@@ -82,9 +91,13 @@ struct WgpContext {
 	WGPUSurface surface = NULL;
 	WGPUQueue queue = NULL;
 	WGPUColor clearColor = { 0.2f, 0.2f, 0.2f, 1.0f };
-
+	
 	WGPUTextureView depthTextureView = NULL;
 	WGPUTexture depthTexture = NULL;
+	WGPUTextureView msaaTextureView = NULL;
+	WGPUTexture msaaTexture = NULL;
+	uint32_t msaaSampleCount = 1u;
+
 	WGPUSurfaceConfiguration config = {};
 	WGPUSurfaceCapabilities surfaceCapabilities;
 	WGPUTextureFormat depthformat = WGPUTextureFormat::WGPUTextureFormat_Depth24PlusStencil8;

@@ -24,7 +24,7 @@ struct Uniforms {
 @vertex
 fn vs_main(in: VertexInput) -> VertexOutput {
 	var out: VertexOutput;
-	out.position = uniforms.projection * uniforms.env * vec4f(in.position, 1.0);
+	out.position = uniforms.projection * uniforms.view * vec4f(in.position, 1.0);
 	out.position.z = out.position.w - 0.001;
 	out.texcoord = in.position;
 	return out;

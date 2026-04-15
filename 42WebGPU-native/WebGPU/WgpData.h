@@ -30,3 +30,10 @@ struct NormalUniforms {
 	float depth_layers;
 	float padding;
 };
+
+struct PBRLightingUniforms {
+	std::array <float, 3> position;
+	float padding1;
+	std::array <float, 3> color;
+	float padding2;
+};

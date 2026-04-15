@@ -271,7 +271,7 @@ void WgpTexture::loadFromFile(const std::string& fileName, const bool flipVertic
     m_channels = channels;
     m_format = WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm;
 
-    uint32_t mipLevelCount = BitWidth(std::max(m_width, m_height));
+    uint32_t mipLevelCount = 1u;
     m_texture = wgpCreateTexture(m_width, m_height, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst, m_format, mipLevelCount);
     WriteMipMaps(m_texture, { m_width, m_height, 1u }, mipLevelCount, imageData);
 
@@ -305,7 +305,7 @@ void WgpTexture::loadFromMemory(unsigned char* data, uint32_t size, const bool f
     m_channels = bpp;
     m_format = WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm;
 
-    uint32_t mipLevelCount = BitWidth(std::max(m_width, m_height));
+    uint32_t mipLevelCount = 1u;
     m_texture = wgpCreateTexture(m_width, m_height, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst, m_format, mipLevelCount);
     WriteMipMaps(m_texture, { m_width, m_height, 1u }, mipLevelCount, imageData);
 
@@ -408,19 +408,19 @@ void WgpTexture::loadHDRIFromFile(const std::string& fileName, const bool flipVe
     m_channels = channels;
     m_format = halfBPP ? WGPUTextureFormat::WGPUTextureFormat_RGBA16Float : WGPUTextureFormat::WGPUTextureFormat_RGBA32Float;
 
+    uint32_t mipLevelCount = BitWidth(std::max(m_width, m_height));
+
     WGPUTextureDescriptor textureDescriptor = {};
     textureDescriptor.label = WGPU_STR("texture");
     textureDescriptor.dimension = WGPUTextureDimension::WGPUTextureDimension_2D;
     textureDescriptor.size = { m_width, m_height, 1u };
     textureDescriptor.format = m_format;
     textureDescriptor.usage = WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst;
-    textureDescriptor.mipLevelCount = 1u;
+    textureDescriptor.mipLevelCount = mipLevelCount;
     textureDescriptor.sampleCount = 1u;
     textureDescriptor.nextInChain = NULL;
 
-    m_texture = wgpuDeviceCreateTexture(wgpContext.device, &textureDescriptor);
-
-    uint32_t mipLevelCount = BitWidth(std::max(m_width, m_height));
+    m_texture = wgpuDeviceCreateTexture(wgpContext.device, &textureDescriptor);  
     m_texture = wgpCreateTexture(m_width, m_height, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst, m_format, mipLevelCount);
     WriteMipMaps(m_texture, { m_width, m_height, 1u }, mipLevelCount, reinterpret_cast<float*>(imageData), 0u, halfBPP);
 
@@ -497,7 +497,6 @@ unsigned char* WgpTexture::LoadFromFile(std::string fileName, uint32_t& width, u
     width = FreeImage_GetWidth(sourceBitmap);
     height = FreeImage_GetHeight(sourceBitmap);
 
-
     unsigned char* pixels = (unsigned char*)malloc(channels * width * height);
     memcpy(pixels, FreeImage_GetBits(sourceBitmap), channels * width * height);
 
@@ -524,7 +523,6 @@ unsigned char* WgpTexture::LoadFromMemory(unsigned char* data, uint32_t size, ui
     unsigned int channels = FreeImage_GetBPP(sourceBitmap) / 8;
     width = FreeImage_GetWidth(sourceBitmap);
     height = FreeImage_GetHeight(sourceBitmap);
-
 
     unsigned char* pixels = (unsigned char*)malloc(channels * width * height);
     memcpy(pixels, FreeImage_GetBits(sourceBitmap), channels * width * height);
