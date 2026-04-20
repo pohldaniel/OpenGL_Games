@@ -104,11 +104,11 @@ void setDefault(WGPUBindGroupLayoutEntry& bindingLayout) {
 	bindingLayout.texture.viewDimension = WGPUTextureViewDimension_Undefined;
 }
 
-void wgpInit(void* window) {
-	wgpCreateDevice(wgpContext, window);
+void wgpInit(void* window, uint32_t msaaSampleCount) {
+	wgpCreateDevice(window, msaaSampleCount);
 }
 
-bool wgpCreateDevice(WgpContext& wgpContext, void* window) {
+bool wgpCreateDevice(void* window, uint32_t msaaSampleCount) {
 	
 
 #ifdef WEBGPU_NATIVE
@@ -204,6 +204,7 @@ bool wgpCreateDevice(WgpContext& wgpContext, void* window) {
 	wgpContext.addSampler(wgpCreateSampler(WGPUFilterMode_Nearest, WGPUAddressMode_ClampToEdge), SS_NEAREST_CLAMP);
 	wgpContext.addSampler(wgpCreateSampler(WGPUFilterMode_Nearest, WGPUAddressMode_Repeat), SS_NEAREST_REPEAT);
 
+	wgpContext.setMSAASampleCount(msaaSampleCount);
 	return true;
 }
 

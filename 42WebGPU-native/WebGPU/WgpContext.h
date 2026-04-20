@@ -28,8 +28,8 @@ extern std::unordered_map<VertexLayoutSlot, std::vector<WGPUVertexAttribute>> wg
 extern std::unordered_map<VertexLayoutSlot, WGPUVertexBufferLayout> wgpVertexBufferLayouts;
 
 extern "C" {
-	void wgpInit(void* window);
-	bool wgpCreateDevice(WgpContext& wgpContext, void* window);
+	void wgpInit(void* window, uint32_t msaaSampleCount = 1u);
+	bool wgpCreateDevice(void* window, uint32_t msaaSampleCount = 1u);
 
 	WGPUBuffer wgpCreateEmptyBuffer(uint32_t size, WGPUBufferUsage bufferUsage);
 	WGPUBuffer wgpCreateBuffer(const void* data, uint32_t size, WGPUBufferUsage bufferUsage);

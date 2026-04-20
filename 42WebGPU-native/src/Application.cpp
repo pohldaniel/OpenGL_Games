@@ -72,8 +72,6 @@ Application::~Application() {
 	ImGui::DestroyContext();
 
 	HDC hdc = GetDC(Window);
-	wglMakeCurrent(hdc, 0);
-	wglDeleteContext(wglGetCurrentContext());
 	ReleaseDC(Window, hdc);
 
 	UnregisterClass("WINDOWCLASS", (HINSTANCE)GetModuleHandle(NULL));
@@ -235,7 +233,7 @@ LRESULT Application::ApplicationWndProc(HWND hWnd, UINT message, WPARAM wParam, 
 }
 
 void Application::initWebGPU() {
-	wgpInit(Window);
+	wgpInit(Window, 4u);
 }
 
 void Application::initImGUI() {
@@ -250,6 +248,7 @@ void Application::initImGUI() {
 	initInfo.Device = wgpContext.device;
 	initInfo.RenderTargetFormat = wgpContext.colorformat;
 	initInfo.DepthStencilFormat = wgpContext.depthformat;
+	initInfo.PipelineMultisampleState.count = wgpContext.msaaSampleCount;
 
 	ImGui_ImplWGPU_Init(&initInfo);
 }
