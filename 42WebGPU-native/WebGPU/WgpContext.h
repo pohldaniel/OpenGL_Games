@@ -63,6 +63,7 @@ enum SamplerSlot {
 
 struct WgpContext {
 
+	friend bool wgpCreateDevice(void* window, uint32_t msaaSampleCount);
 	friend void wgpPipelinesRelease();
 	friend void wgpSamplersRelease();
 	friend void wgpShaderModulesRelease();
@@ -85,8 +86,7 @@ struct WgpContext {
 	void addSahderModule(const std::string& shaderModuleName, const std::string& shaderModulePath);
 	const WGPUShaderModule& getShaderModule(std::string shaderModuleName);
 	void setClearColor(const WGPUColor& clearColor);
-	void setMSAASampleCount(const uint32_t count);
-
+	
 	WGPUInstance instance = NULL;
 	WGPUAdapter adapter = NULL;
 	WGPUDevice device = NULL;
@@ -110,6 +110,8 @@ struct WgpContext {
 	std::function<void(const WGPURenderPassEncoder& commandBuffer)> OnDraw = NULL;
 
 private:
+
+	void setMSAASampleCount(const uint32_t count);
 
 	std::unordered_map<std::string, WGPUPipelineLayout> pipelineLayouts;
 	std::unordered_map<SamplerSlot, WGPUSampler> samplers;
