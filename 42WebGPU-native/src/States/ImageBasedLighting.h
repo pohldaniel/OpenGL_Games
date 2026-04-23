@@ -84,14 +84,7 @@ private:
 	Matrix4f m_mvpCube[6];
 	Matrix4f m_model;
 
-	WGPUTexture irradianceTexture = NULL;
-	WGPUTextureView irradianceView = NULL;
-
-	WGPUTexture cubeTexture = NULL;
-	WGPUTextureView cubView = NULL;
-
-	WGPUTexture prefilterTexture = NULL;
-	WGPUTextureView prefilterView = NULL;
+	WgpTexture _wgpTextureCube, _wgpTextureIrradiance, _wgpTexturePrefilter;
 
 	WGPUTexture brdfTexture = NULL;
 	WGPUTextureView brdfView = NULL;

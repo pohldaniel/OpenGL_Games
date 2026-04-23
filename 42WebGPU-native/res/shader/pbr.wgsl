@@ -45,8 +45,8 @@ struct Light {
 
 @group(0) @binding(2) var<uniform> lights: array<Light, 4>;
 
-@group(1) @binding(0) var ourSampler: sampler;
-@group(1) @binding(1) var samplerBRDF: sampler;
+@group(1) @binding(0) var smplr: sampler;
+@group(1) @binding(1) var smplrBRDF: sampler;
 @group(1) @binding(2) var brdfLUT: texture_2d<f32>;
 @group(1) @binding(3) var irradianceMap: texture_cube<f32>;
 @group(1) @binding(4) var prefilterMap: texture_cube<f32>;
@@ -100,14 +100,14 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
 	var kD = vec3f(1.0) - kS;
 	kD *= 1.0 - metallic;
 
-	let irradiance = textureSample(irradianceMap, ourSampler, n).rgb;
+	let irradiance = textureSample(irradianceMap, smplr, n).rgb;
 	let diffuse    = irradiance * albedo;
 
 	let prefilteredColor =
-		textureSampleLevel(prefilterMap, ourSampler, r, roughness * MAX_REFLECTION_LOD)
+		textureSampleLevel(prefilterMap, smplr, r, roughness * MAX_REFLECTION_LOD)
 			.rgb;
 	let brdf =
-		textureSample(brdfLUT, samplerBRDF,
+		textureSample(brdfLUT, smplrBRDF,
 					  vec2f(max(dot(n, v), 0.0), roughness))
 			.rg;
 	let specular = prefilteredColor * (f * brdf.x + brdf.y);

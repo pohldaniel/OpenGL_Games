@@ -20,10 +20,8 @@ Compute::Compute(StateMachine& machine) : State(machine, States::COMPUTE) {
 	wgpContext.createComputePipeline("COMPUTE", "CP_COMPUTE", std::bind(&Compute::OnBindGroupLayouts, this));
 
 	m_inputTexture.loadFromFile("res/textures/input.jpg", true);
-	m_outputTexture.createEmpty(m_inputTexture.getWidth(), m_inputTexture.getHeight(), WGPUTextureUsage_TextureBinding | WGPUTextureUsage_StorageBinding | WGPUTextureUsage_CopySrc, WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm);
-	m_inputTextureView = wgpCreateTextureView(m_inputTexture.getFormat(), WGPUTextureAspect::WGPUTextureAspect_All, 1u, m_inputTexture.getTexture());
-	m_outputTextureView = wgpCreateTextureView(m_outputTexture.getFormat(), WGPUTextureAspect::WGPUTextureAspect_All, 1u, m_outputTexture.getTexture());
-	m_bindGroup = createBindGroup(m_inputTextureView, m_outputTextureView, m_uniformBuffer.getBuffer());
+	m_outputTexture.createEmpty(m_inputTexture.getWidth(), m_inputTexture.getHeight(), 1u, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_StorageBinding | WGPUTextureUsage_CopySrc, WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm);	
+	m_bindGroup = createBindGroup();
 
 	wgpContext.OnDraw = std::bind(&Compute::OnDraw, this, std::placeholders::_1);
 }
@@ -39,11 +37,7 @@ Compute::~Compute() {
 	wgpuBindGroupRelease(m_bindGroup);
 	m_bindGroup = NULL;
 
-	wgpuTextureViewRelease(m_inputTextureView);
-	m_inputTextureView = NULL;
-
-	wgpuTextureViewRelease(m_outputTextureView);
-	m_outputTextureView = NULL;
+	
 }
 
 void Compute::fixedUpdate() {
@@ -179,12 +173,12 @@ void Compute::renderUi(const WGPURenderPassEncoder& renderPassEncoder, bool forc
 
 		// Input image
 		width = m_inputTexture.getWidth() * m_scale;
-		drawList->AddImage((ImTextureID)m_inputTextureView, { offset, 0 }, { offset + width, m_inputTexture.getHeight() * m_scale });
+		drawList->AddImage((ImTextureID)m_inputTexture.getTextureView(), {offset, 0}, {offset + width, m_inputTexture.getHeight() * m_scale});
 		offset += width;
 
 		// Output image
 		width = m_outputTexture.getWidth() * m_scale;
-		drawList->AddImage((ImTextureID)m_outputTextureView, { offset, 0 }, {offset + width, m_outputTexture.getHeight() * m_scale });
+		drawList->AddImage((ImTextureID)m_outputTexture.getTextureView(), {offset, 0}, {offset + width, m_outputTexture.getHeight() * m_scale});
 		offset += width;
 	}
 
@@ -248,17 +242,17 @@ std::vector<WGPUBindGroupLayout> Compute::OnBindGroupLayouts() {
 	return bindingLayouts;
 }
 
-WGPUBindGroup Compute::createBindGroup(const WGPUTextureView& inputTextureView, const WGPUTextureView& outputTextureView, const WGPUBuffer& uniformBuffer) {
+WGPUBindGroup Compute::createBindGroup() {
 	std::vector<WGPUBindGroupEntry> entries(3);
 
 	entries[0].binding = 0;
-	entries[0].textureView = inputTextureView;
+	entries[0].textureView = m_inputTexture.getTextureView();
 
 	entries[1].binding = 1;
-	entries[1].textureView = outputTextureView;
+	entries[1].textureView = m_outputTexture.getTextureView();
 
 	entries[2].binding = 2;
-	entries[2].buffer = uniformBuffer;
+	entries[2].buffer = m_uniformBuffer.getBuffer();
 	entries[2].offset = 0;
 	entries[2].size = sizeof(UniformsCompute);
 

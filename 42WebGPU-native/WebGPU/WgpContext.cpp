@@ -190,8 +190,8 @@ bool wgpCreateDevice(void* window, uint32_t msaaSampleCount) {
 	//wgpContext.colorformat = wgpContext.surfaceCapabilities.formats[0];
 
 	wgpContext.queue = wgpuDeviceGetQueue(wgpContext.device);
-	wgpContext.depthTexture = wgpCreateTexture(static_cast<uint32_t>(Application::Width), static_cast<uint32_t>(Application::Height), WGPUTextureUsage_RenderAttachment, wgpContext.depthformat, 1u, wgpContext.msaaSampleCount, wgpContext.depthformat);
-	wgpContext.depthTextureView = wgpCreateTextureView(wgpContext.depthformat, WGPUTextureAspect::WGPUTextureAspect_All, 1u, wgpContext.depthTexture);
+	wgpContext.depthTexture = wgpCreateTexture(static_cast<uint32_t>(Application::Width), static_cast<uint32_t>(Application::Height), 1u, WGPUTextureUsage_RenderAttachment, wgpContext.depthformat, 1u, wgpContext.msaaSampleCount, wgpContext.depthformat);
+	wgpContext.depthTextureView = wgpCreateTextureView(wgpContext.depthTexture, WGPUTextureAspect::WGPUTextureAspect_All);
 
 	wgpCreateVertexBufferLayout(VL_P);
 	wgpCreateVertexBufferLayout(VL_PTN);
@@ -268,12 +268,12 @@ WGPUBuffer wgpCreateEmptyBuffer(uint32_t size, WGPUBufferUsage bufferUsage) {
 	return wgpuDeviceCreateBuffer(device, &bufferDesc);
 }
 
-WGPUTexture wgpCreateTexture(uint32_t width, uint32_t height, WGPUTextureUsage textureUsage, WGPUTextureFormat textureFormat, uint32_t mipLevelCount, uint32_t sampleCount, WGPUTextureFormat viewFormat) {
+WGPUTexture wgpCreateTexture(uint32_t width, uint32_t height, uint32_t depth, WGPUTextureUsage textureUsage, WGPUTextureFormat textureFormat, uint32_t mipLevelCount, uint32_t sampleCount, WGPUTextureFormat viewFormat) {
 	const WGPUDevice& device = wgpContext.device;
 	WGPUTextureDescriptor textureDescriptor = {};
 	textureDescriptor.label = WGPU_STR("texture");
 	textureDescriptor.dimension = WGPUTextureDimension::WGPUTextureDimension_2D;
-	textureDescriptor.size = { width, height, 1u };
+	textureDescriptor.size = { width, height, depth };
 	textureDescriptor.format = textureFormat;
 	textureDescriptor.usage = textureUsage;
 	textureDescriptor.mipLevelCount = mipLevelCount;
@@ -286,16 +286,16 @@ WGPUTexture wgpCreateTexture(uint32_t width, uint32_t height, WGPUTextureUsage t
 	return wgpuDeviceCreateTexture(device, &textureDescriptor);
 }
 
-WGPUTextureView wgpCreateTextureView(WGPUTextureFormat textureFormat, WGPUTextureAspect aspect, uint32_t mipLevelCount, const WGPUTexture& texture) {
+WGPUTextureView wgpCreateTextureView(const WGPUTexture& texture, WGPUTextureAspect aspect) {
 	WGPUTextureViewDescriptor textureViewDescriptor = {};
 	textureViewDescriptor.label = WGPU_STR("texture_view");
 	textureViewDescriptor.aspect = aspect;
 	textureViewDescriptor.baseArrayLayer = 0u;
-	textureViewDescriptor.arrayLayerCount = 1u;
+	textureViewDescriptor.arrayLayerCount = wgpuTextureGetDepthOrArrayLayers(texture);
 	textureViewDescriptor.baseMipLevel = 0u;
-	textureViewDescriptor.mipLevelCount = mipLevelCount;
-	textureViewDescriptor.dimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
-	textureViewDescriptor.format = textureFormat;
+	textureViewDescriptor.mipLevelCount = wgpuTextureGetMipLevelCount(texture);
+	textureViewDescriptor.dimension = textureViewDescriptor.arrayLayerCount == 6u ? WGPUTextureViewDimension::WGPUTextureViewDimension_Cube : WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
+	textureViewDescriptor.format = wgpuTextureGetFormat(texture);
 	textureViewDescriptor.nextInChain = NULL;
 	return wgpuTextureCreateView(texture, &textureViewDescriptor);
 }
@@ -560,16 +560,16 @@ void wgpResize(uint32_t width, uint32_t height) {
 		wgpuTextureDestroy(wgpContext.depthTexture);
 		wgpuTextureRelease(wgpContext.depthTexture);
 
-		wgpContext.depthTexture = wgpCreateTexture(width, height, WGPUTextureUsage_RenderAttachment, wgpContext.depthformat, 1u, wgpContext.msaaSampleCount, wgpContext.depthformat);
-		wgpContext.depthTextureView = wgpCreateTextureView(wgpContext.depthformat, WGPUTextureAspect::WGPUTextureAspect_All, 1u, wgpContext.depthTexture);
+		wgpContext.depthTexture = wgpCreateTexture(width, height, 1u, WGPUTextureUsage_RenderAttachment, wgpContext.depthformat, 1u, wgpContext.msaaSampleCount, wgpContext.depthformat);
+		wgpContext.depthTextureView = wgpCreateTextureView(wgpContext.depthTexture, WGPUTextureAspect::WGPUTextureAspect_All);
 
 		if (wgpContext.msaaSampleCount > 1u) {
 			wgpuTextureViewRelease(wgpContext.msaaTextureView);
 			wgpuTextureDestroy(wgpContext.msaaTexture);
 			wgpuTextureRelease(wgpContext.msaaTexture);
 
-			wgpContext.msaaTexture = wgpCreateTexture(width, height, WGPUTextureUsage_RenderAttachment, wgpContext.colorformat, 1u, wgpContext.msaaSampleCount, wgpContext.colorformat);
-			wgpContext.msaaTextureView = wgpCreateTextureView(wgpContext.colorformat, WGPUTextureAspect::WGPUTextureAspect_All, 1u, wgpContext.msaaTexture);
+			wgpContext.msaaTexture = wgpCreateTexture(width, height, 1u, WGPUTextureUsage_RenderAttachment, wgpContext.colorformat, 1u, wgpContext.msaaSampleCount, wgpContext.colorformat);
+			wgpContext.msaaTextureView = wgpCreateTextureView(wgpContext.msaaTexture, WGPUTextureAspect::WGPUTextureAspect_All);
 		}
 
 		wgpContext.config.width = width;
@@ -599,8 +599,8 @@ void wgpSetSurfaceColorFormat(WGPUTextureFormat textureFormat) {
 			wgpuTextureDestroy(wgpContext.msaaTexture);
 			wgpuTextureRelease(wgpContext.msaaTexture);
 
-			wgpContext.msaaTexture = wgpCreateTexture(width, height, WGPUTextureUsage_RenderAttachment, wgpContext.colorformat, 1u, wgpContext.msaaSampleCount, wgpContext.colorformat);
-			wgpContext.msaaTextureView = wgpCreateTextureView(wgpContext.colorformat, WGPUTextureAspect::WGPUTextureAspect_All, 1u, wgpContext.msaaTexture);
+			wgpContext.msaaTexture = wgpCreateTexture(width, height, 1u, WGPUTextureUsage_RenderAttachment, wgpContext.colorformat, 1u, wgpContext.msaaSampleCount, wgpContext.colorformat);
+			wgpContext.msaaTextureView = wgpCreateTextureView(wgpContext.msaaTexture, WGPUTextureAspect::WGPUTextureAspect_All);
 		}
 
 	}
@@ -709,15 +709,15 @@ void WgpContext::setMSAASampleCount(const uint32_t count) {
 	uint32_t width = wgpuTextureGetWidth(depthTexture);
 	uint32_t height = wgpuTextureGetHeight(depthTexture);
 
-	msaaTexture = wgpCreateTexture(width, height, WGPUTextureUsage_RenderAttachment, colorformat, 1u, msaaSampleCount, colorformat);
-	msaaTextureView = wgpCreateTextureView(colorformat, WGPUTextureAspect::WGPUTextureAspect_All, 1u, msaaTexture);
+	msaaTexture = wgpCreateTexture(width, height, 1u, WGPUTextureUsage_RenderAttachment, colorformat, 1u, msaaSampleCount, colorformat);
+	msaaTextureView = wgpCreateTextureView(msaaTexture, WGPUTextureAspect::WGPUTextureAspect_All);
 
 	wgpuTextureViewRelease(depthTextureView);
 	wgpuTextureDestroy(depthTexture);
 	wgpuTextureRelease(depthTexture);
 
-	depthTexture = wgpCreateTexture(width, height, WGPUTextureUsage_RenderAttachment, depthformat, 1u, msaaSampleCount, depthformat);
-	depthTextureView = wgpCreateTextureView(depthformat, WGPUTextureAspect::WGPUTextureAspect_All, 1u, depthTexture);
+	depthTexture = wgpCreateTexture(width, height, 1u, WGPUTextureUsage_RenderAttachment, depthformat, 1u, msaaSampleCount, depthformat);
+	depthTextureView = wgpCreateTextureView(depthTexture, WGPUTextureAspect::WGPUTextureAspect_All);
 
 }
 

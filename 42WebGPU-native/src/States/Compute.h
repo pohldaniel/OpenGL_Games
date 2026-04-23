@@ -53,7 +53,7 @@ private:
 
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayouts();
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder, bool force = false);
-	WGPUBindGroup createBindGroup(const WGPUTextureView& inputTextureView, const WGPUTextureView& outputTextureView, const WGPUBuffer& uniformBuffer);
+	WGPUBindGroup createBindGroup();
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
@@ -67,6 +67,4 @@ private:
 	WgpBuffer m_uniformBuffer;
 	WgpTexture m_inputTexture, m_outputTexture;
 	WGPUBindGroup m_bindGroup;
-	WGPUTextureView m_inputTextureView;
-	WGPUTextureView m_outputTextureView;
 };

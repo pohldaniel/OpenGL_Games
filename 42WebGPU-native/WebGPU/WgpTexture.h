@@ -19,7 +19,7 @@ public:
 	void loadHDRICubeFromFile(const std::string& fileName, const bool flipVertical = false, const bool halfBPP = false);
 	void loadHDRIFromFile(const std::string& fileName, const bool flipVertical = false, const bool halfBPP = false);
 
-	void createEmpty(uint32_t width, uint32_t height, WGPUTextureUsage textureUsage, WGPUTextureFormat textureFormat);
+	void createEmpty(uint32_t width, uint32_t height, uint32_t depth, WGPUTextureUsage textureUsage, WGPUTextureFormat textureFormat, uint32_t mipLevelCount = 1u);
 	void cleanup();
 	void markForDelete();
 

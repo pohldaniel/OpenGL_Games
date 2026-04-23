@@ -680,10 +680,10 @@ std::vector<WGPUBindGroup> ImageBasedLighting::OnBindGroupsPBR() {
 
 
 	bindGroupEntries1[3].binding = 3u;
-	bindGroupEntries1[3].textureView = irradianceView;
+	bindGroupEntries1[3].textureView = _wgpTextureIrradiance.getTextureView();
 
 	bindGroupEntries1[4].binding = 4u;
-	bindGroupEntries1[4].textureView = prefilterView;
+	bindGroupEntries1[4].textureView = _wgpTexturePrefilter.getTextureView();
 
 	WGPUBindGroupDescriptor bindGroupDesc1 = {};
 	bindGroupDesc1.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_PBR"), 1u);
@@ -763,7 +763,7 @@ std::vector<WGPUBindGroup> ImageBasedLighting::OnBindGroupsIrradiance() {
 	bindGroupEntries[1].sampler = wgpContext.getSampler(SS_LINEAR_REPEAT);
 
 	bindGroupEntries[2].binding = 2u;
-	bindGroupEntries[2].textureView = cubView;
+	bindGroupEntries[2].textureView = _wgpTextureCube.getTextureView();
 
 	WGPUBindGroupDescriptor bindGroupDesc = {};
 	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_IRRADIANCE"), 0u);
@@ -870,7 +870,7 @@ std::vector<WGPUBindGroup> ImageBasedLighting::OnBindGroupsPrefilter() {
 	bindGroupEntries[1].sampler = wgpContext.getSampler(SS_LINEAR_REPEAT);
 
 	bindGroupEntries[2].binding = 2u;
-	bindGroupEntries[2].textureView = cubView;
+	bindGroupEntries[2].textureView = _wgpTextureCube.getTextureView();
 
 	bindGroupEntries[3].binding = 3u;
 	bindGroupEntries[3].buffer = m_roughnessBuffer.getBuffer();
@@ -925,7 +925,7 @@ std::vector<WGPUBindGroup> ImageBasedLighting::OnBindGroupsSkybox() {
 	bindGroupEntries[1].sampler = wgpContext.getSampler(SS_LINEAR_REPEAT);
 
 	bindGroupEntries[2].binding = 2u;
-	bindGroupEntries[2].textureView = irradianceView;
+	bindGroupEntries[2].textureView = _wgpTextureIrradiance.getTextureView();
 
 	WGPUBindGroupDescriptor bindGroupDesc = {};
 	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_SKYBOX"), 0u);
@@ -957,31 +957,8 @@ void ImageBasedLighting::initIrradianceMatrices() {
 }
 
 void ImageBasedLighting::renderIrradiance() {
-	WGPUTextureDescriptor textureDescriptor = {};
-	textureDescriptor.label = WGPU_STR("texture");
-	textureDescriptor.dimension = WGPUTextureDimension::WGPUTextureDimension_2D;
-	textureDescriptor.size = { 32u, 32u, 6u };
-	textureDescriptor.format = WGPUTextureFormat_RGBA16Float;
-	textureDescriptor.usage = WGPUTextureUsage_TextureBinding | WGPUTextureUsage_RenderAttachment;
-	textureDescriptor.mipLevelCount = 1u;
-	textureDescriptor.sampleCount = 1u;
-	textureDescriptor.nextInChain = NULL;
 
-	irradianceTexture = wgpuDeviceCreateTexture(wgpContext.device, &textureDescriptor);
-
-
-	WGPUTextureViewDescriptor textureViewDescriptor = {};
-	textureViewDescriptor.label = WGPU_STR("texture_view");
-	textureViewDescriptor.aspect = WGPUTextureAspect_All;
-	textureViewDescriptor.baseArrayLayer = 0u;
-	textureViewDescriptor.arrayLayerCount = 6u;
-	textureViewDescriptor.baseMipLevel = 0u;
-	textureViewDescriptor.mipLevelCount = 1u;
-	textureViewDescriptor.dimension = WGPUTextureViewDimension::WGPUTextureViewDimension_Cube;
-	textureViewDescriptor.format = WGPUTextureFormat_RGBA16Float;
-	textureViewDescriptor.nextInChain = NULL;
-
-	irradianceView = wgpuTextureCreateView(irradianceTexture, &textureViewDescriptor);
+	_wgpTextureIrradiance.createEmpty(32u, 32u, 6u, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_RenderAttachment, WGPUTextureFormat_RGBA16Float);
 
 	for (uint32_t face = 0; face < 6; face++) {
 
@@ -996,7 +973,7 @@ void ImageBasedLighting::renderIrradiance() {
 		faceViewDescriptor.format = WGPUTextureFormat_RGBA16Float;
 		faceViewDescriptor.nextInChain = NULL;
 
-		WGPUTextureView faceView = wgpuTextureCreateView(irradianceTexture, &faceViewDescriptor);
+		WGPUTextureView faceView = wgpuTextureCreateView(_wgpTextureIrradiance.getTexture(), &faceViewDescriptor);
 
 		WGPURenderPassColorAttachment renderPassColorAttachment = {};
 		renderPassColorAttachment.view = faceView;
@@ -1041,31 +1018,8 @@ void ImageBasedLighting::renderIrradiance() {
 }
 
 void ImageBasedLighting::renderCube() {
-	WGPUTextureDescriptor textureDescriptor = {};
-	textureDescriptor.label = WGPU_STR("texture");
-	textureDescriptor.dimension = WGPUTextureDimension::WGPUTextureDimension_2D;
-	textureDescriptor.size = { 512u, 512u, 6u };
-	textureDescriptor.format = WGPUTextureFormat_RGBA16Float;
-	textureDescriptor.usage = WGPUTextureUsage_TextureBinding | WGPUTextureUsage_RenderAttachment;
-	textureDescriptor.mipLevelCount = 1u;
-	textureDescriptor.sampleCount = 1u;
-	textureDescriptor.nextInChain = NULL;
 
-	cubeTexture = wgpuDeviceCreateTexture(wgpContext.device, &textureDescriptor);
-
-
-	WGPUTextureViewDescriptor textureViewDescriptor = {};
-	textureViewDescriptor.label = WGPU_STR("texture_view");
-	textureViewDescriptor.aspect = WGPUTextureAspect_All;
-	textureViewDescriptor.baseArrayLayer = 0u;
-	textureViewDescriptor.arrayLayerCount = 6u;
-	textureViewDescriptor.baseMipLevel = 0u;
-	textureViewDescriptor.mipLevelCount = 1u;
-	textureViewDescriptor.dimension = WGPUTextureViewDimension::WGPUTextureViewDimension_Cube;
-	textureViewDescriptor.format = WGPUTextureFormat_RGBA16Float;
-	textureViewDescriptor.nextInChain = NULL;
-
-	cubView = wgpuTextureCreateView(cubeTexture, &textureViewDescriptor);
+	_wgpTextureCube.createEmpty(512u, 512u, 6u, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_RenderAttachment, WGPUTextureFormat_RGBA16Float);
 
 	for (uint32_t face = 0; face < 6; face++) {
 
@@ -1080,7 +1034,7 @@ void ImageBasedLighting::renderCube() {
 		faceViewDescriptor.format = WGPUTextureFormat_RGBA16Float;
 		faceViewDescriptor.nextInChain = NULL;
 
-		WGPUTextureView faceView = wgpuTextureCreateView(cubeTexture, &faceViewDescriptor);
+		WGPUTextureView faceView = wgpuTextureCreateView(_wgpTextureCube.getTexture(), &faceViewDescriptor);
 
 		WGPURenderPassColorAttachment renderPassColorAttachment = {};
 		renderPassColorAttachment.view = faceView;
@@ -1101,7 +1055,6 @@ void ImageBasedLighting::renderCube() {
 		WGPUCommandEncoder commandEncoder = wgpuDeviceCreateCommandEncoder(wgpContext.device, &commandEncoderDescriptor);
 		WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDesc);
 
-		Matrix4f tmp = m_camera.getPerspectiveMatrix();
 		wgpuQueueWriteBuffer(wgpContext.queue, m_uniformMVPBuffer.getBuffer(), 0u, &m_mvpCube[face], 64u);
 		wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, 512.0f, 512.0f, 0.0f, 1.0f);
 		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_CUBE"));
@@ -1130,30 +1083,7 @@ void ImageBasedLighting::renderPrefilter() {
 	float vpWidth = 256.0f;
 	float vpHeight = 256.0f;
 
-	WGPUTextureDescriptor textureDescriptor = {};
-	textureDescriptor.label = WGPU_STR("texture");
-	textureDescriptor.dimension = WGPUTextureDimension::WGPUTextureDimension_2D;
-	textureDescriptor.size = { 256u, 256u, 6u };
-	textureDescriptor.format = WGPUTextureFormat_RGBA16Float;
-	textureDescriptor.usage = WGPUTextureUsage_TextureBinding | WGPUTextureUsage_RenderAttachment;
-	textureDescriptor.mipLevelCount = ROUGHNESS_LEVELS;
-	textureDescriptor.sampleCount = 1u;
-	textureDescriptor.nextInChain = NULL;
-
-	prefilterTexture = wgpuDeviceCreateTexture(wgpContext.device, &textureDescriptor);
-
-	WGPUTextureViewDescriptor textureViewDescriptor = {};
-	textureViewDescriptor.label = WGPU_STR("texture_view");
-	textureViewDescriptor.aspect = WGPUTextureAspect_All;
-	textureViewDescriptor.baseArrayLayer = 0u;
-	textureViewDescriptor.arrayLayerCount = 6u;
-	textureViewDescriptor.baseMipLevel = 0u;
-	textureViewDescriptor.mipLevelCount = ROUGHNESS_LEVELS;
-	textureViewDescriptor.dimension = WGPUTextureViewDimension::WGPUTextureViewDimension_Cube;
-	textureViewDescriptor.format = WGPUTextureFormat_RGBA16Float;
-	textureViewDescriptor.nextInChain = NULL;
-
-	prefilterView = wgpuTextureCreateView(prefilterTexture, &textureViewDescriptor);
+	_wgpTexturePrefilter.createEmpty(256u, 256u, 6u, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_RenderAttachment, WGPUTextureFormat_RGBA16Float, ROUGHNESS_LEVELS);
 
 	for (uint32_t mip = 0; mip < ROUGHNESS_LEVELS; ++mip) {
 		float roughness_val = (float)mip / (float)(ROUGHNESS_LEVELS - 1);
@@ -1171,7 +1101,7 @@ void ImageBasedLighting::renderPrefilter() {
 			faceViewDescriptor.format = WGPUTextureFormat_RGBA16Float;
 			faceViewDescriptor.nextInChain = NULL;
 
-			WGPUTextureView faceView = wgpuTextureCreateView(prefilterTexture, &faceViewDescriptor);
+			WGPUTextureView faceView = wgpuTextureCreateView(_wgpTexturePrefilter.getTexture(), &faceViewDescriptor);
 
 			WGPURenderPassColorAttachment renderPassColorAttachment = {};
 			renderPassColorAttachment.view = faceView;
@@ -1231,18 +1161,18 @@ void ImageBasedLighting::renderBrdf() {
 
 	brdfTexture = wgpuDeviceCreateTexture(wgpContext.device, &textureDescriptor);
 
-	/*WGPUTextureViewDescriptor textureViewDescriptor = {};
+	WGPUTextureViewDescriptor textureViewDescriptor = {};
 	textureViewDescriptor.label = WGPU_STR("texture_view");
 	textureViewDescriptor.aspect = WGPUTextureAspect_All;
 	textureViewDescriptor.baseArrayLayer = 0u;
 	textureViewDescriptor.arrayLayerCount = 1u;
 	textureViewDescriptor.baseMipLevel = 0u;
 	textureViewDescriptor.mipLevelCount = 1u;
-	textureViewDescriptor.dimension = WGPUTextureViewDimension::WGPUTextureViewDimension_Cube;
+	textureViewDescriptor.dimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
 	textureViewDescriptor.format = WGPUTextureFormat_RG16Float;
-	textureViewDescriptor.nextInChain = NULL;*/
+	textureViewDescriptor.nextInChain = NULL;
 
-	brdfView = wgpuTextureCreateView(brdfTexture, NULL);
+	brdfView = wgpuTextureCreateView(brdfTexture, &textureViewDescriptor);
 
 	WGPURenderPassColorAttachment renderPassColorAttachment = {};
 	renderPassColorAttachment.view = brdfView;
