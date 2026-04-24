@@ -2,12 +2,11 @@
 #include "WgpContext.h"
 #include "WgpRenderer.h"
 
-
+#include <iostream>
 void WgpRenderer::Draw(const WgpTexture& texture, std::function<void(const WGPURenderPassEncoder& commandBuffer, uint32_t layer, uint32_t mip)> OnDraw) {
 	uint32_t arrayLayerCount = wgpuTextureGetDepthOrArrayLayers(texture.getTexture());
 	uint32_t mipLevelCount = wgpuTextureGetMipLevelCount(texture.getTexture());
 	WGPUTextureFormat textureFormat = wgpuTextureGetFormat(texture.getTexture());
-	WGPUTextureViewDimension textureViewDimension = wgpuTextureGetTextureBindingViewDimension(texture.getTexture());
 
 	float mipWidth = static_cast<float>(wgpuTextureGetWidth(texture.getTexture()));
 	float mipHeight = static_cast<float>(wgpuTextureGetHeight(texture.getTexture()));
@@ -22,7 +21,7 @@ void WgpRenderer::Draw(const WgpTexture& texture, std::function<void(const WGPUR
 			textureViewDescriptor.arrayLayerCount = 1u;
 			textureViewDescriptor.baseMipLevel = mip;
 			textureViewDescriptor.mipLevelCount = 1u;
-			textureViewDescriptor.dimension = textureViewDimension;
+			textureViewDescriptor.dimension = WGPUTextureViewDimension_2D;
 			textureViewDescriptor.format = textureFormat;
 			textureViewDescriptor.nextInChain = NULL;
 
