@@ -727,7 +727,7 @@ void WgpContext::createComputePipeline(std::string shaderModuleName, std::string
 	WGPUPipelineLayoutDescriptor pipelineLayoutDescriptor = {};
 	pipelineLayoutDescriptor.bindGroupLayoutCount = bindGroupLayouts.size();
 	pipelineLayoutDescriptor.bindGroupLayouts = bindGroupLayouts.data();
-	pipelineLayouts[pipelineLayoutName] = wgpuDeviceCreatePipelineLayout(wgpContext.device, &pipelineLayoutDescriptor);
+	pipelineLayouts[pipelineLayoutName] = wgpuDeviceCreatePipelineLayout(device, &pipelineLayoutDescriptor);
 
 	WGPUComputePipelineDescriptor computePipelineDesc = {};
 	computePipelineDesc.layout = pipelineLayouts.at(pipelineLayoutName);
@@ -737,7 +737,7 @@ void WgpContext::createComputePipeline(std::string shaderModuleName, std::string
 	computePipelineDesc.compute.constantCount = 0;
 	computePipelineDesc.compute.constants = NULL;
 	
-	wgpContext.computePipelines[pipelineLayoutName] = wgpuDeviceCreateComputePipeline(wgpContext.device, &computePipelineDesc);
+	computePipelines[pipelineLayoutName] = wgpuDeviceCreateComputePipeline(device, &computePipelineDesc);
 }
 
 void WgpContext::createRenderPipeline(std::string shaderModuleName, 
@@ -808,7 +808,7 @@ void WgpContext::createRenderPipeline(std::string shaderModuleName,
 	renderPipelineDescriptor.primitive.topology = primitiveTopology;
 	renderPipelineDescriptor.primitive.stripIndexFormat = WGPUIndexFormat::WGPUIndexFormat_Undefined;
 	renderPipelineDescriptor.primitive.frontFace = WGPUFrontFace::WGPUFrontFace_CCW;
-	renderPipelineDescriptor.primitive.cullMode = WGPUCullMode::WGPUCullMode_None;
+	renderPipelineDescriptor.primitive.cullMode = WGPUCullMode::WGPUCullMode_Back;
 
 	renderPipelines[pipelineLayoutName] = wgpuDeviceCreateRenderPipeline(device, &renderPipelineDescriptor);
 }

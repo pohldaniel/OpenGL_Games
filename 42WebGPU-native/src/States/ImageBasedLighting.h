@@ -13,6 +13,7 @@
 #include <WebGPU/WgpModel.h>
 #include <WebGPU/WgpData.h>
 #include <WebGPU/WgpTexture.h>
+#include <WebGPU/WgpRenderer.h>
 
 class ImageBasedLighting : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -59,14 +60,14 @@ private:
 	void initMatrices();
 	void initLights();
 	void initIrradianceMatrices();
-	void renderCube();
-	void renderIrradiance();
-	void renderPrefilter();
-	void renderBrdf();
+	
+	void OnDrawBrdf(const WGPURenderPassEncoder& renderPassEncoder, uint32_t layer, uint32_t mip);
+	void OnDrawCube(const WGPURenderPassEncoder& renderPassEncoder, uint32_t layer, uint32_t mip);
+	void OnDrawIrradiance(const WGPURenderPassEncoder& renderPassEncoder, uint32_t layer, uint32_t mip);
+	void OnDrawPrefilter(const WGPURenderPassEncoder& renderPassEncoder, uint32_t layer, uint32_t mip);
 
 	bool m_initUi = true;
 	bool m_drawUi = false;
-	float m_zoom = 1.0f;
 
 	TrackBall m_trackball;
 	Camera m_camera;
@@ -82,12 +83,10 @@ private:
 	PBRLightingUniforms m_lights[4];
 	Matrix4f m_mvpInvCube[6];
 	Matrix4f m_mvpCube[6];
-	Matrix4f m_model;
 
-	WgpTexture _wgpTextureCube, _wgpTextureIrradiance, _wgpTexturePrefilter;
+	const uint32_t ROUGHNESS_LEVELS = 5u;
+	WgpTexture _wgpTextureCube, _wgpTextureIrradiance, _wgpTexturePrefilter, _wgpTextureBrdf;
 
-	WGPUTexture brdfTexture = NULL;
-	WGPUTextureView brdfView = NULL;
 
 	static void AddBindgroups(const WgpModel& model);
 	static void AddBindgroups(const WgpModel& model, const WgpTexture& texture, std::string pipelineName);

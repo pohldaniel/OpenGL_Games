@@ -23,7 +23,6 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 	m_camera.lookAt(Vector3f(0.0f, 0.0f, 20.0f), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(10.0f);
-	m_model.scale(m_zoom, m_zoom, m_zoom);
 
 	m_wgpTextureCube.loadHDRICubeFromFile("res/textures/venice_sunset_1k.hdr", false, true);
 	m_wgpTexture.loadHDRIFromFile("res/textures/venice_sunset_1k.hdr", true, true);
@@ -127,20 +126,21 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 	initLights();
 
 	m_wgpCube.setBindGroups("CUBE", std::bind(&ImageBasedLighting::OnBindGroupsCube, this));
-	renderCube();
+	_wgpTextureCube.createEmpty(512u, 512u, 6u, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_RenderAttachment, WGPUTextureFormat_RGBA16Float);
+	WgpRenderer::Draw(_wgpTextureCube, std::bind(&ImageBasedLighting::OnDrawCube, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 
 	m_wgpCube.setBindGroups("IRRADIANCE", std::bind(&ImageBasedLighting::OnBindGroupsIrradiance, this));
-	renderIrradiance();
+	_wgpTextureIrradiance.createEmpty(32u, 32u, 6u, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_RenderAttachment, WGPUTextureFormat_RGBA16Float);
+	WgpRenderer::Draw(_wgpTextureIrradiance, std::bind(&ImageBasedLighting::OnDrawIrradiance, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 
 	m_wgpCube.setBindGroups("PREFILTER", std::bind(&ImageBasedLighting::OnBindGroupsPrefilter, this));
-	renderPrefilter();
+	_wgpTexturePrefilter.createEmpty(256u, 256u, 6u, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_RenderAttachment, WGPUTextureFormat_RGBA16Float, ROUGHNESS_LEVELS);
+	WgpRenderer::Draw(_wgpTexturePrefilter, std::bind(&ImageBasedLighting::OnDrawPrefilter, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 
-	renderBrdf();
-
+	_wgpTextureBrdf.createEmpty(512, 512, 1u, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_RenderAttachment, WGPUTextureFormat_RG16Float);
+	WgpRenderer::Draw(_wgpTextureBrdf, std::bind(&ImageBasedLighting::OnDrawBrdf, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 
 	m_wgpCube.setBindGroups("BG", std::bind(&ImageBasedLighting::OnBindGroupsSkybox, this));
-
-
 	m_wgpSpherePBR.create(m_sphereObj);
 	m_wgpSpherePBR.setBindGroups("BG", std::bind(&ImageBasedLighting::OnBindGroupsPBR, this));
 
@@ -219,7 +219,7 @@ void ImageBasedLighting::update() {
 	m_uniforms.projectionMatrix = m_camera.getPerspectiveMatrix();
 	m_uniforms.viewMatrix = m_camera.getViewMatrix();
 	m_uniforms.envMatrix = m_camera.getRotationMatrix();
-	m_uniforms.modelMatrix = m_model;
+	m_uniforms.modelMatrix = Matrix4f::IDENTITY;
 	m_uniforms.normalMatrix = Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_uniforms.modelMatrix);
 	m_uniforms.camPosition = m_camera.getPosition();
 	
@@ -676,7 +676,7 @@ std::vector<WGPUBindGroup> ImageBasedLighting::OnBindGroupsPBR() {
 	bindGroupEntries1[1].sampler = wgpContext.getSampler(SS_0);
 
 	bindGroupEntries1[2].binding = 2u;
-	bindGroupEntries1[2].textureView = brdfView;
+	bindGroupEntries1[2].textureView = _wgpTextureBrdf.getTextureView();
 
 
 	bindGroupEntries1[3].binding = 3u;
@@ -946,268 +946,40 @@ void ImageBasedLighting::initIrradianceMatrices() {
 	m_mvpInvCube[4] = Matrix4f::Perspective(90.0f, 1.0, 0.1f, 10.0f) * Matrix4f::InvLookAt(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_mvpInvCube[5] = Matrix4f::Perspective(90.0f, 1.0, 0.1f, 10.0f) * Matrix4f::InvLookAt(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 
-	m_mvpCube[0] = Matrix4f::Perspective(90.0f, 1.0, 0.1f, 10.0f) * Matrix4f::InvLookAt(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(1.0f, 0.0f, 0.0f), Vector3f(0.0f, -1.0f, 0.0f));
-	m_mvpCube[1] = Matrix4f::Perspective(90.0f, 1.0, 0.1f, 10.0f) * Matrix4f::InvLookAt(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(-1.0f, 0.0f, 0.0f), Vector3f(0.0f, -1.0f, 0.0f));
+	m_mvpCube[0] = Matrix4f::Perspective(90.0f, 1.0, 0.1f, 10.0f) * Matrix4f::LookAt(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(1.0f, 0.0f, 0.0f), Vector3f(0.0f, -1.0f, 0.0f));
+	m_mvpCube[1] = Matrix4f::Perspective(90.0f, 1.0, 0.1f, 10.0f) * Matrix4f::LookAt(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(-1.0f, 0.0f, 0.0f), Vector3f(0.0f, -1.0f, 0.0f));
 
-	m_mvpCube[2] = Matrix4f::Perspective(90.0f, 1.0, 0.1f, 10.0f) * Matrix4f::InvLookAt(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f), Vector3f(0.0f, 0.0f, 1.0f));
-	m_mvpCube[3] = Matrix4f::Perspective(90.0f, 1.0, 0.1f, 10.0f) * Matrix4f::InvLookAt(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, -1.0f, 0.0f), Vector3f(0.0f, 0.0f, -1.0f));
+	m_mvpCube[2] = Matrix4f::Perspective(90.0f, 1.0, 0.1f, 10.0f) * Matrix4f::LookAt(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, -1.0f, 0.0f), Vector3f(0.0f, 0.0f, -1.0f));
+	m_mvpCube[3] = Matrix4f::Perspective(90.0f, 1.0, 0.1f, 10.0f) * Matrix4f::LookAt(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f), Vector3f(0.0f, 0.0f, 1.0f));
 
-	m_mvpCube[4] = Matrix4f::Perspective(90.0f, 1.0, 0.1f, 10.0f) * Matrix4f::InvLookAt(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, -1.0f, 0.0f));
-	m_mvpCube[5] = Matrix4f::Perspective(90.0f, 1.0, 0.1f, 10.0f) * Matrix4f::InvLookAt(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, -1.0f, 0.0f));
+	m_mvpCube[4] = Matrix4f::Perspective(90.0f, 1.0, 0.1f, 10.0f) * Matrix4f::LookAt(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, -1.0f, 0.0f));
+	m_mvpCube[5] = Matrix4f::Perspective(90.0f, 1.0, 0.1f, 10.0f) * Matrix4f::LookAt(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, -1.0f, 0.0f));
 }
 
-void ImageBasedLighting::renderIrradiance() {
-
-	_wgpTextureIrradiance.createEmpty(32u, 32u, 6u, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_RenderAttachment, WGPUTextureFormat_RGBA16Float);
-
-	for (uint32_t face = 0; face < 6; face++) {
-
-		WGPUTextureViewDescriptor faceViewDescriptor = {};
-		faceViewDescriptor.label = WGPU_STR("texture_view");
-		faceViewDescriptor.aspect = WGPUTextureAspect_All;
-		faceViewDescriptor.baseArrayLayer = face;
-		faceViewDescriptor.arrayLayerCount = 1u;
-		faceViewDescriptor.baseMipLevel = 0u;
-		faceViewDescriptor.mipLevelCount = 1u;
-		faceViewDescriptor.dimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
-		faceViewDescriptor.format = WGPUTextureFormat_RGBA16Float;
-		faceViewDescriptor.nextInChain = NULL;
-
-		WGPUTextureView faceView = wgpuTextureCreateView(_wgpTextureIrradiance.getTexture(), &faceViewDescriptor);
-
-		WGPURenderPassColorAttachment renderPassColorAttachment = {};
-		renderPassColorAttachment.view = faceView;
-		renderPassColorAttachment.resolveTarget = NULL;
-		renderPassColorAttachment.loadOp = WGPULoadOp::WGPULoadOp_Clear;
-		renderPassColorAttachment.storeOp = WGPUStoreOp::WGPUStoreOp_Store;
-		renderPassColorAttachment.clearValue = { 0.0f, 1.0f, 0.0f, 1.0f };
-		renderPassColorAttachment.depthSlice = WGPU_DEPTH_SLICE_UNDEFINED;
-
-		WGPURenderPassDescriptor renderPassDesc = {};
-		renderPassDesc.colorAttachmentCount = 1;
-		renderPassDesc.colorAttachments = &renderPassColorAttachment;
-		renderPassDesc.timestampWrites = NULL;
-
-		WGPUCommandEncoderDescriptor commandEncoderDescriptor = {};
-		commandEncoderDescriptor.label = WGPU_STR("command_encoder");
-
-		WGPUCommandEncoder commandEncoder = wgpuDeviceCreateCommandEncoder(wgpContext.device, &commandEncoderDescriptor);
-		WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDesc);
-
-		wgpuQueueWriteBuffer(wgpContext.queue, m_uniformMVPBuffer.getBuffer(), 0u, &m_mvpInvCube[face], 64u);
-		wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, 32.0f, 32.0f, 0.0f, 1.0f);
-		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_IRRADIANCE"));
-
-		wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_wgpCube.getMeshes().back().getBindGroups("IRRADIANCE")[0], 0u, NULL);
-
-
-		m_wgpCube.draw(renderPassEncoder);
-
-		wgpuRenderPassEncoderEnd(renderPassEncoder);
-		wgpuRenderPassEncoderRelease(renderPassEncoder);
-		wgpuTextureViewRelease(faceView);
-
-		WGPUCommandBufferDescriptor commandBufferDescriptor = {};
-		commandBufferDescriptor.label = WGPU_STR("command_buffer");
-		WGPUCommandBuffer commandBuffer = wgpuCommandEncoderFinish(commandEncoder, &commandBufferDescriptor);
-		wgpuCommandEncoderRelease(commandEncoder);
-
-		wgpuQueueSubmit(wgpContext.queue, 1, &commandBuffer);
-		wgpuCommandBufferRelease(commandBuffer);
-	}
+void ImageBasedLighting::OnDrawIrradiance(const WGPURenderPassEncoder& renderPassEncoder, uint32_t layer, uint32_t mip) {
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformMVPBuffer.getBuffer(), 0u, &m_mvpInvCube[layer], 64u);
+	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_IRRADIANCE"));
+	wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_wgpCube.getMeshes().back().getBindGroups("IRRADIANCE")[0], 0u, NULL);
+	m_wgpCube.draw(renderPassEncoder);
 }
 
-void ImageBasedLighting::renderCube() {
-
-	_wgpTextureCube.createEmpty(512u, 512u, 6u, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_RenderAttachment, WGPUTextureFormat_RGBA16Float);
-
-	for (uint32_t face = 0; face < 6; face++) {
-
-		WGPUTextureViewDescriptor faceViewDescriptor = {};
-		faceViewDescriptor.label = WGPU_STR("texture_view");
-		faceViewDescriptor.aspect = WGPUTextureAspect_All;
-		faceViewDescriptor.baseArrayLayer = face;
-		faceViewDescriptor.arrayLayerCount = 1u;
-		faceViewDescriptor.baseMipLevel = 0u;
-		faceViewDescriptor.mipLevelCount = 1u;
-		faceViewDescriptor.dimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
-		faceViewDescriptor.format = WGPUTextureFormat_RGBA16Float;
-		faceViewDescriptor.nextInChain = NULL;
-
-		WGPUTextureView faceView = wgpuTextureCreateView(_wgpTextureCube.getTexture(), &faceViewDescriptor);
-
-		WGPURenderPassColorAttachment renderPassColorAttachment = {};
-		renderPassColorAttachment.view = faceView;
-		renderPassColorAttachment.resolveTarget = NULL;
-		renderPassColorAttachment.loadOp = WGPULoadOp::WGPULoadOp_Clear;
-		renderPassColorAttachment.storeOp = WGPUStoreOp::WGPUStoreOp_Store;
-		renderPassColorAttachment.clearValue = { 0.0f, 1.0f, 0.0f, 1.0f };
-		renderPassColorAttachment.depthSlice = WGPU_DEPTH_SLICE_UNDEFINED;
-
-		WGPURenderPassDescriptor renderPassDesc = {};
-		renderPassDesc.colorAttachmentCount = 1;
-		renderPassDesc.colorAttachments = &renderPassColorAttachment;
-		renderPassDesc.timestampWrites = NULL;
-
-		WGPUCommandEncoderDescriptor commandEncoderDescriptor = {};
-		commandEncoderDescriptor.label = WGPU_STR("command_encoder");
-
-		WGPUCommandEncoder commandEncoder = wgpuDeviceCreateCommandEncoder(wgpContext.device, &commandEncoderDescriptor);
-		WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDesc);
-
-		wgpuQueueWriteBuffer(wgpContext.queue, m_uniformMVPBuffer.getBuffer(), 0u, &m_mvpCube[face], 64u);
-		wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, 512.0f, 512.0f, 0.0f, 1.0f);
-		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_CUBE"));
-
-		wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_wgpCube.getMeshes().back().getBindGroups("CUBE")[0], 0u, NULL);
-
-
-		m_wgpCube.draw(renderPassEncoder);
-
-		wgpuRenderPassEncoderEnd(renderPassEncoder);
-		wgpuRenderPassEncoderRelease(renderPassEncoder);
-		wgpuTextureViewRelease(faceView);
-
-		WGPUCommandBufferDescriptor commandBufferDescriptor = {};
-		commandBufferDescriptor.label = WGPU_STR("command_buffer");
-		WGPUCommandBuffer commandBuffer = wgpuCommandEncoderFinish(commandEncoder, &commandBufferDescriptor);
-		wgpuCommandEncoderRelease(commandEncoder);
-
-		wgpuQueueSubmit(wgpContext.queue, 1, &commandBuffer);
-		wgpuCommandBufferRelease(commandBuffer);
-	}
+void ImageBasedLighting::OnDrawCube(const WGPURenderPassEncoder& renderPassEncoder, uint32_t layer, uint32_t mip) {
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformMVPBuffer.getBuffer(), 0u, &m_mvpCube[layer], 64u);
+	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_CUBE"));
+	wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_wgpCube.getMeshes().back().getBindGroups("CUBE")[0], 0u, NULL);
+	m_wgpCube.draw(renderPassEncoder);
 }
 
-void ImageBasedLighting::renderPrefilter() {
-	const uint32_t ROUGHNESS_LEVELS = 5u;
-	float vpWidth = 256.0f;
-	float vpHeight = 256.0f;
-
-	_wgpTexturePrefilter.createEmpty(256u, 256u, 6u, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_RenderAttachment, WGPUTextureFormat_RGBA16Float, ROUGHNESS_LEVELS);
-
-	for (uint32_t mip = 0; mip < ROUGHNESS_LEVELS; ++mip) {
-		float roughness_val = (float)mip / (float)(ROUGHNESS_LEVELS - 1);
-		wgpuQueueWriteBuffer(wgpContext.queue, m_roughnessBuffer.getBuffer(), 0, &roughness_val, sizeof(float));
-		for (uint32_t face = 0; face < 6; ++face) {
-
-			WGPUTextureViewDescriptor faceViewDescriptor = {};
-			faceViewDescriptor.label = WGPU_STR("texture_view");
-			faceViewDescriptor.aspect = WGPUTextureAspect_All;
-			faceViewDescriptor.baseArrayLayer = face;
-			faceViewDescriptor.arrayLayerCount = 1u;
-			faceViewDescriptor.baseMipLevel = mip;
-			faceViewDescriptor.mipLevelCount = 1u;
-			faceViewDescriptor.dimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
-			faceViewDescriptor.format = WGPUTextureFormat_RGBA16Float;
-			faceViewDescriptor.nextInChain = NULL;
-
-			WGPUTextureView faceView = wgpuTextureCreateView(_wgpTexturePrefilter.getTexture(), &faceViewDescriptor);
-
-			WGPURenderPassColorAttachment renderPassColorAttachment = {};
-			renderPassColorAttachment.view = faceView;
-			renderPassColorAttachment.resolveTarget = NULL;
-			renderPassColorAttachment.loadOp = WGPULoadOp::WGPULoadOp_Clear;
-			renderPassColorAttachment.storeOp = WGPUStoreOp::WGPUStoreOp_Store;
-			renderPassColorAttachment.clearValue = { 0.0f, 1.0f, 0.0f, 1.0f };
-			renderPassColorAttachment.depthSlice = WGPU_DEPTH_SLICE_UNDEFINED;
-
-			WGPURenderPassDescriptor renderPassDesc = {};
-			renderPassDesc.colorAttachmentCount = 1;
-			renderPassDesc.colorAttachments = &renderPassColorAttachment;
-			renderPassDesc.timestampWrites = NULL;
-
-			WGPUCommandEncoderDescriptor commandEncoderDescriptor = {};
-			commandEncoderDescriptor.label = WGPU_STR("command_encoder");
-
-			WGPUCommandEncoder commandEncoder = wgpuDeviceCreateCommandEncoder(wgpContext.device, &commandEncoderDescriptor);
-			WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDesc);
-
-			wgpuQueueWriteBuffer(wgpContext.queue, m_uniformMVPBuffer.getBuffer(), 0u, &m_mvpInvCube[face], 64u);
-			wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, vpWidth, vpHeight, 0.0f, 1.0f);
-			wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_PREFILTER"));
-
-			wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_wgpCube.getMeshes().back().getBindGroups("PREFILTER")[0], 0u, NULL);
-
-
-			m_wgpCube.draw(renderPassEncoder);
-
-			wgpuRenderPassEncoderEnd(renderPassEncoder);
-			wgpuRenderPassEncoderRelease(renderPassEncoder);
-			wgpuTextureViewRelease(faceView);
-
-			WGPUCommandBufferDescriptor commandBufferDescriptor = {};
-			commandBufferDescriptor.label = WGPU_STR("command_buffer");
-			WGPUCommandBuffer commandBuffer = wgpuCommandEncoderFinish(commandEncoder, &commandBufferDescriptor);
-			wgpuCommandEncoderRelease(commandEncoder);
-
-			wgpuQueueSubmit(wgpContext.queue, 1, &commandBuffer);
-			wgpuCommandBufferRelease(commandBuffer);		
-		}
-		vpWidth *= 0.5f;
-		vpHeight *= 0.5f;
-	}
+void ImageBasedLighting::OnDrawPrefilter(const WGPURenderPassEncoder& renderPassEncoder, uint32_t layer, uint32_t mip) {
+	float roughness_val = (float)mip / (float)(ROUGHNESS_LEVELS - 1);
+	wgpuQueueWriteBuffer(wgpContext.queue, m_roughnessBuffer.getBuffer(), 0, &roughness_val, sizeof(float));
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformMVPBuffer.getBuffer(), 0u, &m_mvpInvCube[layer], 64u);
+	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_PREFILTER"));
+	wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_wgpCube.getMeshes().back().getBindGroups("PREFILTER")[0], 0u, NULL);
+	m_wgpCube.draw(renderPassEncoder);
 }
 
-void ImageBasedLighting::renderBrdf() {
-	WGPUTextureDescriptor textureDescriptor = {};
-	textureDescriptor.label = WGPU_STR("texture");
-	textureDescriptor.dimension = WGPUTextureDimension::WGPUTextureDimension_2D;
-	textureDescriptor.size = { 512u, 512u, 1u };
-	textureDescriptor.format = WGPUTextureFormat_RG16Float;
-	textureDescriptor.usage = WGPUTextureUsage_TextureBinding | WGPUTextureUsage_RenderAttachment;
-	textureDescriptor.mipLevelCount = 1u;
-	textureDescriptor.sampleCount = 1u;
-	textureDescriptor.nextInChain = NULL;
-
-	brdfTexture = wgpuDeviceCreateTexture(wgpContext.device, &textureDescriptor);
-
-	WGPUTextureViewDescriptor textureViewDescriptor = {};
-	textureViewDescriptor.label = WGPU_STR("texture_view");
-	textureViewDescriptor.aspect = WGPUTextureAspect_All;
-	textureViewDescriptor.baseArrayLayer = 0u;
-	textureViewDescriptor.arrayLayerCount = 1u;
-	textureViewDescriptor.baseMipLevel = 0u;
-	textureViewDescriptor.mipLevelCount = 1u;
-	textureViewDescriptor.dimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
-	textureViewDescriptor.format = WGPUTextureFormat_RG16Float;
-	textureViewDescriptor.nextInChain = NULL;
-
-	brdfView = wgpuTextureCreateView(brdfTexture, &textureViewDescriptor);
-
-	WGPURenderPassColorAttachment renderPassColorAttachment = {};
-	renderPassColorAttachment.view = brdfView;
-	renderPassColorAttachment.resolveTarget = NULL;
-	renderPassColorAttachment.loadOp = WGPULoadOp::WGPULoadOp_Clear;
-	renderPassColorAttachment.storeOp = WGPUStoreOp::WGPUStoreOp_Store;
-	renderPassColorAttachment.clearValue = { 0.0f, 1.0f, 0.0f, 1.0f };
-	renderPassColorAttachment.depthSlice = WGPU_DEPTH_SLICE_UNDEFINED;
-
-	WGPURenderPassDescriptor renderPassDesc = {};
-	renderPassDesc.colorAttachmentCount = 1;
-	renderPassDesc.colorAttachments = &renderPassColorAttachment;
-	renderPassDesc.timestampWrites = NULL;
-
-	WGPUCommandEncoderDescriptor commandEncoderDescriptor = {};
-	commandEncoderDescriptor.label = WGPU_STR("command_encoder");
-
-	WGPUCommandEncoder commandEncoder = wgpuDeviceCreateCommandEncoder(wgpContext.device, &commandEncoderDescriptor);
-	WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDesc);
-
-	
-	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, 512.0f, 512.0f, 0.0f, 1.0f);
+void ImageBasedLighting::OnDrawBrdf(const WGPURenderPassEncoder& renderPassEncoder, uint32_t layer, uint32_t mip) {
 	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_BRDF"));
-
 	wgpuRenderPassEncoderDraw(renderPassEncoder, 3, 1, 0, 0);
-
-	wgpuRenderPassEncoderEnd(renderPassEncoder);
-	wgpuRenderPassEncoderRelease(renderPassEncoder);
-	//gpuTextureViewRelease(faceView);
-
-	WGPUCommandBufferDescriptor commandBufferDescriptor = {};
-	commandBufferDescriptor.label = WGPU_STR("command_buffer");
-	WGPUCommandBuffer commandBuffer = wgpuCommandEncoderFinish(commandEncoder, &commandBufferDescriptor);
-	wgpuCommandEncoderRelease(commandEncoder);
-
-	wgpuQueueSubmit(wgpContext.queue, 1, &commandBuffer);
-	wgpuCommandBufferRelease(commandBuffer);
 }
