@@ -2,7 +2,6 @@
 #include "WgpContext.h"
 #include "WgpRenderer.h"
 
-#include <iostream>
 void WgpRenderer::Draw(const WgpTexture& texture, std::function<void(const WGPURenderPassEncoder& commandBuffer, uint32_t layer, uint32_t mip)> OnDraw) {
 	uint32_t arrayLayerCount = wgpuTextureGetDepthOrArrayLayers(texture.getTexture());
 	uint32_t mipLevelCount = wgpuTextureGetMipLevelCount(texture.getTexture());

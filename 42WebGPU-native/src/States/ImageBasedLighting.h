@@ -55,6 +55,9 @@ private:
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsSkybox();
 	std::vector<WGPUBindGroup> OnBindGroupsSkybox();
 
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsPBRHelmet();
+	std::vector<WGPUBindGroup> OnBindGroupsPBRHelmet();
+
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 	void applyTransformation(TrackBall& arc);
 	void initMatrices();

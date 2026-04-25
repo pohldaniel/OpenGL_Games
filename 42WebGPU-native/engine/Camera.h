@@ -18,9 +18,8 @@ public:
 	void perspective(float fovx, float aspect, float znear, float zfar);
 	void orthographic(float left, float right, float bottom, float top, float znear, float zfar);
 	void lookAt(const Vector3f& eye, const Vector3f &target, const Vector3f &up);
-	void lookAt(const Vector3f& pos, float pitch, float yaw);
-	void lookAt(const Vector3f& pos, float pitch, float yaw, float roll);
-	void lookAt(const Vector3f& pos, const Vector3f& target, float pitch, float yaw, float roll);
+	void lookAt(float distance, float pitch, float yaw);
+	void lookAt(float distance, float pitch, float yaw, float roll);
 	void follow(const Matrix4f& targetMat, const Vector3f& targetVelocity, const float dt);
 
 	void move(float dx, float dy, float dz);
@@ -100,7 +99,7 @@ public:
 
 	virtual void setTarget(const Vector3f& target);
 	void setMovingSpeed(float movingSpeed);
-	void setOffsetDistance(float offsetDistance);
+	void setDistance(float distance);
 	void setRotationSpeed(float rotationSpeed);
 	void setAspect(float aspect);
 
@@ -127,7 +126,7 @@ protected:
 	float			m_accumYawDegrees;
 	float			m_rotationSpeed;
 	float			m_movingSpeed;
-	float			m_offsetDistance;
+	float			m_distance;
 	float			m_currentSettleTime;
 
 	Vector3f		m_eye;
@@ -206,7 +205,6 @@ public:
 
 private:
 
-	float m_distance;
 	float m_height;
 	float m_angle;
 	float m_startAngle;	

@@ -18,9 +18,11 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 
 	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm);
 
-	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 100.0f);
+	//m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 100.0f);
+	m_camera.perspective(90.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 100.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-	m_camera.lookAt(Vector3f(0.0f, 0.0f, 20.0f), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	//m_camera.lookAt(Vector3f(0.0f, 0.0f, 20.0f), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.lookAt(4.1115341187f, 0.5f * _180_ON_PI,  1.6f * _180_ON_PI);
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(10.0f);
 
@@ -53,6 +55,9 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 
 	wgpContext.addSahderModule("PBR", "res/shader/pbr.wgsl");
 	wgpContext.createRenderPipeline("PBR", "RP_PBR", VL_PTN, std::bind(&ImageBasedLighting::OnBindGroupLayoutsPBR, this), 4u);
+
+	//wgpContext.addSahderModule("PBR_HELMET", "res/shader/pbr_helmet.wgsl");
+	//wgpContext.createRenderPipeline("PBR_HELMET", "RP_PBR_HELMET", VL_PTNTB, std::bind(&ImageBasedLighting::OnBindGroupLayoutsPBRHelmet, this), 4u);
 
 	wgpContext.addSahderModule("SKYBOX", "res/shader/skybox.wgsl");
 	wgpContext.createRenderPipeline("SKYBOX", "RP_SKYBOX", VL_P, std::bind(&ImageBasedLighting::OnBindGroupLayoutsSkybox, this), 4u);
@@ -246,11 +251,11 @@ void ImageBasedLighting::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) 
 	//wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_ENV_SPHERE"));
 	//m_wgpSphere.draw(renderPassEncoder);
 
-	//wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_PTN"));
-	//m_wgpHelmet.draw(renderPassEncoder);
+	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_PTN"));
+	m_wgpHelmet.draw(renderPassEncoder);
 
-	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_PBR"));
-	m_wgpSpherePBR.draw(renderPassEncoder, 12u);
+	//wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_PBR"));
+	//m_wgpSpherePBR.draw(renderPassEncoder, 12u);
 
 	if (m_drawUi)
 		renderUi(renderPassEncoder);
@@ -925,7 +930,8 @@ std::vector<WGPUBindGroup> ImageBasedLighting::OnBindGroupsSkybox() {
 	bindGroupEntries[1].sampler = wgpContext.getSampler(SS_LINEAR_REPEAT);
 
 	bindGroupEntries[2].binding = 2u;
-	bindGroupEntries[2].textureView = _wgpTextureIrradiance.getTextureView();
+	//bindGroupEntries[2].textureView = _wgpTextureIrradiance.getTextureView();
+	bindGroupEntries[2].textureView = _wgpTextureCube.getTextureView();
 
 	WGPUBindGroupDescriptor bindGroupDesc = {};
 	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_SKYBOX"), 0u);
@@ -982,4 +988,119 @@ void ImageBasedLighting::OnDrawPrefilter(const WGPURenderPassEncoder& renderPass
 void ImageBasedLighting::OnDrawBrdf(const WGPURenderPassEncoder& renderPassEncoder, uint32_t layer, uint32_t mip) {
 	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_BRDF"));
 	wgpuRenderPassEncoderDraw(renderPassEncoder, 3, 1, 0, 0);
+}
+
+
+std::vector<WGPUBindGroupLayout> ImageBasedLighting::OnBindGroupLayoutsPBRHelmet() {
+	std::vector<WGPUBindGroupLayout> bindingLayouts(2);
+
+	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries0(3);
+	bindingLayoutEntries0[0].binding = 0u;
+	bindingLayoutEntries0[0].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
+	bindingLayoutEntries0[0].buffer.type = WGPUBufferBindingType_Uniform;
+	bindingLayoutEntries0[0].buffer.minBindingSize = sizeof(Uniforms);
+
+	bindingLayoutEntries0[1].binding = 1u;
+	bindingLayoutEntries0[1].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
+	bindingLayoutEntries0[1].buffer.type = WGPUBufferBindingType_Uniform;
+	bindingLayoutEntries0[1].buffer.minBindingSize = 768u;
+
+	bindingLayoutEntries0[2].binding = 2u;
+	bindingLayoutEntries0[2].visibility = WGPUShaderStage_Fragment;
+	bindingLayoutEntries0[2].buffer.type = WGPUBufferBindingType_Uniform;
+	bindingLayoutEntries0[2].buffer.minBindingSize = 128u;
+
+	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor0 = {};
+	bindGroupLayoutDescriptor0.entryCount = (uint32_t)bindingLayoutEntries0.size();
+	bindGroupLayoutDescriptor0.entries = bindingLayoutEntries0.data();
+
+	bindingLayouts[0] = wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor0);
+
+	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries1(5);
+	WGPUBindGroupLayoutEntry& samplerBindingLayout = bindingLayoutEntries1[0];
+	samplerBindingLayout.binding = 0u;
+	samplerBindingLayout.visibility = WGPUShaderStage_Fragment;
+	samplerBindingLayout.sampler.type = WGPUSamplerBindingType_Filtering;
+
+	WGPUBindGroupLayoutEntry& samplerBrdfBindingLayout = bindingLayoutEntries1[1];
+	samplerBrdfBindingLayout.binding = 1u;
+	samplerBrdfBindingLayout.visibility = WGPUShaderStage_Fragment;
+	samplerBrdfBindingLayout.sampler.type = WGPUSamplerBindingType_Filtering;
+
+	bindingLayoutEntries1[2].binding = 2u;
+	bindingLayoutEntries1[2].visibility = WGPUShaderStage_Fragment;
+	bindingLayoutEntries1[2].texture.viewDimension = WGPUTextureViewDimension_2D;
+	bindingLayoutEntries1[2].texture.sampleType = WGPUTextureSampleType_Float;
+
+	bindingLayoutEntries1[3].binding = 3u;
+	bindingLayoutEntries1[3].visibility = WGPUShaderStage_Fragment;
+	bindingLayoutEntries1[3].texture.viewDimension = WGPUTextureViewDimension_Cube;
+	bindingLayoutEntries1[3].texture.sampleType = WGPUTextureSampleType_Float;
+
+	bindingLayoutEntries1[4].binding = 4u;
+	bindingLayoutEntries1[4].visibility = WGPUShaderStage_Fragment;
+	bindingLayoutEntries1[4].texture.viewDimension = WGPUTextureViewDimension_Cube;
+	bindingLayoutEntries1[4].texture.sampleType = WGPUTextureSampleType_Float;
+
+	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor1 = {};
+	bindGroupLayoutDescriptor1.entryCount = (uint32_t)bindingLayoutEntries1.size();
+	bindGroupLayoutDescriptor1.entries = bindingLayoutEntries1.data();
+
+	bindingLayouts[1] = wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor1);
+
+	return bindingLayouts;
+}
+
+std::vector<WGPUBindGroup> ImageBasedLighting::OnBindGroupsPBRHelmet() {
+	std::vector<WGPUBindGroup> bindGroups(2);
+
+	std::vector<WGPUBindGroupEntry> bindGroupEntries0(3);
+
+	bindGroupEntries0[0].binding = 0u;
+	bindGroupEntries0[0].buffer = m_uniformBuffer.getBuffer();
+	bindGroupEntries0[0].offset = 0u;
+	bindGroupEntries0[0].size = sizeof(Uniforms);
+
+	bindGroupEntries0[1].binding = 1u;
+	bindGroupEntries0[1].buffer = m_uniformModelBuffer.getBuffer();
+	bindGroupEntries0[1].offset = 0u;
+	bindGroupEntries0[1].size = 768u;
+
+	bindGroupEntries0[2].binding = 2u;
+	bindGroupEntries0[2].buffer = m_uniformLightBuffer.getBuffer();
+	bindGroupEntries0[2].offset = 0u;
+	bindGroupEntries0[2].size = 128u;
+
+	WGPUBindGroupDescriptor bindGroupDesc0 = {};
+	bindGroupDesc0.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_PBR"), 0u);
+	bindGroupDesc0.entryCount = (uint32_t)bindGroupEntries0.size();
+	bindGroupDesc0.entries = bindGroupEntries0.data();
+	bindGroups[0] = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc0);
+
+	std::vector<WGPUBindGroupEntry> bindGroupEntries1(5);
+
+	bindGroupEntries1[0].binding = 0u;
+	bindGroupEntries1[0].sampler = wgpContext.getSampler(SS_LINEAR_REPEAT);
+
+
+	bindGroupEntries1[1].binding = 1u;
+	bindGroupEntries1[1].sampler = wgpContext.getSampler(SS_0);
+
+	bindGroupEntries1[2].binding = 2u;
+	bindGroupEntries1[2].textureView = _wgpTextureBrdf.getTextureView();
+
+
+	bindGroupEntries1[3].binding = 3u;
+	bindGroupEntries1[3].textureView = _wgpTextureIrradiance.getTextureView();
+
+	bindGroupEntries1[4].binding = 4u;
+	bindGroupEntries1[4].textureView = _wgpTexturePrefilter.getTextureView();
+
+	WGPUBindGroupDescriptor bindGroupDesc1 = {};
+	bindGroupDesc1.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_PBR"), 1u);
+	bindGroupDesc1.entryCount = (uint32_t)bindGroupEntries1.size();
+	bindGroupDesc1.entries = bindGroupEntries1.data();
+	bindGroups[1] = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc1);
+
+	return bindGroups;
 }
