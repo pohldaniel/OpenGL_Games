@@ -29,16 +29,16 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 	m_wgpTextureCube.loadHDRICubeFromFile("res/textures/venice_sunset_1k.hdr", false, true);
 	m_wgpTexture.loadHDRIFromFile("res/textures/venice_sunset_1k.hdr", true, true);
 
-	m_wgpTextutreNormal.loadFromFile("res/model/helmet/helmet_normal.png");
-	m_wgpTextutreEmission.loadFromFile("res/model/helmet/helmet_emission.png");
-	m_wgpTextutreMetalness.loadFromFile("res/model/helmet/helmet_metalness.png");
-	m_wgpTextutreLightmap.loadFromFile("res/model/helmet/helmet_lightmap.png");
+	m_wgpTextutreNormal.loadFromFile("res/models/helmet/helmet_normal.png");
+	m_wgpTextutreEmission.loadFromFile("res/models/helmet/helmet_emission.png");
+	m_wgpTextutreMetalness.loadFromFile("res/models/helmet/helmet_metalness.png");
+	m_wgpTextutreLightmap.loadFromFile("res/models/helmet/helmet_lightmap.png");
 	
 	//m_wgpTexture.loadFromFile("res/textures/palace.jpg");
 	
 	//m_helmet.loadModel("res/models/helmet.glb", Vector3f(0.0f, 0.0f, 1.0f), 180.0f, Vector3f(0.0f, 0.0f, 0.0f), 1.0f, false, false, false, true, true);
 	//m_helmet.loadModel("res/models/helmet.gltf", Vector3f(0.0f, 0.0f, 1.0f), 180.0f, Vector3f(0.0f, 0.0f, 0.0f), 1.0f, false, false, false, true, true);
-	m_helmet.loadModel("res/models/helmet.obj");
+	m_helmet.loadModel("res/models/helmet/helmet.obj");
 	m_sphereObj.loadModel("res/models/sphere.obj");
 
 	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
