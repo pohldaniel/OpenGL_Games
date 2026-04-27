@@ -358,16 +358,16 @@ void Camera::lookAt(float distance, float pitch, float yaw) {
 	pitch = pitch * PI_ON_180;
 	yaw = yaw * PI_ON_180;
 
-	float cosY = sinf(yaw);
+	float cosY = cosf(yaw);
 	float cosP = cosf(pitch);
-	float sinY = -cosf(yaw);
+	float sinY = sinf(yaw);
 	float sinP = sinf(pitch);
 
 	m_xAxis[0] = cosY; m_xAxis[2] = sinY;
 	m_yAxis[0] = sinP * sinY; m_yAxis[1] = cosP; m_yAxis[2] = -sinP * cosY;
 	m_zAxis[0] = -cosP * sinY; m_zAxis[1] = sinP; m_zAxis[2] = cosP * cosY;
 	m_viewDir = -m_zAxis;
-	m_eye += m_zAxis * distance;
+	m_eye = m_zAxis * distance;
 	
 	m_viewMatrix[0][0] = m_xAxis[0];
 	m_viewMatrix[0][1] = m_yAxis[0];
@@ -420,10 +420,10 @@ void Camera::lookAt(float distance, float pitch, float yaw, float roll) {
 	yaw = yaw * PI_ON_180;
 	roll = roll * PI_ON_180;
 
-	float cosY = sinf(yaw);
+	float cosY = cosf(yaw);
 	float cosP = cosf(pitch);
 	float cosR = cosf(roll);
-	float sinY = -cosf(yaw);
+	float sinY = sinf(yaw);
 	float sinP = sinf(pitch);
 	float sinR = sinf(roll);
 
@@ -432,7 +432,7 @@ void Camera::lookAt(float distance, float pitch, float yaw, float roll) {
 	m_zAxis[0] = -cosP * sinY; m_zAxis[1] = sinP; m_zAxis[2] = cosP * cosY;
 	m_viewDir = -m_zAxis;
 
-	m_eye += m_zAxis * distance;
+	m_eye = m_zAxis * distance;
 
 	m_viewMatrix[0][0] = m_xAxis[0];
 	m_viewMatrix[0][1] = m_yAxis[0];

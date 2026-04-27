@@ -22,7 +22,7 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 	m_camera.perspective(90.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 100.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 	//m_camera.lookAt(Vector3f(0.0f, 0.0f, 20.0f), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
-	m_camera.lookAt(4.1115341187f, 0.5f * _180_ON_PI,  1.6f * _180_ON_PI);
+	m_camera.lookAt(4.1115341187f, 0.5f * _180_ON_PI,  0.0f);
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(10.0f);
 
@@ -1021,10 +1021,8 @@ void ImageBasedLighting::OnDrawPrefilter(const WGPURenderPassEncoder& renderPass
 
 void ImageBasedLighting::OnDrawBrdf(const WGPURenderPassEncoder& renderPassEncoder, uint32_t layer, uint32_t mip) {
 	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_BRDF"));
-	//wgpuRenderPassEncoderDraw(renderPassEncoder, 3, 1, 0, 0);
 	m_wgpQuad.draw(renderPassEncoder);
 }
-
 
 std::vector<WGPUBindGroupLayout> ImageBasedLighting::OnBindGroupLayoutsPBRHelmet() {
 	std::vector<WGPUBindGroupLayout> bindingLayouts(4);

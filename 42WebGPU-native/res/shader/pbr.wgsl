@@ -19,7 +19,10 @@ struct Uniforms {
     model: mat4x4<f32>,    
 	normal: mat4x4<f32>,
 	color: vec4<f32>,
-	camPos: vec3<f32>
+	camPos: vec3<f32>,
+	lightVP: mat4x4<f32>,
+	shadow: mat4x4<f32>,
+	lightPos: vec3<f32>
 };
 
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
@@ -38,9 +41,7 @@ fn vs_main(@builtin(instance_index) instanceIndex: u32, in: VertexInput) -> Vert
 
 struct Light {
     position : vec3f,
-    padding1 : f32,
-    color : vec3f,
-    padding2 : f32,
+    color : vec3f
 }
 
 @group(0) @binding(2) var<uniform> lights: array<Light, 4>;
