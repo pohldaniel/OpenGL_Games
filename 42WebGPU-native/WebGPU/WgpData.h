@@ -41,3 +41,9 @@ struct PBRLightingUniforms {
 	std::array <float, 3> color;
 	float padding2;
 };
+
+struct MaterialUniforms {
+	std::array <float, 4> baseColorFactor;
+	float alphaCutoff;
+	float padding[3];
+};

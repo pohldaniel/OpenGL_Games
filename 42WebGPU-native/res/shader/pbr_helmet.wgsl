@@ -4,7 +4,7 @@ struct VertexInput {
 	@location(2) normal: vec3f,
 	@location(3) tangent: vec3f,
 	@location(4) bitangent: vec3f
-}
+};
 
 struct VertexOutput {
 	@builtin(position) position: vec4f,
@@ -13,15 +13,6 @@ struct VertexOutput {
 	@location(2) worldPosition: vec3f,
 	@location(3) shadowPosition: vec3f,
 	@location(4) tangent: vec4f
-}
-
-struct Scene {
-  cameraProjection: mat4x4f,
-  cameraView: mat4x4f,
-  cameraPosition: vec3f,
-  lightPosition: vec3f,
-  lightColor: vec3f,
-  lightViewProjection: mat4x4f,
 };
 
 struct Material {
@@ -35,14 +26,13 @@ struct Uniforms {
 	env: mat4x4f,
     model:mat4x4f,    
 	normal: mat4x4f,
-	color:vec4f,
+	color: vec4f,
 	camPos: vec3f,
 	lightVPS: mat4x4f,
 	shadow: mat4x4f
 };
 
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
-@group(0) @binding(1) var<uniform> scene: Scene;
 @group(1) @binding(0) var<storage> models: array<mat4x4f>;
 
 // Material
@@ -68,11 +58,15 @@ struct Uniforms {
 @group(3) @binding(6) var shadowSampler: sampler_comparison;
 
 @vertex
-fn vs_main(){
-
+fn vs_main(in: VertexInput) -> VertexOutput{
+	var out: VertexOutput;
+	out.position = uniforms.projection * uniforms.view * uniforms.model * vec4f(in.position, 1);
+	out.normal = in.normal;
+	out.uv = in.uv;
+	return out;
 }
 
 @fragment
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
-	return vec4(1.0, 0.0, 0.0, 1.0);
+	return vec4(in.normal, 1.0);
 }

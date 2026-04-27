@@ -76,6 +76,7 @@ private:
 	Camera m_camera;
 	Uniforms m_uniforms;
 	WgpBuffer m_uniformBuffer, m_uniformModelBuffer, m_uniformLightBuffer, m_uniformMVPBuffer, m_roughnessBuffer;
+	WgpBuffer m_uniformMaterial, m_instanceBiffer;
 
 	AssimpModel m_helmet;
 	ObjModel m_sphereObj;
@@ -88,7 +89,7 @@ private:
 	Matrix4f m_mvpCube[6];
 
 	const uint32_t ROUGHNESS_LEVELS = 5u;
-	WgpTexture _wgpTextureCube, _wgpTextureIrradiance, _wgpTexturePrefilter, _wgpTextureBrdf;
+	WgpTexture _wgpTextureCube, _wgpTextureIrradiance, _wgpTexturePrefilter, _wgpTextureBrdf, _wgpTextureShadow;
 	WgpTexture m_wgpTextutreNormal, m_wgpTextutreEmission, m_wgpTextutreMetalness, m_wgpTextutreLightmap;
 
 	Matrix4f lightProjection, lightView, shadow;
