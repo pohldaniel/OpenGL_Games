@@ -28,6 +28,11 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 
 	m_wgpTextureCube.loadHDRICubeFromFile("res/textures/venice_sunset_1k.hdr", false, true);
 	m_wgpTexture.loadHDRIFromFile("res/textures/venice_sunset_1k.hdr", true, true);
+
+	m_wgpTextutreNormal.loadFromFile("res/model/helmet/helmet_normal.png");
+	m_wgpTextutreEmission.loadFromFile("res/model/helmet/helmet_emission.png");
+	m_wgpTextutreMetalness.loadFromFile("res/model/helmet/helmet_metalness.png");
+	m_wgpTextutreLightmap.loadFromFile("res/model/helmet/helmet_lightmap.png");
 	
 	//m_wgpTexture.loadFromFile("res/textures/palace.jpg");
 	

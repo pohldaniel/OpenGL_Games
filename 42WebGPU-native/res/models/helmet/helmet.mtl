@@ -1,0 +1,13 @@
+newmtl material
+Ns 10.000000
+Ka 0.000000 0.000000 0.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 1
+map_Kd helmet_diffuse.png
+map_Kn helmet_normal.png
+map_Ke helmet_emission.png
+map_Pm helmet_metalness.png
+map_Ks helmet_lightmap.png

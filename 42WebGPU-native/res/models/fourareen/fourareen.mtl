@@ -10,5 +10,5 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 1
-map_Bump res/textures/fourareen2K_normals.png
-map_Kd res/textures/fourareen2K_albedo.jpg
+map_Kn fourareen2K_normals.png
+map_Kd fourareen2K_albedo.jpg

@@ -89,7 +89,7 @@ private:
 
 	const uint32_t ROUGHNESS_LEVELS = 5u;
 	WgpTexture _wgpTextureCube, _wgpTextureIrradiance, _wgpTexturePrefilter, _wgpTextureBrdf;
-
+	WgpTexture m_wgpTextutreNormal, m_wgpTextutreEmission, m_wgpTextutreMetalness, m_wgpTextutreLightmap;
 
 	Matrix4f lightProjection, lightView, shadow;
 
