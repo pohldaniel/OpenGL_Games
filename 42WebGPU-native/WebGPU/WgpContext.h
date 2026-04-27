@@ -58,7 +58,8 @@ enum SamplerSlot {
 	SS_NEAREST_CLAMP,
 	SS_NEAREST_REPEAT,
 	SS_0,
-	SS_1
+	SS_1,
+	SS_2
 };
 
 struct WgpContext {

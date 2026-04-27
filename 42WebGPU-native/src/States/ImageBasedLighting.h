@@ -76,24 +76,24 @@ private:
 	Camera m_camera;
 	Uniforms m_uniforms;
 	WgpBuffer m_uniformBuffer, m_uniformModelBuffer, m_uniformLightBuffer, m_uniformMVPBuffer, m_roughnessBuffer;
-	WgpBuffer m_uniformMaterial, m_instanceBiffer;
+	WgpBuffer m_uniformMaterial, m_instanceBuffer;
 
 	AssimpModel m_helmet;
-	ObjModel m_sphereObj;
-	Shape m_cube, m_sphere, m_spherePBR;
-	WgpModel m_wgpHelmet, m_wgpCube, m_wgpSphere, m_wgpSpherePBR;
+	ObjModel m_sphereObj, m_helmetObj;
+	Shape m_cube, m_sphere, m_spherePBR, m_quad;
+	WgpModel m_wgpHelmet, m_wgpCube, m_wgpSphere, m_wgpSpherePBR, m_wgpQuad;
 	WgpTexture m_wgpTextureCube, m_wgpTexture;
 	Matrix4f m_models[12];
 	PBRLightingUniforms m_lights[4];
 	Matrix4f m_mvpInvCube[6];
 	Matrix4f m_mvpCube[6];
+	MaterialUniforms m_material;
 
 	const uint32_t ROUGHNESS_LEVELS = 5u;
 	WgpTexture _wgpTextureCube, _wgpTextureIrradiance, _wgpTexturePrefilter, _wgpTextureBrdf, _wgpTextureShadow;
 	WgpTexture m_wgpTextutreNormal, m_wgpTextutreEmission, m_wgpTextutreMetalness, m_wgpTextutreLightmap;
 
 	Matrix4f lightProjection, lightView, shadow;
-
 	static void AddBindgroups(const WgpModel& model);
 	static void AddBindgroups(const WgpModel& model, const WgpTexture& texture, std::string pipelineName);
 };

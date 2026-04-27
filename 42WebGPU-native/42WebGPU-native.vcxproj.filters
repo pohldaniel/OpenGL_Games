@@ -207,6 +207,9 @@
     <ClCompile Include="WebGPU\WgpRenderer.cpp">
       <Filter>WebGPU</Filter>
     </ClCompile>
+    <ClCompile Include="engine\shape\Quad.cpp">
+      <Filter>engine\shape</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\input\ApplicationEventListener.h">
@@ -403,6 +406,9 @@
     </ClInclude>
     <ClInclude Include="WebGPU\WgpRenderer.h">
       <Filter>WebGPU</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\shape\Quad.h">
+      <Filter>engine\shape</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

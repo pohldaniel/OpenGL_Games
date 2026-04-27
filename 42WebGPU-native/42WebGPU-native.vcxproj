@@ -188,6 +188,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClCompile Include="engine\RandomColor.cpp" />
     <ClCompile Include="engine\RandomNew.cpp" />
     <ClCompile Include="engine\shape\Cube.cpp" />
+    <ClCompile Include="engine\shape\Quad.cpp" />
     <ClCompile Include="engine\shape\Shape.cpp" />
     <ClCompile Include="engine\shape\Sphere.cpp" />
     <ClCompile Include="engine\shape\Spiral.cpp" />
@@ -261,6 +262,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClInclude Include="engine\RandomNew.h" />
     <ClInclude Include="engine\Rect.h" />
     <ClInclude Include="engine\shape\Cube.h" />
+    <ClInclude Include="engine\shape\Quad.h" />
     <ClInclude Include="engine\shape\Shape.h" />
     <ClInclude Include="engine\shape\Sphere.h" />
     <ClInclude Include="engine\shape\Spiral.h" />

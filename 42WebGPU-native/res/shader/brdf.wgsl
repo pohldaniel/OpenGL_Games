@@ -1,16 +1,26 @@
+struct VertexInput {
+	@location(0) position: vec3f,
+	@location(1) uv: vec2f
+};
+
 struct VertexOutput {
 	@builtin(position) position : vec4<f32>, 
 	@location(0) uv : vec2<f32>,
 }
 
 @vertex 
-fn vs_main(@builtin(vertex_index) vertex_index : u32) ->VertexOutput {
-    var output : VertexOutput;
+fn vs_main(in: VertexInput) ->VertexOutput {
+    /*var output : VertexOutput;
     let x           = f32((vertex_index << 1u) & 2u);
     let y           = f32(vertex_index & 2u);
     output.position = vec4<f32>(x * 2.0 - 1.0, y * 2.0 - 1.0, 0.0, 1.0);
     output.uv       = vec2<f32>(x, 1.0 - y);
-    return output;
+    return output;*/
+	
+	var out : VertexOutput;
+	out.position = vec4f(in.position, 1.0);
+	out.uv       = in.uv;
+	return out;
 }
 
 const PI : f32 = 3.1415926535897932384626433832795;
@@ -59,9 +69,9 @@ fn geometry_smith(n : vec3<f32>, v : vec3<f32>, l : vec3<f32>, roughness : f32) 
 }
 
 fn integrate_brdf(n_dot_v : f32, roughness : f32) ->vec2<f32> {
-    let v = vec3<f32>(sqrt(1.0 - n_dot_v * n_dot_v), 0.0, n_dot_v);
+    /*let v = vec3<f32>(sqrt(1.0 - n_dot_v * n_dot_v), 0.0, n_dot_v);
     var a = 0.0;
-     var b = 0.0;
+	var b = 0.0;
     let n = vec3<f32>(0.0, 0.0, 1.0);
 
     const SAMPLE_COUNT = 1024u;
@@ -84,7 +94,40 @@ fn integrate_brdf(n_dot_v : f32, roughness : f32) ->vec2<f32> {
         }
     }
 
-    return vec2<f32>(a / f32(SAMPLE_COUNT), b / f32(SAMPLE_COUNT));
+    return vec2<f32>(a / f32(SAMPLE_COUNT), b / f32(SAMPLE_COUNT));*/
+	
+	 var V : vec3f;
+	 V.x = sqrt(1.0 - n_dot_v * n_dot_v);
+	 V.y = 0.0;
+	 V.z = n_dot_v;
+
+	 var A : f32 = 0.0;
+	 var B : f32 = 0.0;
+
+	 let N = vec3f(0.0, 0.0, 1.0);
+
+	 let SAMPLE_COUNT : u32 = 1024u;
+	 for (var i : u32 = 0u; i < SAMPLE_COUNT; i = i + 1u) {
+	   let Xi : vec2f = hammersley(i, SAMPLE_COUNT);
+	   let H : vec3f  = importance_sample_ggx(Xi, N, roughness);
+	   let L : vec3f  = normalize(2.0 * dot(V, H) * H - V);
+
+	   let NdotL : f32 = max(L.z, 0.0);
+	   let NdotH : f32 = max(H.z, 0.0);
+	   let VdotH : f32 = max(dot(V, H), 0.0);
+
+	   if (NdotL > 0.0) {
+		 let G : f32     = geometry_smith(N, V, L, roughness);
+		 let G_Vis : f32 = (G * VdotH) / (NdotH * n_dot_v);
+		 let Fc : f32    = pow(1.0 - VdotH, 5.0);
+
+		 A += (1.0 - Fc) * G_Vis;
+		 B += Fc * G_Vis;
+	   }
+	 }
+	 A /= f32(SAMPLE_COUNT);
+	 B /= f32(SAMPLE_COUNT);
+	 return vec2f(A, B);
 }
 
 @fragment 

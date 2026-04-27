@@ -38,11 +38,12 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 	//m_helmet.loadModel("res/models/helmet.glb", Vector3f(0.0f, 0.0f, 1.0f), 180.0f, Vector3f(0.0f, 0.0f, 0.0f), 1.0f, false, false, false, true, true);
 	//m_helmet.loadModel("res/models/helmet.gltf", Vector3f(0.0f, 0.0f, 1.0f), 180.0f, Vector3f(0.0f, 0.0f, 0.0f), 1.0f, false, false, false, true, true);
 	m_helmet.loadModel("res/models/helmet/helmet.obj", false, false, true);
+	m_helmetObj.loadModel("res/models/helmet/helmet.obj", false, false, false, false, true);
 	m_sphereObj.loadModel("res/models/sphere.obj");
 
 	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	m_uniformMaterial.createBuffer(sizeof(MaterialUniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
-	m_instanceBiffer.createBuffer(sizeof(Matrix4f), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Storage);
+	m_instanceBuffer.createBuffer(sizeof(Matrix4f), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Storage);
 
 	m_uniformModelBuffer.createBuffer(768u, WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	m_uniformLightBuffer.createBuffer(128u, WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
@@ -50,8 +51,10 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 	m_roughnessBuffer.createBuffer(4u, WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 
 	wgpContext.addSampler(wgpCreateSampler(WGPUFilterMode_Linear, WGPUAddressMode_ClampToEdge, 1u, WGPUMipmapFilterMode_Undefined), SS_0);
-	wgpContext.addSampler(wgpCreateSampler(WGPUFilterMode_Linear, WGPUAddressMode_ClampToEdge, 1u, WGPUMipmapFilterMode_Undefined, WGPUCompareFunction_LessEqual), SS_1);
+	wgpContext.addSampler(wgpCreateSampler(WGPUFilterMode_Linear, WGPUAddressMode_Repeat, 1u, WGPUMipmapFilterMode_Undefined), SS_1);
+	wgpContext.addSampler(wgpCreateSampler(WGPUFilterMode_Linear, WGPUAddressMode_Repeat, 1u, WGPUMipmapFilterMode_Undefined, WGPUCompareFunction_LessEqual), SS_2);
 	wgpContext.setClearColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+
 	wgpContext.addSahderModule("TEXTURE", "res/shader/texture.wgsl");
 	wgpContext.createRenderPipeline("TEXTURE", "RP_PTN", VL_PTN, std::bind(&ImageBasedLighting::OnBindGroupLayouts, this), 4u);
 
@@ -98,7 +101,7 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 		false);
 
 	wgpContext.addSahderModule("BRDF", "res/shader/brdf.wgsl");
-	wgpContext.createRenderPipeline("BRDF", "RP_BRDF", VL_NONE, 
+	wgpContext.createRenderPipeline("BRDF", "RP_BRDF", VL_PT,
 		NULL, 
 		1u, 
 		WGPUPrimitiveTopology_TriangleList, 
@@ -106,7 +109,7 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 		false,
 		false);
 
-	m_wgpHelmet.create(m_helmet);
+	m_wgpHelmet.create(m_helmetObj);
 	//m_wgpHelmet.setBindGroups("BG", std::bind(&ImageBasedLighting::OnBindGroups, this));
 	//AddBindgroups(m_wgpHelmet);
 
@@ -123,16 +126,22 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 	m_uniforms.lightVP = lightProjection * lightView;
 	m_uniforms.shadow = Matrix4f::BIAS_SHIFT_Z * m_uniforms.lightVP;
 	m_uniforms.lightPosition = Vector3f(0.25f, 0.5f, 1.0f);
-
+	
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
 
-	m_trackball.reshape(Application::Width, Application::Height);
+	m_material.alphaCutoff = 0.5f;
+	m_material.baseColorFactor = { 1.0f, 1.0f, 1.0f, 1.0f };
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformMaterial.getBuffer(), 0, &m_material, sizeof(MaterialUniforms));
 
+	m_trackball.reshape(Application::Width, Application::Height);
 	m_cube.buildCube({ -1.0f, -1.0f, -1.0f }, { 2.0f, 2.0f, 2.0f }, 1u, 1u, false, false);
 	m_cube.rewind();
 
+	m_quad.buildQuadXY({ -1.0f, -1.0f, 0.0f }, { 2.0f, 2.0f }, 1u, 1u, true, false);
+
 	m_wgpCube.create(m_cube);
-	
+	m_wgpQuad.create(m_quad);
+
 	m_sphere.buildSphere({ 0.0f, 0.0f, 0.0f }, 1.0f, 49u, 49u, false, false);
 	m_sphere.rewind();
 
@@ -1012,7 +1021,8 @@ void ImageBasedLighting::OnDrawPrefilter(const WGPURenderPassEncoder& renderPass
 
 void ImageBasedLighting::OnDrawBrdf(const WGPURenderPassEncoder& renderPassEncoder, uint32_t layer, uint32_t mip) {
 	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_BRDF"));
-	wgpuRenderPassEncoderDraw(renderPassEncoder, 3, 1, 0, 0);
+	//wgpuRenderPassEncoderDraw(renderPassEncoder, 3, 1, 0, 0);
+	m_wgpQuad.draw(renderPassEncoder);
 }
 
 
@@ -1168,7 +1178,7 @@ std::vector<WGPUBindGroup> ImageBasedLighting::OnBindGroupsPBRHelmet() {
 	std::vector<WGPUBindGroupEntry> bindGroupEntries1(1);
 
 	bindGroupEntries1[0].binding = 0u;
-	bindGroupEntries1[0].buffer = m_instanceBiffer.getBuffer();
+	bindGroupEntries1[0].buffer = m_instanceBuffer.getBuffer();
 	bindGroupEntries1[0].offset = 0u;
 	bindGroupEntries1[0].size = sizeof(Matrix4f);
 
@@ -1223,7 +1233,7 @@ std::vector<WGPUBindGroup> ImageBasedLighting::OnBindGroupsPBRHelmet() {
 
 	std::vector<WGPUBindGroupEntry> bindGroupEntries3(7);
 	bindGroupEntries3[0].binding = 0u;
-	bindGroupEntries3[0].sampler = wgpContext.getSampler(SS_0);
+	bindGroupEntries3[0].sampler = wgpContext.getSampler(SS_1);
 
 	bindGroupEntries3[1].binding = 1u;
 	bindGroupEntries3[1].sampler = wgpContext.getSampler(SS_LINEAR_REPEAT);
@@ -1241,7 +1251,7 @@ std::vector<WGPUBindGroup> ImageBasedLighting::OnBindGroupsPBRHelmet() {
 	bindGroupEntries3[5].textureView = _wgpTextureShadow.getTextureView();
 
 	bindGroupEntries3[6].binding = 6u;
-	bindGroupEntries3[6].sampler = wgpContext.getSampler(SS_1);
+	bindGroupEntries3[6].sampler = wgpContext.getSampler(SS_2);
 
 	WGPUBindGroupDescriptor bindGroupDesc3 = {};
 	bindGroupDesc3.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_PBR_HELMET"), 3u);
