@@ -29,7 +29,20 @@ struct Material {
   alphaCutoff: f32,
 };
 
-@group(0) @binding(0) var<uniform> scene: Scene;
+struct Uniforms {
+    projection: mat4x4f,
+	view: mat4x4f,
+	env: mat4x4f,
+    model:mat4x4f,    
+	normal: mat4x4f,
+	color:vec4f,
+	camPos: vec3f,
+	lightVPS: mat4x4f,
+	shadow: mat4x4f
+};
+
+@group(0) @binding(0) var<uniform> uniforms: Uniforms;
+@group(0) @binding(1) var<uniform> scene: Scene;
 @group(1) @binding(0) var<storage> models: array<mat4x4f>;
 
 // Material

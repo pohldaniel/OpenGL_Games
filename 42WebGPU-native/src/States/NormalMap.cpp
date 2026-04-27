@@ -76,11 +76,17 @@ NormalMap::NormalMap(StateMachine& machine) : State(machine, States::NORMAL_MAP)
 	m_trackball.reshape(Application::Width, Application::Height);
 	m_trackball.setTrackballScale(0.5f);
 
-	m_uniforms.modelMatrix = Matrix4f::IDENTITY;
-	m_uniforms.normalMatrix = Matrix4f::IDENTITY;
-	m_uniforms.viewMatrix = m_camera.getViewMatrix();
-	m_uniforms.projectionMatrix = m_camera.getPerspectiveMatrix();
+	m_uniforms.projection = m_camera.getPerspectiveMatrix();
+	m_uniforms.view = m_camera.getViewMatrix();
+	m_uniforms.env = m_camera.getRotationMatrix();
+	m_uniforms.model = Matrix4f::IDENTITY;
+	m_uniforms.normal = Matrix4f::GetNormalMatrix(m_uniforms.view * m_uniforms.model);
 	m_uniforms.color = { 0.0f, 1.0f, 0.4f, 1.0f };
+	m_uniforms.camPosition = m_camera.getPosition();
+	m_uniforms.lightVP = Matrix4f::IDENTITY;
+	m_uniforms.shadow = Matrix4f::IDENTITY;
+	m_uniforms.lightPosition = Vector3f(0.0f, 0.0f, 0.0f);
+
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
 	
 	Vector3f lightPos = m_camera.getViewMatrix() >> Vector3f(-1.7f, 0.7f, 1.9f);
@@ -217,8 +223,8 @@ void NormalMap::update() {
 	m_trackball.idle();
 	applyTransformation(m_trackball);
 
-	m_uniforms.viewMatrix = m_camera.getViewMatrix();
-	m_uniforms.normalMatrix = Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_uniforms.modelMatrix);
+	m_uniforms.view = m_camera.getViewMatrix();
+	m_uniforms.normal = Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_uniforms.model);
 
 	Vector3f lightPos = m_camera.getViewMatrix() >> Vector3f(-1.7f, 0.7f, 1.9f);
 	m_normalUniforms.light_pos_vs = { lightPos[0], lightPos[1], lightPos[2] };
@@ -230,10 +236,10 @@ void NormalMap::render() {
 
 void NormalMap::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
 
-	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, projectionMatrix), &m_uniforms.projectionMatrix, sizeof(Uniforms::projectionMatrix));
-	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, viewMatrix), &m_uniforms.viewMatrix, sizeof(Uniforms::viewMatrix));
-	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, modelMatrix), &m_uniforms.modelMatrix, sizeof(Uniforms::modelMatrix));
-	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, normalMatrix), &m_uniforms.normalMatrix, sizeof(Uniforms::normalMatrix));
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, projection), &m_uniforms.projection, sizeof(Uniforms::projection));
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, view), &m_uniforms.view, sizeof(Uniforms::view));
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, model), &m_uniforms.model, sizeof(Uniforms::model));
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, normal), &m_uniforms.normal, sizeof(Uniforms::normal));
 
 	wgpuQueueWriteBuffer(wgpContext.queue, m_normalUniformBuffer.getBuffer(), 0u, &m_normalUniforms.light_pos_vs, sizeof(NormalUniforms::light_pos_vs));
 
@@ -299,7 +305,7 @@ void NormalMap::resize(int deltaW, int deltaH) {
 }
 
 void NormalMap::applyTransformation(TrackBall& arc) {
-	m_uniforms.modelMatrix = arc.getTransform();
+	m_uniforms.model = arc.getTransform();
 }
 
 void NormalMap::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {

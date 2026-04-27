@@ -91,6 +91,8 @@ private:
 	WgpTexture _wgpTextureCube, _wgpTextureIrradiance, _wgpTexturePrefilter, _wgpTextureBrdf;
 
 
+	Matrix4f lightProjection, lightView, shadow;
+
 	static void AddBindgroups(const WgpModel& model);
 	static void AddBindgroups(const WgpModel& model, const WgpTexture& texture, std::string pipelineName);
 };

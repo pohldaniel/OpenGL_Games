@@ -2,19 +2,25 @@
 #include "vector.h"
 
 const Matrix4f Matrix4f::IDENTITY(1.0f, 0.0f, 0.0f, 0.0f,
-	0.0f, 1.0f, 0.0f, 0.0f,
-	0.0f, 0.0f, 1.0f, 0.0f,
-	0.0f, 0.0f, 0.0f, 1.0f);
+                                  0.0f, 1.0f, 0.0f, 0.0f,
+                                  0.0f, 0.0f, 1.0f, 0.0f,
+                                  0.0f, 0.0f, 0.0f, 1.0f);
 
-const Matrix4f Matrix4f::BIAS(0.5f, 0.0f, 0.0f, 0.0f,
-	0.0f, 0.5f, 0.0f, 0.0f,
-	0.0f, 0.0f, 0.5f, 0.0f,
-	0.5f, 0.5f, 0.5f, 1.0f);
+const Matrix4f Matrix4f::BIAS_SHIFT_Z(0.5f, 0.0f, 0.0f, 0.0f,
+                                      0.0f, 0.5f, 0.0f, 0.0f,
+                                      0.0f, 0.0f, 0.5f, 0.0f,
+                                      0.5f, 0.5f, 0.5f, 1.0f);
 
-const Matrix4f Matrix4f::SIGN(1.0f, 0.0f, 0.0f, 0.0f,
-	0.0f, 1.0f, 0.0f, 0.0f,
-	0.0f, 0.0f, -1.0f, 0.0f,
-	0.0f, 0.0f, 0.0f, 1.0f);
+const Matrix4f Matrix4f::BIAS(0.5f,  0.0f, 0.0f, 0.0f,
+                              0.0f, -0.5f, 0.0f, 0.0f,
+                              0.0f,  0.0f, 1.0f, 0.0f,
+                              0.5f,  0.5f, 0.0f, 1.0f);
+
+
+const Matrix4f Matrix4f::SIGN(1.0f, 0.0f,  0.0f, 0.0f,
+                              0.0f, 1.0f,  0.0f, 0.0f,
+                              0.0f, 0.0f, -1.0f, 0.0f,
+                              0.0f, 0.0f,  0.0f, 1.0f);
 
 Matrix4f::Matrix4f() {
 	identity();

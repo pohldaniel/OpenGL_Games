@@ -251,6 +251,7 @@ class Matrix4f {
 public:
 
 	static const Matrix4f IDENTITY;
+	static const Matrix4f BIAS_SHIFT_Z;
 	static const Matrix4f BIAS;
 	static const Matrix4f SIGN;
 

@@ -35,11 +35,18 @@ Specularity::Specularity(StateMachine& machine) : State(machine, States::SPECULA
 	float sy = sin(m_cameraState.angles[1]);
 	Vector3f position = Vector3f(cx * cy, sx * cy, sy) * std::expf(-m_cameraState.zoom);
 
-	m_uniforms.modelMatrix = Matrix4f::IDENTITY;
-	m_uniforms.normalMatrix = Matrix4f::IDENTITY;
-	m_uniforms.viewMatrix = Matrix4f::LookAt(position, Vector3f(0.0f), Vector3f(0.0f, 0.0f, 1.0f));
-	m_uniforms.projectionMatrix = Matrix4f::Perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.01f, 100.0f);
+	
+	m_uniforms.projection = Matrix4f::Perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.01f, 100.0f);
+	m_uniforms.view = Matrix4f::LookAt(position, Vector3f(0.0f), Vector3f(0.0f, 0.0f, 1.0f));
+	m_uniforms.env = Matrix4f::IDENTITY;
+	m_uniforms.model = Matrix4f::IDENTITY;
+	m_uniforms.normal = Matrix4f::GetNormalMatrix(m_uniforms.view * m_uniforms.model);
 	m_uniforms.color = { 0.0f, 1.0f, 0.4f, 1.0f };
+	m_uniforms.camPosition = position;
+	m_uniforms.lightVP = Matrix4f::IDENTITY;
+	m_uniforms.shadow = Matrix4f::IDENTITY;
+	m_uniforms.lightPosition = Vector3f(0.0f, 0.0f, 0.0f);
+
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
 
 	m_lightingUniforms.directions[0] = { 0.5f, -0.9f, 0.1f, 0.0f };
@@ -71,9 +78,9 @@ void Specularity::render() {
 }
 
 void Specularity::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
-	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, projectionMatrix), &m_uniforms.projectionMatrix, sizeof(Uniforms::projectionMatrix));
-	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, viewMatrix), &m_uniforms.viewMatrix, sizeof(Uniforms::viewMatrix));
-	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, modelMatrix), &m_uniforms.modelMatrix, sizeof(Uniforms::modelMatrix));
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, projection), &m_uniforms.projection, sizeof(Uniforms::projection));
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, view), &m_uniforms.view, sizeof(Uniforms::view));
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, model), &m_uniforms.model, sizeof(Uniforms::model));
 
 	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
 	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_PTNC"));
@@ -263,8 +270,8 @@ void Specularity::updateViewMatrix() {
 	float cy = cos(m_cameraState.angles[1]);
 	float sy = sin(m_cameraState.angles[1]);
 	Vector3f position = Vector3f(cx * cy, sx * cy, sy) * std::expf(-m_cameraState.zoom);
-	m_uniforms.viewMatrix = Matrix4f::LookAt(position, Vector3f(0.0f), Vector3f(0.0f, 0.0f, 1.0f));
-	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, viewMatrix), &m_uniforms.viewMatrix, sizeof(Uniforms::viewMatrix));
+	m_uniforms.view = Matrix4f::LookAt(position, Vector3f(0.0f), Vector3f(0.0f, 0.0f, 1.0f));
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, view), &m_uniforms.view, sizeof(Uniforms::view));
 }
 
 void Specularity::updateLightingUniforms() {

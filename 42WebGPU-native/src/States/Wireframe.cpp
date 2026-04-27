@@ -48,11 +48,17 @@ Wireframe::Wireframe(StateMachine& machine) : State(machine, States::WIREFRAME) 
 
 	m_trackball.reshape(Application::Width, Application::Height);
 	m_trackball.setTrackballScale(0.5f);
-	m_uniforms.projectionMatrix = Matrix4f::IDENTITY;
-	m_uniforms.viewMatrix = Matrix4f::IDENTITY;
-	m_uniforms.envMatrix = Matrix4f::IDENTITY;
-	m_uniforms.modelMatrix = Matrix4f::IDENTITY;
+
+	m_uniforms.projection = m_camera.getPerspectiveMatrix();
+	m_uniforms.view = m_camera.getViewMatrix();
+	m_uniforms.env = m_camera.getRotationMatrix();
+	m_uniforms.model = Matrix4f::IDENTITY;
+	m_uniforms.normal = Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_uniforms.model);
 	m_uniforms.color = { 1.0f, 1.0f, 1.0f, 1.0f };
+	m_uniforms.camPosition = m_camera.getPosition();
+	m_uniforms.lightVP = Matrix4f::IDENTITY;
+	m_uniforms.shadow = Matrix4f::IDENTITY;
+	m_uniforms.lightPosition = Vector3f(0.0f, 0.0f, 0.0f);
 	
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
 	wgpContext.OnDraw = std::bind(&Wireframe::OnDraw, this, std::placeholders::_1);
@@ -127,8 +133,8 @@ void Wireframe::update() {
 	m_trackball.idle();
 	applyTransformation(m_trackball);
 
-	m_uniforms.projectionMatrix = m_camera.getPerspectiveMatrix();
-	m_uniforms.viewMatrix = m_camera.getViewMatrix();
+	m_uniforms.projection = m_camera.getPerspectiveMatrix();
+	m_uniforms.view = m_camera.getViewMatrix();
 }
 
 void Wireframe::render() {
@@ -137,9 +143,9 @@ void Wireframe::render() {
 
 void Wireframe::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
 
-	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, projectionMatrix), &m_uniforms.projectionMatrix, sizeof(Uniforms::projectionMatrix));
-	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, viewMatrix), &m_uniforms.viewMatrix, sizeof(Uniforms::viewMatrix));
-	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, modelMatrix), &m_uniforms.modelMatrix, sizeof(Uniforms::modelMatrix));
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, projection), &m_uniforms.projection, sizeof(Uniforms::projection));
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, view), &m_uniforms.view, sizeof(Uniforms::view));
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, model), &m_uniforms.model, sizeof(Uniforms::model));
 	
 	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
 
@@ -210,7 +216,7 @@ void Wireframe::OnKeyUp(const Event::KeyboardEvent& event) {
 }
 
 void Wireframe::applyTransformation(TrackBall& arc) {
-	m_uniforms.modelMatrix = arc.getTransform();
+	m_uniforms.model = arc.getTransform();
 }
 
 void Wireframe::resize(int deltaW, int deltaH) {

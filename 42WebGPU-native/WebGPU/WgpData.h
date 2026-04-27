@@ -3,14 +3,18 @@
 #include <engine/Vector.h>
 
 struct Uniforms {
-	Matrix4f projectionMatrix;
-	Matrix4f viewMatrix;
-	Matrix4f envMatrix;
-	Matrix4f modelMatrix;
-	Matrix4f normalMatrix;
+	Matrix4f projection;
+	Matrix4f view;
+	Matrix4f env;
+	Matrix4f model;
+	Matrix4f normal;
 	std::array<float, 4> color;
 	Vector3f camPosition;
-	float _pad[1];
+	float _pad0;
+	Matrix4f lightVP;
+	Matrix4f shadow;
+	Vector3f lightPosition;
+	float _pad1;
 };
 
 struct LightingUniforms {
