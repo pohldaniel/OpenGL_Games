@@ -22,6 +22,8 @@ public:
 	void create(const AssimpModel& model);
 	void create(const Shape& shape);
 
+	void markForDelete();
+
 	void setBindGroupsSlot(const std::string& bindGroupsSlot);
 	void setBindGroups(std::string bindGroupsName, const std::function <std::vector<WGPUBindGroup>()>& onBindGroups);
 

@@ -102,7 +102,8 @@ fn fresnelSchlickRoughness(cosTheta : f32, f0 : vec3f, roughness : f32)->vec3f {
 	return f0 + (max(vec3f(1.0 - roughness), f0) - f0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
 		   
-fn toneMapping(color : vec3f)->vec3f {
+//Tone mapping - ACES		   
+fn toneMapping(color : vec3f) -> vec3f {
 	let a = 2.51;
 	let b = 0.03;
 	let c = 2.43;
@@ -111,6 +112,48 @@ fn toneMapping(color : vec3f)->vec3f {
 
 	return (color * (a * color + b)) / (color * (c * color + d) + e);
 }
+
+//Tone mapping - Reinhard (currently unused, ACES is used by default)
+/*fn toneMapping(color : vec3f)->vec3f {
+      return color / (color + vec3f(1.0));
+}*/
+
+//Tone mapping - Uncharted 2 (currently unused)
+/*fn uncharted2Helper(x : vec3f) -> vec3f {
+    let a = 0.15;
+    let b = 0.50;
+    let c = 0.10;
+    let d = 0.20;
+    let e = 0.02;
+    let f = 0.30;
+
+    return (x * (a * x + c * b) + d * e) / (x * (a * x + b) + d * f) - e / f;
+}
+
+fn toneMapping(color : vec3f) -> vec3f {
+    let w            = 11.2;
+    let exposureBias = 2.0;
+    let current      = uncharted2Helper(exposureBias * color);
+    let whiteScale   = 1 / uncharted2Helper(vec3f(w));
+    return current * whiteScale;
+}*/
+
+//Tone mapping - Lottes (currently unused)
+/*fn toneMapping(color : vec3f) -> vec3f {
+	let a      = vec3f(1.6);
+	let d      = vec3f(0.977);
+	let hdrMax = vec3f(8.0);
+	let midIn  = vec3f(0.18);
+	let midOut = vec3f(0.267);
+
+	let b = (-pow(midIn, a) + pow(hdrMax, a) * midOut)
+              / ((pow(hdrMax, a * d) - pow(midIn, a * d)) * midOut);
+	let c = (pow(hdrMax, a * d) * pow(midIn, a)
+               - pow(hdrMax, a) * pow(midIn, a * d) * midOut)
+              / ((pow(hdrMax, a * d) - pow(midIn, a * d)) * midOut);
+
+	return pow(color, a) / (pow(color, a * d) * b + c);
+}*/
 
 const SHADOW_MAP_SIZE = 4096.0;
 	

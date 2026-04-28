@@ -16,7 +16,10 @@
 #include <WebGPU/WgpRenderer.h>
 
 class ImageBasedLighting : public State, public MouseEventListener, public KeyboardEventListener {
-
+	enum Scene {
+		SPHERE,
+		HELMET
+	};
 public:
 
 	ImageBasedLighting(StateMachine& machine);
@@ -54,6 +57,7 @@ private:
 	std::vector<WGPUBindGroup> OnBindGroupsPrefilter();
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsSkybox();
 	std::vector<WGPUBindGroup> OnBindGroupsSkybox();
+	std::vector<WGPUBindGroup> OnBindGroupsSkyboxHelmet();
 
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsPBRHelmet();
 	std::vector<WGPUBindGroup> OnBindGroupsPBRHelmet();
@@ -70,7 +74,7 @@ private:
 	void OnDrawPrefilter(const WGPURenderPassEncoder& renderPassEncoder, uint32_t layer, uint32_t mip);
 
 	bool m_initUi = true;
-	bool m_drawUi = false;
+	bool m_drawUi = true;
 
 	TrackBall m_trackball;
 	Camera m_camera;
@@ -94,6 +98,8 @@ private:
 	WgpTexture m_wgpTextutreNormal, m_wgpTextutreEmission, m_wgpTextutreMetalness, m_wgpTextutreLightmap;
 
 	Matrix4f lightProjection, lightView, shadow;
+	Scene m_scene = Scene::HELMET;
+
 	static void AddBindgroups(const WgpModel& model);
 	static void AddBindgroups(const WgpModel& model, const WgpTexture& texture, std::string pipelineName);
 };

@@ -388,7 +388,20 @@ void ImageBasedLighting::renderUi(const WGPURenderPassEncoder& renderPassEncoder
 	}
 
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-
+	int currentScene = m_scene;
+	if (ImGui::Combo("Scene", &currentScene, "Sphere\0Helmet\0\0")) {
+		m_scene = static_cast<Scene>(currentScene);
+		if (m_scene == Scene::HELMET) {
+			m_wgpCube.setBindGroups("BG", std::bind(&ImageBasedLighting::OnBindGroupsSkyboxHelmet, this));
+			m_camera.perspective(90.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 100.0f);
+			m_camera.lookAt(4.1115341187f, 0.5f * _180_ON_PI, 0.0f);
+		}else {
+			m_wgpCube.setBindGroups("BG", std::bind(&ImageBasedLighting::OnBindGroupsSkybox, this));
+			m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 100.0f);
+			m_camera.lookAt(Vector3f(0.0f, 0.0f, 20.0f), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+		}
+		m_trackball.reset();
+	}
 	ImGui::End();
 
 	ImGui::Render();
@@ -966,6 +979,30 @@ std::vector<WGPUBindGroup> ImageBasedLighting::OnBindGroupsSkybox() {
 	bindGroupEntries[2].binding = 2u;
 	//bindGroupEntries[2].textureView = _wgpTextureIrradiance.getTextureView();
 	bindGroupEntries[2].textureView = _wgpTextureCube.getTextureView();
+
+	WGPUBindGroupDescriptor bindGroupDesc = {};
+	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_SKYBOX"), 0u);
+	bindGroupDesc.entryCount = (uint32_t)bindGroupEntries.size();
+	bindGroupDesc.entries = bindGroupEntries.data();
+	bindGroups[0] = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
+
+	return bindGroups;
+}
+
+std::vector<WGPUBindGroup> ImageBasedLighting::OnBindGroupsSkyboxHelmet() {
+	std::vector<WGPUBindGroup> bindGroups(1);
+	std::vector<WGPUBindGroupEntry> bindGroupEntries(3);
+
+	bindGroupEntries[0].binding = 0u;
+	bindGroupEntries[0].buffer = m_uniformBuffer.getBuffer();
+	bindGroupEntries[0].offset = 0u;
+	bindGroupEntries[0].size = wgpuBufferGetSize(m_uniformBuffer.getBuffer());
+
+	bindGroupEntries[1].binding = 1u;
+	bindGroupEntries[1].sampler = wgpContext.getSampler(SS_LINEAR_REPEAT);
+
+	bindGroupEntries[2].binding = 2u;
+	bindGroupEntries[2].textureView = m_wgpTextureCube.getTextureView();
 
 	WGPUBindGroupDescriptor bindGroupDesc = {};
 	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_SKYBOX"), 0u);

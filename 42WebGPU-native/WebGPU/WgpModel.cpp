@@ -19,10 +19,7 @@ void WgpModel::create(const ObjModel& model) {
 		else
 			m_meshes.push_back(WgpMesh(mesh->getVertexBuffer(), mesh->getIndexBuffer()));
 	}
-
-	for (WgpMesh& mesh : m_meshes) {
-		mesh.markForDelete();
-	}
+	markForDelete();
 }
 
 void WgpModel::create(const AssimpModel& model) {
@@ -35,15 +32,18 @@ void WgpModel::create(const AssimpModel& model) {
 		else 
 			m_meshes.push_back(WgpMesh(mesh->getVertexBuffer(), mesh->getIndexBuffer()));
 	}
-
-	for (WgpMesh& mesh : m_meshes) {
-		mesh.markForDelete();
-	}
+	markForDelete();
 }
 
 void WgpModel::create(const Shape& shape) {
 	m_meshes.push_back(WgpMesh(shape.getVertexBuffer(), shape.getIndexBuffer()));
-	m_meshes.back().markForDelete();
+	markForDelete();
+}
+
+void WgpModel::markForDelete() {
+	for (WgpMesh& mesh : m_meshes) {
+		mesh.markForDelete();
+	}
 }
 
 void WgpModel::setBindGroupsSlot(const std::string& bindGroupsSlot) {
