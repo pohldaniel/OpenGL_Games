@@ -210,6 +210,9 @@
     <ClCompile Include="engine\shape\Quad.cpp">
       <Filter>engine\shape</Filter>
     </ClCompile>
+    <ClCompile Include="src\States\ShadowMapping.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\input\ApplicationEventListener.h">
@@ -409,6 +412,9 @@
     </ClInclude>
     <ClInclude Include="engine\shape\Quad.h">
       <Filter>engine\shape</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\ShadowMapping.h">
+      <Filter>Source Files\States</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -142,6 +142,8 @@ public:
 	unsigned int getNumberOfTriangles() const;
 	void cleanup();
 
+	const bool hasMaterial() const;
+
 private:
 
 	ObjModel* m_model;

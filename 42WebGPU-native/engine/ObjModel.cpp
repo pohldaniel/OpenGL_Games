@@ -1502,6 +1502,10 @@ const Material& ObjMesh::getMaterial() const {
 unsigned int ObjMesh::getNumberOfTriangles() const {
 	return m_drawCount / 3;
 }
+
+const bool ObjMesh::hasMaterial() const {
+	return m_materialIndex >= 0;
+}
 ////////////////////////////////////////////////////////////////////////////////
 void IndexBufferCreator::createIndexBuffer(bool flipWinding) {
 

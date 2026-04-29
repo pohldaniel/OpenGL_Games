@@ -37,10 +37,7 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 	wgpContext.addSampler(wgpCreateSampler(WGPUFilterMode_Linear, WGPUAddressMode_Repeat, 1u, WGPUMipmapFilterMode_Undefined, WGPUCompareFunction_LessEqual), SS_2);
 	wgpContext.setClearColor({ 1.0f, 1.0f, 1.0f, 1.0f });
 
-	m_wgpCube.create(m_cube);
-	m_wgpQuad.create(m_quad);
-	m_wgpSpherePBR.create(m_spherePBR);
-
+	
 	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	m_uniformMaterial.createBuffer(sizeof(MaterialUniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	m_instanceBuffer.createBuffer(sizeof(Matrix4f), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Storage);
@@ -112,6 +109,9 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 		false,
 		false);
 
+	m_wgpCube.create(m_cube);
+	m_wgpQuad.create(m_quad);
+	m_wgpSpherePBR.create(m_spherePBR);
 	m_wgpHelmet.create(m_helmet);
 
 	lightProjection = Matrix4f::Orthographic(-20.0f, 20.0f, -20.0f, 20.0f, 0.0f, 100.0f);
@@ -275,10 +275,7 @@ void ImageBasedLighting::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) 
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, lightVP), &m_uniforms.lightVP, sizeof(Uniforms::lightVP));
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, shadow), &m_uniforms.shadow, sizeof(Uniforms::shadow));
 
-
 	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
-
-	
 
 	if (m_scene == Scene::HELMET) {
 		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_PBR_HELMET"));

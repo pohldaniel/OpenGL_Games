@@ -1,0 +1,269 @@
+#include <imgui.h>
+#include <imgui_impl_win32.h>
+#include <imgui_impl_wgpu.h>
+#include <imgui_internal.h>
+
+#include <WebGPU/WgpContext.h>
+
+#include "ShadowMapping.h"
+#include "Application.h"
+#include "Globals.h"
+
+ShadowMapping::ShadowMapping(StateMachine& machine) : State(machine, States::SHADOW_MAPPING) {
+
+	Application::SetCursorIcon(IDC_ARROW);
+	EventDispatcher::AddKeyboardListener(this);
+	EventDispatcher::AddMouseListener(this);
+
+	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm, Application::OnSurfaceChange);
+
+	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
+	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
+	m_camera.lookAt(Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.setRotationSpeed(0.1f);
+	m_camera.setMovingSpeed(1.0f);
+
+	m_dragon.loadModel("res/models/dragon_vrip_res4.ply");
+
+	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
+
+	wgpContext.setClearColor({ 0.1f, 0.2f, 0.3f, 1.0f });
+	wgpContext.addSahderModule("DRAGON", "res/shader/dragon.wgsl");
+	wgpContext.createRenderPipeline("DRAGON", "RP_DRAGON", VL_P, std::bind(&ShadowMapping::OnBindGroupLayouts, this));
+	
+	m_uniforms.projection = m_camera.getPerspectiveMatrix();
+	m_uniforms.view = m_camera.getViewMatrix();
+	m_uniforms.env = m_camera.getRotationMatrix();
+	m_uniforms.model = Matrix4f::IDENTITY;
+	m_uniforms.normal = Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_uniforms.model);
+	m_uniforms.color = { 1.0f, 1.0f, 1.0f, 1.0f };
+	m_uniforms.camPosition = m_camera.getPosition();
+	m_uniforms.lightVP = Matrix4f::IDENTITY;
+	m_uniforms.shadow = Matrix4f::BIAS * m_uniforms.lightVP;
+	m_uniforms.lightPosition = Vector3f(0.25f, 0.5f, 1.0f);
+	
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
+	m_wgpDragon.create(m_dragon);
+	m_wgpDragon.setBindGroups("BG", std::bind(&ShadowMapping::OnBindGroups, this));
+
+	wgpContext.OnDraw = std::bind(&ShadowMapping::OnDraw, this, std::placeholders::_1);
+}
+
+ShadowMapping::~ShadowMapping() {
+	EventDispatcher::RemoveKeyboardListener(this);
+	EventDispatcher::RemoveMouseListener(this);
+	m_uniformBuffer.markForDelete();
+}
+
+void ShadowMapping::fixedUpdate() {
+
+}
+
+void ShadowMapping::update() {
+	Keyboard& keyboard = Keyboard::instance();
+	Vector3f direction = Vector3f();
+
+	float dx = 0.0f;
+	float dy = 0.0f;
+	bool move = false;
+
+	if (keyboard.keyDown(Keyboard::KEY_W)) {
+		direction += Vector3f(0.0f, 0.0f, 1.0f);
+		move |= true;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_S)) {
+		direction += Vector3f(0.0f, 0.0f, -1.0f);
+		move |= true;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_A)) {
+		direction += Vector3f(-1.0f, 0.0f, 0.0f);
+		move |= true;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_D)) {
+		direction += Vector3f(1.0f, 0.0f, 0.0f);
+		move |= true;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_Q)) {
+		direction += Vector3f(0.0f, -1.0f, 0.0f);
+		move |= true;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_E)) {
+		direction += Vector3f(0.0f, 1.0f, 0.0f);
+		move |= true;
+	}
+
+	Mouse& mouse = Mouse::instance();
+
+	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {
+		dx = mouse.xDelta();
+		dy = mouse.yDelta();
+	}
+
+	if (move || dx != 0.0f || dy != 0.0f) {
+		if (dx || dy) {
+			m_camera.rotate(dx, dy);
+		}
+
+		if (move) {
+			m_camera.move(direction * m_dt);
+		}
+	}
+
+	m_uniforms.projection = m_camera.getPerspectiveMatrix();
+	m_uniforms.view = m_camera.getViewMatrix();
+	m_uniforms.env = m_camera.getRotationMatrix();
+	m_uniforms.model = Matrix4f::IDENTITY;
+	m_uniforms.normal = Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_uniforms.model);
+	m_uniforms.camPosition = m_camera.getPosition();
+	m_uniforms.lightVP = Matrix4f::IDENTITY;
+	m_uniforms.shadow = Matrix4f::BIAS_SHIFT_Z * m_uniforms.lightVP;
+}
+
+void ShadowMapping::render() {
+	wgpDraw();
+}
+
+void ShadowMapping::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
+
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, projection), &m_uniforms.projection, sizeof(Uniforms::projection));
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, view), &m_uniforms.view, sizeof(Uniforms::view));
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, env), &m_uniforms.env, sizeof(Uniforms::env));
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, model), &m_uniforms.model, sizeof(Uniforms::model));
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, normal), &m_uniforms.normal, sizeof(Uniforms::normal));
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, camPosition), &m_uniforms.camPosition, sizeof(Uniforms::camPosition));
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, lightVP), &m_uniforms.lightVP, sizeof(Uniforms::lightVP));
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, shadow), &m_uniforms.shadow, sizeof(Uniforms::shadow));
+
+	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
+
+	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_DRAGON"));
+	m_wgpDragon.draw(renderPassEncoder);
+
+	if (m_drawUi)
+		renderUi(renderPassEncoder);
+}
+
+void ShadowMapping::OnMouseMotion(const Event::MouseMoveEvent& event) {
+
+}
+
+void ShadowMapping::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
+	if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT) {
+		Mouse::instance().attach(Application::GetWindow());
+	}
+}
+
+void ShadowMapping::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
+	if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT) {
+		Mouse::instance().detach();
+	}
+}
+
+void ShadowMapping::OnMouseWheel(const Event::MouseWheelEvent& event) {
+
+}
+
+void ShadowMapping::OnKeyDown(const Event::KeyboardEvent& event) {
+#if DEVBUILD
+	if (event.keyCode == VK_LMENU) {
+		m_drawUi = !m_drawUi;
+	}
+#endif
+
+	if (event.keyCode == VK_ESCAPE) {
+		m_isRunning = false;
+	}
+}
+
+void ShadowMapping::OnKeyUp(const Event::KeyboardEvent& event) {
+
+}
+
+void ShadowMapping::resize(int deltaW, int deltaH) {
+	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
+	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
+}
+
+void ShadowMapping::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
+	ImGui_ImplWGPU_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+
+	ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar |
+		ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
+		ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus |
+		ImGuiWindowFlags_NoBackground;
+
+	ImGuiViewport* viewport = ImGui::GetMainViewport();
+	ImGui::SetNextWindowPos(viewport->Pos);
+	ImGui::SetNextWindowSize(viewport->Size);
+	ImGui::SetNextWindowViewport(viewport->ID);
+
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+	ImGui::Begin("InvisibleWindow", nullptr, windowFlags);
+	ImGui::PopStyleVar(3);
+
+	ImGuiID dockSpaceId = ImGui::GetID("MainDockSpace");
+	ImGui::DockSpace(dockSpaceId, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
+	ImGui::End();
+
+	if (m_initUi) {
+		m_initUi = false;
+		ImGuiID dock_id_left = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Left, 0.2f, nullptr, &dockSpaceId);
+		ImGuiID dock_id_right = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Right, 0.2f, nullptr, &dockSpaceId);
+		ImGuiID dock_id_down = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Down, 0.2f, nullptr, &dockSpaceId);
+		ImGuiID dock_id_up = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Up, 0.2f, nullptr, &dockSpaceId);
+		ImGui::DockBuilderDockWindow("Settings", dock_id_left);
+	}
+
+	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+
+	ImGui::End();
+
+	ImGui::Render();
+	ImGui_ImplWGPU_RenderDrawData(ImGui::GetDrawData(), renderPassEncoder);
+}
+
+std::vector<WGPUBindGroupLayout> ShadowMapping::OnBindGroupLayouts() {
+	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
+
+	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(1);
+	bindingLayoutEntries[0].binding = 0u;
+	bindingLayoutEntries[0].visibility = WGPUShaderStage_Vertex;
+	bindingLayoutEntries[0].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
+	bindingLayoutEntries[0].buffer.minBindingSize = sizeof(Uniforms);
+
+	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
+	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
+	bindGroupLayoutDescriptor.entries = bindingLayoutEntries.data();
+
+	bindingLayouts[0] = wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor);
+
+	return bindingLayouts;
+}
+
+std::vector<WGPUBindGroup> ShadowMapping::OnBindGroups() {
+	std::vector<WGPUBindGroup> bindGroups(1);
+
+	std::vector<WGPUBindGroupEntry> bindGroupEntries(1);
+	bindGroupEntries[0].binding = 0u;
+	bindGroupEntries[0].buffer = m_uniformBuffer.getBuffer();
+	bindGroupEntries[0].offset = 0u;
+	bindGroupEntries[0].size = sizeof(Uniforms);
+
+	WGPUBindGroupDescriptor bindGroupDesc = {};
+	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_DRAGON"), 0u);
+	bindGroupDesc.entryCount = (uint32_t)bindGroupEntries.size();
+	bindGroupDesc.entries = bindGroupEntries.data();
+
+	bindGroups[0] = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
+
+	return bindGroups;
+}
