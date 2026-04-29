@@ -233,7 +233,7 @@ LRESULT Application::ApplicationWndProc(HWND hWnd, UINT message, WPARAM wParam, 
 }
 
 void Application::initWebGPU() {
-	wgpInit(Window, 4u);
+	wgpInit(Window);
 }
 
 void Application::initImGUI() {
@@ -244,6 +244,18 @@ void Application::initImGUI() {
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 	io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
 	
+	ImGui_ImplWGPU_InitInfo initInfo = {};
+	initInfo.Device = wgpContext.device;
+	initInfo.RenderTargetFormat = wgpContext.colorformat;
+	initInfo.DepthStencilFormat = wgpContext.depthformat;
+	initInfo.PipelineMultisampleState.count = wgpContext.msaaSampleCount;
+
+	ImGui_ImplWGPU_Init(&initInfo);
+}
+
+void Application::OnSurfaceChange() {
+	ImGui_ImplWGPU_Shutdown();
+
 	ImGui_ImplWGPU_InitInfo initInfo = {};
 	initInfo.Device = wgpContext.device;
 	initInfo.RenderTargetFormat = wgpContext.colorformat;

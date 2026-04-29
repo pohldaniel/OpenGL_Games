@@ -31,6 +31,7 @@ public:
 	static void SetCursorIcon(const char *image[]);
 	static const HWND& GetWindow();
 	static StateMachine* GetMachine();
+	static void OnSurfaceChange();
 
 	static int Width;
 	static int Height;

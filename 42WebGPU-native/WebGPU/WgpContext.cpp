@@ -104,11 +104,11 @@ void setDefault(WGPUBindGroupLayoutEntry& bindingLayout) {
 	bindingLayout.texture.viewDimension = WGPUTextureViewDimension_Undefined;
 }
 
-void wgpInit(void* window, uint32_t msaaSampleCount) {
-	wgpCreateDevice(window, msaaSampleCount);
+void wgpInit(void* window) {
+	wgpCreateDevice(window);
 }
 
-bool wgpCreateDevice(void* window, uint32_t msaaSampleCount) {
+bool wgpCreateDevice(void* window) {
 	
 
 #ifdef WEBGPU_NATIVE
@@ -205,7 +205,6 @@ bool wgpCreateDevice(void* window, uint32_t msaaSampleCount) {
 	wgpContext.addSampler(wgpCreateSampler(WGPUFilterMode_Nearest, WGPUAddressMode_ClampToEdge), SS_NEAREST_CLAMP);
 	wgpContext.addSampler(wgpCreateSampler(WGPUFilterMode_Nearest, WGPUAddressMode_Repeat), SS_NEAREST_REPEAT);
 
-	wgpContext.setMSAASampleCount(msaaSampleCount);
 	return true;
 }
 
@@ -605,7 +604,7 @@ void wgpToggleVerticalSync() {
 	}
 }
 
-void wgpSetSurfaceColorFormat(WGPUTextureFormat textureFormat) {
+void wgpSetSurfaceColorFormat(WGPUTextureFormat textureFormat, const std::function<void()>& onSurfaceChange) {
 	if (wgpContext.surface) {
 		wgpContext.colorformat = textureFormat;
 		wgpContext.config.format = wgpContext.colorformat;
@@ -622,7 +621,30 @@ void wgpSetSurfaceColorFormat(WGPUTextureFormat textureFormat) {
 			wgpContext.msaaTexture = wgpCreateTexture(width, height, 1u, WGPUTextureUsage_RenderAttachment, wgpContext.colorformat, 1u, wgpContext.msaaSampleCount, wgpContext.colorformat);
 			wgpContext.msaaTextureView = wgpCreateTextureView(wgpContext.msaaTexture, WGPUTextureAspect::WGPUTextureAspect_All);
 		}
+		if (onSurfaceChange)
+			onSurfaceChange();
+	}
+}
 
+void wgpSetMSAASampleCount(const uint32_t count, const std::function<void()>& onSurfaceChange) {
+	if(wgpContext.msaaSampleCount != count){
+		wgpContext.msaaSampleCount = count;
+
+		uint32_t width = wgpuTextureGetWidth(wgpContext.depthTexture);
+		uint32_t height = wgpuTextureGetHeight(wgpContext.depthTexture);
+
+		wgpContext.msaaTexture = wgpCreateTexture(width, height, 1u, WGPUTextureUsage_RenderAttachment, wgpContext.colorformat, 1u, wgpContext.msaaSampleCount, wgpContext.colorformat);
+		wgpContext.msaaTextureView = wgpCreateTextureView(wgpContext.msaaTexture, WGPUTextureAspect::WGPUTextureAspect_All);
+
+		wgpuTextureViewRelease(wgpContext.depthTextureView);
+		wgpuTextureDestroy(wgpContext.depthTexture);
+		wgpuTextureRelease(wgpContext.depthTexture);
+
+		wgpContext.depthTexture = wgpCreateTexture(width, height, 1u, WGPUTextureUsage_RenderAttachment, wgpContext.depthformat, 1u, wgpContext.msaaSampleCount, wgpContext.depthformat);
+		wgpContext.depthTextureView = wgpCreateTextureView(wgpContext.depthTexture, WGPUTextureAspect::WGPUTextureAspect_All);
+
+		if (onSurfaceChange)
+			onSurfaceChange();
 	}
 }
 
@@ -721,24 +743,6 @@ const WGPUShaderModule& WgpContext::getShaderModule(std::string shaderModuleName
 
 void WgpContext::setClearColor(const WGPUColor& _clearColor) {
 	clearColor = _clearColor;
-}
-
-void WgpContext::setMSAASampleCount(const uint32_t count) {
-	msaaSampleCount = count;
-
-	uint32_t width = wgpuTextureGetWidth(depthTexture);
-	uint32_t height = wgpuTextureGetHeight(depthTexture);
-
-	msaaTexture = wgpCreateTexture(width, height, 1u, WGPUTextureUsage_RenderAttachment, colorformat, 1u, msaaSampleCount, colorformat);
-	msaaTextureView = wgpCreateTextureView(msaaTexture, WGPUTextureAspect::WGPUTextureAspect_All);
-
-	wgpuTextureViewRelease(depthTextureView);
-	wgpuTextureDestroy(depthTexture);
-	wgpuTextureRelease(depthTexture);
-
-	depthTexture = wgpCreateTexture(width, height, 1u, WGPUTextureUsage_RenderAttachment, depthformat, 1u, msaaSampleCount, depthformat);
-	depthTextureView = wgpCreateTextureView(depthTexture, WGPUTextureAspect::WGPUTextureAspect_All);
-
 }
 
 void WgpContext::createComputePipeline(std::string shaderModuleName, std::string pipelineLayoutName, const std::function<std::vector<WGPUBindGroupLayout>()>& onBindGroupLayouts) {

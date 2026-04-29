@@ -40,15 +40,11 @@ public:
 
 private:
 
-	std::vector<WGPUBindGroupLayout> OnBindGroupLayouts();
-	std::vector<WGPUBindGroup> OnBindGroups();
-	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsEnvCube();
-	std::vector<WGPUBindGroup> OnBindGroupsEnvCube();
-	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsEnvSphere();
-	std::vector<WGPUBindGroup> OnBindGroupsEnvSphere();
-
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsPBR();
 	std::vector<WGPUBindGroup> OnBindGroupsPBR();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsPBRHelmet();
+	std::vector<WGPUBindGroup> OnBindGroupsPBRHelmet();
+
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsIrradiance();
 	std::vector<WGPUBindGroup> OnBindGroupsIrradiance();
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsCube();
@@ -58,9 +54,6 @@ private:
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsSkybox();
 	std::vector<WGPUBindGroup> OnBindGroupsSkybox();
 	std::vector<WGPUBindGroup> OnBindGroupsSkyboxHelmet();
-
-	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsPBRHelmet();
-	std::vector<WGPUBindGroup> OnBindGroupsPBRHelmet();
 
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 	void applyTransformation(TrackBall& arc);
@@ -75,31 +68,28 @@ private:
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
+	const uint32_t ROUGHNESS_LEVELS = 5u;
 
 	TrackBall m_trackball;
 	Camera m_camera;
 	Uniforms m_uniforms;
-	WgpBuffer m_uniformBuffer, m_uniformModelBuffer, m_uniformLightBuffer, m_uniformMVPBuffer, m_roughnessBuffer;
-	WgpBuffer m_uniformMaterial, m_instanceBuffer;
 
 	AssimpModel m_helmet;
-	ObjModel m_sphereObj, m_helmetObj;
-	Shape m_cube, m_sphere, m_spherePBR, m_quad;
-	WgpModel m_wgpHelmet, m_wgpCube, m_wgpSphere, m_wgpSpherePBR, m_wgpQuad;
-	WgpTexture m_wgpTextureCube, m_wgpTexture;
+	Shape m_cube, m_spherePBR, m_quad;
+	
 	Matrix4f m_models[12];
 	PBRLightingUniforms m_lights[4];
 	Matrix4f m_mvpInvCube[6];
 	Matrix4f m_mvpCube[6];
 	MaterialUniforms m_material;
-
-	const uint32_t ROUGHNESS_LEVELS = 5u;
-	WgpTexture _wgpTextureCube, _wgpTextureIrradiance, _wgpTexturePrefilter, _wgpTextureBrdf, _wgpTextureShadow;
-	WgpTexture m_wgpTextutreNormal, m_wgpTextutreEmission, m_wgpTextutreMetalness, m_wgpTextutreLightmap;
-
 	Matrix4f lightProjection, lightView, shadow;
 	Scene m_scene = Scene::HELMET;
 
-	static void AddBindgroups(const WgpModel& model);
-	static void AddBindgroups(const WgpModel& model, const WgpTexture& texture, std::string pipelineName);
+	WgpModel m_wgpHelmet, m_wgpCube, m_wgpSphere, m_wgpSpherePBR, m_wgpQuad;
+	WgpTexture m_wgpTextureHDRCube, m_wgpTextureHDR;
+	WgpTexture m_wgpTextureCube, m_wgpTextureIrradiance, m_wgpTexturePrefilter, m_wgpTextureBrdf, m_wgpTextureShadow;
+	WgpTexture m_wgpTextutreNormal, m_wgpTextutreEmission, m_wgpTextutreMetalness, m_wgpTextutreLightmap;
+
+	WgpBuffer m_uniformBuffer, m_uniformModelBuffer, m_uniformLightBuffer, m_uniformMVPBuffer, m_roughnessBuffer;
+	WgpBuffer m_uniformMaterial, m_instanceBuffer;
 };
