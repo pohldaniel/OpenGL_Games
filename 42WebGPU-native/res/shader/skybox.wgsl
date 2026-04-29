@@ -31,7 +31,7 @@ fn vs_main(in: VertexInput) -> VertexOutput {
   copy[3][2] = 0.0;
 
   out.position = (uniforms.projection * uniforms.env * vec4(in.position, 1.0));
-  out.position.z = out.position.w - 0.001;
+  out.position.z = out.position.w;
   out.fragmentPosition = 0.5 * (vec4(in.position, 1.0) + vec4(1.0, 1.0, 1.0, 1.0));
   return out;
 }

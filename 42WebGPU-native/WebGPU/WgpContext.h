@@ -79,6 +79,7 @@ struct WgpContext {
 		uint32_t msaaSampleCount = 1u, 
 		WGPUPrimitiveTopology primitiveTopology = WGPUPrimitiveTopology::WGPUPrimitiveTopology_TriangleList,
 		WGPUTextureFormat colorTextureFormat = WGPUTextureFormat::WGPUTextureFormat_Undefined,
+		WGPUCompareFunction compareFunction = WGPUCompareFunction::WGPUCompareFunction_Less,
 		bool addDepthStencilState = true,
 		bool addBlendState = true);
 
