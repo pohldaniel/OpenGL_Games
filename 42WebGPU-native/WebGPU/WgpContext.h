@@ -79,9 +79,11 @@ struct WgpContext {
 		uint32_t msaaSampleCount = 1u, 
 		WGPUPrimitiveTopology primitiveTopology = WGPUPrimitiveTopology::WGPUPrimitiveTopology_TriangleList,
 		WGPUTextureFormat colorTextureFormat = WGPUTextureFormat::WGPUTextureFormat_Undefined,
-		WGPUCompareFunction compareFunction = WGPUCompareFunction::WGPUCompareFunction_Less,
+		WGPUTextureFormat depthTextureFormat = WGPUTextureFormat::WGPUTextureFormat_Undefined,
+		WGPUCompareFunction depthCompareFunction = WGPUCompareFunction::WGPUCompareFunction_Less,
 		bool addDepthStencilState = true,
-		bool addBlendState = true);
+		bool addBlendState = true,
+		bool addFragmentState = true);
 
 	void createVertexBufferLayout(VertexLayoutSlot slot = VL_PTN);
 	void addSampler(const WGPUSampler& sampler, SamplerSlot samplerSlot);

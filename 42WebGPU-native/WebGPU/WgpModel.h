@@ -26,6 +26,7 @@ public:
 
 	void setBindGroupsSlot(const std::string& bindGroupsSlot);
 	void setBindGroups(std::string bindGroupsName, const std::function <std::vector<WGPUBindGroup>()>& onBindGroups);
+	void addBindGroups(std::string bindGroupsName, const std::function <std::vector<WGPUBindGroup>()>& onBindGroups);
 
 	const std::list<WgpMesh>& getMeshes() const;
 

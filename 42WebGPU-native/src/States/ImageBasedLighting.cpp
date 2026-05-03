@@ -66,7 +66,11 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 		4u,
 		WGPUPrimitiveTopology_TriangleList,
 		WGPUTextureFormat_Undefined,
-		WGPUCompareFunction_LessEqual
+		WGPUTextureFormat_Undefined,
+		WGPUCompareFunction_LessEqual,
+		true,
+		false,
+		true
 	);
 
 	wgpContext.addSahderModule("IRRADIANCE", "res/shader/irradiance.wgsl");
@@ -75,9 +79,11 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 		1u, 
 		WGPUPrimitiveTopology_TriangleList,
 		WGPUTextureFormat_RGBA16Float,
+		WGPUTextureFormat_Undefined,
 		WGPUCompareFunction_Less,
 		false,
-		false);
+		false,
+		true);
 
 	wgpContext.addSahderModule("CUBE", "res/shader/cube_map.wgsl");
 	wgpContext.createRenderPipeline("CUBE", "RP_CUBE", VL_P,
@@ -85,9 +91,11 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 		1u,
 		WGPUPrimitiveTopology_TriangleList,
 		WGPUTextureFormat_RGBA16Float,
+		WGPUTextureFormat_Undefined,
 		WGPUCompareFunction_Less,
 		false,
-		false);
+		false,
+		true);
 
 	wgpContext.addSahderModule("PREFILTER", "res/shader/prefilter.wgsl");
 	wgpContext.createRenderPipeline("PREFILTER", "RP_PREFILTER", VL_P,
@@ -95,9 +103,11 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 		1u,
 		WGPUPrimitiveTopology_TriangleList,
 		WGPUTextureFormat_RGBA16Float,
+		WGPUTextureFormat_Undefined,
 		WGPUCompareFunction_Less,
 		false,
-		false);
+		false,
+		true);
 
 	wgpContext.addSahderModule("BRDF", "res/shader/brdf.wgsl");
 	wgpContext.createRenderPipeline("BRDF", "RP_BRDF", VL_PT,
@@ -105,17 +115,19 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 		1u, 
 		WGPUPrimitiveTopology_TriangleList, 
 		WGPUTextureFormat_RG16Float,
+		WGPUTextureFormat_Undefined,
 		WGPUCompareFunction_Less,
 		false,
-		false);
+		false,
+		true);
 
 	m_wgpCube.create(m_cube);
 	m_wgpQuad.create(m_quad);
 	m_wgpSpherePBR.create(m_spherePBR);
 	m_wgpHelmet.create(m_helmet);
 
-	lightProjection = Matrix4f::Orthographic(-20.0f, 20.0f, -20.0f, 20.0f, 0.0f, 100.0f);
-	lightView = Matrix4f::LookAt(Vector3f(0.25f, 0.5f, 1.0f), Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_lightProjection = Matrix4f::Orthographic(-20.0f, 20.0f, -20.0f, 20.0f, 0.0f, 100.0f);
+	m_lightView = Matrix4f::LookAt(Vector3f(0.25f, 0.5f, 1.0f), Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
 
 	m_uniforms.projection = m_camera.getPerspectiveMatrix();
 	m_uniforms.view = m_camera.getViewMatrix();
@@ -124,7 +136,7 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 	m_uniforms.normal = Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_uniforms.model);
 	m_uniforms.color = { 1.0f, 1.0f, 1.0f, 1.0f };
 	m_uniforms.camPosition = m_camera.getPosition();
-	m_uniforms.lightVP = lightProjection * lightView;
+	m_uniforms.lightVP = m_lightProjection * m_lightView;
 	m_uniforms.shadow = Matrix4f::BIAS * m_uniforms.lightVP;
 	m_uniforms.lightPosition = Vector3f(0.25f, 0.5f, 1.0f);
 	
@@ -255,8 +267,8 @@ void ImageBasedLighting::update() {
 	//m_uniforms.model = Matrix4f::IDENTITY;
 	m_uniforms.normal = Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_uniforms.model);
 	m_uniforms.camPosition = m_camera.getPosition();
-	m_uniforms.lightVP = lightProjection * lightView;
-	m_uniforms.shadow = Matrix4f::BIAS_SHIFT_Z * m_uniforms.lightVP;
+	m_uniforms.lightVP = m_lightProjection * m_lightView;
+	m_uniforms.shadow = Matrix4f::BIAS * m_uniforms.lightVP;
 	
 }
 
@@ -994,14 +1006,12 @@ std::vector<WGPUBindGroup> ImageBasedLighting::OnBindGroupsSkyboxHelmet() {
 void ImageBasedLighting::OnDrawIrradiance(const WGPURenderPassEncoder& renderPassEncoder, uint32_t layer, uint32_t mip) {
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformMVPBuffer.getBuffer(), 0u, &m_mvpInvCube[layer], 64u);
 	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_IRRADIANCE"));
-	wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_wgpCube.getMeshes().back().getBindGroups("IRRADIANCE")[0], 0u, NULL);
 	m_wgpCube.draw(renderPassEncoder);
 }
 
 void ImageBasedLighting::OnDrawCube(const WGPURenderPassEncoder& renderPassEncoder, uint32_t layer, uint32_t mip) {
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformMVPBuffer.getBuffer(), 0u, &m_mvpCube[layer], 64u);
 	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_CUBE"));
-	wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_wgpCube.getMeshes().back().getBindGroups("CUBE")[0], 0u, NULL);
 	m_wgpCube.draw(renderPassEncoder);
 }
 
@@ -1010,7 +1020,6 @@ void ImageBasedLighting::OnDrawPrefilter(const WGPURenderPassEncoder& renderPass
 	wgpuQueueWriteBuffer(wgpContext.queue, m_roughnessBuffer.getBuffer(), 0, &roughness_val, sizeof(float));
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformMVPBuffer.getBuffer(), 0u, &m_mvpInvCube[layer], 64u);
 	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_PREFILTER"));
-	wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_wgpCube.getMeshes().back().getBindGroups("PREFILTER")[0], 0u, NULL);
 	m_wgpCube.draw(renderPassEncoder);
 }
 

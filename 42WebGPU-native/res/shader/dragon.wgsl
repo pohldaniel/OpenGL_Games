@@ -1,5 +1,6 @@
 struct VertexInput {
 	@location(0) position: vec3f,
+	@location(1) normal: vec3f
 };
 
 struct VertexOutput {
@@ -21,7 +22,7 @@ struct Uniforms {
 @vertex
 fn vs_main(in: VertexInput) -> VertexOutput {
 	var out: VertexOutput;
-	out.position = uniforms.projection * uniforms.view * vec4f(in.position, 1.0);
+	out.position = uniforms.projection * uniforms.view * uniforms.model * vec4f(in.position, 1.0);
 	return out;
 }
 

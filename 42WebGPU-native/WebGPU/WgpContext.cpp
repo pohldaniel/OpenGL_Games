@@ -195,6 +195,7 @@ bool wgpCreateDevice(void* window) {
 
 	wgpCreateVertexBufferLayout(VL_P);
 	wgpCreateVertexBufferLayout(VL_PT);
+	wgpCreateVertexBufferLayout(VL_PN);
 	wgpCreateVertexBufferLayout(VL_PTN);
 	wgpCreateVertexBufferLayout(VL_PTNC);
 	wgpCreateVertexBufferLayout(VL_PTNTB);
@@ -374,7 +375,24 @@ void wgpCreateVertexBufferLayout(VertexLayoutSlot slot) {
 		wgpVertexBufferLayout.arrayStride = 5 * sizeof(float);
 		wgpVertexBufferLayout.stepMode = WGPUVertexStepMode::WGPUVertexStepMode_Vertex;
 		wgpVertexBufferLayouts.emplace(VL_PT, wgpVertexBufferLayout);
+	}else if (wgpVertexBufferLayouts.count(VL_PN) == 0 && slot == VL_PN) {
+		std::vector<WGPUVertexAttribute>& wgpVertexAttribute = wgpVertexAttributes[VL_PN];
+		wgpVertexAttribute.resize(2);
 
+		wgpVertexAttribute[0].shaderLocation = 0;
+		wgpVertexAttribute[0].format = WGPUVertexFormat::WGPUVertexFormat_Float32x3;
+		wgpVertexAttribute[0].offset = 0;
+
+		wgpVertexAttribute[1].shaderLocation = 1;
+		wgpVertexAttribute[1].format = WGPUVertexFormat::WGPUVertexFormat_Float32x3;
+		wgpVertexAttribute[1].offset = 3 * sizeof(float);
+
+		WGPUVertexBufferLayout wgpVertexBufferLayout = {};
+		wgpVertexBufferLayout.attributeCount = (uint32_t)wgpVertexAttribute.size();
+		wgpVertexBufferLayout.attributes = wgpVertexAttribute.data();
+		wgpVertexBufferLayout.arrayStride = 6 * sizeof(float);
+		wgpVertexBufferLayout.stepMode = WGPUVertexStepMode::WGPUVertexStepMode_Vertex;
+		wgpVertexBufferLayouts.emplace(VL_PN, wgpVertexBufferLayout);
 	}else if (wgpVertexBufferLayouts.count(VL_PTN) == 0 && slot == VL_PTN) {
 		std::vector<WGPUVertexAttribute>& wgpVertexAttribute = wgpVertexAttributes[VL_PTN];
 		wgpVertexAttribute.resize(3);
@@ -771,9 +789,11 @@ void WgpContext::createRenderPipeline(std::string shaderModuleName,
 	uint32_t msaaSampleCount, 
 	WGPUPrimitiveTopology primitiveTopology,
 	WGPUTextureFormat colorTextureFormat,
-	WGPUCompareFunction compareFunction,
+	WGPUTextureFormat depthTextureFormat,
+	WGPUCompareFunction depthCompareFunction,
 	bool addDepthStencilState,
-	bool addBlendState) {
+	bool addBlendState,
+	bool addFragmentState) {
 
 	if (onBindGroupLayouts) {
 		std::vector<WGPUBindGroupLayout> bindGroupLayouts = onBindGroupLayouts();
@@ -814,9 +834,9 @@ void WgpContext::createRenderPipeline(std::string shaderModuleName,
 
 	WGPUDepthStencilState depthStencilState = {};
 	setDefault(depthStencilState);
-	depthStencilState.depthCompare = compareFunction;
+	depthStencilState.depthCompare = depthCompareFunction;
 	depthStencilState.depthWriteEnabled = WGPUOptionalBool::WGPUOptionalBool_True;
-	depthStencilState.format = depthformat;
+	depthStencilState.format = depthTextureFormat == WGPUTextureFormat_Undefined ? depthformat : depthTextureFormat;
 	depthStencilState.stencilReadMask = 0u;
 	depthStencilState.stencilWriteMask = 0u;
 
@@ -827,7 +847,7 @@ void WgpContext::createRenderPipeline(std::string shaderModuleName,
 	renderPipelineDescriptor.multisample.alphaToCoverageEnabled = WGPUOptionalBool::WGPUOptionalBool_False;
 
 	renderPipelineDescriptor.vertex = vertexState;
-	renderPipelineDescriptor.fragment = &fragmentState;
+	renderPipelineDescriptor.fragment = addFragmentState ? &fragmentState : NULL;
 	renderPipelineDescriptor.depthStencil = addDepthStencilState ? &depthStencilState : NULL;
 
 	renderPipelineDescriptor.primitive.topology = primitiveTopology;

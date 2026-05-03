@@ -82,7 +82,7 @@ private:
 	Matrix4f m_mvpInvCube[6];
 	Matrix4f m_mvpCube[6];
 	MaterialUniforms m_material;
-	Matrix4f lightProjection, lightView, shadow;
+	Matrix4f m_lightProjection, m_lightView;
 	Scene m_scene = Scene::HELMET;
 
 	WgpModel m_wgpHelmet, m_wgpCube, m_wgpSphere, m_wgpSpherePBR, m_wgpQuad;

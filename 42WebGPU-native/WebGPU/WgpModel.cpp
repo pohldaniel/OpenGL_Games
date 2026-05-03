@@ -58,6 +58,12 @@ void WgpModel::setBindGroups(std::string bindGroupsName, const std::function <st
 	}
 }
 
+void WgpModel::addBindGroups(std::string bindGroupsName, const std::function <std::vector<WGPUBindGroup>()>& onBindGroups) {
+	for (WgpMesh& mesh : m_meshes) {
+		mesh.addBindGroups(bindGroupsName, onBindGroups);
+	}
+}
+
 const std::list<WgpMesh>& WgpModel::getMeshes() const{
 	return m_meshes;
 }

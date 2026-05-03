@@ -90,6 +90,10 @@ void WgpMesh::setBindGroups(std::string bindGroupsName, const std::function<std:
 	m_bindGroupsSlot = bindGroupsName;
 }
 
+void WgpMesh::addBindGroups(std::string bindGroupsName, const std::function<std::vector<WGPUBindGroup>()>& onBindGroups) {
+	m_bindGroups[bindGroupsName] = onBindGroups();
+}
+
 void WgpMesh::addBindGroup(std::string bindGroupsName, WGPUBindGroup bindGroup) const {
 	m_bindGroups[bindGroupsName].push_back(bindGroup);
 }

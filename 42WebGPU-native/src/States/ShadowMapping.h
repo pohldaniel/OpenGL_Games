@@ -36,6 +36,8 @@ private:
 
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayouts();
 	std::vector<WGPUBindGroup> OnBindGroups();
+	std::vector<WGPUBindGroup> OnBindGroupsShadow();
+	void OnDrawShadow(const WGPURenderPassEncoder& renderPassEncoder);
 
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 
@@ -45,8 +47,10 @@ private:
 	Camera m_camera;
 	Uniforms m_uniforms;
 	AssimpModel m_dragon;
+	Shape m_quad;
+	Matrix4f m_lightProjection, m_lightView, m_shadow;
 
-
-	WgpModel m_wgpDragon;
+	WgpModel m_wgpDragon, m_wgpQuad;
 	WgpBuffer m_uniformBuffer;
+	WgpTexture m_wgpTextureShadow;
 };
