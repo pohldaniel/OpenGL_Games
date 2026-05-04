@@ -13,7 +13,8 @@ WgpModel::WgpModel(WgpModel&& rhs) noexcept : m_meshes(rhs.m_meshes) {
 }
 
 void WgpModel::create(const ObjModel& model) {
-	for (const ObjMesh* mesh : model.getMeshes()) {
+	for (const Mesh* _mesh : model.getMeshes()) {
+		const ObjMesh* mesh = static_cast<const ObjMesh*>(_mesh);
 		if (mesh->hasMaterial() &&  mesh->getMaterial().hasTexture(TextureSlot::TEXTURE_DIFFUSE))
 			m_meshes.push_back(WgpMesh(mesh->getVertexBuffer(), mesh->getIndexBuffer(), mesh->getMaterial().getTextures().at(TextureSlot::TEXTURE_DIFFUSE)));
 		else
@@ -23,7 +24,8 @@ void WgpModel::create(const ObjModel& model) {
 }
 
 void WgpModel::create(const AssimpModel& model) {
-	for (const AssimpMesh* mesh : model.getMeshes()) {
+	for (const Mesh* _mesh : model.getMeshes()) {
+		const AssimpMesh* mesh = static_cast<const AssimpMesh*>(_mesh);
 		if (mesh->getEmbeddedTextures().count(TextureSlot::TEXTURE_DIFFUSE)) {
 			m_meshes.push_back(WgpMesh(mesh->getVertexBuffer(), mesh->getIndexBuffer(), mesh->getEmbeddedTextures().at(TextureSlot::TEXTURE_DIFFUSE)));
 			mesh->removeEmbeddedTexture(TextureSlot::TEXTURE_DIFFUSE);

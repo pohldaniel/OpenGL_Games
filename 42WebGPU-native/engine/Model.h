@@ -12,6 +12,7 @@ enum ModelColor {
 	MC_POSITION
 };
 
+class Mesh;
 class Model {
 
 public:
@@ -23,4 +24,16 @@ protected:
 
 	void static GenerateColors(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, unsigned int& stride, unsigned int startIndex, unsigned int endIndex, ModelColor modelColor);
 	void static PackBuffer(std::vector<float>& vertexBuffer, unsigned int stride);
+	void static Rewind(const std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, unsigned int stride);
+
+	void static GenerateNormals(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, Model& model, bool& hasNormals, unsigned int& stride, unsigned int startIndex, unsigned int endIndex);
+	void static GenerateNormals(std::vector<float>& vertexCoords, std::vector<std::array<int, 10>>& face, std::vector<float>& normalCoords);
+
+	std::vector<Mesh*> m_meshes;
+
+private:
+
+	static std::array<float, 3> Normalize(const std::array<float, 3>& v);
+	static std::array<float, 3> Cross(const std::array<float, 3>& p, const std::array<float, 3>& q);
+	static float Dot(const std::array<float, 3>& p, const std::array<float, 3>& q);
 };

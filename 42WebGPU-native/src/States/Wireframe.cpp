@@ -29,7 +29,7 @@ Wireframe::Wireframe(StateMachine& machine) : State(machine, States::WIREFRAME) 
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(10.0f);
 
-	m_mammoth.loadModel("res/models/mammoth.obj");
+	m_mammoth.loadModel("res/models/mammoth/mammoth.obj");
 	m_mammoth.generateColors(ModelColor::MC_POSITION);
 
 	m_wgpMammoth.create(m_mammoth);	

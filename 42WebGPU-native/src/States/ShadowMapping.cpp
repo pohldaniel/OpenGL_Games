@@ -22,21 +22,23 @@ ShadowMapping::ShadowMapping(StateMachine& machine) : State(machine, States::SHA
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 	m_camera.lookAt(Vector3f(0.0f, 50.0f, -100.0f), Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
-	m_camera.setMovingSpeed(10.0f);
+	m_camera.setMovingSpeed(50.0f);
 
-	m_dragon.loadModel("res/models/dragon_vrip_res4.ply", Vector3f(0.0f, 1.0f, 0.0f), 0.0f, Vector3f(0.0f, 0.0f, 0.0f), 500.0f, false, true);
+	m_dragon.loadModel("res/models/dragon_vrip_res4.ply", Vector3f(0.0f, 1.0f, 0.0f), 0.0f, Vector3f(0.0f, 0.0f, 0.0f), 500.0f);
+	m_dragon.generateNormals();
 	m_quad.buildQuadXZ({ -100.0f, 20.0f, -100.0f }, { 200.0f, 200.0f }, 1u, 1u, false, true);
 
 	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 
-	wgpContext.setClearColor({ 0.1f, 0.2f, 0.3f, 1.0f });
-	wgpContext.addSahderModule("DRAGON", "res/shader/dragon.wgsl");
+	wgpContext.addSampler(wgpCreateSampler(WGPUFilterMode_Nearest, WGPUAddressMode_ClampToEdge, 1u, WGPUMipmapFilterMode_Nearest, WGPUCompareFunction_Less), SS_0);
+	wgpContext.setClearColor({ 0.5f, 0.5f, 0.5f, 1.0f });
+	wgpContext.addSahderModule("DRAGON", "res/shader/shadow_base.wgsl");
 	wgpContext.createRenderPipeline("DRAGON", "RP_COLOR", VL_PN, std::bind(&ShadowMapping::OnBindGroupLayouts, this));
 
 	wgpContext.addSahderModule("SHADOW", "res/shader/shadow.wgsl");
 	wgpContext.createRenderPipeline("SHADOW", "RP_SHADOW", 
 		VL_PN, 
-		std::bind(&ShadowMapping::OnBindGroupLayouts, this),
+		std::bind(&ShadowMapping::OnBindGroupLayoutsShadow, this),
 		1u, 
 		WGPUPrimitiveTopology_TriangleList,
 		WGPUTextureFormat_Undefined,
@@ -59,7 +61,7 @@ ShadowMapping::ShadowMapping(StateMachine& machine) : State(machine, States::SHA
 	m_uniforms.camPosition = m_camera.getPosition();
 	m_uniforms.lightVP = Matrix4f::IDENTITY;
 	m_uniforms.shadow = Matrix4f::BIAS * m_uniforms.lightVP;
-	m_uniforms.lightPosition = Vector3f(0.25f, 0.5f, 1.0f);
+	m_uniforms.lightPosition = Vector3f(50.0f, 100.0f, -100.0f);
 	
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
 
@@ -80,6 +82,7 @@ ShadowMapping::~ShadowMapping() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 	m_uniformBuffer.markForDelete();
+	m_wgpTextureShadow.markForDelete();
 }
 
 void ShadowMapping::fixedUpdate() {
@@ -140,15 +143,19 @@ void ShadowMapping::update() {
 			m_camera.move(direction * m_dt);
 		}
 	}
+	Vector3f position = m_camera.getPosition();
+
+	Vector3f::RotateY(position, m_dt * 180.0f);
+	m_camera.setPosition(position, true);
 
 	m_uniforms.projection = m_camera.getPerspectiveMatrix();
 	m_uniforms.view = m_camera.getViewMatrix();
 	m_uniforms.env = m_camera.getRotationMatrix();
 	m_uniforms.model = Matrix4f::Translate(0.0f, -45.0f, 0.0f);
 	m_uniforms.normal = Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_uniforms.model);
-	m_uniforms.camPosition = m_camera.getPosition();
-	//m_uniforms.lightVP = m_lightProjection * m_lightView;
-	//m_uniforms.shadow = Matrix4f::BIAS * m_uniforms.lightVP;
+	m_uniforms.camPosition = position;
+	m_uniforms.lightVP = m_lightProjection * m_lightView;
+	m_uniforms.shadow = Matrix4f::BIAS * m_uniforms.lightVP;
 }
 
 void ShadowMapping::render() {
@@ -268,11 +275,20 @@ void ShadowMapping::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 std::vector<WGPUBindGroupLayout> ShadowMapping::OnBindGroupLayouts() {
 	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
 
-	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(1);
+	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(3);
 	bindingLayoutEntries[0].binding = 0u;
-	bindingLayoutEntries[0].visibility = WGPUShaderStage_Vertex;
+	bindingLayoutEntries[0].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
 	bindingLayoutEntries[0].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
 	bindingLayoutEntries[0].buffer.minBindingSize = sizeof(Uniforms);
+
+	bindingLayoutEntries[1].binding = 1u;
+	bindingLayoutEntries[1].visibility = WGPUShaderStage_Fragment;
+	bindingLayoutEntries[1].texture.viewDimension = WGPUTextureViewDimension_2D;
+	bindingLayoutEntries[1].texture.sampleType = WGPUTextureSampleType_Depth;
+
+	bindingLayoutEntries[2].binding = 2u;
+	bindingLayoutEntries[2].visibility = WGPUShaderStage_Fragment;
+	bindingLayoutEntries[2].sampler.type = WGPUSamplerBindingType_Comparison;
 
 	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
 	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
@@ -286,11 +302,17 @@ std::vector<WGPUBindGroupLayout> ShadowMapping::OnBindGroupLayouts() {
 std::vector<WGPUBindGroup> ShadowMapping::OnBindGroups() {
 	std::vector<WGPUBindGroup> bindGroups(1);
 
-	std::vector<WGPUBindGroupEntry> bindGroupEntries(1);
+	std::vector<WGPUBindGroupEntry> bindGroupEntries(3);
 	bindGroupEntries[0].binding = 0u;
 	bindGroupEntries[0].buffer = m_uniformBuffer.getBuffer();
 	bindGroupEntries[0].offset = 0u;
 	bindGroupEntries[0].size = sizeof(Uniforms);
+
+	bindGroupEntries[1].binding = 1u;
+	bindGroupEntries[1].textureView = m_wgpTextureShadow.getTextureView();
+
+	bindGroupEntries[2].binding = 2u;
+	bindGroupEntries[2].sampler = wgpContext.getSampler(SS_0);
 
 	WGPUBindGroupDescriptor bindGroupDesc = {};
 	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_COLOR"), 0u);
@@ -300,6 +322,24 @@ std::vector<WGPUBindGroup> ShadowMapping::OnBindGroups() {
 	bindGroups[0] = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
 
 	return bindGroups;
+}
+
+std::vector<WGPUBindGroupLayout> ShadowMapping::OnBindGroupLayoutsShadow() {
+	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
+
+	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(1);
+	bindingLayoutEntries[0].binding = 0u;
+	bindingLayoutEntries[0].visibility = WGPUShaderStage_Vertex;
+	bindingLayoutEntries[0].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
+	bindingLayoutEntries[0].buffer.minBindingSize = sizeof(Uniforms);
+
+	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
+	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
+	bindGroupLayoutDescriptor.entries = bindingLayoutEntries.data();
+
+	bindingLayouts[0] = wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor);
+
+	return bindingLayouts;
 }
 
 std::vector<WGPUBindGroup> ShadowMapping::OnBindGroupsShadow() {

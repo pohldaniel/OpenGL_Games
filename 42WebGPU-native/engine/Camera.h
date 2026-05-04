@@ -89,8 +89,8 @@ public:
 	const float getDistanceSq() const;
 	//const float getYawDeg() const;
 
-	void setPosition(float x, float y, float z);
-	void setPosition(const Vector3f &position);
+	void setPosition(float x, float y, float z, bool observe = false);
+	void setPosition(const Vector3f &position, bool observe = false);
 	void setPositionX(float x);
 	void setPositionY(float y);
 	void setPositionZ(float z);
@@ -117,6 +117,7 @@ protected:
     void rotateFirstPerson(float yaw, float pitch);
 	void updateViewMatrix();
 	void orthogonalize();
+	void fillRotationPart();
 
     Vector3f WORLD_XAXIS;
 	Vector3f WORLD_YAXIS;

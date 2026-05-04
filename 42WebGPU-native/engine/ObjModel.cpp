@@ -101,7 +101,7 @@ void ObjModel::cleanup() {
 	m_indexBuffer.clear();
 	m_indexBuffer.shrink_to_fit();
 
-	for (ObjMesh* mesh : m_meshes) {
+	for (Mesh* mesh : m_meshes) {
 		delete mesh;
 	}
 	m_meshes.clear();
@@ -526,14 +526,16 @@ void ObjModel::loadModelCpu(const char* _filename, const Vector3f& axis, float d
 	for (; iterDup != dup.end(); iterDup++) {
 
 		if (name.empty()) {
-			m_meshes.push_back(new ObjMesh(iterDup->second, this));
+			m_meshes.push_back(new ObjMesh(this));
+			m_meshes.back()->m_numberOfTriangles = iterDup->second;
 		}else {
 
 			std::map<std::string, int >::const_iterator iterName = name.begin();
 			for (; iterName != name.end(); iterName++) {
 
 				if (iterDup->first == iterName->second) {
-					m_meshes.push_back(new ObjMesh(iterName->first, iterDup->second, this));
+					m_meshes.push_back(new ObjMesh(this, iterName->first));
+					m_meshes.back()->m_numberOfTriangles = iterDup->second;
 					if (m_meshes.size() > 1) {
 						m_meshes[m_meshes.size() - 1]->m_triangleOffset = m_meshes[m_meshes.size() - 2]->m_numberOfTriangles + m_meshes[m_meshes.size() - 2]->m_triangleOffset;
 					}
@@ -555,55 +557,56 @@ void ObjModel::loadModelCpu(const char* _filename, const Vector3f& axis, float d
 	indexBufferCreator.tangentCoordsIn = tangentCoords;
 	indexBufferCreator.bitangentCoordsIn = bitangentCoords;
 
-	for (int j = 0; j < m_numberOfMeshes; j++) {
-		std::vector<std::array<int, 10>>::const_iterator first = face.begin() + m_meshes[j]->m_triangleOffset;
-		std::vector<std::array<int, 10>>::const_iterator last = face.begin() + (m_meshes[j]->m_triangleOffset + m_meshes[j]->m_numberOfTriangles);
+	for (Mesh* _mesh : m_meshes) {
+		ObjMesh* mesh = static_cast<ObjMesh*>(_mesh);
+		std::vector<std::array<int, 10>>::const_iterator first = face.begin() + mesh->m_triangleOffset;
+		std::vector<std::array<int, 10>>::const_iterator last = face.begin() + (mesh->m_triangleOffset + mesh->m_numberOfTriangles);
 		std::vector<std::array<int, 10>> subFace(first, last);
 		indexBufferCreator.face = subFace;
 		indexBufferCreator.createIndexBuffer(flipWinding || flipYZ);
 		if (!tangentCoords.empty()) {
 			m_hasTextureCoords = true; m_hasNormals = true; m_hasTangents = true;
 			m_stride = 14;
-			m_meshes[j]->m_hasTextureCoords = true; m_meshes[j]->m_hasNormals = true; m_meshes[j]->m_hasTangents = true;
-			m_meshes[j]->m_stride = 14;
+			mesh->m_hasTextureCoords = true; mesh->m_hasNormals = true; mesh->m_hasTangents = true;
+			mesh->m_stride = 14;
 		} else if (!textureCoords.empty() && !normalCoords.empty()) {
 			m_hasTextureCoords = true; m_hasNormals = true;
 			m_stride = 8;
-			m_meshes[j]->m_hasTextureCoords = true; m_meshes[j]->m_hasNormals = true;
-			m_meshes[j]->m_stride = 8;
+			mesh->m_hasTextureCoords = true; mesh->m_hasNormals = true;
+			mesh->m_stride = 8;
 
 		}else if (!normalCoords.empty()) {
 			m_hasNormals = true;
 			m_stride = 6;
-			m_meshes[j]->m_hasNormals = true;
-			m_meshes[j]->m_stride = 6;
+			mesh->m_hasNormals = true;
+			mesh->m_stride = 6;
 
 		}else if (!textureCoords.empty()) {
 			m_hasTextureCoords = true;
 			m_stride = 5;
-			m_meshes[j]->m_hasTextureCoords = true;
-			m_meshes[j]->m_stride = 5;
+			mesh->m_hasTextureCoords = true;
+			mesh->m_stride = 5;
 
 		}else {
 			m_stride = 3;
-			m_meshes[j]->m_stride = 3;
+			mesh->m_stride = 3;
 		}
 
 		if (m_hasMaterial) {
-			ObjModel::ReadMaterialFromFile(getModelDirectory() + "/", getMltPath(), m_meshes[j]->m_mltName, m_meshes[j]->m_materialIndex);
+			ObjModel::ReadMaterialFromFile(getModelDirectory() + "/", getMltPath(), mesh->m_mltName, mesh->m_materialIndex);
 		}
 
 		if (!m_isStacked) {
-			m_meshes[j]->m_indexBuffer = indexBufferCreator.indexBufferOut;
-			m_meshes[j]->m_vertexBuffer = indexBufferCreator.vertexBufferOut;
-			m_meshes[j]->m_drawCount = indexBufferCreator.indexBufferOut.size();
-			m_drawCount += m_meshes[j]->m_indexBuffer.size();
+			mesh->m_indexBuffer = indexBufferCreator.indexBufferOut;
+			mesh->m_vertexBuffer = indexBufferCreator.vertexBufferOut;
+			mesh->m_drawCount = indexBufferCreator.indexBufferOut.size();
+			m_drawCount += mesh->m_indexBuffer.size();
 
 		}else {
 			
-			m_meshes[j]->m_baseIndex = m_indexBuffer.size();
-			m_meshes[j]->m_baseVertex = m_vertexBuffer.size() / m_stride;
-			m_meshes[j]->m_drawCount = indexBufferCreator.indexBufferOut.size();
+			mesh->m_baseIndex = m_indexBuffer.size();
+			mesh->m_baseVertex = m_vertexBuffer.size() / m_stride;
+			mesh->m_drawCount = indexBufferCreator.indexBufferOut.size();
 
 			m_vertexBuffer.insert(m_vertexBuffer.end(), indexBufferCreator.vertexBufferOut.begin(), indexBufferCreator.vertexBufferOut.end());
 			m_indexBuffer.insert(m_indexBuffer.end(), indexBufferCreator.indexBufferOut.begin(), indexBufferCreator.indexBufferOut.end());
@@ -641,7 +644,7 @@ const Mesh* ObjModel::getMesh(unsigned short index) const {
 	return m_meshes[index];
 }
 
-const std::vector<ObjMesh*>& ObjModel::getMeshes() const {
+const std::vector<Mesh*>& ObjModel::getMeshes() const {
 	return m_meshes;
 }
 
@@ -660,11 +663,11 @@ const unsigned int ObjModel::getNumberOfTriangles() const {
 void ObjModel::generateNormals() {
 	if (m_isStacked) {
 		if (m_hasNormals) { return; }
-		ObjModel::GenerateNormals(m_vertexBuffer, m_indexBuffer, *this, m_hasNormals, m_stride, 0, m_meshes.size());
+		Model::GenerateNormals(m_vertexBuffer, m_indexBuffer, *this, m_hasNormals, m_stride, 0, m_meshes.size());
 	}else {
 		for (int j = 0; j < m_meshes.size(); j++) {
 			if (m_meshes[j]->m_hasNormals) continue;
-			ObjModel::GenerateNormals(m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_indexBuffer, *this, m_meshes[j]->m_hasNormals, m_meshes[j]->m_stride, j, j + 1);
+			Model::GenerateNormals(m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_indexBuffer, *this, m_meshes[j]->m_hasNormals, m_meshes[j]->m_stride, j, j + 1);
 		}
 	}
 }
@@ -683,10 +686,10 @@ void ObjModel::generateTangents() {
 
 void ObjModel::rewind() {
 	if (m_isStacked) {
-		ObjModel::Rewind(m_vertexBuffer, m_indexBuffer, m_stride);
+		Model::Rewind(m_vertexBuffer, m_indexBuffer, m_stride);
 	}else {
 		for (int j = 0; j < m_meshes.size(); j++) {
-			ObjModel::Rewind(m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_indexBuffer, m_meshes[j]->m_stride);
+			Model::Rewind(m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_indexBuffer, m_meshes[j]->m_stride);
 		}
 	}
 }
@@ -711,86 +714,51 @@ void ObjModel::packBuffer() {
 	}
 }
 
-void ObjModel::GenerateNormals(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, ObjModel& model, bool& hasNormals, unsigned int& stride, unsigned int startIndex, unsigned int endIndex) {
-	if (hasNormals) { return; }
-
-	std::vector<float> tmpVertex;
-	const unsigned int *pTriangle = 0;
-	float *pVertex0 = 0;
-	float *pVertex1 = 0;
-	float *pVertex2 = 0;
+void ObjModel::GenerateFlatNormals(std::vector<float>& vertexCoords, std::vector<std::array<int, 10>>& face, std::vector<float>& normalCoords) {
+	normalCoords.resize(vertexCoords.size());
+	float pVertex0[3] = { 0.0f, 0.0f, 0.0f };
+	float pVertex1[3] = { 0.0f, 0.0f, 0.0f };
+	float pVertex2[3] = { 0.0f, 0.0f, 0.0f };
 	float edge1[3] = { 0.0f, 0.0f, 0.0f };
 	float edge2[3] = { 0.0f, 0.0f, 0.0f };
 	float normal[3] = { 0.0f, 0.0f, 0.0f };
-	float length = 0.0f;
-	int vertexLength = stride == 5 ? 8 : 6;
-	int vertexOffset = stride == 5 ? 2 : 0;
+	float length;
 
-	for (int i = 0; i < vertexBuffer.size(); i++) {
-		tmpVertex.push_back(vertexBuffer[i]);
-		if ((i + 1) % stride == 0) {
+	for (unsigned int i = 0; i < face.size(); i++) {
 
-			tmpVertex.push_back(0.0);
-			tmpVertex.push_back(0.0);
-			tmpVertex.push_back(0.0);
-		}
+		pVertex0[0] = vertexCoords[((face[i])[0] - 1) * 3]; pVertex0[1] = vertexCoords[((face[i])[0] - 1) * 3 + 1]; pVertex0[2] = vertexCoords[((face[i])[0] - 1) * 3 + 2];
+		pVertex1[0] = vertexCoords[((face[i])[1] - 1) * 3]; pVertex1[1] = vertexCoords[((face[i])[1] - 1) * 3 + 1]; pVertex1[2] = vertexCoords[((face[i])[1] - 1) * 3 + 2];
+		pVertex2[0] = vertexCoords[((face[i])[2] - 1) * 3]; pVertex2[1] = vertexCoords[((face[i])[2] - 1) * 3 + 1]; pVertex2[2] = vertexCoords[((face[i])[2] - 1) * 3 + 2];
+
+		// Calculate triangle face normal.
+		edge1[0] = pVertex1[0] - pVertex0[0];
+		edge1[1] = pVertex1[1] - pVertex0[1];
+		edge1[2] = pVertex1[2] - pVertex0[2];
+
+		edge2[0] = pVertex2[0] - pVertex0[0];
+		edge2[1] = pVertex2[1] - pVertex0[1];
+		edge2[2] = pVertex2[2] - pVertex0[2];
+
+		normal[0] = (edge1[1] * edge2[2]) - (edge1[2] * edge2[1]);
+		normal[1] = (edge1[2] * edge2[0]) - (edge1[0] * edge2[2]);
+		normal[2] = (edge1[0] * edge2[1]) - (edge1[1] * edge2[0]);
+
+		length = 1.0f / sqrtf(normal[0] * normal[0] + normal[1] * normal[1] + normal[2] * normal[2]);
+
+		normalCoords[((face[i])[0] - 1) * 3] = normal[0] * length;
+		normalCoords[((face[i])[0] - 1) * 3 + 1] = normal[1] * length;
+		normalCoords[((face[i])[0] - 1) * 3 + 2] = normal[2] * length;
+
+		normalCoords[((face[i])[1] - 1) * 3] = normal[0] * length;
+		normalCoords[((face[i])[1] - 1) * 3 + 1] = normal[1] * length;
+		normalCoords[((face[i])[1] - 1) * 3 + 2] = normal[2] * length;
+
+		normalCoords[((face[i])[2] - 1) * 3] = normal[0] * length;
+		normalCoords[((face[i])[2] - 1) * 3 + 1] = normal[1] * length;
+		normalCoords[((face[i])[2] - 1) * 3 + 2] = normal[2] * length;
+
+		(face[i])[6] = (face[i])[0]; (face[i])[7] = (face[i])[1]; (face[i])[8] = (face[i])[2];
 	}
-	
-	for (int j = startIndex; j < endIndex; j++) {
-		for (int i = 0; i < model.m_meshes[j]->m_numberOfTriangles; i++) {
-
-			pTriangle = &indexBuffer[i * 3 + model.m_meshes[j]->m_baseIndex];
-
-			pVertex0 = &vertexBuffer[(pTriangle[0] + model.m_meshes[j]->m_baseVertex) * stride];
-			pVertex1 = &vertexBuffer[(pTriangle[1] + model.m_meshes[j]->m_baseVertex) * stride];
-			pVertex2 = &vertexBuffer[(pTriangle[2] + model.m_meshes[j]->m_baseVertex) * stride];
-
-			// Calculate triangle face normal.
-			edge1[0] = pVertex1[0] - pVertex0[0];
-			edge1[1] = pVertex1[1] - pVertex0[1];
-			edge1[2] = pVertex1[2] - pVertex0[2];
-
-			edge2[0] = pVertex2[0] - pVertex0[0];
-			edge2[1] = pVertex2[1] - pVertex0[1];
-			edge2[2] = pVertex2[2] - pVertex0[2];
-
-			normal[0] = (edge1[1] * edge2[2]) - (edge1[2] * edge2[1]);
-			normal[1] = (edge1[2] * edge2[0]) - (edge1[0] * edge2[2]);
-			normal[2] = (edge1[0] * edge2[1]) - (edge1[1] * edge2[0]);
-
-			// Accumulate the normals.
-			tmpVertex[(pTriangle[0] + model.m_meshes[j]->m_baseVertex) * vertexLength + 3 + vertexOffset] = tmpVertex[(pTriangle[0] + model.m_meshes[j]->m_baseVertex) * vertexLength + 3 + vertexOffset] + normal[0];
-			tmpVertex[(pTriangle[0] + model.m_meshes[j]->m_baseVertex) * vertexLength + 4 + vertexOffset] = tmpVertex[(pTriangle[0] + model.m_meshes[j]->m_baseVertex) * vertexLength + 4 + vertexOffset] + normal[1];
-			tmpVertex[(pTriangle[0] + model.m_meshes[j]->m_baseVertex) * vertexLength + 5 + vertexOffset] = tmpVertex[(pTriangle[0] + model.m_meshes[j]->m_baseVertex) * vertexLength + 5 + vertexOffset] + normal[2];
-
-			tmpVertex[(pTriangle[1] + model.m_meshes[j]->m_baseVertex) * vertexLength + 3 + vertexOffset] = tmpVertex[(pTriangle[1] + model.m_meshes[j]->m_baseVertex) * vertexLength + 3 + vertexOffset] + normal[0];
-			tmpVertex[(pTriangle[1] + model.m_meshes[j]->m_baseVertex) * vertexLength + 4 + vertexOffset] = tmpVertex[(pTriangle[1] + model.m_meshes[j]->m_baseVertex) * vertexLength + 4 + vertexOffset] + normal[1];
-			tmpVertex[(pTriangle[1] + model.m_meshes[j]->m_baseVertex) * vertexLength + 5 + vertexOffset] = tmpVertex[(pTriangle[1] + model.m_meshes[j]->m_baseVertex) * vertexLength + 5 + vertexOffset] + normal[2];
-
-			tmpVertex[(pTriangle[2] + model.m_meshes[j]->m_baseVertex) * vertexLength + 3 + vertexOffset] = tmpVertex[(pTriangle[2] + model.m_meshes[j]->m_baseVertex) * vertexLength + 3 + vertexOffset] + normal[0];
-			tmpVertex[(pTriangle[2] + model.m_meshes[j]->m_baseVertex) * vertexLength + 4 + vertexOffset] = tmpVertex[(pTriangle[2] + model.m_meshes[j]->m_baseVertex) * vertexLength + 4 + vertexOffset] + normal[1];
-			tmpVertex[(pTriangle[2] + model.m_meshes[j]->m_baseVertex) * vertexLength + 5 + vertexOffset] = tmpVertex[(pTriangle[2] + model.m_meshes[j]->m_baseVertex) * vertexLength + 5 + vertexOffset] + normal[2];
-		}
-	}
-
-	for (int i = 0; i < tmpVertex.size(); i = i + vertexLength) {
-
-		length = 1.0f / sqrtf(tmpVertex[i + 3 + vertexOffset] * tmpVertex[i + 3 + vertexOffset] +
-			tmpVertex[i + 4 + vertexOffset] * tmpVertex[i + 4 + vertexOffset] +
-			tmpVertex[i + 5 + vertexOffset] * tmpVertex[i + 5 + vertexOffset]);
-
-		tmpVertex[i + 3 + vertexOffset] *= length;
-		tmpVertex[i + 4 + vertexOffset] *= length;
-		tmpVertex[i + 5 + vertexOffset] *= length;
-	}
-
-	vertexBuffer.clear();
-	vertexBuffer.shrink_to_fit();
-	copy(tmpVertex.begin(), tmpVertex.end(), back_inserter(vertexBuffer));
-	tmpVertex.clear();	
-
-	stride = stride + 3;
-	hasNormals = true;
 }
 
 void ObjModel::GenerateTangents(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, ObjModel& model, bool& hasNormals, bool& hasTangents, unsigned int& stride, unsigned int startIndex, unsigned int endIndex) {
@@ -964,135 +932,6 @@ void ObjModel::GenerateTangents(std::vector<float>& vertexBuffer, std::vector<un
 
 	hasTangents = true;
 	stride = 14;
-}
-
-void ObjModel::Rewind(const std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, unsigned int stride) {
-	if(stride < 6)
-		return;
-
-	unsigned int offset = stride == 6 ? 3 : 5;
-
-	for (unsigned int i = 0; i < indexBuffer.size(); i = i + 3) {
-		Vector3f a = { vertexBuffer[indexBuffer[i] * stride], vertexBuffer[indexBuffer[i] * stride + 1], vertexBuffer[indexBuffer[i] * stride + 2] };
-		Vector3f b = { vertexBuffer[indexBuffer[i + 1] * stride], vertexBuffer[indexBuffer[i + 1] * stride + 1], vertexBuffer[indexBuffer[i + 1] * stride + 2] };
-		Vector3f c = { vertexBuffer[indexBuffer[i + 2] * stride], vertexBuffer[indexBuffer[i + 2] * stride + 1], vertexBuffer[indexBuffer[i + 2] * stride + 2] };
-		Vector3f ab = b - a;
-		Vector3f ac = c - a;
-		Vector3f faceNormal = Vector3f::Normalize(Vector3f::Cross(ab, ac));
-		Vector3f n1 = { vertexBuffer[indexBuffer[i] * stride + offset], vertexBuffer[indexBuffer[i] * stride + offset + 1u], vertexBuffer[indexBuffer[i] * stride + offset + 2u] };
-		Vector3f n2 = { vertexBuffer[indexBuffer[i + 1] * stride + offset], vertexBuffer[indexBuffer[i + 1] * stride + offset + 1u], vertexBuffer[indexBuffer[i + 1] * stride + offset + 2u] };
-		Vector3f n3 = { vertexBuffer[indexBuffer[i + 2] * stride + offset], vertexBuffer[indexBuffer[i + 2] * stride + offset + 1u], vertexBuffer[indexBuffer[i + 2] * stride + offset + 2u] };
-		Vector3f vertexNormal = Vector3f::Normalize(n1 + n2 + n3);
-
-		float dot = Vector3f::Dot(faceNormal, vertexNormal);
-
-		if (dot < 0.0f) {
-			unsigned int index2 = indexBuffer[i + 1];
-			indexBuffer[i + 1] = indexBuffer[i + 2];
-			indexBuffer[i + 2] = index2;
-		}
-	}
-}
-
-void ObjModel::GenerateNormals(std::vector<float>& vertexCoords, std::vector<std::array<int, 10>>& face, std::vector<float>& normalCoords) {
-	normalCoords.resize(vertexCoords.size());
-	float pVertex0[3] = { 0.0f, 0.0f, 0.0f };
-	float pVertex1[3] = { 0.0f, 0.0f, 0.0f };
-	float pVertex2[3] = { 0.0f, 0.0f, 0.0f };
-	float edge1[3] = { 0.0f, 0.0f, 0.0f };
-	float edge2[3] = { 0.0f, 0.0f, 0.0f };
-	float normal[3] = { 0.0f, 0.0f, 0.0f };
-	float length;
-
-	for (unsigned int i = 0; i < face.size(); i++) {
-
-		pVertex0[0] = vertexCoords[((face[i])[0] - 1) * 3]; pVertex0[1] = vertexCoords[((face[i])[0] - 1) * 3 + 1]; pVertex0[2] = vertexCoords[((face[i])[0] - 1) * 3 + 2];
-		pVertex1[0] = vertexCoords[((face[i])[1] - 1) * 3]; pVertex1[1] = vertexCoords[((face[i])[1] - 1) * 3 + 1]; pVertex1[2] = vertexCoords[((face[i])[1] - 1) * 3 + 2];
-		pVertex2[0] = vertexCoords[((face[i])[2] - 1) * 3]; pVertex2[1] = vertexCoords[((face[i])[2] - 1) * 3 + 1]; pVertex2[2] = vertexCoords[((face[i])[2] - 1) * 3 + 2];
-
-		// Calculate triangle face normal.
-		edge1[0] = pVertex1[0] - pVertex0[0];
-		edge1[1] = pVertex1[1] - pVertex0[1];
-		edge1[2] = pVertex1[2] - pVertex0[2];
-
-		edge2[0] = pVertex2[0] - pVertex0[0];
-		edge2[1] = pVertex2[1] - pVertex0[1];
-		edge2[2] = pVertex2[2] - pVertex0[2];
-
-		normal[0] = (edge1[1] * edge2[2]) - (edge1[2] * edge2[1]);
-		normal[1] = (edge1[2] * edge2[0]) - (edge1[0] * edge2[2]);
-		normal[2] = (edge1[0] * edge2[1]) - (edge1[1] * edge2[0]);
-
-		normalCoords[((face[i])[0] - 1) * 3] = normalCoords[((face[i])[0] - 1) * 3] + normal[0];
-		normalCoords[((face[i])[0] - 1) * 3 + 1] = normalCoords[((face[i])[0] - 1) * 3 + 1] + normal[1];
-		normalCoords[((face[i])[0] - 1) * 3 + 2] = normalCoords[((face[i])[0] - 1) * 3 + 2] + normal[2];
-
-		normalCoords[((face[i])[1] - 1) * 3] = normalCoords[((face[i])[1] - 1) * 3] + normal[0];
-		normalCoords[((face[i])[1] - 1) * 3 + 1] = normalCoords[((face[i])[1] - 1) * 3 + 1] + normal[1];
-		normalCoords[((face[i])[1] - 1) * 3 + 2] = normalCoords[((face[i])[1] - 1) * 3 + 2] + normal[2];
-
-		normalCoords[((face[i])[2] - 1) * 3] = normalCoords[((face[i])[2] - 1) * 3] + normal[0];
-		normalCoords[((face[i])[2] - 1) * 3 + 1] = normalCoords[((face[i])[2] - 1) * 3 + 1] + normal[1];
-		normalCoords[((face[i])[2] - 1) * 3 + 2] = normalCoords[((face[i])[2] - 1) * 3 + 2] + normal[2];
-
-		(face[i])[6] = (face[i])[0]; (face[i])[7] = (face[i])[1]; (face[i])[8] = (face[i])[2];
-	}
-
-	for (int i = 0; i < normalCoords.size(); i = i + 3) {
-
-		length = 1.0f / sqrtf(normalCoords[i] * normalCoords[i] + normalCoords[i + 1] * normalCoords[i + 1] + normalCoords[i + 2] * normalCoords[i + 2]);
-
-		normalCoords[i] *= length;
-		normalCoords[i + 1] *= length;
-		normalCoords[i + 2] *= length;
-	}
-}
-
-void ObjModel::GenerateFlatNormals(std::vector<float>& vertexCoords, std::vector<std::array<int, 10>>& face, std::vector<float>& normalCoords) {
-	normalCoords.resize(vertexCoords.size());
-	float pVertex0[3] = { 0.0f, 0.0f, 0.0f };
-	float pVertex1[3] = { 0.0f, 0.0f, 0.0f };
-	float pVertex2[3] = { 0.0f, 0.0f, 0.0f };
-	float edge1[3] = { 0.0f, 0.0f, 0.0f };
-	float edge2[3] = { 0.0f, 0.0f, 0.0f };
-	float normal[3] = { 0.0f, 0.0f, 0.0f };
-	float length;
-
-	for (unsigned int i = 0; i < face.size(); i++) {
-
-		pVertex0[0] = vertexCoords[((face[i])[0] - 1) * 3]; pVertex0[1] = vertexCoords[((face[i])[0] - 1) * 3 + 1]; pVertex0[2] = vertexCoords[((face[i])[0] - 1) * 3 + 2];
-		pVertex1[0] = vertexCoords[((face[i])[1] - 1) * 3]; pVertex1[1] = vertexCoords[((face[i])[1] - 1) * 3 + 1]; pVertex1[2] = vertexCoords[((face[i])[1] - 1) * 3 + 2];
-		pVertex2[0] = vertexCoords[((face[i])[2] - 1) * 3]; pVertex2[1] = vertexCoords[((face[i])[2] - 1) * 3 + 1]; pVertex2[2] = vertexCoords[((face[i])[2] - 1) * 3 + 2];
-
-		// Calculate triangle face normal.
-		edge1[0] = pVertex1[0] - pVertex0[0];
-		edge1[1] = pVertex1[1] - pVertex0[1];
-		edge1[2] = pVertex1[2] - pVertex0[2];
-
-		edge2[0] = pVertex2[0] - pVertex0[0];
-		edge2[1] = pVertex2[1] - pVertex0[1];
-		edge2[2] = pVertex2[2] - pVertex0[2];
-
-		normal[0] = (edge1[1] * edge2[2]) - (edge1[2] * edge2[1]);
-		normal[1] = (edge1[2] * edge2[0]) - (edge1[0] * edge2[2]);
-		normal[2] = (edge1[0] * edge2[1]) - (edge1[1] * edge2[0]);
-
-		length = 1.0f / sqrtf(normal[0] * normal[0] + normal[1] * normal[1] + normal[2] * normal[2]);
-
-		normalCoords[((face[i])[0] - 1) * 3] = normal[0] * length;
-		normalCoords[((face[i])[0] - 1) * 3 + 1] = normal[1] * length;
-		normalCoords[((face[i])[0] - 1) * 3 + 2] = normal[2] * length;
-
-		normalCoords[((face[i])[1] - 1) * 3] = normal[0] * length;
-		normalCoords[((face[i])[1] - 1) * 3 + 1] = normal[1] * length;
-		normalCoords[((face[i])[1] - 1) * 3 + 2] = normal[2] * length;
-
-		normalCoords[((face[i])[2] - 1) * 3] = normal[0] * length;
-		normalCoords[((face[i])[2] - 1) * 3 + 1] = normal[1] * length;
-		normalCoords[((face[i])[2] - 1) * 3 + 2] = normal[2] * length;
-
-		(face[i])[6] = (face[i])[0]; (face[i])[7] = (face[i])[1]; (face[i])[8] = (face[i])[2];
-	}
 }
 
 void ObjModel::GenerateTangents(std::vector<float>& vertexCoords, std::vector<float>& textureCoords, std::vector<float>& normalCoords, std::vector<std::array<int, 10>>& face, std::vector<float>& tangentCoords, std::vector<float>& bitangentCoords) {
@@ -1346,40 +1185,17 @@ void ObjModel::ReadMaterialFromFile(std::string path, std::string mltLib, std::s
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-ObjMesh::ObjMesh(std::string mltName, unsigned int numberTriangles, ObjModel* model){
-	m_numberOfTriangles = numberTriangles;
+ObjMesh::ObjMesh(ObjModel* model, const std::string mltName) : Mesh(){
 	m_mltName = mltName;
 	m_model = model;
 
-	m_hasTextureCoords = false;
-	m_hasNormals = false;
-	m_hasTangents = false;
-
-	m_triangleOffset = 0u;
-	m_stride = 0u;
-	m_baseVertex = 0u;
-	m_baseIndex = 0u;
-	m_drawCount = 0u;
-	m_instanceCount = 0u;
 	m_materialIndex = -1;
 	m_textureIndex = -1;
 }
 
-ObjMesh::ObjMesh(unsigned int numberTriangles, ObjModel* model){
-	m_numberOfTriangles = numberTriangles;
+ObjMesh::ObjMesh(ObjModel* model) : Mesh() {
 	m_model = model;
 
-	m_hasTextureCoords = false;
-	m_hasNormals = false;
-	m_hasTangents = false;
-
-	m_triangleOffset = 0u;
-	m_stride = 0u;
-	m_baseVertex = 0u;
-	m_baseIndex = 0u;
-	m_drawCount = 0u;
-	m_instanceCount = 0u;
-	
 	m_materialIndex = -1;
 	m_textureIndex = -1;
 }
@@ -1387,16 +1203,6 @@ ObjMesh::ObjMesh(unsigned int numberTriangles, ObjModel* model){
 ObjMesh::ObjMesh(ObjMesh const& rhs) : Mesh(rhs) {
 	m_model = rhs.m_model;
 	m_mltName = rhs.m_mltName;
-	m_numberOfTriangles = rhs.m_numberOfTriangles;
-	m_hasTextureCoords = rhs.m_hasTextureCoords;
-	m_hasNormals = rhs.m_hasNormals;
-	m_hasTangents = rhs.m_hasTangents;
-	m_triangleOffset = rhs.m_triangleOffset;
-	m_stride = rhs.m_stride;
-	m_baseVertex = rhs.m_baseVertex;
-	m_baseIndex = rhs.m_baseIndex;
-	m_drawCount = rhs.m_drawCount;
-	m_instanceCount = rhs.m_instanceCount;
 	m_materialIndex = rhs.m_materialIndex;
 	m_textureIndex = rhs.m_textureIndex;
 }
@@ -1404,16 +1210,6 @@ ObjMesh::ObjMesh(ObjMesh const& rhs) : Mesh(rhs) {
 ObjMesh::ObjMesh(ObjMesh&& rhs) noexcept : Mesh(rhs) {
 	m_model = rhs.m_model;
 	m_mltName = rhs.m_mltName;
-	m_numberOfTriangles = rhs.m_numberOfTriangles;
-	m_hasTextureCoords = rhs.m_hasTextureCoords;
-	m_hasNormals = rhs.m_hasNormals;
-	m_hasTangents = rhs.m_hasTangents;
-	m_triangleOffset = rhs.m_triangleOffset;
-	m_stride = rhs.m_stride;
-	m_baseVertex = rhs.m_baseVertex;
-	m_baseIndex = rhs.m_baseIndex;
-	m_drawCount = rhs.m_drawCount;
-	m_instanceCount = rhs.m_instanceCount;
 	m_materialIndex = rhs.m_materialIndex;
 	m_textureIndex = rhs.m_textureIndex;
 }
@@ -1422,16 +1218,6 @@ ObjMesh& ObjMesh::operator=(const ObjMesh& rhs) {
 	Mesh::operator=(rhs);
 	m_model = rhs.m_model;
 	m_mltName = rhs.m_mltName;
-	m_numberOfTriangles = rhs.m_numberOfTriangles;
-	m_hasTextureCoords = rhs.m_hasTextureCoords;
-	m_hasNormals = rhs.m_hasNormals;
-	m_hasTangents = rhs.m_hasTangents;
-	m_triangleOffset = rhs.m_triangleOffset;
-	m_stride = rhs.m_stride;
-	m_baseVertex = rhs.m_baseVertex;
-	m_baseIndex = rhs.m_baseIndex;
-	m_drawCount = rhs.m_drawCount;
-	m_instanceCount = rhs.m_instanceCount;
 	m_materialIndex = rhs.m_materialIndex;
 	m_textureIndex = rhs.m_textureIndex;
 	return *this;
@@ -1450,7 +1236,6 @@ ObjMesh& ObjMesh::operator=(ObjMesh&& rhs) noexcept {
 	m_baseVertex = rhs.m_baseVertex;
 	m_baseIndex = rhs.m_baseIndex;
 	m_drawCount = rhs.m_drawCount;
-	m_instanceCount = rhs.m_instanceCount;
 	m_materialIndex = rhs.m_materialIndex;
 	m_textureIndex = rhs.m_textureIndex;
 	return *this;
@@ -1467,17 +1252,7 @@ void ObjMesh::cleanup(){
 	m_indexBuffer.shrink_to_fit();
 }
 
-const std::vector<float>& ObjMesh::getVertexBuffer() const {
-	return m_vertexBuffer;
-}
 
-const std::vector<unsigned int>& ObjMesh::getIndexBuffer() const {
-	return m_indexBuffer;
-}
-
-const unsigned int ObjMesh::getStride() const {
-	return m_stride;
-}
 
 short ObjMesh::getMaterialIndex() const {
 	return m_materialIndex;

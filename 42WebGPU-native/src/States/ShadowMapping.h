@@ -36,6 +36,7 @@ private:
 
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayouts();
 	std::vector<WGPUBindGroup> OnBindGroups();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsShadow();
 	std::vector<WGPUBindGroup> OnBindGroupsShadow();
 	void OnDrawShadow(const WGPURenderPassEncoder& renderPassEncoder);
 

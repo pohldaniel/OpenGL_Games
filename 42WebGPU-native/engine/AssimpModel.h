@@ -21,7 +21,7 @@
 class AssimpMesh;
 class AssimpModel : public Model {
 
-	friend AssimpMesh;
+	friend class AssimpMesh;
 
 public:
 
@@ -51,10 +51,13 @@ public:
 	const std::string& getModelDirectory();
 	const Transform& getTransform() const;
 	const Mesh* getMesh(unsigned short index = 0u) const;
-	const std::vector<AssimpMesh*>& getMeshes() const;
+	const std::vector<Mesh*>& getMeshes() const;
 	const std::vector<float>& getVertexBuffer() const;
 	const std::vector<unsigned int>& getIndexBuffer() const;
 	const unsigned int getNumberOfTriangles() const;
+
+	void generateNormals();
+	void rewind();
 
 	void generateColors(ModelColor modelColor = MC_WHITE);
 	void packBuffer();
@@ -62,12 +65,10 @@ public:
 
 private:
 
-	unsigned int m_numberOfVertices, m_numberOfTriangles, m_numberOfMeshes, m_stride;
+	unsigned int m_numberOfTriangles, m_numberOfMeshes, m_stride;
 
 	bool m_hasTextureCoords, m_hasNormals, m_hasTangents, m_hasMaterial;
 	bool m_isStacked;
-
-	std::vector<AssimpMesh*> m_meshes;
 
 	std::string m_modelDirectory;
 	Vector3f m_center;
@@ -83,7 +84,7 @@ private:
 
 class AssimpMesh : public Mesh {
 
-	friend AssimpModel;
+	friend class AssimpModel;
 
 public:
 
@@ -94,9 +95,6 @@ public:
 	AssimpMesh& operator=(AssimpMesh&& rhs) noexcept;
 	~AssimpMesh();
 
-	const std::vector<float>& getVertexBuffer() const override;
-	const std::vector<unsigned int>& getIndexBuffer() const override;
-	const unsigned int getStride() const override;
 	short getMaterialIndex() const;
 	void setMaterialIndex(short index) const;
 	short getTextureIndex() const;
@@ -112,13 +110,8 @@ public:
 private:
 
 	AssimpModel* m_model;
-	unsigned int m_drawCount;
-	std::vector<float> m_vertexBuffer;
-	std::vector<unsigned int> m_indexBuffer;
-	bool m_hasTextureCoords, m_hasNormals, m_hasTangents;
-	unsigned int m_numberOfTriangles, m_stride, m_baseVertex, m_baseIndex;	
-	mutable short m_materialIndex;
 	mutable short m_textureIndex;
+	mutable short m_materialIndex;
 
 	mutable std::unordered_map<TextureSlot, std::pair<unsigned char*, unsigned int>> m_embeddedTextures;
 };

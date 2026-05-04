@@ -183,6 +183,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClCompile Include="engine\AssimpModel.cpp" />
     <ClCompile Include="engine\CharacterSet.cpp" />
     <ClCompile Include="engine\input\GamePad.cpp" />
+    <ClCompile Include="engine\Mesh.cpp" />
     <ClCompile Include="engine\Model.cpp" />
     <ClCompile Include="engine\Object.cpp" />
     <ClCompile Include="engine\RandomColor.cpp" />

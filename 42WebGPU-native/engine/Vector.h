@@ -171,8 +171,10 @@ public:
 	static float DotAbs(const Vector3f &p, const Vector3f &q);
 	static Vector3f Polar(const Vector3f& p);
 	static Vector3f Euclidean(const Vector2f& p);
-	
+	static Vector3f& RotateY(Vector3f& p, float degrees, const Vector3f& centerOfRotation = Vector3f::ZERO);
+ 
 private:
+
 	float vec[3];
 };
 
@@ -223,6 +225,7 @@ public:
 	static float Dot(const Vector4f &p, const Vector4f &q);
 	static float Dot(const Vector4f &p, const Vector3f &q);
 	static float DotAbs(const Vector4f &p, const Vector3f &q);
+
 private:
 
 	float vec[4];

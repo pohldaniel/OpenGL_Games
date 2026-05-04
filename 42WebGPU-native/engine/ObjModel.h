@@ -39,7 +39,7 @@ private:
 class ObjMesh;
 class ObjModel : public Model {
 
-	friend ObjMesh;
+	friend class ObjMesh;
 
 public:
 
@@ -70,7 +70,7 @@ public:
 	const std::string& getModelDirectory();
 	const Transform& getTransform() const;
 	const Mesh* getMesh(unsigned short index = 0u) const;
-	const std::vector<ObjMesh*>& getMeshes() const;
+	const std::vector<Mesh*>& getMeshes() const;
 	const std::vector<float>& getVertexBuffer() const;
 	const std::vector<unsigned int>& getIndexBuffer() const;
 	const unsigned int getNumberOfTriangles() const;
@@ -90,7 +90,6 @@ private:
 	bool m_hasTextureCoords, m_hasNormals, m_hasTangents, m_hasMaterial;
 	bool m_isStacked;
 
-	std::vector<ObjMesh*> m_meshes;
 	std::string m_mltPath;
 	std::string m_modelDirectory;
 
@@ -103,14 +102,9 @@ private:
 
 	unsigned int m_drawCount;
 
-	void static GenerateNormals(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, ObjModel& model, bool& hasNormals, unsigned int& stride, unsigned int startIndex, unsigned int endIndex);
-	void static GenerateTangents(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, ObjModel& model, bool& hasNormals, bool& hasTangents, unsigned int& stride, unsigned int startIndex, unsigned int endIndex);
-	void static Rewind(const std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, unsigned int stride);
-
-	void static GenerateNormals(std::vector<float>& vertexCoords, std::vector<std::array<int, 10>>& face, std::vector<float>& normalCoords);
 	void static GenerateFlatNormals(std::vector<float>& vertexCoords, std::vector<std::array<int, 10>>& face, std::vector<float>& normalCoords);
+	void static GenerateTangents(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, ObjModel& model, bool& hasNormals, bool& hasTangents, unsigned int& stride, unsigned int startIndex, unsigned int endIndex);
 	void static GenerateTangents(std::vector<float>& vertexCoords, std::vector<float>& textureCoords, std::vector<float>& normalCoords, std::vector<std::array<int, 10>>& face, std::vector<float>& tangentCoords, std::vector<float>& bitangentCoords);
-
 
 	void static ReadMaterialFromFile(std::string path, std::string mltLib, std::string mltName, short& index);
 	std::string static GetTexturePath(std::string texPath, std::string modelDirectory);
@@ -118,21 +112,17 @@ private:
 
 class ObjMesh : public Mesh {
 
-	friend ObjModel;
+	friend class ObjModel;
 
 public:
 
-	ObjMesh(std::string mltName, unsigned int numberTriangles, ObjModel* model);
-	ObjMesh(unsigned int numberTriangles, ObjModel* model);
+	ObjMesh( ObjModel* model, const std::string mltName);
+	ObjMesh(ObjModel* model);
 	ObjMesh(ObjMesh const& rhs);
 	ObjMesh(ObjMesh&& rhs) noexcept;
 	ObjMesh& operator=(const ObjMesh& rhs);
 	ObjMesh& operator=(ObjMesh&& rhs) noexcept;
 	virtual ~ObjMesh();
-
-	const std::vector<float>& getVertexBuffer() const override;
-	const std::vector<unsigned int>& getIndexBuffer() const override;
-	const unsigned int getStride() const override;
 
 	short getMaterialIndex() const;
 	void setMaterialIndex(short index) const;
@@ -147,17 +137,8 @@ public:
 private:
 
 	ObjModel* m_model;
-	std::string m_mltName;
-
-	unsigned int m_drawCount;
-	unsigned int m_instanceCount;
-	
-	std::vector<float> m_vertexBuffer;
-	std::vector<float> m_positionBuffer;
-	std::vector<unsigned int> m_indexBuffer;
-
-	bool m_hasTextureCoords, m_hasNormals, m_hasTangents;
-	unsigned int m_triangleOffset, m_numberOfTriangles, m_stride, m_baseVertex, m_baseIndex;	
-	mutable short m_materialIndex;
 	mutable short m_textureIndex;
+	mutable short m_materialIndex;
+
+	std::string m_mltName;
 };

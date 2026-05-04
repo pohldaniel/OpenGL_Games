@@ -3108,6 +3108,17 @@ Vector3f Vector3f::Euclidean(const Vector2f& polar) {
 	return Vector3f(cosf(latitude) * sinf(longitude), sinf(latitude), cosf(latitude) * cosf(longitude));
 }
 
+Vector3f& Vector3f::RotateY(Vector3f& p, float degrees, const Vector3f& centerOfRotation) {
+	degrees = degrees * HALF_PI_ON_180;
+	float x = p[0] - centerOfRotation[0];
+	float z = p[2] - centerOfRotation[2];
+
+	p[0] = z * sinf(degrees) + x * cosf(degrees) + centerOfRotation[0];
+	p[2] = z * cosf(degrees) - x * sinf(degrees) + centerOfRotation[2];
+
+	return p;
+}
+
 Vector3f& Vector3f::normalize() {
 	float invMag = 1.0f / length();
 	vec[0] *= invMag, vec[1] *= invMag, vec[2] *= invMag;

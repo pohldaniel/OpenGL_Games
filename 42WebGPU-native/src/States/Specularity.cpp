@@ -22,7 +22,7 @@ Specularity::Specularity(StateMachine& machine) : State(machine, States::SPECULA
 	wgpContext.addSahderModule("BOAT", "res/shader/specularity.wgsl");
 	wgpContext.createRenderPipeline("BOAT", "RP_PTNC", VL_PTNC, std::bind(&Specularity::OnBindGroupLayouts, this));
 
-	m_boat.loadModel("res/models/fourareen.obj", false, false, false, false, false, true);
+	m_boat.loadModel("res/models/fourareen/fourareen.obj", false, false, false, false, false, true);
 	m_boat.generateColors();
 	m_wgpBoat.create(m_boat);
 	m_wgpBoat.setBindGroups("BG", std::bind(&Specularity::OnBindGroups, this));
