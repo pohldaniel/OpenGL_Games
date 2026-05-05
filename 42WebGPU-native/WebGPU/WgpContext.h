@@ -36,7 +36,8 @@ extern "C" {
 	WGPUTexture wgpCreateTexture(uint32_t width, uint32_t height, uint32_t depth, WGPUTextureUsage textureUsage, WGPUTextureFormat textureFormat, uint32_t mipLevelCount = 1u, uint32_t sampleCount = 1u, WGPUTextureFormat viewFormat = WGPUTextureFormat_Undefined);
 	WGPUTextureView wgpCreateTextureView(const WGPUTexture& texture, WGPUTextureAspect aspect);
 	WGPUSampler wgpCreateSampler(WGPUFilterMode filterMode = WGPUFilterMode_Linear, WGPUAddressMode addressMode = WGPUAddressMode_ClampToEdge, uint16_t maxAnisotropy = 1u, WGPUMipmapFilterMode mipmapFilterMode = WGPUMipmapFilterMode_Undefined, WGPUCompareFunction compareFunction = WGPUCompareFunction_Undefined);
-	WGPUShaderModule wgpCreateShader(std::string path);
+	WGPUShaderModule wgpCreateShaderFromFile(std::string path);
+	WGPUShaderModule wgpCreateShaderFromString(std::string strng);
 
 	void wgpCreateVertexBufferLayout(VertexLayoutSlot slot = VL_PTN);
 	void wgpShutDown();
@@ -88,7 +89,7 @@ struct WgpContext {
 	void createVertexBufferLayout(VertexLayoutSlot slot = VL_PTN);
 	void addSampler(const WGPUSampler& sampler, SamplerSlot samplerSlot);
 	const WGPUSampler& getSampler(SamplerSlot samplerSlot);
-	void addSahderModule(const std::string& shaderModuleName, const std::string& shaderModulePath);
+	void addSahderModule(const std::string& shaderModuleName, const std::string& stringPath, bool fromString = false);
 	const WGPUShaderModule& getShaderModule(std::string shaderModuleName);
 	void setClearColor(const WGPUColor& clearColor);
 	

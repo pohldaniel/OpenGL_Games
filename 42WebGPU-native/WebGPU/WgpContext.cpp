@@ -318,7 +318,7 @@ WGPUSampler wgpCreateSampler(WGPUFilterMode filterMode, WGPUAddressMode addressM
 	return wgpuDeviceCreateSampler(device, &samplerDescriptor);
 }
 
-WGPUShaderModule wgpCreateShader(std::string path) {
+WGPUShaderModule wgpCreateShaderFromFile(std::string path) {
 	std::ifstream file(path);
 	if (!file.is_open()) {
 		return NULL;
@@ -328,6 +328,7 @@ WGPUShaderModule wgpCreateShader(std::string path) {
 	std::string shaderSource(size, ' ');
 	file.seekg(0);
 	file.read(shaderSource.data(), size);
+	file.close();
 
 	WGPUShaderSourceWGSL shaderSourceWGSL = {};
 	shaderSourceWGSL.chain.next = NULL;
@@ -336,6 +337,19 @@ WGPUShaderModule wgpCreateShader(std::string path) {
 
 	WGPUShaderModuleDescriptor shaderModuleDescriptor = {};
 	shaderModuleDescriptor.label = { path.c_str(), path.length() };
+	shaderModuleDescriptor.nextInChain = &shaderSourceWGSL.chain;
+
+	return wgpuDeviceCreateShaderModule(wgpContext.device, &shaderModuleDescriptor);
+}
+
+WGPUShaderModule wgpCreateShaderFromString(std::string strng) {
+	WGPUShaderSourceWGSL shaderSourceWGSL = {};
+	shaderSourceWGSL.chain.next = NULL;
+	shaderSourceWGSL.chain.sType = WGPUSType_ShaderSourceWGSL;
+	shaderSourceWGSL.code = { strng.c_str(), WGPU_STRLEN };
+
+	WGPUShaderModuleDescriptor shaderModuleDescriptor = {};
+	shaderModuleDescriptor.label = WGPU_STR("shader");
 	shaderModuleDescriptor.nextInChain = &shaderSourceWGSL.chain;
 
 	return wgpuDeviceCreateShaderModule(wgpContext.device, &shaderModuleDescriptor);
@@ -750,8 +764,8 @@ const WGPUSampler& WgpContext::getSampler(SamplerSlot samplerSlot) {
 	return samplers.at(samplerSlot);
 }
 
-void WgpContext::addSahderModule(const std::string& shaderModuleName, const std::string& shaderModulePath) {
-	shaderModules[shaderModuleName] = wgpCreateShader(shaderModulePath);
+void WgpContext::addSahderModule(const std::string& shaderModuleName, const std::string& stringPath, bool fromString) {
+	shaderModules[shaderModuleName] = fromString ? wgpCreateShaderFromString(stringPath) : wgpCreateShaderFromFile(stringPath);
 }
 
 const WGPUShaderModule& WgpContext::getShaderModule(std::string shaderModuleName) {
