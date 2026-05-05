@@ -315,6 +315,335 @@ void Model::GenerateNormals(std::vector<float>& vertexCoords, std::vector<std::a
 	}
 }
 
+void Model::GenerateTangents(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, Model& model, bool& hasNormals, bool& hasTangents, unsigned int& stride, unsigned int startIndex, unsigned int endIndex) {
+	if (hasTangents) { return; }
+	if (stride == 3 || stride == 6) { return; }
+	if (!hasNormals) {
+		Model::GenerateNormals(vertexBuffer, indexBuffer, model, hasNormals, stride, startIndex, endIndex);
+	}
+
+	std::vector<float> tmpVertex;
+	const unsigned int* pTriangle = 0;
+	float* pVertex0 = 0;
+	float* pVertex1 = 0;
+	float* pVertex2 = 0;
+	float edge1[3] = { 0.0f, 0.0f, 0.0f };
+	float edge2[3] = { 0.0f, 0.0f, 0.0f };
+	float texEdge1[2] = { 0.0f, 0.0f };
+	float texEdge2[2] = { 0.0f, 0.0f };
+	float tangent[3] = { 0.0f, 0.0f, 0.0f };
+	float bitangent[3] = { 0.0f, 0.0f, 0.0f };
+	float det = 0.0f;
+	float nDotT = 0.0f;
+	float bDotB = 0.0f;
+	float length = 0.0f;
+
+	for (int i = 0; i < vertexBuffer.size(); i++) {
+
+		tmpVertex.push_back(vertexBuffer[i]);
+
+		if ((i + 1) % stride == 0) {
+
+			tmpVertex.push_back(0.0);
+			tmpVertex.push_back(0.0);
+			tmpVertex.push_back(0.0);
+			tmpVertex.push_back(0.0);
+			tmpVertex.push_back(0.0);
+			tmpVertex.push_back(0.0);
+		}
+	}
+
+	for (int j = startIndex; j < endIndex; j++) {
+		for (int i = 0; i < model.m_meshes[j]->m_numberOfTriangles; i++) {
+
+			pTriangle = &indexBuffer[i * 3 + model.m_meshes[j]->m_baseIndex];
+
+			pVertex0 = &vertexBuffer[(pTriangle[0] + model.m_meshes[j]->m_baseVertex) * stride];
+			pVertex1 = &vertexBuffer[(pTriangle[1] + model.m_meshes[j]->m_baseVertex) * stride];
+			pVertex2 = &vertexBuffer[(pTriangle[2] + model.m_meshes[j]->m_baseVertex) * stride];
+
+			// Calculate triangle face normal.
+			edge1[0] = pVertex1[0] - pVertex0[0];
+			edge1[1] = pVertex1[1] - pVertex0[1];
+			edge1[2] = pVertex1[2] - pVertex0[2];
+
+			edge2[0] = pVertex2[0] - pVertex0[0];
+			edge2[1] = pVertex2[1] - pVertex0[1];
+			edge2[2] = pVertex2[2] - pVertex0[2];
+
+			texEdge1[0] = pVertex1[3] - pVertex0[3];
+			texEdge1[1] = pVertex1[4] - pVertex0[4];
+
+			texEdge2[0] = pVertex2[3] - pVertex0[3];
+			texEdge2[1] = pVertex2[4] - pVertex0[4];
+
+			det = texEdge1[0] * texEdge2[1] - texEdge2[0] * texEdge1[1];
+
+			if (fabs(det) < 1e-6f) {
+
+				tangent[0] = 1.0f;
+				tangent[1] = 0.0f;
+				tangent[2] = 0.0f;
+
+				bitangent[0] = 0.0f;
+				bitangent[1] = 1.0f;
+				bitangent[2] = 0.0f;
+
+			}else {
+
+				det = 1.0f / det;
+
+				tangent[0] = (texEdge2[1] * edge1[0] - texEdge1[1] * edge2[0]) * det;
+				tangent[1] = (texEdge2[1] * edge1[1] - texEdge1[1] * edge2[1]) * det;
+				tangent[2] = (texEdge2[1] * edge1[2] - texEdge1[1] * edge2[2]) * det;
+
+				bitangent[0] = (-texEdge2[0] * edge1[0] + texEdge1[0] * edge2[0]) * det;
+				bitangent[1] = (-texEdge2[0] * edge1[1] + texEdge1[0] * edge2[1]) * det;
+				bitangent[2] = (-texEdge2[0] * edge1[2] + texEdge1[0] * edge2[2]) * det;
+			}
+
+			// Accumulate the tangents and bitangents.
+			tmpVertex[(pTriangle[0] + model.m_meshes[j]->m_baseVertex) * 14 + 8] = tmpVertex[(pTriangle[0] + model.m_meshes[j]->m_baseVertex) * 14 + 8] + tangent[0];
+			tmpVertex[(pTriangle[0] + model.m_meshes[j]->m_baseVertex) * 14 + 9] = tmpVertex[(pTriangle[0] + model.m_meshes[j]->m_baseVertex) * 14 + 9] + tangent[1];
+			tmpVertex[(pTriangle[0] + model.m_meshes[j]->m_baseVertex) * 14 + 10] = tmpVertex[(pTriangle[0] + model.m_meshes[j]->m_baseVertex) * 14 + 10] + tangent[2];
+
+			tmpVertex[(pTriangle[0] + model.m_meshes[j]->m_baseVertex) * 14 + 11] = tmpVertex[(pTriangle[0] + model.m_meshes[j]->m_baseVertex) * 14 + 11] + bitangent[0];
+			tmpVertex[(pTriangle[0] + model.m_meshes[j]->m_baseVertex) * 14 + 12] = tmpVertex[(pTriangle[0] + model.m_meshes[j]->m_baseVertex) * 14 + 12] + bitangent[1];
+			tmpVertex[(pTriangle[0] + model.m_meshes[j]->m_baseVertex) * 14 + 13] = tmpVertex[(pTriangle[0] + model.m_meshes[j]->m_baseVertex) * 14 + 13] + bitangent[2];
+
+			tmpVertex[(pTriangle[1] + model.m_meshes[j]->m_baseVertex) * 14 + 8] = tmpVertex[(pTriangle[1] + model.m_meshes[j]->m_baseVertex) * 14 + 8] + tangent[0];
+			tmpVertex[(pTriangle[1] + model.m_meshes[j]->m_baseVertex) * 14 + 9] = tmpVertex[(pTriangle[1] + model.m_meshes[j]->m_baseVertex) * 14 + 9] + tangent[1];
+			tmpVertex[(pTriangle[1] + model.m_meshes[j]->m_baseVertex) * 14 + 10] = tmpVertex[(pTriangle[1] + model.m_meshes[j]->m_baseVertex) * 14 + 10] + tangent[2];
+
+			tmpVertex[(pTriangle[1] + model.m_meshes[j]->m_baseVertex) * 14 + 11] = tmpVertex[(pTriangle[1] + model.m_meshes[j]->m_baseVertex) * 14 + 11] + bitangent[0];
+			tmpVertex[(pTriangle[1] + model.m_meshes[j]->m_baseVertex) * 14 + 12] = tmpVertex[(pTriangle[1] + model.m_meshes[j]->m_baseVertex) * 14 + 12] + bitangent[1];
+			tmpVertex[(pTriangle[1] + model.m_meshes[j]->m_baseVertex) * 14 + 13] = tmpVertex[(pTriangle[1] + model.m_meshes[j]->m_baseVertex) * 14 + 13] + bitangent[2];
+
+			tmpVertex[(pTriangle[2] + model.m_meshes[j]->m_baseVertex) * 14 + 8] = tmpVertex[(pTriangle[2] + model.m_meshes[j]->m_baseVertex) * 14 + 8] + tangent[0];
+			tmpVertex[(pTriangle[2] + model.m_meshes[j]->m_baseVertex) * 14 + 9] = tmpVertex[(pTriangle[2] + model.m_meshes[j]->m_baseVertex) * 14 + 9] + tangent[1];
+			tmpVertex[(pTriangle[2] + model.m_meshes[j]->m_baseVertex) * 14 + 10] = tmpVertex[(pTriangle[2] + model.m_meshes[j]->m_baseVertex) * 14 + 10] + tangent[2];
+
+			tmpVertex[(pTriangle[2] + model.m_meshes[j]->m_baseVertex) * 14 + 11] = tmpVertex[(pTriangle[2] + model.m_meshes[j]->m_baseVertex) * 14 + 11] + bitangent[0];
+			tmpVertex[(pTriangle[2] + model.m_meshes[j]->m_baseVertex) * 14 + 12] = tmpVertex[(pTriangle[2] + model.m_meshes[j]->m_baseVertex) * 14 + 12] + bitangent[1];
+			tmpVertex[(pTriangle[2] + model.m_meshes[j]->m_baseVertex) * 14 + 13] = tmpVertex[(pTriangle[2] + model.m_meshes[j]->m_baseVertex) * 14 + 13] + bitangent[2];
+		}
+	}
+
+	// Orthogonalize and normalize the vertex tangents.
+	for (int i = 0; i < tmpVertex.size(); i = i + 14) {
+
+		pVertex0 = &tmpVertex[i];
+
+		// Gram-Schmidt orthogonalize tangent with normal.
+
+		nDotT = pVertex0[5] * pVertex0[8] +
+			pVertex0[6] * pVertex0[9] +
+			pVertex0[7] * pVertex0[10];
+
+		pVertex0[8] -= pVertex0[5] * nDotT;
+		pVertex0[9] -= pVertex0[6] * nDotT;
+		pVertex0[10] -= pVertex0[7] * nDotT;
+
+		// Normalize the tangent.
+
+		length = 1.0f / sqrtf(pVertex0[8] * pVertex0[8] +
+			pVertex0[9] * pVertex0[9] +
+			pVertex0[10] * pVertex0[10]);
+
+		pVertex0[8] *= length;
+		pVertex0[9] *= length;
+		pVertex0[10] *= length;
+
+		bitangent[0] = (pVertex0[6] * pVertex0[10]) -
+			(pVertex0[7] * pVertex0[9]);
+		bitangent[1] = (pVertex0[7] * pVertex0[8]) -
+			(pVertex0[5] * pVertex0[10]);
+		bitangent[2] = (pVertex0[5] * pVertex0[9]) -
+			(pVertex0[6] * pVertex0[8]);
+
+		bDotB = bitangent[0] * pVertex0[11] +
+			bitangent[1] * pVertex0[12] +
+			bitangent[2] * pVertex0[13];
+
+		// Calculate handedness
+		if (bDotB < 0.0f) {
+			pVertex0[11] = -bitangent[0];
+			pVertex0[12] = -bitangent[1];
+			pVertex0[13] = -bitangent[2];
+
+		}else {
+
+			pVertex0[11] = bitangent[0];
+			pVertex0[12] = bitangent[1];
+			pVertex0[13] = bitangent[2];
+		}
+	}
+
+	vertexBuffer.clear();
+	vertexBuffer.shrink_to_fit();
+	copy(tmpVertex.begin(), tmpVertex.end(), back_inserter(vertexBuffer));
+	tmpVertex.clear();
+
+	hasTangents = true;
+	stride = 14;
+}
+
+void Model::GenerateTangents(std::vector<float>& vertexCoords, std::vector<float>& textureCoords, std::vector<float>& normalCoords, std::vector<std::array<int, 10>>& face, std::vector<float>& tangentCoords, std::vector<float>& bitangentCoords) {
+
+	if (textureCoords.empty()) return;
+
+	tangentCoords.resize(vertexCoords.size());
+	bitangentCoords.resize(vertexCoords.size());
+	std::vector<float> tmpNormalCoords;
+	tmpNormalCoords.resize(vertexCoords.size());
+
+	float pVertex0[5] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+	float pVertex1[5] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+	float pVertex2[5] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+	float edge1[3] = { 0.0f, 0.0f, 0.0f };
+	float edge2[3] = { 0.0f, 0.0f, 0.0f };
+	float texEdge1[2] = { 0.0f, 0.0f };
+	float texEdge2[2] = { 0.0f, 0.0f };
+	float normal[3] = { 0.0f, 0.0f, 0.0f };
+	float tangent[3] = { 0.0f, 0.0f, 0.0f };
+	float bitangent[3] = { 0.0f, 0.0f, 0.0f };
+	float det = 0.0f;
+
+	for (unsigned int i = 0; i < face.size(); i++) {
+		pVertex0[0] = vertexCoords[((face[i])[0] - 1) * 3]; pVertex0[1] = vertexCoords[((face[i])[0] - 1) * 3 + 1]; pVertex0[2] = vertexCoords[((face[i])[0] - 1) * 3 + 2];
+		pVertex0[3] = textureCoords[((face[i])[3] - 1) * 2]; pVertex0[4] = textureCoords[((face[i])[3] - 1) * 2 + 1];
+		tmpNormalCoords[((face[i])[0] - 1) * 3] = normalCoords[((face[i])[6] - 1) * 3];
+		tmpNormalCoords[((face[i])[0] - 1) * 3 + 1] = normalCoords[((face[i])[6] - 1) * 3 + 1];
+		tmpNormalCoords[((face[i])[0] - 1) * 3 + 2] = normalCoords[((face[i])[6] - 1) * 3 + 2];
+
+		pVertex1[0] = vertexCoords[((face[i])[1] - 1) * 3]; pVertex1[1] = vertexCoords[((face[i])[1] - 1) * 3 + 1]; pVertex1[2] = vertexCoords[((face[i])[1] - 1) * 3 + 2];
+		pVertex1[3] = textureCoords[((face[i])[4] - 1) * 2]; pVertex1[4] = textureCoords[((face[i])[4] - 1) * 2 + 1];
+		tmpNormalCoords[((face[i])[1] - 1) * 3] = normalCoords[((face[i])[7] - 1) * 3];
+		tmpNormalCoords[((face[i])[1] - 1) * 3 + 1] = normalCoords[((face[i])[7] - 1) * 3 + 1];
+		tmpNormalCoords[((face[i])[1] - 1) * 3 + 2] = normalCoords[((face[i])[7] - 1) * 3 + 2];
+
+		pVertex2[0] = vertexCoords[((face[i])[2] - 1) * 3]; pVertex2[1] = vertexCoords[((face[i])[2] - 1) * 3 + 1]; pVertex2[2] = vertexCoords[((face[i])[2] - 1) * 3 + 2];
+		pVertex2[3] = textureCoords[((face[i])[5] - 1) * 2]; pVertex2[4] = textureCoords[((face[i])[5] - 1) * 2 + 1];
+		tmpNormalCoords[((face[i])[2] - 1) * 3] = normalCoords[((face[i])[8] - 1) * 3];
+		tmpNormalCoords[((face[i])[2] - 1) * 3 + 1] = normalCoords[((face[i])[8] - 1) * 3 + 1];
+		tmpNormalCoords[((face[i])[2] - 1) * 3 + 2] = normalCoords[((face[i])[8] - 1) * 3 + 2];
+
+		edge1[0] = pVertex1[0] - pVertex0[0];
+		edge1[1] = pVertex1[1] - pVertex0[1];
+		edge1[2] = pVertex1[2] - pVertex0[2];
+
+		edge2[0] = pVertex2[0] - pVertex0[0];
+		edge2[1] = pVertex2[1] - pVertex0[1];
+		edge2[2] = pVertex2[2] - pVertex0[2];
+
+		texEdge1[0] = pVertex1[3] - pVertex0[3];
+		texEdge1[1] = pVertex1[4] - pVertex0[4];
+
+		texEdge2[0] = pVertex2[3] - pVertex0[3];
+		texEdge2[1] = pVertex2[4] - pVertex0[4];
+
+		det = texEdge1[0] * texEdge2[1] - texEdge2[0] * texEdge1[1];
+
+		if (fabs(det) < 1e-6f) {
+
+			tangent[0] = 1.0f;
+			tangent[1] = 0.0f;
+			tangent[2] = 0.0f;
+
+			bitangent[0] = 0.0f;
+			bitangent[1] = 1.0f;
+			bitangent[2] = 0.0f;
+
+		}else {
+			det = 1.0f / det;
+
+			tangent[0] = (texEdge2[1] * edge1[0] - texEdge1[1] * edge2[0]) * det;
+			tangent[1] = (texEdge2[1] * edge1[1] - texEdge1[1] * edge2[1]) * det;
+			tangent[2] = (texEdge2[1] * edge1[2] - texEdge1[1] * edge2[2]) * det;
+
+			bitangent[0] = (-texEdge2[0] * edge1[0] + texEdge1[0] * edge2[0]) * det;
+			bitangent[1] = (-texEdge2[0] * edge1[1] + texEdge1[0] * edge2[1]) * det;
+			bitangent[2] = (-texEdge2[0] * edge1[2] + texEdge1[0] * edge2[2]) * det;
+		}
+
+		tangentCoords[((face[i])[0] - 1) * 3] = tangentCoords[((face[i])[0] - 1) * 3] + tangent[0];
+		tangentCoords[((face[i])[0] - 1) * 3 + 1] = tangentCoords[((face[i])[0] - 1) * 3 + 1] + tangent[1];
+		tangentCoords[((face[i])[0] - 1) * 3 + 2] = tangentCoords[((face[i])[0] - 1) * 3 + 2] + tangent[2];
+
+		tangentCoords[((face[i])[1] - 1) * 3] = tangentCoords[((face[i])[1] - 1) * 3] + tangent[0];
+		tangentCoords[((face[i])[1] - 1) * 3 + 1] = tangentCoords[((face[i])[1] - 1) * 3 + 1] + tangent[1];
+		tangentCoords[((face[i])[1] - 1) * 3 + 2] = tangentCoords[((face[i])[1] - 1) * 3 + 2] + tangent[2];
+
+		tangentCoords[((face[i])[2] - 1) * 3] = tangentCoords[((face[i])[2] - 1) * 3] + tangent[0];
+		tangentCoords[((face[i])[2] - 1) * 3 + 1] = tangentCoords[((face[i])[2] - 1) * 3 + 1] + tangent[1];
+		tangentCoords[((face[i])[2] - 1) * 3 + 2] = tangentCoords[((face[i])[2] - 1) * 3 + 2] + tangent[2];
+
+		bitangentCoords[((face[i])[0] - 1) * 3] = bitangentCoords[((face[i])[0] - 1) * 3] + bitangent[0];
+		bitangentCoords[((face[i])[0] - 1) * 3 + 1] = bitangentCoords[((face[i])[0] - 1) * 3 + 1] + bitangent[1];
+		bitangentCoords[((face[i])[0] - 1) * 3 + 2] = bitangentCoords[((face[i])[0] - 1) * 3 + 2] + bitangent[2];
+
+		bitangentCoords[((face[i])[1] - 1) * 3] = bitangentCoords[((face[i])[1] - 1) * 3] + bitangent[0];
+		bitangentCoords[((face[i])[1] - 1) * 3 + 1] = bitangentCoords[((face[i])[1] - 1) * 3 + 1] + bitangent[1];
+		bitangentCoords[((face[i])[1] - 1) * 3 + 2] = bitangentCoords[((face[i])[1] - 1) * 3 + 2] + bitangent[2];
+
+		bitangentCoords[((face[i])[2] - 1) * 3] = bitangentCoords[((face[i])[2] - 1) * 3] + bitangent[0];
+		bitangentCoords[((face[i])[2] - 1) * 3 + 1] = bitangentCoords[((face[i])[2] - 1) * 3 + 1] + bitangent[1];
+		bitangentCoords[((face[i])[2] - 1) * 3 + 2] = bitangentCoords[((face[i])[2] - 1) * 3 + 2] + bitangent[2];
+	}
+
+	float nDotT = 0.0f;
+	float bDotB = 0.0f;
+	float length = 0.0f;
+
+	for (unsigned int i = 0; i < tangentCoords.size(); i = i + 3) {
+
+		normal[0] = tmpNormalCoords[i]; normal[1] = tmpNormalCoords[i + 1]; normal[2] = tmpNormalCoords[i + 2];
+		tangent[0] = tangentCoords[i]; tangent[1] = tangentCoords[i + 1]; tangent[2] = tangentCoords[i + 2];
+
+		// Gram-Schmidt orthogonalize tangent with normal.
+		nDotT = normal[0] * tangent[0] +
+			normal[1] * tangent[1] +
+			normal[2] * tangent[2];
+
+		tangent[0] -= normal[0] * nDotT;
+		tangent[1] -= normal[1] * nDotT;
+		tangent[2] -= normal[2] * nDotT;
+
+		// Normalize the tangent.
+		length = 1.0f / sqrtf(tangent[0] * tangent[0] +
+			tangent[1] * tangent[1] +
+			tangent[2] * tangent[2]);
+
+		tangentCoords[i] *= length;
+		tangentCoords[i + 1] *= length;
+		tangentCoords[i + 2] *= length;
+
+		bitangent[0] = (normal[1] * tangentCoords[i + 2]) -
+			(normal[2] * tangentCoords[i + 1]);
+		bitangent[1] = (normal[2] * tangentCoords[i]) -
+			(normal[0] * tangentCoords[i + 2]);
+		bitangent[2] = (normal[0] * tangentCoords[i + 1]) -
+			(normal[1] * tangentCoords[i]);
+
+		bDotB = bitangent[0] * bitangentCoords[i] +
+			bitangent[1] * bitangentCoords[i + 1] +
+			bitangent[2] * bitangentCoords[i + 2];
+
+		// Calculate handedness
+		if (bDotB < 0.0f) {
+			bitangentCoords[i] = -bitangent[0];
+			bitangentCoords[i + 1] = -bitangent[1];
+			bitangentCoords[i + 2] = -bitangent[2];
+
+		}else {
+			bitangentCoords[i] = bitangent[0];
+			bitangentCoords[i + 1] = bitangent[1];
+			bitangentCoords[i + 2] = bitangent[2];
+		}
+
+	}
+}
+
 std::array<float, 3> Model::Normalize(const std::array<float, 3>& v) {
 	float length = sqrtf((v[0] * v[0]) + (v[1] * v[1]) + (v[2] * v[2]));
 	float invMag = length != 0.0f ? 1.0f / length : 1.0f;

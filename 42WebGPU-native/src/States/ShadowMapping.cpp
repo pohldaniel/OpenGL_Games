@@ -59,7 +59,7 @@ ShadowMapping::ShadowMapping(StateMachine& machine) : State(machine, States::SHA
 	m_uniforms.normal = Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_uniforms.model);
 	m_uniforms.color = { 1.0f, 1.0f, 1.0f, 1.0f };
 	m_uniforms.camPosition = m_camera.getPosition();
-	m_uniforms.lightVP = Matrix4f::IDENTITY;
+	m_uniforms.lightVP = m_lightProjection * m_lightView;
 	m_uniforms.shadow = Matrix4f::BIAS * m_uniforms.lightVP;
 	m_uniforms.lightPosition = Vector3f(50.0f, 100.0f, -100.0f);
 	

@@ -66,7 +66,6 @@ void WgpRenderer::Draw(const WgpTexture& texture, std::function<void(const WGPUR
 }
 
 void WgpRenderer::DrawDepth(const WgpTexture& texture, std::function<void(const WGPURenderPassEncoder& commandBuffer)> OnDraw) {
-	WGPUTextureFormat textureFormat = wgpuTextureGetFormat(texture.getTexture());
 	float mipWidth = static_cast<float>(wgpuTextureGetWidth(texture.getTexture()));
 	float mipHeight = static_cast<float>(wgpuTextureGetHeight(texture.getTexture()));
 

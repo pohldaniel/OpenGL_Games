@@ -356,7 +356,6 @@ void wgpCreateVertexBufferLayout(VertexLayoutSlot slot) {
 		wgpVertexBufferLayout.arrayStride = 3 * sizeof(float);
 		wgpVertexBufferLayout.stepMode = WGPUVertexStepMode::WGPUVertexStepMode_Vertex;
 		wgpVertexBufferLayouts.emplace(VL_P, wgpVertexBufferLayout);
-
 	}else if (wgpVertexBufferLayouts.count(VL_PT) == 0 && slot == VL_PT) {
 		std::vector<WGPUVertexAttribute>& wgpVertexAttribute = wgpVertexAttributes[VL_PT];
 		wgpVertexAttribute.resize(2);

@@ -115,8 +115,8 @@ public:
 protected:
 
     void rotateFirstPerson(float yaw, float pitch);
-	void updateViewMatrix();
 	void orthogonalize();
+	void fillTranslationPart();
 	void fillRotationPart();
 
     Vector3f WORLD_XAXIS;

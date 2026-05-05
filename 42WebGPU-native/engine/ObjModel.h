@@ -85,7 +85,7 @@ public:
 	
 private:
 
-	unsigned int m_numberOfVertices, m_numberOfTriangles, m_numberOfMeshes, m_stride;
+	unsigned int m_numberOfTriangles, m_numberOfMeshes, m_stride;
 
 	bool m_hasTextureCoords, m_hasNormals, m_hasTangents, m_hasMaterial;
 	bool m_isStacked;
@@ -103,9 +103,6 @@ private:
 	unsigned int m_drawCount;
 
 	void static GenerateFlatNormals(std::vector<float>& vertexCoords, std::vector<std::array<int, 10>>& face, std::vector<float>& normalCoords);
-	void static GenerateTangents(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, ObjModel& model, bool& hasNormals, bool& hasTangents, unsigned int& stride, unsigned int startIndex, unsigned int endIndex);
-	void static GenerateTangents(std::vector<float>& vertexCoords, std::vector<float>& textureCoords, std::vector<float>& normalCoords, std::vector<std::array<int, 10>>& face, std::vector<float>& tangentCoords, std::vector<float>& bitangentCoords);
-
 	void static ReadMaterialFromFile(std::string path, std::string mltLib, std::string mltName, short& index);
 	std::string static GetTexturePath(std::string texPath, std::string modelDirectory);
 };
@@ -137,8 +134,8 @@ public:
 private:
 
 	ObjModel* m_model;
-	mutable short m_textureIndex;
-	mutable short m_materialIndex;
-
 	std::string m_mltName;
+
+	mutable short m_textureIndex;
+	mutable short m_materialIndex;	
 };
