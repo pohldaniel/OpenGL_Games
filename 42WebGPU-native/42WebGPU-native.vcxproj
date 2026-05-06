@@ -180,6 +180,8 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="engine\animation\AnimatedModel.cpp" />
+    <ClCompile Include="engine\animation\Animation.cpp" />
     <ClCompile Include="engine\AssimpModel.cpp" />
     <ClCompile Include="engine\CharacterSet.cpp" />
     <ClCompile Include="engine\input\GamePad.cpp" />
@@ -212,6 +214,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClCompile Include="src\States\MSDFFont.cpp" />
     <ClCompile Include="src\States\NormalMap.cpp" />
     <ClCompile Include="src\States\ShadowMapping.cpp" />
+    <ClCompile Include="src\States\SkinnedMesh.cpp" />
     <ClCompile Include="src\States\Specularity.cpp" />
     <ClCompile Include="src\States\StateMachine.cpp" />
     <ClCompile Include="src\States\Wireframe.cpp" />
@@ -240,6 +243,8 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClCompile Include="WebGPU\WgpTexture.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="engine\animation\AnimatedModel.h" />
+    <ClInclude Include="engine\animation\Animation.h" />
     <ClInclude Include="engine\AssimpModel.h" />
     <ClInclude Include="engine\CharacterSet.h" />
     <ClInclude Include="engine\input\GamePad.h" />
@@ -294,6 +299,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClInclude Include="src\States\MSDFFont.h" />
     <ClInclude Include="src\States\NormalMap.h" />
     <ClInclude Include="src\States\ShadowMapping.h" />
+    <ClInclude Include="src\States\SkinnedMesh.h" />
     <ClInclude Include="src\States\Specularity.h" />
     <ClInclude Include="src\States\StateMachine.h" />
     <ClInclude Include="src\States\Wireframe.h" />

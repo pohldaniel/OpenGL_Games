@@ -40,6 +40,9 @@
     <Filter Include="engine\shape">
       <UniqueIdentifier>{018d801b-431d-44be-95e6-6b0fa7549c90}</UniqueIdentifier>
     </Filter>
+    <Filter Include="engine\animation">
+      <UniqueIdentifier>{00548da4-e38a-4532-9cd9-a41781d72bfb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\input\ApplicationEventListener.cpp">
@@ -215,6 +218,15 @@
     </ClCompile>
     <ClCompile Include="engine\Mesh.cpp">
       <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\States\SkinnedMesh.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\animation\AnimatedModel.cpp">
+      <Filter>engine\animation</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\animation\Animation.cpp">
+      <Filter>engine\animation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -418,6 +430,15 @@
     </ClInclude>
     <ClInclude Include="src\States\ShadowMapping.h">
       <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\SkinnedMesh.h">
+      <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\animation\AnimatedModel.h">
+      <Filter>engine\animation</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\animation\Animation.h">
+      <Filter>engine\animation</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

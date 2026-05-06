@@ -6,17 +6,23 @@
 #include <WebGPU/WgpContext.h>
 #include <WebGPU/WgpRenderer.h>
 
-#include "ShadowMapping.h"
+#include "SkinnedMesh.h"
 #include "Application.h"
 #include "Globals.h"
 
-ShadowMapping::ShadowMapping(StateMachine& machine) : State(machine, States::SHADOW_MAPPING) {
+SkinnedMesh::SkinnedMesh(StateMachine& machine) : State(machine, States::SKINNED_MESH) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
 
 	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm, Application::OnSurfaceChange);
+
+	m_animationAttack.loadAnimationAssimp("res/models/whale.glb", "ATTACK", "attack");
+	m_animationSwim.loadAnimationAssimp("res/models/whale.glb", "swim", "swim");
+
+	std::cout << "ANIMATION 1: " << m_animationAttack.getAnimationName() << "  " << m_animationAttack.getLength() << std::endl;
+	std::cout << "ANIMATION 2: " << m_animationSwim.getAnimationName() << "  " << m_animationSwim.getLength() << std::endl;
 
 	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 2000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
@@ -32,14 +38,14 @@ ShadowMapping::ShadowMapping(StateMachine& machine) : State(machine, States::SHA
 
 	wgpContext.addSampler(wgpCreateSampler(WGPUFilterMode_Nearest, WGPUAddressMode_ClampToEdge, 1u, WGPUMipmapFilterMode_Nearest, WGPUCompareFunction_Less), SS_0);
 	wgpContext.setClearColor({ 0.5f, 0.5f, 0.5f, 1.0f });
-	wgpContext.addSahderModule("SHADOW_BASE", SHADOW_BASE_WGSL, true);
-	wgpContext.createRenderPipeline("SHADOW_BASE", "RP_COLOR", VL_PN, std::bind(&ShadowMapping::OnBindGroupLayouts, this));
+	wgpContext.addSahderModule("SHADOW_BASE", "res/shader/shadow_base.wgsl");
+	wgpContext.createRenderPipeline("SHADOW_BASE", "RP_COLOR", VL_PN, std::bind(&SkinnedMesh::OnBindGroupLayouts, this));
 
-	wgpContext.addSahderModule("SHADOW", SHADOW_WGSL, true);
-	wgpContext.createRenderPipeline("SHADOW", "RP_SHADOW", 
-		VL_PN, 
-		std::bind(&ShadowMapping::OnBindGroupLayoutsShadow, this),
-		1u, 
+	wgpContext.addSahderModule("SHADOW", "res/shader/shadow.wgsl");
+	wgpContext.createRenderPipeline("SHADOW", "RP_SHADOW",
+		VL_PN,
+		std::bind(&SkinnedMesh::OnBindGroupLayoutsShadow, this),
+		1u,
 		WGPUPrimitiveTopology_TriangleList,
 		WGPUTextureFormat_Undefined,
 		WGPUTextureFormat_Depth32Float,
@@ -48,7 +54,7 @@ ShadowMapping::ShadowMapping(StateMachine& machine) : State(machine, States::SHA
 		false,
 		false
 	);
-	
+
 	m_lightProjection = Matrix4f::Orthographic(-80.0f, 80.0f, -80.0f, 80.0f, -200.0f, 300.0f);
 	m_lightView = Matrix4f::LookAt(Vector3f(50.0f, 100.0f, -100.0f), Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
 
@@ -62,34 +68,34 @@ ShadowMapping::ShadowMapping(StateMachine& machine) : State(machine, States::SHA
 	m_uniforms.lightVP = m_lightProjection * m_lightView;
 	m_uniforms.shadow = Matrix4f::BIAS * m_uniforms.lightVP;
 	m_uniforms.lightPosition = Vector3f(50.0f, 100.0f, -100.0f);
-	
+
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
 
 	m_wgpTextureShadow.createEmpty(1024u, 1024u, 1u, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_RenderAttachment, WGPUTextureFormat_Depth32Float);
-	
+
 	m_wgpDragon.create(m_dragon);
-	m_wgpDragon.addBindGroups("SHADOW", std::bind(&ShadowMapping::OnBindGroupsShadow, this));
-	m_wgpDragon.addBindGroups("COLOR", std::bind(&ShadowMapping::OnBindGroups, this));
+	m_wgpDragon.addBindGroups("SHADOW", std::bind(&SkinnedMesh::OnBindGroupsShadow, this));
+	m_wgpDragon.addBindGroups("COLOR", std::bind(&SkinnedMesh::OnBindGroups, this));
 
 	m_wgpQuad.create(m_quad);
-	m_wgpQuad.addBindGroups("SHADOW", std::bind(&ShadowMapping::OnBindGroupsShadow, this));
-	m_wgpQuad.addBindGroups("COLOR", std::bind(&ShadowMapping::OnBindGroups, this));
+	m_wgpQuad.addBindGroups("SHADOW", std::bind(&SkinnedMesh::OnBindGroupsShadow, this));
+	m_wgpQuad.addBindGroups("COLOR", std::bind(&SkinnedMesh::OnBindGroups, this));
 
-	wgpContext.OnDraw = std::bind(&ShadowMapping::OnDraw, this, std::placeholders::_1);
+	wgpContext.OnDraw = std::bind(&SkinnedMesh::OnDraw, this, std::placeholders::_1);
 }
 
-ShadowMapping::~ShadowMapping() {
+SkinnedMesh::~SkinnedMesh() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 	m_uniformBuffer.markForDelete();
 	m_wgpTextureShadow.markForDelete();
 }
 
-void ShadowMapping::fixedUpdate() {
+void SkinnedMesh::fixedUpdate() {
 
 }
 
-void ShadowMapping::update() {
+void SkinnedMesh::update() {
 	Keyboard& keyboard = Keyboard::instance();
 	Vector3f direction = Vector3f();
 
@@ -158,11 +164,11 @@ void ShadowMapping::update() {
 	m_uniforms.shadow = Matrix4f::BIAS * m_uniforms.lightVP;
 }
 
-void ShadowMapping::render() {
+void SkinnedMesh::render() {
 	wgpDraw();
 }
 
-void ShadowMapping::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
+void SkinnedMesh::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
 
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, projection), &m_uniforms.projection, sizeof(Uniforms::projection));
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, view), &m_uniforms.view, sizeof(Uniforms::view));
@@ -173,7 +179,7 @@ void ShadowMapping::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, lightVP), &m_uniforms.lightVP, sizeof(Uniforms::lightVP));
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, shadow), &m_uniforms.shadow, sizeof(Uniforms::shadow));
 
-	WgpRenderer::DrawDepth(m_wgpTextureShadow, std::bind(&ShadowMapping::OnDrawShadow, this, std::placeholders::_1));
+	WgpRenderer::DrawDepth(m_wgpTextureShadow, std::bind(&SkinnedMesh::OnDrawShadow, this, std::placeholders::_1));
 
 
 	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
@@ -189,27 +195,27 @@ void ShadowMapping::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
 		renderUi(renderPassEncoder);
 }
 
-void ShadowMapping::OnMouseMotion(const Event::MouseMoveEvent& event) {
+void SkinnedMesh::OnMouseMotion(const Event::MouseMoveEvent& event) {
 
 }
 
-void ShadowMapping::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
+void SkinnedMesh::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
 	if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT) {
 		Mouse::instance().attach(Application::GetWindow());
 	}
 }
 
-void ShadowMapping::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
+void SkinnedMesh::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
 	if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT) {
 		Mouse::instance().detach();
 	}
 }
 
-void ShadowMapping::OnMouseWheel(const Event::MouseWheelEvent& event) {
+void SkinnedMesh::OnMouseWheel(const Event::MouseWheelEvent& event) {
 
 }
 
-void ShadowMapping::OnKeyDown(const Event::KeyboardEvent& event) {
+void SkinnedMesh::OnKeyDown(const Event::KeyboardEvent& event) {
 #if DEVBUILD
 	if (event.keyCode == VK_LMENU) {
 		m_drawUi = !m_drawUi;
@@ -221,16 +227,16 @@ void ShadowMapping::OnKeyDown(const Event::KeyboardEvent& event) {
 	}
 }
 
-void ShadowMapping::OnKeyUp(const Event::KeyboardEvent& event) {
+void SkinnedMesh::OnKeyUp(const Event::KeyboardEvent& event) {
 
 }
 
-void ShadowMapping::resize(int deltaW, int deltaH) {
+void SkinnedMesh::resize(int deltaW, int deltaH) {
 	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 2000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 }
 
-void ShadowMapping::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
+void SkinnedMesh::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 	ImGui_ImplWGPU_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
@@ -272,7 +278,7 @@ void ShadowMapping::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 	ImGui_ImplWGPU_RenderDrawData(ImGui::GetDrawData(), renderPassEncoder);
 }
 
-std::vector<WGPUBindGroupLayout> ShadowMapping::OnBindGroupLayouts() {
+std::vector<WGPUBindGroupLayout> SkinnedMesh::OnBindGroupLayouts() {
 	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
 
 	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(3);
@@ -299,7 +305,7 @@ std::vector<WGPUBindGroupLayout> ShadowMapping::OnBindGroupLayouts() {
 	return bindingLayouts;
 }
 
-std::vector<WGPUBindGroup> ShadowMapping::OnBindGroups() {
+std::vector<WGPUBindGroup> SkinnedMesh::OnBindGroups() {
 	std::vector<WGPUBindGroup> bindGroups(1);
 
 	std::vector<WGPUBindGroupEntry> bindGroupEntries(3);
@@ -324,7 +330,7 @@ std::vector<WGPUBindGroup> ShadowMapping::OnBindGroups() {
 	return bindGroups;
 }
 
-std::vector<WGPUBindGroupLayout> ShadowMapping::OnBindGroupLayoutsShadow() {
+std::vector<WGPUBindGroupLayout> SkinnedMesh::OnBindGroupLayoutsShadow() {
 	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
 
 	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(1);
@@ -342,7 +348,7 @@ std::vector<WGPUBindGroupLayout> ShadowMapping::OnBindGroupLayoutsShadow() {
 	return bindingLayouts;
 }
 
-std::vector<WGPUBindGroup> ShadowMapping::OnBindGroupsShadow() {
+std::vector<WGPUBindGroup> SkinnedMesh::OnBindGroupsShadow() {
 	std::vector<WGPUBindGroup> bindGroups(1);
 
 	std::vector<WGPUBindGroupEntry> bindGroupEntries(1);
@@ -361,7 +367,7 @@ std::vector<WGPUBindGroup> ShadowMapping::OnBindGroupsShadow() {
 	return bindGroups;
 }
 
-void ShadowMapping::OnDrawShadow(const WGPURenderPassEncoder& renderPassEncoder) {
+void SkinnedMesh::OnDrawShadow(const WGPURenderPassEncoder& renderPassEncoder) {
 	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_SHADOW"));
 	m_wgpDragon.setBindGroupsSlot("SHADOW");
 	m_wgpDragon.draw(renderPassEncoder);

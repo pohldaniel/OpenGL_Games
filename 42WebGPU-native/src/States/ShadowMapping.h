@@ -38,7 +38,7 @@
 							     }"
 
 
-#define SHADOW_MAPPING_WGSL     "struct VertexInput {                                                                                       \n \
+#define SHADOW_BASE_WGSL        "struct VertexInput {                                                                                       \n \
                                      @location(0) position: vec3f,                                                                          \n \
 							         @location(1) normal: vec3f                                                                             \n \
                                  };                                                                                                         \n \

@@ -16,6 +16,8 @@
 #include <States/InstancedCube.h>
 #include <States/ImageBasedLighting.h>
 #include <States/ShadowMapping.h>
+#include <States/SkinnedMesh.h>
+
 
 #include "Application.h"
 #include "Globals.h"
@@ -314,7 +316,8 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new MSDFFont(*Machine));
 	//Machine->addStateAtTop(new InstancedCube(*Machine));
 	//Machine->addStateAtTop(new ImageBasedLighting(*Machine));
-	Machine->addStateAtTop(new ShadowMapping(*Machine));
+	//Machine->addStateAtTop(new ShadowMapping(*Machine));
+	Machine->addStateAtTop(new SkinnedMesh(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
