@@ -2,6 +2,7 @@
 
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
+#include <engine/animation/AnimatedModel.h>
 #include <engine/animation/Animation.h>
 #include <engine/shape/Shape.h>
 #include <engine/AssimpModel.h>
@@ -38,9 +39,6 @@ private:
 
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayouts();
 	std::vector<WGPUBindGroup> OnBindGroups();
-	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsShadow();
-	std::vector<WGPUBindGroup> OnBindGroupsShadow();
-	void OnDrawShadow(const WGPURenderPassEncoder& renderPassEncoder);
 
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 
@@ -49,13 +47,10 @@ private:
 
 	Camera m_camera;
 	Uniforms m_uniforms;
-	AssimpModel m_dragon;
-	Shape m_quad;
 	Matrix4f m_lightProjection, m_lightView, m_shadow;
+	Animation m_attack, m_swim;
+	AnimatedModel m_whale;
 
-	WgpModel m_wgpDragon, m_wgpQuad;
 	WgpBuffer m_uniformBuffer;
-	WgpTexture m_wgpTextureShadow;
-
-	Animation m_animationAttack, m_animationSwim;
+	WgpModel m_wgpWhale;
 };

@@ -6,6 +6,7 @@
 
 class ObjModel;
 class AssimpModel;
+class AnimatedModel;
 class Shape;
 
 class WgpModel {
@@ -20,6 +21,7 @@ public:
 
 	void create(const ObjModel& model);
 	void create(const AssimpModel& model);
+	void create(const AnimatedModel& model);
 	void create(const Shape& shape);
 
 	void markForDelete();

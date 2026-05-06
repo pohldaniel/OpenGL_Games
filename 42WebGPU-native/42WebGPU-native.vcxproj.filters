@@ -228,6 +228,9 @@
     <ClCompile Include="engine\animation\Animation.cpp">
       <Filter>engine\animation</Filter>
     </ClCompile>
+    <ClCompile Include="engine\animation\MeshBone.cpp">
+      <Filter>engine\animation</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\input\ApplicationEventListener.h">
@@ -438,6 +441,9 @@
       <Filter>engine\animation</Filter>
     </ClInclude>
     <ClInclude Include="engine\animation\Animation.h">
+      <Filter>engine\animation</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\animation\MeshBone.h">
       <Filter>engine\animation</Filter>
     </ClInclude>
   </ItemGroup>

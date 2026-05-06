@@ -28,5 +28,6 @@ protected:
 	std::vector<float> m_vertexBuffer;
 
 	bool m_hasTextureCoords, m_hasNormals, m_hasTangents;
-	unsigned int m_stride, m_drawCount, m_numberOfTriangles, m_baseVertex, m_baseIndex, m_triangleOffset;
+	unsigned int m_stride, m_drawCount, m_baseVertex, m_baseIndex;
+
 };

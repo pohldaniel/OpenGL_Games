@@ -205,7 +205,7 @@ void Model::GenerateNormals(std::vector<float>& vertexBuffer, std::vector<unsign
 	}
 
 	for (int j = startIndex; j < endIndex; j++) {
-		for (int i = 0; i < model.m_meshes[j]->m_numberOfTriangles; i++) {
+		for (int i = 0; i < model.m_meshes[j]->m_indexBuffer.size() / 3; i++) {
 
 			pTriangle = &indexBuffer[i * 3 + model.m_meshes[j]->m_baseIndex];
 
@@ -354,7 +354,7 @@ void Model::GenerateTangents(std::vector<float>& vertexBuffer, std::vector<unsig
 	}
 
 	for (int j = startIndex; j < endIndex; j++) {
-		for (int i = 0; i < model.m_meshes[j]->m_numberOfTriangles; i++) {
+		for (int i = 0; i < model.m_meshes[j]->m_indexBuffer.size() / 3; i++) {
 
 			pTriangle = &indexBuffer[i * 3 + model.m_meshes[j]->m_baseIndex];
 

@@ -1,9 +1,10 @@
 #include <engine/shape/Shape.h>
 #include <engine/ObjModel.h>
 #include <engine/AssimpModel.h>
+#include <engine/animation/AnimatedModel.h>
 
 #include "WgpModel.h"
-#include <iostream>
+
 WgpModel::WgpModel(WgpModel const& rhs) : m_meshes(rhs.m_meshes) {
 
 }
@@ -35,6 +36,13 @@ void WgpModel::create(const AssimpModel& model) {
 			m_meshes.push_back(WgpMesh(mesh->getVertexBuffer(), mesh->getIndexBuffer()));
 	}
 	markForDelete();
+}
+
+void WgpModel::create(const AnimatedModel& model) {
+	for (const Mesh* _mesh : model.getMeshes()) {
+		const AnimatedMesh* mesh = static_cast<const AnimatedMesh*>(_mesh);
+		m_meshes.push_back(WgpMesh(mesh->getVertexBuffer(), mesh->getIndexBuffer(), mesh->getWeights(), mesh->getJoints(), mesh->getStride()));
+	}
 }
 
 void WgpModel::create(const Shape& shape) {

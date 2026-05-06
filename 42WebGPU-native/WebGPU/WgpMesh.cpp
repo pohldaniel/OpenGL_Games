@@ -12,6 +12,27 @@ WgpMesh::WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsig
 	m_indexBuffer.createBuffer(reinterpret_cast<const void*>(indexBuffer.data()), sizeof(unsigned int) * indexBuffer.size(), WGPUBufferUsage_Index | WGPUBufferUsage_Storage);
 }
 
+WgpMesh::WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, const std::vector<std::array<float, 4>>& weights, const std::vector<std::array<unsigned int, 4>>& joints, uint32_t stride) :
+	m_drawCount(indexBuffer.size()),
+	m_bindGroupsSlot("BG"),
+	m_markForDelete(false),
+	vertexBuffer(vertexBuffer),
+	indexBuffer(indexBuffer) {
+
+	if (stride == 8u) {
+		std::vector<VertexAnimated> _vertexBuffer;
+		for (uint32_t i = 0u; i < vertexBuffer.size() / stride; i++) {
+			_vertexBuffer.push_back({ vertexBuffer[i * stride], vertexBuffer[i * stride + 1u] , vertexBuffer[i * stride + 2u],
+                                      vertexBuffer[i * stride + 3u] , vertexBuffer[i * stride + 4u],
+                                      vertexBuffer[i * stride + 5u], vertexBuffer[i * stride + 6u] , vertexBuffer[i * stride + 7u],
+                                      weights[i][0], weights[i][1], weights[i][2], weights[i][3],
+									  joints[i][0], joints[i][1], joints[i][2], joints[i][3] });
+		}
+		m_vertexBuffer.createBuffer(reinterpret_cast<const void*>(_vertexBuffer.data()), sizeof(VertexAnimated) * _vertexBuffer.size(), WGPUBufferUsage_Vertex | WGPUBufferUsage_Storage);
+	}
+	m_indexBuffer.createBuffer(reinterpret_cast<const void*>(indexBuffer.data()), sizeof(unsigned int) * indexBuffer.size(), WGPUBufferUsage_Index | WGPUBufferUsage_Storage);
+}
+
 WgpMesh::WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, const std::string& texturePath) :
 	m_drawCount(indexBuffer.size()),
 	m_bindGroupsSlot("BG"),

@@ -113,7 +113,7 @@ class ObjMesh : public Mesh {
 
 public:
 
-	ObjMesh( ObjModel* model, const std::string mltName);
+	ObjMesh(ObjModel* model, const std::string mltName);
 	ObjMesh(ObjModel* model);
 	ObjMesh(ObjMesh const& rhs);
 	ObjMesh(ObjMesh&& rhs) noexcept;

@@ -5,6 +5,14 @@
 #include "WgpBuffer.h"
 #include "WgpTexture.h"
 
+struct VertexAnimated {
+	std::array<float, 3> position;
+	std::array<float, 2> uv;
+	std::array<float, 3> normal;
+	std::array<float, 4> weight;
+	std::array<unsigned int, 4> joint;
+};
+
 class WgpMesh {
 
 	friend class WgpModel;
@@ -12,6 +20,7 @@ class WgpMesh {
 public:
 
 	WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer);
+	WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, const std::vector<std::array<float, 4>>& weights, const std::vector<std::array<unsigned int, 4>>& joints, uint32_t stride);
 	WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, const std::string& texturePath);
 	WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, const std::pair<unsigned char*, unsigned int>& texture);
 
