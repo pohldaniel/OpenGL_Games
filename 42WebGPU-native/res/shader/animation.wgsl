@@ -26,11 +26,19 @@ struct Uniforms {
 };
 
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
+@group(0) @binding(1) var<storage, read> skin: array<mat4x4f>;
+
+fn get_world_matrix(weight : vec4f, joint : vec4u) -> mat4x4f {
+	return skin[joint.x] * weight.x + skin[joint.y] * weight.y +
+           skin[joint.z] * weight.z + skin[joint.w] * weight.w;
+}
 
 @vertex
 fn vs_main(in: VertexInput) -> VertexOutput {
 	var out: VertexOutput;
-	out.position = uniforms.projection * uniforms.view * uniforms.model * vec4f(in.position, 1.0);
+	let world = get_world_matrix(in.weight, in.joint);  
+	
+	out.position = uniforms.projection * uniforms.view * world * vec4f(in.position, 1.0);
 	out.normal = (uniforms.model * vec4f(in.normal, 0.0)).xyz;
 	out.texcoord = in.texcoord;
 	out.color = uniforms.color;

@@ -22,16 +22,17 @@ SkinnedMesh::SkinnedMesh(StateMachine& machine) : State(machine, States::SKINNED
 	m_attack.loadAnimationAssimp("res/models/whale.glb", "ATTACK", "attack");
 	m_swim.loadAnimationAssimp("res/models/whale.glb", "swim", "swim");
 
-	std::cout << "ANIMATION 1: " << m_attack.getAnimationName() << "  " << m_attack.getLength() << std::endl;
-	std::cout << "ANIMATION 2: " << m_swim.getAnimationName() << "  " << m_swim.getLength() << std::endl;
+	m_whale.addAnimationState(m_attack);
+	m_whale.getAnimationState(0)->setLooped(true);
 
 	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 2000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 	m_camera.lookAt(Vector3f(0.0f, 0.0f, -10.0f), Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
-	m_camera.setMovingSpeed(50.0f);
+	m_camera.setMovingSpeed(5.0f);
 
 	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
+	m_skinBuffer.createBuffer(sizeof(Matrix4f) * static_cast<const AnimatedMesh*>(m_whale.getMesh())->getNumBones(), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Storage);
 
 	wgpContext.addSampler(wgpCreateSampler(WGPUFilterMode_Nearest, WGPUAddressMode_ClampToEdge, 1u, WGPUMipmapFilterMode_Nearest, WGPUCompareFunction_Less), SS_0);
 	wgpContext.setClearColor({ 0.5f, 0.5f, 0.5f, 1.0f });
@@ -133,6 +134,13 @@ void SkinnedMesh::update() {
 	m_uniforms.camPosition = m_camera.getPosition();
 	m_uniforms.lightVP = m_lightProjection * m_lightView;
 	m_uniforms.shadow = Matrix4f::BIAS * m_uniforms.lightVP;
+
+	m_whale.update(m_dt);
+	m_whale.updateSkinning();
+
+
+	const AnimatedMesh* mesh = static_cast<const AnimatedMesh*>(m_whale.getMesh());
+	wgpuQueueWriteBuffer(wgpContext.queue, m_skinBuffer.getBuffer(), 0u, mesh->getSkinMatrices(), wgpuBufferGetSize(m_skinBuffer.getBuffer()));
 }
 
 void SkinnedMesh::render() {
@@ -245,11 +253,16 @@ void SkinnedMesh::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 std::vector<WGPUBindGroupLayout> SkinnedMesh::OnBindGroupLayouts() {
 	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
 
-	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(1);
+	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(2);
 	bindingLayoutEntries[0].binding = 0u;
 	bindingLayoutEntries[0].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
 	bindingLayoutEntries[0].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
 	bindingLayoutEntries[0].buffer.minBindingSize = sizeof(Uniforms);
+
+	bindingLayoutEntries[1].binding = 1u;
+	bindingLayoutEntries[1].visibility = WGPUShaderStage_Vertex;
+	bindingLayoutEntries[1].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_ReadOnlyStorage;
+	bindingLayoutEntries[1].buffer.minBindingSize = 16 * sizeof(float);
 
 	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
 	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
@@ -263,11 +276,16 @@ std::vector<WGPUBindGroupLayout> SkinnedMesh::OnBindGroupLayouts() {
 std::vector<WGPUBindGroup> SkinnedMesh::OnBindGroups() {
 	std::vector<WGPUBindGroup> bindGroups(1);
 
-	std::vector<WGPUBindGroupEntry> bindGroupEntries(1);
+	std::vector<WGPUBindGroupEntry> bindGroupEntries(2);
 	bindGroupEntries[0].binding = 0u;
 	bindGroupEntries[0].buffer = m_uniformBuffer.getBuffer();
 	bindGroupEntries[0].offset = 0u;
 	bindGroupEntries[0].size = sizeof(Uniforms);
+
+	bindGroupEntries[1].binding = 1u;
+	bindGroupEntries[1].buffer = m_skinBuffer.getBuffer();
+	bindGroupEntries[1].offset = 0u;
+	bindGroupEntries[1].size = wgpuBufferGetSize(m_skinBuffer.getBuffer());
 
 	WGPUBindGroupDescriptor bindGroupDesc = {};
 	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_ANIMATION"), 0u);

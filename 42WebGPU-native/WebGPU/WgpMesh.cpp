@@ -21,7 +21,7 @@ WgpMesh::WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsig
 
 	if (stride == 8u) {
 		std::vector<VertexAnimated> _vertexBuffer;
-		for (uint32_t i = 0u; i < vertexBuffer.size() / stride; i++) {
+		for (size_t i = 0u; i < vertexBuffer.size() / stride; i++) {
 			_vertexBuffer.push_back({ vertexBuffer[i * stride], vertexBuffer[i * stride + 1u] , vertexBuffer[i * stride + 2u],
                                       vertexBuffer[i * stride + 3u] , vertexBuffer[i * stride + 4u],
                                       vertexBuffer[i * stride + 5u], vertexBuffer[i * stride + 6u] , vertexBuffer[i * stride + 7u],

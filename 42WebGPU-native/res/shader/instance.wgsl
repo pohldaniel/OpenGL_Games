@@ -16,7 +16,7 @@ struct Uniforms {
   mvp : array<mat4x4f, 16>
 }
 
-@binding(0) @group(0) var<uniform> uniforms : Uniforms;
+@group(0) @binding(0) var<uniform> uniforms : Uniforms;
 
 @vertex
 fn vs_main(in: VertexInput) -> VertexOutput {

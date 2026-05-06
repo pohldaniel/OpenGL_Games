@@ -51,6 +51,6 @@ private:
 	Animation m_attack, m_swim;
 	AnimatedModel m_whale;
 
-	WgpBuffer m_uniformBuffer;
+	WgpBuffer m_uniformBuffer, m_skinBuffer;
 	WgpModel m_wgpWhale;
 };
