@@ -39,7 +39,7 @@ fn vs_main(in: VertexInput) -> VertexOutput {
 	let world = get_world_matrix(in.weight, in.joint);  
 	
 	out.position = uniforms.projection * uniforms.view * world * vec4f(in.position, 1.0);
-	out.normal = (uniforms.model * vec4f(in.normal, 0.0)).xyz;
+	out.normal = normalize((world * vec4f(in.normal, 0.0)).xyz);
 	out.texcoord = in.texcoord;
 	out.color = uniforms.color;
 	
@@ -52,5 +52,5 @@ fn vs_main(in: VertexInput) -> VertexOutput {
 
 @fragment
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
-	return vec4f(in.joint.xyz, 1.0);
+	return vec4f(in.normal, 1.0);
 }

@@ -146,3 +146,7 @@ void Bone::countChildBones() {
 			++m_numChildBones;
 	}
 }
+
+void Bone::rotate(const float pitch, const float yaw, const float roll) {
+	m_orientation.rotate(pitch, yaw, roll);
+}

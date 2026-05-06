@@ -45,12 +45,18 @@ public:
 	AnimationState* addAnimationState(const Animation& animation);
 	AnimationState* findAnimationState(const Animation& animation) const;
 	AnimationState* getAnimationState(size_t index) const;
+	void removeAnimationState(const Animation& animation);
+
+	void rotate(const float pitch, const float yaw, const float roll);
+	void scale(const float sx, const float sy, const float sz);
+	void translate(const float dx, const float dy, const float dz);
 
 private:
 
 	void OnAnimationOrderChanged();
 	aiNode* searchNode(aiNode* node, std::vector<std::string>& boneList);
 	void fetchAiHierarchy(aiNode* node, std::vector<MeshBone>& meshBones, int parentIndex = 0);
+	void printAiHierarchy(aiNode* node);
 
 	unsigned int m_stride;
 	bool m_hasTextureCoords, m_hasNormals, m_hasTangents, m_isStacked;
@@ -81,11 +87,14 @@ public:
 	const Matrix4f* getSkinMatrices() const;
 	const unsigned short getNumBones() const;
 
+	void rotate(const float pitch, const float yaw, const float roll);
+	void scale(const float sx, const float sy, const float sz);
+	void translate(const float dx, const float dy, const float dz);
+
 private:
 
 	AnimatedModel* m_model;
 	
-
 	unsigned short m_numBones = 0;
 	Matrix4f* m_skinMatrices;
 

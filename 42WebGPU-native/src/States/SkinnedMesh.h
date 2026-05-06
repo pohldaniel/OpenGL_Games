@@ -16,7 +16,14 @@
 #include <WebGPU/WgpData.h>
 
 class SkinnedMesh : public State, public MouseEventListener, public KeyboardEventListener {
-
+	enum SelectedAnimation {
+		ATTACK,
+		SWIM
+	};
+	enum SelectedModel {
+		VAMPIRE,
+		WHALE
+	};
 public:
 
 	SkinnedMesh(StateMachine& machine);
@@ -43,14 +50,17 @@ private:
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 
 	bool m_initUi = true;
-	bool m_drawUi = false;
+	bool m_drawUi = true;
 
 	Camera m_camera;
 	Uniforms m_uniforms;
 	Matrix4f m_lightProjection, m_lightView, m_shadow;
-	Animation m_attack, m_swim;
-	AnimatedModel m_whale;
-
+	Animation m_attack, m_swim, m_dance;
+	AnimatedModel m_whale, m_vampire;
+	
 	WgpBuffer m_uniformBuffer, m_skinBuffer;
-	WgpModel m_wgpWhale;
+	WgpModel m_wgpWhale, m_wgpVampire;
+
+	SelectedAnimation m_animation = SelectedAnimation::SWIM;
+	SelectedModel m_model = SelectedModel::WHALE;
 };

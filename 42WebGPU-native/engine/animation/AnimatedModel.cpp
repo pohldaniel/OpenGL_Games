@@ -66,9 +66,7 @@ void AnimatedModel::loadModelAssimp(const std::string& path, const short addVirt
 		}
 
 		if (aiMesh->HasBones()) {
-
 			mesh->m_meshBones.resize(aiMesh->mNumBones);
-
 			if (reverseBoneList) {
 				for (int boneIndex = aiMesh->mNumBones - 1; boneIndex >= 0; boneIndex--) {
 					MeshBone& _bone = mesh->m_meshBones[(aiMesh->mNumBones - 1) - boneIndex];
@@ -80,9 +78,9 @@ void AnimatedModel::loadModelAssimp(const std::string& path, const short addVirt
 
 					_bone.name = boneName;
 					_bone.offsetMatrix.set(bone->mOffsetMatrix.a1, bone->mOffsetMatrix.b1, bone->mOffsetMatrix.c1, bone->mOffsetMatrix.d1,
-						bone->mOffsetMatrix.a2, bone->mOffsetMatrix.b2, bone->mOffsetMatrix.c2, bone->mOffsetMatrix.d2,
-						bone->mOffsetMatrix.a3, bone->mOffsetMatrix.b3, bone->mOffsetMatrix.c3, bone->mOffsetMatrix.d3,
-						bone->mOffsetMatrix.a4, bone->mOffsetMatrix.b4, bone->mOffsetMatrix.c4, bone->mOffsetMatrix.d4);
+                                           bone->mOffsetMatrix.a2, bone->mOffsetMatrix.b2, bone->mOffsetMatrix.c2, bone->mOffsetMatrix.d2,
+                                           bone->mOffsetMatrix.a3, bone->mOffsetMatrix.b3, bone->mOffsetMatrix.c3, bone->mOffsetMatrix.d3,
+                                           bone->mOffsetMatrix.a4, bone->mOffsetMatrix.b4, bone->mOffsetMatrix.c4, bone->mOffsetMatrix.d4);
 
 					for (unsigned int weightIndex = 0; weightIndex < bone->mNumWeights; weightIndex++) {
 						aiVertexWeight w = bone->mWeights[weightIndex];
@@ -99,9 +97,9 @@ void AnimatedModel::loadModelAssimp(const std::string& path, const short addVirt
 
 					_bone.name = boneName;
 					_bone.offsetMatrix.set(bone->mOffsetMatrix.a1, bone->mOffsetMatrix.b1, bone->mOffsetMatrix.c1, bone->mOffsetMatrix.d1,
-						bone->mOffsetMatrix.a2, bone->mOffsetMatrix.b2, bone->mOffsetMatrix.c2, bone->mOffsetMatrix.d2,
-						bone->mOffsetMatrix.a3, bone->mOffsetMatrix.b3, bone->mOffsetMatrix.c3, bone->mOffsetMatrix.d3,
-						bone->mOffsetMatrix.a4, bone->mOffsetMatrix.b4, bone->mOffsetMatrix.c4, bone->mOffsetMatrix.d4);
+                                           bone->mOffsetMatrix.a2, bone->mOffsetMatrix.b2, bone->mOffsetMatrix.c2, bone->mOffsetMatrix.d2,
+                                           bone->mOffsetMatrix.a3, bone->mOffsetMatrix.b3, bone->mOffsetMatrix.c3, bone->mOffsetMatrix.d3,
+                                           bone->mOffsetMatrix.a4, bone->mOffsetMatrix.b4, bone->mOffsetMatrix.c4, bone->mOffsetMatrix.d4);
 
 					for (unsigned int weightIndex = 0; weightIndex < bone->mNumWeights; weightIndex++) {
 						aiVertexWeight w = bone->mWeights[weightIndex];
@@ -143,9 +141,7 @@ void AnimatedModel::loadModelAssimp(const std::string& path, const short addVirt
 			mesh->m_joints.push_back(jointId);
 
 			aiNode* meshRootNode = searchNode(pScene->mRootNode, mesh->m_boneList);
-
 			std::vector<MeshBone>::iterator it = std::find_if(mesh->m_meshBones.begin(), mesh->m_meshBones.end(), [meshRootNode](MeshBone& meshBone) { return strcmp(meshRootNode->mName.C_Str(), meshBone.name.c_str()) == 0; });
-
 			fetchAiHierarchy(meshRootNode, mesh->m_meshBones, static_cast<int>(std::distance(mesh->m_meshBones.begin(), it)));
 		}
 
@@ -221,6 +217,25 @@ void AnimatedModel::fetchAiHierarchy(aiNode* node, std::vector<MeshBone>& meshBo
 	}
 }
 
+
+void AnimatedModel::printAiHierarchy(aiNode * node) {
+	std::cout << node->mName.data << std::endl;
+
+	aiVector3D pos, scale;
+	aiQuaternion rot;
+	aiMatrix4x4 transMatrix = node->mTransformation;
+	transMatrix.Decompose(scale, rot, pos);
+
+	std::cout << "POS: " << pos.x << "  " << pos.y << "  " << pos.z << std::endl;
+	std::cout << "SCALE: " << scale.x << "  " << scale.y << "  " << scale.z << std::endl;
+	std::cout << "ROT: " << rot.x << "  " << rot.y << "  " << rot.z << "  " << rot.w << std::endl;
+
+	for (unsigned int i = 0; i < node->mNumChildren; i++) {
+			printAiHierarchy(node->mChildren[i]);
+	}
+}
+
+
 const unsigned int AnimatedModel::getStride() const {
 	return m_isStacked ? m_stride : m_meshes.back()->getStride();
 }
@@ -277,8 +292,38 @@ AnimationState* AnimatedModel::getAnimationState(size_t index) const {
 	return (index < m_animationStates.size()) ? m_animationStates[index].get() : nullptr;
 }
 
+void AnimatedModel::removeAnimationState(const Animation& _animation) {
+	for (auto it = m_animationStates.begin(); it != m_animationStates.end(); ++it) {
+		AnimationState* state = (*it).get();
+		const Animation& animation = state->getAnimation();
+
+		if (animation.m_animationName == _animation.m_animationName) {
+			m_animationStates.erase(it);
+			return;
+		}
+	}
+}
+
 void AnimatedModel::OnAnimationOrderChanged() {
 	m_animationOrderDirty = true;
+}
+
+void AnimatedModel::rotate(const float pitch, const float yaw, const float roll) {
+	for (std::vector<Mesh*>::iterator mesh = m_meshes.begin(); mesh != m_meshes.end(); mesh++) {
+		static_cast<AnimatedMesh*>(*mesh)->rotate(pitch, yaw, roll);		
+	}
+}
+
+void AnimatedModel::scale(const float sx, const float sy, const float sz) {
+	for (std::vector<Mesh*>::iterator mesh = m_meshes.begin(); mesh != m_meshes.end(); mesh++) {
+		static_cast<AnimatedMesh*>(*mesh)->scale(sx, sy, sz);
+	}
+}
+
+void AnimatedModel::translate(const float dx, const float dy, const float dz) {
+	for (std::vector<Mesh*>::iterator mesh = m_meshes.begin(); mesh != m_meshes.end(); mesh++) {
+		static_cast<AnimatedMesh*>(*mesh)->translate(dx, dy, dz);
+	}
 }
 ///////////////////////////////////////////////////////////
 AnimatedMesh::AnimatedMesh(AnimatedModel* model) : m_model(model) {
@@ -327,7 +372,6 @@ void AnimatedMesh::createBones() {
 
 	for (size_t i = 0; i < m_numBones; ++i) {
 		const MeshBone& desc = m_meshBones[i];
-
 		if (desc.parentIndex == i) {
 			m_bones[i]->setParent(nullptr);
 			m_rootBone = m_bones[i];
@@ -343,7 +387,7 @@ void AnimatedMesh::createBones() {
 
 void AnimatedMesh::updateSkinning() {
 	for (size_t i = 0; i < m_numBones; ++i) {
-		m_skinMatrices[i] = m_bones[i]->getWorldTransformation() * m_meshBones[i].offsetMatrix;
+		m_skinMatrices[i] = m_bones[i]->getWorldTransformation() * m_meshBones[i].offsetMatrix;		
 	}
 }
 
@@ -363,5 +407,29 @@ void AnimatedMesh::update(float dt) {
 			state->addTime(dt);
 			state->apply();
 		}		
+	}
+}
+
+void AnimatedMesh::rotate(const float pitch, const float yaw, const float roll) {
+	for (size_t i = 0; i < m_numBones; ++i) {
+		if (m_meshBones[i].name == m_rootBone->m_name) {
+			m_meshBones[i].initialRotation.rotate(pitch, yaw, roll);
+		}
+	}
+}
+
+void AnimatedMesh::scale(const float sx, const float sy, const float sz) {
+	for (size_t i = 0; i < m_numBones; ++i) {
+		if (m_meshBones[i].name == m_rootBone->m_name) {
+			m_meshBones[i].initialScale.scale(sx, sy, sz);
+		}
+	}
+}
+
+void AnimatedMesh::translate(const float dx, const float dy, const float dz) {
+	for (size_t i = 0; i < m_numBones; ++i) {
+		if (m_meshBones[i].name == m_rootBone->m_name) {
+			m_meshBones[i].initialPosition.translate(dx, dy, dz);
+		}
 	}
 }

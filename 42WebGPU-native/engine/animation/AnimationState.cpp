@@ -259,8 +259,7 @@ void AnimationState::applyToModel() {
 				nextFrame = track->m_keyFrames.size();
 			else if (m_looped) {
 				nextFrame = 0;
-			}
-			else {
+			}else {
 				nextFrame = stateTrack.m_keyFrame;
 				interpolate = false;
 			}

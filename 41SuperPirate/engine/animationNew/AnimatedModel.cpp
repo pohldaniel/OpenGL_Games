@@ -24,15 +24,15 @@ const BoundingBox& AnimatedModel::getAABB() const {
 }
 
 void AnimatedModel::translate(const Vector3f& trans) {
-	return m_meshes[0]->m_rootBone->translate(trans);
+	m_meshes[0]->m_rootBone->translate(trans);
 }
 
 void AnimatedModel::translateRelative(const Vector3f& trans) {
-	return m_meshes[0]->m_rootBone->translateRelative(trans);
+	m_meshes[0]->m_rootBone->translateRelative(trans);
 }
 
 void AnimatedModel::rotate(const float pitch, const float yaw, const float roll) {
-	return m_meshes[0]->m_rootBone->rotate(pitch, yaw, roll);
+	m_meshes[0]->m_rootBone->rotate(pitch, yaw, roll);
 }
 
 AnimatedModel::AnimatedModel() : m_hasAnimationController(false), m_animationOrderDirty(false){

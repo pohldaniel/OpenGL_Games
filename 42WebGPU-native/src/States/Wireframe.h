@@ -15,13 +15,11 @@
 #include <WebGPU/WgpData.h>
 #include <WebGPU/WgpModel.h>
 
-enum SelectedModel {
-	MAMMOTH,
-	DRAGON
-};
-
 class Wireframe : public State, public MouseEventListener, public KeyboardEventListener {
-
+	enum SelectedModel {
+		MAMMOTH,
+		DRAGON
+	};
 public:
 
 	Wireframe(StateMachine& machine);
