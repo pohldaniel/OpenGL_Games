@@ -1,6 +1,8 @@
 #pragma once
 #include <list>
 #include <memory>
+#include <string>
+
 #include <engine/Vector.h>
 
 class Bone  {

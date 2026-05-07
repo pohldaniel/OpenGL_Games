@@ -82,6 +82,7 @@ SkinnedMesh::~SkinnedMesh() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 	m_uniformBuffer.markForDelete();
+	m_skinBuffer.markForDelete();
 }
 
 void SkinnedMesh::fixedUpdate() {
@@ -279,16 +280,13 @@ void SkinnedMesh::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 				m_whale.removeAnimationState(m_swim);
 				m_whale.addAnimationState(m_attack);
 				m_whale.getAnimationState(0)->setLooped(true);
-			}
-			else {
+			}else {
 				m_whale.removeAnimationState(m_attack);
 				m_whale.addAnimationState(m_swim);
 				m_whale.getAnimationState(0)->setLooped(true);
 			}
 		}
 	}
-
-	
 
 	ImGui::End();
 
