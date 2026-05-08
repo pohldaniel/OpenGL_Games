@@ -61,6 +61,6 @@ private:
 	WgpBuffer m_uniformBuffer, m_skinBuffer;
 	WgpModel m_wgpWhale, m_wgpVampire;
 
-	SelectedAnimation m_animation = SelectedAnimation::SWIM;
+	SelectedAnimation m_animation = SelectedAnimation::ATTACK;
 	SelectedModel m_model = SelectedModel::WHALE;
 };
