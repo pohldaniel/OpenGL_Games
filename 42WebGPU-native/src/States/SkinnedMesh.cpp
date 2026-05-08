@@ -18,6 +18,13 @@ SkinnedMesh::SkinnedMesh(StateMachine& machine) : State(machine, States::SKINNED
 
 	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm, Application::OnSurfaceChange);
 
+	
+	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 2000.0f);
+	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
+	m_camera.lookAt(Vector3f(0.0f, 0.0f, -50.0f), Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.setRotationSpeed(0.1f);
+	m_camera.setMovingSpeed(50.0f);
+
 	m_attack.loadAnimationAssimp("res/models/whale.glb", "ATTACK", "attack");
 	m_swim.loadAnimationAssimp("res/models/whale.glb", "swim", "swim");
 
@@ -39,16 +46,9 @@ SkinnedMesh::SkinnedMesh(StateMachine& machine) : State(machine, States::SKINNED
 	m_vampire.addAnimationState(m_dance);
 	m_vampire.getAnimationState(0)->setLooped(true);
 
-	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 2000.0f);
-	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-	m_camera.lookAt(Vector3f(0.0f, 0.0f, -50.0f), Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
-	m_camera.setRotationSpeed(0.1f);
-	m_camera.setMovingSpeed(50.0f);
-
 	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	m_skinBuffer.createBuffer(sizeof(Matrix4f) * 96u, WGPUBufferUsage_CopyDst | WGPUBufferUsage_Storage);
 
-	wgpContext.addSampler(wgpCreateSampler(WGPUFilterMode_Nearest, WGPUAddressMode_ClampToEdge, 1u, WGPUMipmapFilterMode_Nearest, WGPUCompareFunction_Less), SS_0);
 	wgpContext.setClearColor({ 0.5f, 0.5f, 0.5f, 1.0f });
 	wgpContext.addSahderModule("ANIMATION", "res/shader/animation.wgsl");
 	wgpContext.createRenderPipeline("ANIMATION", "RP_ANIMATION", VL_PTNWJ, std::bind(&SkinnedMesh::OnBindGroupLayouts, this));

@@ -237,6 +237,7 @@ void AnimationState::applyToModel() {
 
 	for (auto it = m_stateTracks.begin(); it != m_stateTracks.end(); ++it) {
 		AnimationStateTrack& stateTrack = *it;
+
 		const AnimationTrack* track = stateTrack.m_track;
 		float finalWeight = m_blendWeight * stateTrack.m_weight;
 		Bone* bone = stateTrack.m_node;
@@ -284,14 +285,13 @@ void AnimationState::applyToModel() {
 			t = timeInterval > 0.0f ? (m_stateTime - keyFrame.m_time) / timeInterval : 1.0f;
 		}
 
-		if (track->m_channelMask & CHANNEL_POSITION)
+		if (track->m_channelMask & CHANNEL_POSITION) 
 			newPosition = Math::Lerp(keyFrame.m_position, nextKeyFrame.m_position, t);
-		if (track->m_channelMask & CHANNEL_ROTATION)
+		if (track->m_channelMask & CHANNEL_ROTATION) 
 			newRotation = Quaternion::SLerp2(keyFrame.m_rotation, nextKeyFrame.m_rotation, t);
 		if (track->m_channelMask & CHANNEL_SCALE)
 			newScale = Math::Lerp(keyFrame.m_scale, nextKeyFrame.m_scale, t);
-
-
+			
 		if (m_animationBlendMode == ABM_ADDITIVE) {
 			if (track->m_channelMask & CHANNEL_POSITION) {
 				Vector3f delta = newPosition - stateTrack.m_initialPosition;
@@ -300,7 +300,6 @@ void AnimationState::applyToModel() {
 
 			if (track->m_channelMask & CHANNEL_ROTATION) {
 				newRotation = (newRotation * stateTrack.m_initialOrientation * bone->m_orientation);
-				//newRotation.normalize();
 				if (!Math::Equals(finalWeight, 1.0f))
 					newRotation = Quaternion::SLerp2(bone->m_orientation, newRotation, finalWeight);
 			}

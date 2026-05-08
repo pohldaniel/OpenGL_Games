@@ -1,7 +1,7 @@
-#include <iostream>
 #include <queue>
 #include <array>
 #include <functional>
+#include <iostream>
 
 #include <assimp/Importer.hpp> 
 #include <assimp/scene.h>
@@ -354,6 +354,14 @@ const unsigned short AnimatedMesh::getNumBones() const {
 	return m_numBones;
 }
 
+const bool AnimatedMesh::hasMaterial() const {
+	return m_materialIndex >= 0;
+}
+
+const Material& AnimatedMesh::getMaterial() const {
+	return Material::GetMaterials()[m_materialIndex];
+}
+
 void AnimatedMesh::createBones() {
 	m_numBones = static_cast<unsigned short>(m_meshBones.size());
 
@@ -381,19 +389,19 @@ void AnimatedMesh::createBones() {
 		}
 	}
 
-	for (size_t i = 0; i < m_numBones; ++i)
+	for (size_t i = 0u; i < m_numBones; ++i)
 		m_bones[i]->countChildBones();
 }
 
 void AnimatedMesh::updateSkinning() {
-	for (size_t i = 0; i < m_numBones; ++i) {
-		m_skinMatrices[i] = m_bones[i]->getWorldTransformation() * m_meshBones[i].offsetMatrix;		
-	}
+	for (size_t i = 0u; i < m_numBones; ++i)
+		m_skinMatrices[i] = m_bones[i]->getWorldTransformation() * m_meshBones[i].offsetMatrix;
+	
 }
 
 void AnimatedMesh::update(float dt) {
 
-	for (size_t i = 0; i < m_numBones; ++i) {
+	for (size_t i = 0u; i < m_numBones; ++i) {
 		Bone* bone = m_bones[i];
 		const MeshBone& meshBone = m_meshBones[i];
 		if (bone->animationEnabled()) {
@@ -411,7 +419,7 @@ void AnimatedMesh::update(float dt) {
 }
 
 void AnimatedMesh::rotate(const float pitch, const float yaw, const float roll) {
-	for (size_t i = 0; i < m_numBones; ++i) {
+	for (size_t i = 0u; i < m_numBones; ++i) {
 		if (m_meshBones[i].name == m_rootBone->m_name) {
 			m_meshBones[i].initialRotation.rotate(pitch, yaw, roll);
 		}
@@ -419,7 +427,7 @@ void AnimatedMesh::rotate(const float pitch, const float yaw, const float roll) 
 }
 
 void AnimatedMesh::scale(const float sx, const float sy, const float sz) {
-	for (size_t i = 0; i < m_numBones; ++i) {
+	for (size_t i = 0u; i < m_numBones; ++i) {
 		if (m_meshBones[i].name == m_rootBone->m_name) {
 			m_meshBones[i].initialScale.scale(sx, sy, sz);
 		}
@@ -427,7 +435,7 @@ void AnimatedMesh::scale(const float sx, const float sy, const float sz) {
 }
 
 void AnimatedMesh::translate(const float dx, const float dy, const float dz) {
-	for (size_t i = 0; i < m_numBones; ++i) {
+	for (size_t i = 0u; i < m_numBones; ++i) {
 		if (m_meshBones[i].name == m_rootBone->m_name) {
 			m_meshBones[i].initialPosition.translate(dx, dy, dz);
 		}

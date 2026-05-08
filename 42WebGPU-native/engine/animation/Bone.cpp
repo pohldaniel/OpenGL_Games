@@ -27,7 +27,10 @@ void Bone::OnTransformChanged() {
 
 const Matrix4f& Bone::getWorldTransformation() const {
 	if (m_isDirty) {
-		m_modelMatrix = m_parent ? m_parent->getWorldTransformation() * getTransformationSOP() : getTransformationSOP();
+		m_modelMatrix = getTransformationSOP();
+		if (m_parent)
+			m_modelMatrix = m_parent->getWorldTransformation() * m_modelMatrix;
+
 		m_isDirty = false;
 	}
 	return m_modelMatrix;
