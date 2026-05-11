@@ -314,10 +314,10 @@ void Utils::MdlcIO::animatedModelToMdlc(const char* out, const std::vector<float
 		buffer[12] = ret[3].c[0]; buffer[13] = ret[3].c[1]; buffer[14] = ret[3].c[2]; buffer[15] = ret[3].c[3];
 		file.write(buffer, sizeof(float) * 4);
 
-		std::array<char, 4> joint = { joints[i][0], joints[i][1],  joints[i][2], joints[i][3] };
+		std::array<unsigned char, 4> joint = { static_cast<unsigned char>(joints[i][0]), static_cast<unsigned char>(joints[i][1]),  static_cast<unsigned char>(joints[i][2]), static_cast<unsigned char>(joints[i][3]) };
 
 		buffer[0] = joint[0]; buffer[1] = joint[1]; buffer[2] = joint[2]; buffer[3] = joint[3];
-		file.write(buffer, sizeof(char) * 4);
+		file.write(buffer, sizeof(unsigned char) * 4);
 	}
 	delete buffer;
 
@@ -328,6 +328,7 @@ void Utils::MdlcIO::animatedModelToMdlc(const char* out, const std::vector<float
 	unsigned int numBones = static_cast<unsigned int>(boneDescriptions.size());
 	file.write(reinterpret_cast<const char*>(&numBones), sizeof(unsigned int));
 
+	Utils::UFloat ret[12];
 	for (size_t i = 0; i < boneDescriptions.size(); ++i) {
 		const BoneDescription& boneDescription = boneDescriptions[i];
 		file.write(&boneDescription.name[0], boneDescription.name.size() + 1);
@@ -337,48 +338,46 @@ void Utils::MdlcIO::animatedModelToMdlc(const char* out, const std::vector<float
 
 		char* bufferBoneTrans = new char[48];
 
-		Utils::UFloat position[3]; Utils::UFloat orientation[4]; Utils::UFloat scale[3]; Utils::UFloat offset[12];
-
-		position[0].flt = boneDescription.initialPosition[0]; position[1].flt = boneDescription.initialPosition[1]; position[2].flt = boneDescription.initialPosition[2];
-		bufferBoneTrans[0] = position[0].c[0]; bufferBoneTrans[1] = position[0].c[1]; bufferBoneTrans[2]  = position[0].c[2]; bufferBoneTrans[3]  = position[0].c[3];
-		bufferBoneTrans[4] = position[1].c[0]; bufferBoneTrans[5] = position[1].c[1]; bufferBoneTrans[6]  = position[1].c[2]; bufferBoneTrans[7]  = position[1].c[3];
-		bufferBoneTrans[8] = position[2].c[0]; bufferBoneTrans[9] = position[2].c[1]; bufferBoneTrans[10] = position[2].c[2]; bufferBoneTrans[11] = position[2].c[3];
+		ret[0].flt = boneDescription.initialPosition[0]; ret[1].flt = boneDescription.initialPosition[1]; ret[2].flt = boneDescription.initialPosition[2];
+		bufferBoneTrans[0] = ret[0].c[0]; bufferBoneTrans[1] = ret[0].c[1]; bufferBoneTrans[2]  = ret[0].c[2]; bufferBoneTrans[3]  = ret[0].c[3];
+		bufferBoneTrans[4] = ret[1].c[0]; bufferBoneTrans[5] = ret[1].c[1]; bufferBoneTrans[6]  = ret[1].c[2]; bufferBoneTrans[7]  = ret[1].c[3];
+		bufferBoneTrans[8] = ret[2].c[0]; bufferBoneTrans[9] = ret[2].c[1]; bufferBoneTrans[10] = ret[2].c[2]; bufferBoneTrans[11] = ret[2].c[3];
 		file.write(bufferBoneTrans, sizeof(float) * 3);
 
-		orientation[0].flt = boneDescription.initialRotation[0]; orientation[1].flt = boneDescription.initialRotation[1]; orientation[2].flt = boneDescription.initialRotation[2]; orientation[3].flt = boneDescription.initialRotation[3];
-		bufferBoneTrans[0]  = orientation[3].c[0]; bufferBoneTrans[1]  = orientation[3].c[1]; bufferBoneTrans[2]  = orientation[3].c[2]; bufferBoneTrans[3]  = orientation[3].c[3];
-		bufferBoneTrans[4]  = orientation[0].c[0]; bufferBoneTrans[5]  = orientation[0].c[1]; bufferBoneTrans[6]  = orientation[0].c[2]; bufferBoneTrans[7]  = orientation[0].c[3];
-		bufferBoneTrans[8]  = orientation[1].c[0]; bufferBoneTrans[9]  = orientation[1].c[1]; bufferBoneTrans[10] = orientation[1].c[2]; bufferBoneTrans[11] = orientation[1].c[3];
-		bufferBoneTrans[12] = orientation[2].c[0]; bufferBoneTrans[13] = orientation[2].c[1]; bufferBoneTrans[14] = orientation[2].c[2]; bufferBoneTrans[15] = orientation[2].c[3];
+		ret[0].flt = boneDescription.initialRotation[0]; ret[1].flt = boneDescription.initialRotation[1]; ret[2].flt = boneDescription.initialRotation[2]; ret[3].flt = boneDescription.initialRotation[3];
+		bufferBoneTrans[0]  = ret[3].c[0]; bufferBoneTrans[1]  = ret[3].c[1]; bufferBoneTrans[2]  = ret[3].c[2]; bufferBoneTrans[3]  = ret[3].c[3];
+		bufferBoneTrans[4]  = ret[0].c[0]; bufferBoneTrans[5]  = ret[0].c[1]; bufferBoneTrans[6]  = ret[0].c[2]; bufferBoneTrans[7]  = ret[0].c[3];
+		bufferBoneTrans[8]  = ret[1].c[0]; bufferBoneTrans[9]  = ret[1].c[1]; bufferBoneTrans[10] = ret[1].c[2]; bufferBoneTrans[11] = ret[1].c[3];
+		bufferBoneTrans[12] = ret[2].c[0]; bufferBoneTrans[13] = ret[2].c[1]; bufferBoneTrans[14] = ret[2].c[2]; bufferBoneTrans[15] = ret[2].c[3];
 
 		file.write(bufferBoneTrans, sizeof(float) * 4);
 
-		scale[0].flt = boneDescription.initialScale[0]; scale[1].flt = boneDescription.initialScale[1]; scale[2].flt = boneDescription.initialScale[2];
-		bufferBoneTrans[0] = scale[0].c[0]; bufferBoneTrans[1] = scale[0].c[1]; bufferBoneTrans[2]  = scale[0].c[2]; bufferBoneTrans[3]  = scale[0].c[3];
-		bufferBoneTrans[4] = scale[1].c[0]; bufferBoneTrans[5] = scale[1].c[1]; bufferBoneTrans[6]  = scale[1].c[2]; bufferBoneTrans[7]  = scale[1].c[3];
-		bufferBoneTrans[8] = scale[2].c[0]; bufferBoneTrans[9] = scale[2].c[1]; bufferBoneTrans[10] = scale[2].c[2]; bufferBoneTrans[11] = scale[2].c[3];
+		ret[0].flt = boneDescription.initialScale[0]; ret[1].flt = boneDescription.initialScale[1]; ret[2].flt = boneDescription.initialScale[2];
+		bufferBoneTrans[0] = ret[0].c[0]; bufferBoneTrans[1] = ret[0].c[1]; bufferBoneTrans[2]  = ret[0].c[2]; bufferBoneTrans[3]  = ret[0].c[3];
+		bufferBoneTrans[4] = ret[1].c[0]; bufferBoneTrans[5] = ret[1].c[1]; bufferBoneTrans[6]  = ret[1].c[2]; bufferBoneTrans[7]  = ret[1].c[3];
+		bufferBoneTrans[8] = ret[2].c[0]; bufferBoneTrans[9] = ret[2].c[1]; bufferBoneTrans[10] = ret[2].c[2]; bufferBoneTrans[11] = ret[2].c[3];
 		file.write(bufferBoneTrans, sizeof(float) * 3);
 
-		offset[0].flt = boneDescription.offsetMatrix[0][0]; offset[4].flt = boneDescription.offsetMatrix[0][1]; offset[8].flt  = boneDescription.offsetMatrix[0][2];
-		offset[1].flt = boneDescription.offsetMatrix[1][0]; offset[5].flt = boneDescription.offsetMatrix[1][1]; offset[9].flt  = boneDescription.offsetMatrix[1][2];
-		offset[2].flt = boneDescription.offsetMatrix[2][0]; offset[6].flt = boneDescription.offsetMatrix[2][1]; offset[10].flt  = boneDescription.offsetMatrix[2][2];
-		offset[3].flt = boneDescription.offsetMatrix[3][0]; offset[7].flt = boneDescription.offsetMatrix[3][1]; offset[11].flt = boneDescription.offsetMatrix[3][2];
+		ret[0].flt = boneDescription.offsetMatrix[0][0]; ret[4].flt = boneDescription.offsetMatrix[0][1]; ret[8].flt  = boneDescription.offsetMatrix[0][2];
+		ret[1].flt = boneDescription.offsetMatrix[1][0]; ret[5].flt = boneDescription.offsetMatrix[1][1]; ret[9].flt  = boneDescription.offsetMatrix[1][2];
+		ret[2].flt = boneDescription.offsetMatrix[2][0]; ret[6].flt = boneDescription.offsetMatrix[2][1]; ret[10].flt = boneDescription.offsetMatrix[2][2];
+		ret[3].flt = boneDescription.offsetMatrix[3][0]; ret[7].flt = boneDescription.offsetMatrix[3][1]; ret[11].flt = boneDescription.offsetMatrix[3][2];
 
-		bufferBoneTrans[0] = offset[0].c[0]; bufferBoneTrans[1] = offset[0].c[1]; bufferBoneTrans[2]  = offset[0].c[2]; bufferBoneTrans[3]  = offset[0].c[3];
-		bufferBoneTrans[4] = offset[1].c[0]; bufferBoneTrans[5] = offset[1].c[1]; bufferBoneTrans[6]  = offset[1].c[2]; bufferBoneTrans[7]  = offset[1].c[3];
-		bufferBoneTrans[8] = offset[2].c[0]; bufferBoneTrans[9] = offset[2].c[1]; bufferBoneTrans[10] = offset[2].c[2]; bufferBoneTrans[11] = offset[2].c[3];
+		bufferBoneTrans[0] = ret[0].c[0]; bufferBoneTrans[1] = ret[0].c[1]; bufferBoneTrans[2]  = ret[0].c[2]; bufferBoneTrans[3]  = ret[0].c[3];
+		bufferBoneTrans[4] = ret[1].c[0]; bufferBoneTrans[5] = ret[1].c[1]; bufferBoneTrans[6]  = ret[1].c[2]; bufferBoneTrans[7]  = ret[1].c[3];
+		bufferBoneTrans[8] = ret[2].c[0]; bufferBoneTrans[9] = ret[2].c[1]; bufferBoneTrans[10] = ret[2].c[2]; bufferBoneTrans[11] = ret[2].c[3];
 
-		bufferBoneTrans[12] = offset[3].c[0]; bufferBoneTrans[13] = offset[3].c[1]; bufferBoneTrans[14] = offset[3].c[2]; bufferBoneTrans[15] = offset[3].c[3];
-		bufferBoneTrans[16] = offset[4].c[0]; bufferBoneTrans[17] = offset[4].c[1]; bufferBoneTrans[18] = offset[4].c[2]; bufferBoneTrans[19] = offset[4].c[3];
-		bufferBoneTrans[20] = offset[5].c[0]; bufferBoneTrans[21] = offset[5].c[1]; bufferBoneTrans[22] = offset[5].c[2]; bufferBoneTrans[23] = offset[5].c[3];
+		bufferBoneTrans[12] = ret[3].c[0]; bufferBoneTrans[13] = ret[3].c[1]; bufferBoneTrans[14] = ret[3].c[2]; bufferBoneTrans[15] = ret[3].c[3];
+		bufferBoneTrans[16] = ret[4].c[0]; bufferBoneTrans[17] = ret[4].c[1]; bufferBoneTrans[18] = ret[4].c[2]; bufferBoneTrans[19] = ret[4].c[3];
+		bufferBoneTrans[20] = ret[5].c[0]; bufferBoneTrans[21] = ret[5].c[1]; bufferBoneTrans[22] = ret[5].c[2]; bufferBoneTrans[23] = ret[5].c[3];
 
-		bufferBoneTrans[24] = offset[6].c[0]; bufferBoneTrans[25] = offset[6].c[1]; bufferBoneTrans[26] = offset[6].c[2]; bufferBoneTrans[27] = offset[6].c[3];
-		bufferBoneTrans[28] = offset[7].c[0]; bufferBoneTrans[29] = offset[7].c[1]; bufferBoneTrans[30] = offset[7].c[2]; bufferBoneTrans[31] = offset[7].c[3];
-		bufferBoneTrans[32] = offset[8].c[0]; bufferBoneTrans[33] = offset[8].c[1]; bufferBoneTrans[34] = offset[8].c[2]; bufferBoneTrans[35] = offset[8].c[3];
+		bufferBoneTrans[24] = ret[6].c[0]; bufferBoneTrans[25] = ret[6].c[1]; bufferBoneTrans[26] = ret[6].c[2]; bufferBoneTrans[27] = ret[6].c[3];
+		bufferBoneTrans[28] = ret[7].c[0]; bufferBoneTrans[29] = ret[7].c[1]; bufferBoneTrans[30] = ret[7].c[2]; bufferBoneTrans[31] = ret[7].c[3];
+		bufferBoneTrans[32] = ret[8].c[0]; bufferBoneTrans[33] = ret[8].c[1]; bufferBoneTrans[34] = ret[8].c[2]; bufferBoneTrans[35] = ret[8].c[3];
 
-		bufferBoneTrans[36] = offset[9].c[0];  bufferBoneTrans[37] = offset[9].c[1];  bufferBoneTrans[38] = offset[9].c[2];  bufferBoneTrans[39] = offset[9].c[3];
-		bufferBoneTrans[40] = offset[10].c[0]; bufferBoneTrans[41] = offset[10].c[1]; bufferBoneTrans[42] = offset[10].c[2]; bufferBoneTrans[43] = offset[10].c[3];
-		bufferBoneTrans[44] = offset[11].c[0]; bufferBoneTrans[45] = offset[11].c[1]; bufferBoneTrans[46] = offset[11].c[2]; bufferBoneTrans[47] = offset[11].c[3];
+		bufferBoneTrans[36] = ret[9].c[0];  bufferBoneTrans[37] = ret[9].c[1];  bufferBoneTrans[38] = ret[9].c[2];  bufferBoneTrans[39] = ret[9].c[3];
+		bufferBoneTrans[40] = ret[10].c[0]; bufferBoneTrans[41] = ret[10].c[1]; bufferBoneTrans[42] = ret[10].c[2]; bufferBoneTrans[43] = ret[10].c[3];
+		bufferBoneTrans[44] = ret[11].c[0]; bufferBoneTrans[45] = ret[11].c[1]; bufferBoneTrans[46] = ret[11].c[2]; bufferBoneTrans[47] = ret[11].c[3];
 
 		file.write(bufferBoneTrans, sizeof(float) * 12);
 
@@ -428,7 +427,6 @@ void Utils::MdlcIO::mdlcModelToBuffer(const char* in, std::vector<float>& vertex
 		ret[2].c[0] = buffer[i + 40]; ret[2].c[1] = buffer[i + 41]; ret[2].c[2] = buffer[i + 42]; ret[2].c[3] = buffer[i + 43];
 		ret[3].c[0] = buffer[i + 44]; ret[3].c[1] = buffer[i + 45]; ret[3].c[2] = buffer[i + 46]; ret[3].c[3] = buffer[i + 47];
 		weights.push_back({ ret[0].flt, ret[1].flt, ret[2].flt, ret[3].flt });
-
 		joints.push_back({ static_cast<unsigned int>(buffer[i + 48]), static_cast<unsigned int>(buffer[i + 49]), static_cast<unsigned int>(buffer[i + 50]), static_cast<unsigned int>(buffer[i +51]) });
 	}
 
@@ -504,5 +502,134 @@ void Utils::MdlcIO::mdlcModelToBuffer(const char* in, std::vector<float>& vertex
 		delete bufferBoneTrans;
 	}
 
+	file.close();
+}
+
+void  Utils::MdlcIO::animationToAnic(const char* out, const std::string& animationName, const float length, const std::vector<AnimationTrack>& animationTracks) {
+	std::ofstream file(out, std::ios::binary);
+	file.write(&animationName[0], animationName.size() + 1);
+
+	file.write(reinterpret_cast<const char*>(&length), sizeof(float));
+
+	unsigned int numTracks = static_cast<unsigned int>(animationTracks.size());
+	file.write(reinterpret_cast<const char*>(&numTracks), sizeof(unsigned int));
+
+	for (unsigned int i = 0; i < numTracks; ++i) {
+		const AnimationTrack& animationTrack = animationTracks[i];
+		file.write(&animationTrack.m_name[0], animationTrack.m_name.size() + 1);
+
+		unsigned char channelMask = 7;
+		file.write(reinterpret_cast<const char*>(&channelMask), sizeof(unsigned char));
+
+		unsigned int numKeyFrames = static_cast<unsigned int>(animationTrack.m_keyFrames.size());
+		file.write(reinterpret_cast<const char*>(&numKeyFrames), sizeof(unsigned int));
+
+		Utils::UFloat ret[4];
+		char* buffer = new char[16];
+		for (size_t j = 0; j < numKeyFrames; ++j) {
+			const AnimationKeyFrame& keyFrame = animationTrack.m_keyFrames[j];
+			file.write(reinterpret_cast<const char*>(&keyFrame.m_time), sizeof(float));
+			
+			ret[0].flt = keyFrame.m_position[0]; ret[1].flt = keyFrame.m_position[1]; ret[2].flt = keyFrame.m_position[2];
+			buffer[0] = ret[0].c[0]; buffer[1] = ret[0].c[1]; buffer[2]  = ret[0].c[2]; buffer[3]  = ret[0].c[3];
+			buffer[4] = ret[1].c[0]; buffer[5] = ret[1].c[1]; buffer[6]  = ret[1].c[2]; buffer[7]  = ret[1].c[3];
+			buffer[8] = ret[2].c[0]; buffer[9] = ret[2].c[1]; buffer[10] = ret[2].c[2]; buffer[11] = ret[2].c[3];
+			file.write(buffer, sizeof(float) * 3);
+
+			ret[0].flt = keyFrame.m_rotation[0]; ret[1].flt = keyFrame.m_rotation[1]; ret[2].flt = keyFrame.m_rotation[2]; ret[3].flt = keyFrame.m_rotation[3];
+			buffer[0]  = ret[3].c[0]; buffer[1]  = ret[3].c[1]; buffer[2]  = ret[3].c[2]; buffer[3]  = ret[3].c[3];
+			buffer[4]  = ret[0].c[0]; buffer[5]  = ret[0].c[1]; buffer[6]  = ret[0].c[2]; buffer[7]  = ret[0].c[3];
+			buffer[8]  = ret[1].c[0]; buffer[9]  = ret[1].c[1]; buffer[10] = ret[1].c[2]; buffer[11] = ret[1].c[3];
+			buffer[12] = ret[2].c[0]; buffer[13] = ret[2].c[1]; buffer[14] = ret[2].c[2]; buffer[15] = ret[2].c[3];
+			
+			file.write(buffer, sizeof(float) * 4);
+
+			ret[0].flt = keyFrame.m_scale[0]; ret[1].flt = keyFrame.m_scale[1]; ret[2].flt = keyFrame.m_scale[2];
+			buffer[0] = ret[0].c[0]; buffer[1] = ret[0].c[1]; buffer[2]  = ret[0].c[2]; buffer[3]  = ret[0].c[3];
+			buffer[4] = ret[1].c[0]; buffer[5] = ret[1].c[1]; buffer[6]  = ret[1].c[2]; buffer[7]  = ret[1].c[3];
+			buffer[8] = ret[2].c[0]; buffer[9] = ret[2].c[1]; buffer[10] = ret[2].c[2]; buffer[11] = ret[2].c[3];
+			file.write(buffer, sizeof(float) * 3);
+		}
+		delete buffer;
+	}
+}
+
+void Utils::MdlcIO::anicToBuffer(const char* in, std::string& animationName, float& length, std::map<std::string, AnimationTrack>& animationTracks) {
+	std::ifstream file(in, std::ios::binary);
+
+	char metaData[4];
+
+	while (true) {
+		file.read(metaData, sizeof(char));
+		if (!metaData[0])
+			break;
+		else
+			animationName += metaData[0];
+	}
+
+	file.read(metaData, sizeof(float));
+	length = Utils::bytesToFloatLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+	file.read(metaData, sizeof(unsigned int));
+	unsigned int numTracks = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+	for (unsigned int i = 0; i < numTracks; ++i) {
+
+		std::string trackName;
+		while (true) {
+			file.read(metaData, sizeof(char));
+			if (!metaData[0])
+				break;
+			else
+				trackName += metaData[0];
+		}
+
+		AnimationTrack& newTrack = animationTracks[trackName];
+		newTrack.m_name = trackName;
+
+		file.read(metaData, sizeof(unsigned char));
+		newTrack.m_channelMask = metaData[0];
+
+		file.read(metaData, sizeof(unsigned int));
+		unsigned int numKeyFrames = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+		
+		newTrack.m_keyFrames.resize(numKeyFrames);
+
+		Utils::UFloat ret[4];
+		char* buffer = new char[16];
+
+		for (size_t j = 0; j < numKeyFrames; ++j) {
+			AnimationKeyFrame& newKeyFrame = newTrack.m_keyFrames[j];
+
+			file.read(metaData, sizeof(float));
+			newKeyFrame.m_time = Utils::bytesToFloatLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+			if (newTrack.m_channelMask & CHANNEL_POSITION) {
+				file.read(buffer, 12);
+				ret[0].c[0] = buffer[0]; ret[0].c[1] = buffer[1]; ret[0].c[2] = buffer[2];  ret[0].c[3] = buffer[3];
+				ret[1].c[0] = buffer[4]; ret[1].c[1] = buffer[5]; ret[1].c[2] = buffer[6];  ret[1].c[3] = buffer[7];
+				ret[2].c[0] = buffer[8]; ret[2].c[1] = buffer[9]; ret[2].c[2] = buffer[10]; ret[2].c[3] = buffer[11];
+				newKeyFrame.m_position.set(ret[0].flt, ret[1].flt, ret[2].flt);
+			}
+
+			if (newTrack.m_channelMask & CHANNEL_ROTATION) {
+				file.read(buffer, 16);		
+				ret[0].c[0] = buffer[0];  ret[0].c[1] = buffer[1];  ret[0].c[2] = buffer[2];  ret[0].c[3] = buffer[3];
+				ret[1].c[0] = buffer[4];  ret[1].c[1] = buffer[5];  ret[1].c[2] = buffer[6];  ret[1].c[3] = buffer[7];
+				ret[2].c[0] = buffer[8];  ret[2].c[1] = buffer[9];  ret[2].c[2] = buffer[10]; ret[2].c[3] = buffer[11];
+				ret[3].c[0] = buffer[12]; ret[3].c[1] = buffer[13]; ret[3].c[2] = buffer[14]; ret[3].c[3] = buffer[15];
+				newKeyFrame.m_rotation.set(ret[3].flt, ret[0].flt, ret[1].flt, ret[2].flt);
+			}
+
+			if (newTrack.m_channelMask & CHANNEL_SCALE) {
+				file.read(buffer, 12);			
+				ret[0].c[0] = buffer[0]; ret[0].c[1] = buffer[1]; ret[0].c[2] = buffer[2]; ret[0].c[3] = buffer[3];
+				ret[1].c[0] = buffer[4]; ret[1].c[1] = buffer[5]; ret[1].c[2] = buffer[6]; ret[1].c[3] = buffer[7];
+				ret[2].c[0] = buffer[8]; ret[2].c[1] = buffer[9]; ret[2].c[2] = buffer[10]; ret[2].c[3] = buffer[11];
+				newKeyFrame.m_scale.set(ret[0].flt, ret[1].flt, ret[2].flt);
+			}		
+		}
+		delete buffer;
+	}
 	file.close();
 }

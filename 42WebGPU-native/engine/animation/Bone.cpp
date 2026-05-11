@@ -85,6 +85,14 @@ const Matrix4f& Bone::getTransformationSOP() const {
 	return Transformation;
 }
 
+const std::string& Bone::getName() const {
+	return m_name;
+}
+
+const Vector3f& Bone::getScale() const {
+	return m_scale;
+}
+
 void Bone::setPosition(const Vector3f& position) {
 	m_position = position;
 	OnTransformChanged();

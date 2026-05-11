@@ -50,12 +50,11 @@ void AnimatedModel::loadModel(const std::string& path, const short addVirtualRoo
 
 	if (addVirtualRoots) {
 
-		for (size_t i = 0; i < mesh->m_boneDescriptions.size(); ++i) {
+		for (size_t i = 0u; i < mesh->m_boneDescriptions.size(); ++i) {
 			BoneDescription& boneDescription = mesh->m_boneDescriptions[i];
 			if (boneDescription.parentIndex != i) {
 				boneDescription.parentIndex = boneDescription.parentIndex + addVirtualRoots;
-			}
-			else {
+			}else {
 				boneDescription.parentIndex = (addVirtualRoots - 1);
 			}
 		}
@@ -65,6 +64,13 @@ void AnimatedModel::loadModel(const std::string& path, const short addVirtualRoo
 			mesh->m_boneDescriptions[0].name = "Root_" + std::to_string((addVirtualRoots - 1) - count);
 			if (count + 1 != addVirtualRoots)
 				mesh->m_boneDescriptions[0].parentIndex = (addVirtualRoots - 1) - count - 1;
+		}
+
+		for (size_t i = 0u; i < mesh->joints().size(); ++i) {
+			mesh->joints()[i][0] = mesh->getWeights()[i][0] != 0.0f ? mesh->getJoints()[i][0] + addVirtualRoots : mesh->getJoints()[i][0];
+			mesh->joints()[i][1] = mesh->getWeights()[i][1] != 0.0f ? mesh->getJoints()[i][1] + addVirtualRoots : mesh->getJoints()[i][1];
+			mesh->joints()[i][2] = mesh->getWeights()[i][2] != 0.0f ? mesh->getJoints()[i][2] + addVirtualRoots : mesh->getJoints()[i][2];
+			mesh->joints()[i][3] = mesh->getWeights()[i][3] != 0.0f ? mesh->getJoints()[i][3] + addVirtualRoots : mesh->getJoints()[i][3];
 		}
 	}
 	mesh->createBones();
@@ -165,8 +171,7 @@ void AnimatedModel::loadModelAssimp(const std::string& path, const short addVirt
 
 				if (first.vertexId == current.vertexId) {
 					k++;
-				}
-				else {
+				}else {
 					mesh->m_weights.push_back(jointWeight);
 					mesh->m_joints.push_back(jointId);
 

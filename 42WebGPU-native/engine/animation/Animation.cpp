@@ -2,6 +2,8 @@
 #include <assimp/Importer.hpp> 
 #include <assimp/scene.h>
 
+#include <engine/utils/BinaryIO.h>
+
 #include "Animation.h"
 
 void AnimationTrack::findKeyFrameIndex(float time, size_t& index) const {
@@ -24,6 +26,11 @@ Animation::Animation() : m_length(0.0f) {
 
 Animation::~Animation() {
 
+}
+
+void Animation::loadAnimation(std::string filename) {
+	Utils::MdlcIO mdlcIO;
+	mdlcIO.anicToBuffer(filename.c_str(), m_animationName, m_length, m_tracks);
 }
 
 void Animation::loadAnimationAssimp(const std::string& filename, std::string sourceName, std::string destName) {
@@ -114,8 +121,29 @@ const std::map<std::string, AnimationTrack>& Animation::getTracks() const {
 	return m_tracks;
 }
 
+const std::vector<AnimationTrack> Animation::getAnimationTracks() const {
+	std::vector<AnimationTrack> animationTracks;
+	std::transform(m_tracks.begin(), m_tracks.end(), std::back_inserter(animationTracks),
+		[](const std::pair<std::string, AnimationTrack>& a) {
+			return a.second;
+		});
+	return animationTracks;
+}
+
 size_t Animation::getNumTracks() const {
 	return m_tracks.size();
+}
+
+std::string& Animation::animationName() const {
+	return m_animationName;
+}
+
+float& Animation::length() const {
+	return m_length;
+}
+
+std::map<std::string, AnimationTrack>& Animation::tracks() const {
+	return m_tracks;
 }
 
 void Animation::setPositionOfTrack(const std::string& name, const float x, const float y, const float z) {

@@ -38,6 +38,9 @@ protected:
 	const Matrix4f& getWorldTransformation() const;
 	const Matrix4f& getTransformationSOP() const;
 
+	const std::string& getName() const;
+	const Vector3f& getScale() const;
+
 private:
 	
 	Bone* addChild(Bone* node);
