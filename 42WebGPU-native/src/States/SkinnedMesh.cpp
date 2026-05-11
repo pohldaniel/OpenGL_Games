@@ -30,10 +30,8 @@ SkinnedMesh::SkinnedMesh(StateMachine& machine) : State(machine, States::SKINNED
 	m_attack.loadAnimationAssimp("res/models/whale.glb", "ATTACK", "attack");
 	m_swim.loadAnimationAssimp("res/models/whale.glb", "swim", "swim");
 
-	mdlcIO.animationToAnic("res/attack.anic", m_attack.getAnimationName(), m_attack.getLength(), m_attack.getAnimationTracks());
+	//mdlcIO.animationToAnic("res/swim.anic", m_swim.getAnimationName(), m_swim.getLength(), m_swim.getAnimationTracks());
 	//mdlcIO.anicToBuffer("res/attack.anic", m_attack.animationName(), m_attack.length(), m_attack.tracks());
-
-
 	m_attackAnic.loadAnimation("res/attack.anic");
 
 	m_whale.loadModelAssimp("res/models/whale.glb", 1u);
@@ -43,9 +41,8 @@ SkinnedMesh::SkinnedMesh(StateMachine& machine) : State(machine, States::SKINNED
 	m_whale.translate(0.0f, -5.0f, 0.0f);
 	m_whale.addAnimationState(m_attackAnic);
 	m_whale.getAnimationState(0)->setLooped(true);
-
 	
-	const AnimatedMesh* mesh = static_cast<const AnimatedMesh*>(m_whale.getMesh());
+	//const AnimatedMesh* mesh = static_cast<const AnimatedMesh*>(m_whale.getMesh());
 	//mdlcIO.animatedModelToMdlc("res/whale.mdlc", mesh->getVertexBuffer(), mesh->getIndexBuffer(), mesh->getStride(), mesh->getWeights(), mesh->getJoints(), mesh->getBoneDescriptions());
 
 	m_whaleMdlc.loadModel("res/whale.mdlc", 1u);

@@ -45,14 +45,6 @@ namespace Utils {
 	short bytesToShortBE(unsigned char b0, unsigned char b1);
 	bool bytesToBool(unsigned char b0);
 
-	struct MdlIO {
-		void mdlToObj(const char* path, const char* outFileObj, const char* outFileMtl, const char* texturePath);
-		void mdlToBuffer(const char* path, float scale, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut);
-		void mdlToBuffer(const char* path, std::array<float, 3> scale, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut);
-		void mdlToBuffer(const char* path, float scale, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut, std::vector<std::array<float, 4>>& weightsOut, std::vector<std::array<unsigned int, 4>>& boneIdsOut, std::vector<BoneDescription>& boneDescriptions);
-		void mdlToBuffer(const char* path, std::array<float, 3> scale, std::vector<float>& vertexBufferOut, std::vector<unsigned int>& indexBufferOut, std::vector<std::array<float, 4>>& weightsOut, std::vector<std::array<unsigned int, 4>>& boneIdsOut, std::vector<BoneDescription>& boneDescriptions);
-	};
-
 	struct MdlcIO {
 		void animatedModelToMdlc(const char* out, const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, uint32_t stride, const std::vector<std::array<float, 4>>& weights, const std::vector<std::array<unsigned int, 4>>& joints, const std::vector<BoneDescription>& boneDescriptions);
 		void mdlcModelToBuffer(const char* in, std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, uint32_t& stride, std::vector<std::array<float, 4>>& weights, std::vector<std::array<unsigned int, 4>>& joints, std::vector<BoneDescription>& boneDescriptions);
