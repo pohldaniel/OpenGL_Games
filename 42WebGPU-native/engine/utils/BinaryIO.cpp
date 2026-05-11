@@ -115,7 +115,7 @@ void Utils::MdlcIO::animatedModelToMdlc(const char* out, const std::vector<float
 		buffer[0] = joint[0]; buffer[1] = joint[1]; buffer[2] = joint[2]; buffer[3] = joint[3];
 		file.write(buffer, sizeof(unsigned char) * 4);
 	}
-	delete buffer;
+	delete[] buffer;
 
 	unsigned int indexCount = static_cast<unsigned int>(indexBuffer.size());
 	file.write(reinterpret_cast<const char*>(&indexCount), sizeof(unsigned int));
@@ -177,7 +177,7 @@ void Utils::MdlcIO::animatedModelToMdlc(const char* out, const std::vector<float
 
 		file.write(bufferBoneTrans, sizeof(float) * 12);
 
-		delete bufferBoneTrans;
+		delete[] bufferBoneTrans;
 	}
 
 	file.close();
@@ -295,7 +295,7 @@ void Utils::MdlcIO::mdlcModelToBuffer(const char* in, std::vector<float>& vertex
                                          ret[2].flt, ret[6].flt, ret[10].flt, 0.0f,
                                          ret[3].flt, ret[7].flt, ret[11].flt, 1.0f);
 
-		delete bufferBoneTrans;
+		delete[] bufferBoneTrans;
 	}
 
 	file.close();
@@ -345,7 +345,7 @@ void  Utils::MdlcIO::animationToAnic(const char* out, const std::string& animati
 			buffer[8] = ret[2].c[0]; buffer[9] = ret[2].c[1]; buffer[10] = ret[2].c[2]; buffer[11] = ret[2].c[3];
 			file.write(buffer, sizeof(float) * 3);
 		}
-		delete buffer;
+		delete[] buffer;
 	}
 }
 
@@ -424,7 +424,7 @@ void Utils::MdlcIO::anicToBuffer(const char* in, std::string& animationName, flo
 				newKeyFrame.m_scale.set(ret[0].flt, ret[1].flt, ret[2].flt);
 			}		
 		}
-		delete buffer;
+		delete[] buffer;
 	}
 	file.close();
 }

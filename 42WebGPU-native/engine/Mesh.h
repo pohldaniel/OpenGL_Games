@@ -30,4 +30,6 @@ protected:
 
 	unsigned int m_drawCount, m_baseVertex, m_baseIndex;
 	bool m_hasTextureCoords, m_hasNormals, m_hasTangents;
+
+	
 };

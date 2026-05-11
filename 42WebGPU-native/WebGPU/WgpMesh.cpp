@@ -22,11 +22,11 @@ WgpMesh::WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsig
 	if (stride == 8u) {
 		std::vector<VertexAnimated> _vertexBuffer;
 		for (size_t i = 0u; i < vertexBuffer.size() / stride; i++) {
-			_vertexBuffer.push_back({ vertexBuffer[i * stride], vertexBuffer[i * stride + 1u] , vertexBuffer[i * stride + 2u],
-                                      vertexBuffer[i * stride + 3u] , vertexBuffer[i * stride + 4u],
-                                      vertexBuffer[i * stride + 5u], vertexBuffer[i * stride + 6u] , vertexBuffer[i * stride + 7u],
-                                      weights[i][0], weights[i][1], weights[i][2], weights[i][3],
-									  joints[i][0], joints[i][1], joints[i][2], joints[i][3] });
+			_vertexBuffer.push_back({ {vertexBuffer[i * stride], vertexBuffer[i * stride + 1u] , vertexBuffer[i * stride + 2u]},
+									  {vertexBuffer[i * stride + 3u] , vertexBuffer[i * stride + 4u]},
+									  {vertexBuffer[i * stride + 5u], vertexBuffer[i * stride + 6u] , vertexBuffer[i * stride + 7u]},
+									  {weights[i][0], weights[i][1], weights[i][2], weights[i][3]},
+									  {joints[i][0], joints[i][1], joints[i][2], joints[i][3]} });
 		}
 		m_vertexBuffer.createBuffer(reinterpret_cast<const void*>(_vertexBuffer.data()), sizeof(VertexAnimated) * _vertexBuffer.size(), WGPUBufferUsage_Vertex | WGPUBufferUsage_Storage);
 	}
@@ -55,11 +55,11 @@ WgpMesh::WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsig
 	if (stride == 8u) {
 		std::vector<VertexAnimated> _vertexBuffer;
 		for (size_t i = 0u; i < vertexBuffer.size() / stride; i++) {
-			_vertexBuffer.push_back({ vertexBuffer[i * stride], vertexBuffer[i * stride + 1u] , vertexBuffer[i * stride + 2u],
-									vertexBuffer[i * stride + 3u] , vertexBuffer[i * stride + 4u],
-									vertexBuffer[i * stride + 5u], vertexBuffer[i * stride + 6u] , vertexBuffer[i * stride + 7u],
-									weights[i][0], weights[i][1], weights[i][2], weights[i][3],
-									joints[i][0], joints[i][1], joints[i][2], joints[i][3] });
+			_vertexBuffer.push_back({ {vertexBuffer[i * stride], vertexBuffer[i * stride + 1u] , vertexBuffer[i * stride + 2u]},
+									  {vertexBuffer[i * stride + 3u] , vertexBuffer[i * stride + 4u]},
+									  {vertexBuffer[i * stride + 5u], vertexBuffer[i * stride + 6u] , vertexBuffer[i * stride + 7u]},
+									  {weights[i][0], weights[i][1], weights[i][2], weights[i][3]},
+									  {joints[i][0], joints[i][1], joints[i][2], joints[i][3]} });
 		}
 		m_vertexBuffer.createBuffer(reinterpret_cast<const void*>(_vertexBuffer.data()), sizeof(VertexAnimated) * _vertexBuffer.size(), WGPUBufferUsage_Vertex | WGPUBufferUsage_Storage);
 	}
