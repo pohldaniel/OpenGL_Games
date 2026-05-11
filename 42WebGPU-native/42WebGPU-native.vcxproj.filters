@@ -43,6 +43,9 @@
     <Filter Include="engine\animation">
       <UniqueIdentifier>{00548da4-e38a-4532-9cd9-a41781d72bfb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="engine\utils">
+      <UniqueIdentifier>{9b4306b3-5a06-4228-b8e5-11084d85c403}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\input\ApplicationEventListener.cpp">
@@ -228,13 +231,16 @@
     <ClCompile Include="engine\animation\Animation.cpp">
       <Filter>engine\animation</Filter>
     </ClCompile>
-    <ClCompile Include="engine\animation\MeshBone.cpp">
-      <Filter>engine\animation</Filter>
-    </ClCompile>
     <ClCompile Include="engine\animation\Bone.cpp">
       <Filter>engine\animation</Filter>
     </ClCompile>
     <ClCompile Include="engine\animation\AnimationState.cpp">
+      <Filter>engine\animation</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\utils\BinaryIO.cpp">
+      <Filter>engine\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\animation\BoneDescription.cpp">
       <Filter>engine\animation</Filter>
     </ClCompile>
   </ItemGroup>
@@ -449,13 +455,16 @@
     <ClInclude Include="engine\animation\Animation.h">
       <Filter>engine\animation</Filter>
     </ClInclude>
-    <ClInclude Include="engine\animation\MeshBone.h">
-      <Filter>engine\animation</Filter>
-    </ClInclude>
     <ClInclude Include="engine\animation\Bone.h">
       <Filter>engine\animation</Filter>
     </ClInclude>
     <ClInclude Include="engine\animation\AnimationState.h">
+      <Filter>engine\animation</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\utils\BinaryIO.h">
+      <Filter>engine\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\animation\BoneDescription.h">
       <Filter>engine\animation</Filter>
     </ClInclude>
   </ItemGroup>

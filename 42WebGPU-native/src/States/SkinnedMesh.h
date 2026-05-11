@@ -56,10 +56,10 @@ private:
 	Uniforms m_uniforms;
 	Matrix4f m_lightProjection, m_lightView, m_shadow;
 	Animation m_attack, m_swim, m_dance;
-	AnimatedModel m_whale, m_vampire;
+	AnimatedModel m_whale, m_vampire, m_whaleNew;
 	
 	WgpBuffer m_uniformBuffer, m_skinBuffer;
-	WgpModel m_wgpWhale, m_wgpVampire;
+	WgpModel m_wgpWhale, m_wgpVampire, m_wgpWhaleNew;
 
 	SelectedAnimation m_animation = SelectedAnimation::ATTACK;
 	SelectedModel m_model = SelectedModel::WHALE;

@@ -6,6 +6,8 @@
 #include <WebGPU/WgpContext.h>
 #include <WebGPU/WgpRenderer.h>
 
+#include <engine/utils/BinaryIO.h>
+
 #include "SkinnedMesh.h"
 #include "Application.h"
 #include "Globals.h"
@@ -18,7 +20,6 @@ SkinnedMesh::SkinnedMesh(StateMachine& machine) : State(machine, States::SKINNED
 
 	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm, Application::OnSurfaceChange);
 
-	
 	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 2000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 	m_camera.lookAt(Vector3f(0.0f, 0.0f, -50.0f), Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
@@ -27,12 +28,14 @@ SkinnedMesh::SkinnedMesh(StateMachine& machine) : State(machine, States::SKINNED
 
 	m_attack.loadAnimationAssimp("res/models/whale.glb", "ATTACK", "attack");
 	m_swim.loadAnimationAssimp("res/models/whale.glb", "swim", "swim");
+	//m_whaleNew.loadModel("res/whale.mdlc", 0u);
 
-	m_whale.loadModelAssimp("res/models/whale.glb", 1u);
+	m_whale.loadModelAssimp("res/models/whale.glb", 0u);
 	m_whale.scale(10.0f, 10.0f, 10.0f);
 	m_whale.rotate(-90.0f, 0.0f, 0.0f);
 	m_whale.rotate(0.0f, 0.0f, 180.0f);
 	m_whale.translate(0.0f, -5.0f, 0.0f);
+
 	m_whale.addAnimationState(m_attack);
 	m_whale.getAnimationState(0)->setLooped(true);
 
@@ -74,6 +77,9 @@ SkinnedMesh::SkinnedMesh(StateMachine& machine) : State(machine, States::SKINNED
 
 	m_wgpVampire.create(m_vampire);
 	m_wgpVampire.setBindGroups("BG", std::bind(&SkinnedMesh::OnBindGroups, this));
+
+	//m_wgpWhaleNew.create(m_whaleNew);
+	//m_wgpWhaleNew.setBindGroups("BG", std::bind(&SkinnedMesh::OnBindGroups, this));
 
 	wgpContext.OnDraw = std::bind(&SkinnedMesh::OnDraw, this, std::placeholders::_1);	
 }
@@ -185,7 +191,12 @@ void SkinnedMesh::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
 	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
 	
 	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_ANIMATION"));
-	m_model == SelectedModel::WHALE ? m_wgpWhale.draw(renderPassEncoder) : m_wgpVampire.draw(renderPassEncoder);
+	if (m_model == SelectedModel::WHALE) {
+		m_wgpWhale.draw(renderPassEncoder);
+		//m_wgpWhaleNew.draw(renderPassEncoder);
+	}else {
+		m_wgpVampire.draw(renderPassEncoder);
+	}
 
 	if (m_drawUi)
 		renderUi(renderPassEncoder);

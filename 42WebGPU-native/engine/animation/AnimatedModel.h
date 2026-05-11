@@ -8,7 +8,7 @@
 #include <engine/Mesh.h>
 
 #include "../Material.h"
-#include "MeshBone.h"
+#include "BoneDescription.h"
 #include "AnimationState.h"
 
 struct WeightData {
@@ -39,6 +39,7 @@ public:
 	void updateSkinning();
 
 	void loadModelAssimp(const std::string& path, const short addVirtualRoots = 0, const bool reverseBoneList = false);
+	void loadModel(const std::string& path, const short addVirtualRoots = 0);
 	const unsigned int getStride() const override;
 	const Mesh* getMesh(unsigned short index = 0u) const;
 	const std::vector<Mesh*>& getMeshes() const;
@@ -51,12 +52,13 @@ public:
 	void rotate(const float pitch, const float yaw, const float roll);
 	void scale(const float sx, const float sy, const float sz);
 	void translate(const float dx, const float dy, const float dz);
+	void cleanup();
 
 private:
 
 	void OnAnimationOrderChanged();
 	aiNode* searchNode(aiNode* node, std::vector<std::string>& boneList);
-	void fetchAiHierarchy(aiNode* node, std::vector<MeshBone>& meshBones, int parentIndex = 0);
+	void fetchAiHierarchy(aiNode* node, std::vector<BoneDescription>& boneDescriptions, int parentIndex = 0);
 	void printAiHierarchy(aiNode* node);
 
 	unsigned int m_numberOfTriangles, m_numberOfMeshes, m_stride;
@@ -83,8 +85,7 @@ public:
 	void updateSkinning();
 	void createBones();
 
-	std::vector<MeshBone>& getMeshBones();
-
+	const std::vector<BoneDescription>& getBoneDescriptions() const;
 	const std::vector<std::array<float, 4>>& getWeights() const;
 	const std::vector<std::array<unsigned int, 4>>& getJoints() const;
 	const Matrix4f* getSkinMatrices() const;
@@ -97,6 +98,13 @@ public:
 	void translate(const float dx, const float dy, const float dz);
 	void cleanup();
 
+	std::vector<BoneDescription>& boneDescriptions() const;
+	std::vector<float>& vertexBuffer() const;
+	std::vector<unsigned int>& indexBuffer() const;
+	std::vector<std::array<float, 4>>& weights() const;
+	std::vector<std::array<unsigned int, 4>>& joints() const;
+	unsigned int& stride() const;
+
 private:
 
 	AnimatedModel* m_model;
@@ -107,10 +115,10 @@ private:
 	Bone* m_rootBone;
 	Bone** m_bones;
 
-	std::vector<std::array<float, 4>> m_weights;
-	std::vector<std::array<unsigned int, 4>> m_joints;
 	std::vector<std::string> m_boneList;
-	std::vector<MeshBone> m_meshBones;
+	mutable std::vector<std::array<float, 4>> m_weights;
+	mutable std::vector<std::array<unsigned int, 4>> m_joints;
+	mutable std::vector<BoneDescription> m_boneDescriptions;
 
 	mutable short m_materialIndex;
 	mutable short m_textureIndex;

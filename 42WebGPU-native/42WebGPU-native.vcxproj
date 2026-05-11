@@ -184,7 +184,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClCompile Include="engine\animation\Animation.cpp" />
     <ClCompile Include="engine\animation\AnimationState.cpp" />
     <ClCompile Include="engine\animation\Bone.cpp" />
-    <ClCompile Include="engine\animation\MeshBone.cpp" />
+    <ClCompile Include="engine\animation\BoneDescription.cpp" />
     <ClCompile Include="engine\AssimpModel.cpp" />
     <ClCompile Include="engine\CharacterSet.cpp" />
     <ClCompile Include="engine\input\GamePad.cpp" />
@@ -209,6 +209,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClCompile Include="engine\thread\Thread.cpp" />
     <ClCompile Include="engine\thread\WorkQueue.cpp" />
     <ClCompile Include="engine\Timer.cpp" />
+    <ClCompile Include="engine\utils\BinaryIO.cpp" />
     <ClCompile Include="src\ImguiExtension.cpp" />
     <ClCompile Include="src\LoadingManager.cpp" />
     <ClCompile Include="src\States\Compute.cpp" />
@@ -250,7 +251,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClInclude Include="engine\animation\Animation.h" />
     <ClInclude Include="engine\animation\AnimationState.h" />
     <ClInclude Include="engine\animation\Bone.h" />
-    <ClInclude Include="engine\animation\MeshBone.h" />
+    <ClInclude Include="engine\animation\BoneDescription.h" />
     <ClInclude Include="engine\AssimpModel.h" />
     <ClInclude Include="engine\CharacterSet.h" />
     <ClInclude Include="engine\input\GamePad.h" />
@@ -293,6 +294,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClInclude Include="engine\Timer.h" />
     <ClInclude Include="engine\TrackBall.h" />
     <ClInclude Include="engine\Transform.h" />
+    <ClInclude Include="engine\utils\BinaryIO.h" />
     <ClInclude Include="engine\Vector.h" />
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\DataStructs.h" />

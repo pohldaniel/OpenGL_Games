@@ -24,10 +24,10 @@ public:
 
 protected:
 
-	std::vector<unsigned int> m_indexBuffer;
-	std::vector<float> m_vertexBuffer;
+	mutable std::vector<unsigned int> m_indexBuffer;
+	mutable std::vector<float> m_vertexBuffer;
+	mutable unsigned int m_stride;
 
+	unsigned int m_drawCount, m_baseVertex, m_baseIndex;
 	bool m_hasTextureCoords, m_hasNormals, m_hasTangents;
-	unsigned int m_stride, m_drawCount, m_baseVertex, m_baseIndex;
-
 };

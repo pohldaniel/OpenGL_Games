@@ -1370,9 +1370,9 @@ void Utils::MdlIO::mdlToBuffer(const char* path, std::array<float,3> _scale, std
 		offset[11].c[0] = bufferBoneTrans[44]; offset[11].c[1] = bufferBoneTrans[45]; offset[11].c[2] = bufferBoneTrans[46]; offset[11].c[3] = bufferBoneTrans[47];
 
 		bone.offsetMatrix.set(offset[0].flt, offset[4].flt, offset[8].flt, 0.0f,
-			offset[1].flt, offset[5].flt, offset[9].flt, 0.0f,
-			offset[2].flt, offset[6].flt, offset[10].flt, 0.0f,
-			offset[3].flt, offset[7].flt, offset[11].flt, 1.0f);
+                              offset[1].flt, offset[5].flt, offset[9].flt, 0.0f,
+                              offset[2].flt, offset[6].flt, offset[10].flt, 0.0f,
+                              offset[3].flt, offset[7].flt, offset[11].flt, 1.0f);
 
 		delete bufferBoneTrans;
 
