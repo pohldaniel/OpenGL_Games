@@ -45,20 +45,19 @@ private:
 	void eraseAllChildren(size_t offset = 0u);
 	Bone* findChild(const std::string& name, bool recursive) const;
 
-	bool m_animationEnabled;
+	std::list<std::unique_ptr<Bone>> m_children;
+	Bone* m_parent;
 	size_t m_numChildBones;
 	bool m_isRootBone;
-	Matrix4f m_offsetMatrix;
-
-	Bone* m_parent;
-	std::list<std::unique_ptr<Bone>> m_children;
 	mutable bool m_isDirty;
+	bool m_animationEnabled;
 
-
+	std::string m_name;
 	Vector3f m_position;
 	Vector3f m_scale;
 	Quaternion m_orientation;
-	std::string m_name;
+	Matrix4f m_offsetMatrix;
+
 	mutable Matrix4f m_modelMatrix;
 	static thread_local Matrix4f Transformation;
 };

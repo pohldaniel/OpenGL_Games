@@ -71,12 +71,11 @@ private:
 	void applyToModel();
 	void applyToNodes();
 
+	std::vector<AnimationStateTrack> m_stateTracks;
 	//Just for fanciness the raw pointer is the way to go
 	//std::unique_ptr<Animation, std::function<void(Animation* animation)>> m_animation;
 	const Animation& m_animation;
-
 	Bone* m_startBone;
-	std::vector<AnimationStateTrack> m_stateTracks;
 
 	float m_stateTime;
 	unsigned char m_blendLayer;

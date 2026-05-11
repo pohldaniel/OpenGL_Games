@@ -1,7 +1,7 @@
 #include <iostream>
 #include "AnimationState.h"
 
-AnimationStateTrack::AnimationStateTrack() : m_track(nullptr), m_weight(1.0f), m_keyFrame(0) {
+AnimationStateTrack::AnimationStateTrack() : m_track(nullptr), m_node(nullptr), m_weight(1.0f), m_keyFrame(0) {
 
 }
 
@@ -17,20 +17,19 @@ AnimationStateTrack::~AnimationStateTrack() {
 AnimationState::AnimationState(const Animation& animation, Bone* startBone) :
 	//m_animation(animation, [&](Animation* animation) {/*delete animation;*/}),
 	m_animation(animation),
-	m_looped(false),
-	m_blendWeight(1.0f),
+	m_startBone(startBone),
 	m_stateTime(0.0f),
 	m_blendLayer(0),
-	m_startBone(startBone),
-	m_animationBlendMode(AnimationBlendMode::ABM_LERP),
+	m_looped(false),
 	m_backward(false),
+	m_blendWeight(1.0f),
 	m_layeredTime(0.0f),
 	m_fadeLayerLength(1.0f),
 	m_additiveDirection(1.0f),
-	m_invertBlend(false){
+	m_invertBlend(false),
+	m_animationBlendMode(AnimationBlendMode::ABM_LERP){
 
-	setStartBone(nullptr);
-
+	setStartBone(m_startBone);
 }
 
 AnimationState::~AnimationState() {

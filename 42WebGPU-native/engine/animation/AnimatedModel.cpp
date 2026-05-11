@@ -14,8 +14,17 @@ bool AnimatedModel::CompareAnimationStates(const std::shared_ptr<AnimationState>
 	return lhs->getBlendLayer() < rhs->getBlendLayer();
 }
 
-AnimatedModel::AnimatedModel() : m_isStacked(false), m_stride(0u), m_animationOrderDirty(true){
+AnimatedModel::AnimatedModel() {
+	m_hasTextureCoords = false;
+	m_hasNormals = false;
+	m_hasTangents = false;
+	m_hasMaterial = false;
+	m_isStacked = false;
+	m_animationOrderDirty = true;
 
+	m_numberOfTriangles = 0u;
+	m_numberOfMeshes = 0u;
+	m_stride = 0u;
 }
 
 AnimatedModel::~AnimatedModel() {
@@ -328,10 +337,20 @@ void AnimatedModel::translate(const float dx, const float dy, const float dz) {
 ///////////////////////////////////////////////////////////
 AnimatedMesh::AnimatedMesh(AnimatedModel* model) : m_model(model) {
 	m_model = model;
+
+	m_numBones = 0u;
+	m_materialIndex = -1;
+	m_textureIndex = -1;
 }
 
 AnimatedMesh::~AnimatedMesh() {
+	cleanup();
+}
 
+void AnimatedMesh::cleanup() {
+	delete m_rootBone;
+	delete m_bones;
+	delete m_skinMatrices;
 }
 
 std::vector<MeshBone>& AnimatedMesh::getMeshBones() {
