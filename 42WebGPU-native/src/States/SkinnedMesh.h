@@ -26,6 +26,11 @@ class SkinnedMesh : public State, public MouseEventListener, public KeyboardEven
 		VAMPIRE,
 		WHALE
 	};
+	enum SelectedMode {
+		NORMAL,
+		JOINTS,
+		WEIGHT
+	};
 public:
 
 	SkinnedMesh(StateMachine& machine);
@@ -67,12 +72,13 @@ private:
 	Fade m_fade;
 	Shape m_cube;
 
-	WgpBuffer m_uniformBuffer, m_skinBuffer;
+	WgpBuffer m_uniformBuffer, m_skinBuffer, m_modeBuffer;
 	WgpModel m_wgpWhale, m_wgpVampire, m_wgpCube;
 	WgpTexture m_wgpTextureCube;
 
-	SelectedAnimation m_animation = SelectedAnimation::ATTACK;
+	SelectedAnimation m_animation = SelectedAnimation::PROCEDURAL;
 	SelectedModel m_model = SelectedModel::WHALE;
+	SelectedMode m_mode = SelectedMode::NORMAL;
 
 	void proceduralSkinning(Bone**& bones, unsigned short numBones, float angle);
 };

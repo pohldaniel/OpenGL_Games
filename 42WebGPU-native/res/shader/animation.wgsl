@@ -22,11 +22,15 @@ struct Uniforms {
     model: mat4x4<f32>,    
 	normal: mat4x4<f32>,
 	color: vec4<f32>,
-	camPos: vec3<f32>
+	camPos: vec3<f32>,
+	lightVP: mat4x4<f32>,
+	shadow: mat4x4<f32>,
+	lightPos: vec3<f32>
 };
 
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
 @group(0) @binding(1) var<storage, read> skin: array<mat4x4f>;
+@group(0) @binding(2) var<uniform> mode : u32;
 
 fn get_world_matrix(weight : vec4f, joint : vec4u) -> mat4x4f {
 	return skin[joint.x] * weight.x + skin[joint.y] * weight.y +
@@ -52,5 +56,14 @@ fn vs_main(in: VertexInput) -> VertexOutput {
 
 @fragment
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
-	return vec4f(in.normal, 1.0);
+	//return vec4f(in.weight.xyz, 1.0);
+	switch mode {
+		case 1u: {
+			return vec4f(in.joint.xyz, 1.0);
+		}case 2u: {
+			return vec4f(in.weight.xyz, 1.0);
+		}default: {
+			return vec4f(in.normal, 1.0);
+		}
+	}
 }

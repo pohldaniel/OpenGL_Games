@@ -61,6 +61,7 @@ SkinnedMesh::SkinnedMesh(StateMachine& machine) : State(machine, States::SKINNED
 
 	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	m_skinBuffer.createBuffer(sizeof(Matrix4f) * 96u, WGPUBufferUsage_CopyDst | WGPUBufferUsage_Storage);
+	m_modeBuffer.createBuffer(sizeof(unsigned int), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 
 	wgpContext.setClearColor({ 0.5f, 0.5f, 0.5f, 1.0f });
 	wgpContext.addSahderModule("ANIMATION", "res/shader/animation.wgsl");
@@ -120,6 +121,7 @@ SkinnedMesh::~SkinnedMesh() {
 	EventDispatcher::RemoveMouseListener(this);
 	m_uniformBuffer.markForDelete();
 	m_skinBuffer.markForDelete();
+	m_modeBuffer.markForDelete();
 	m_wgpTextureCube.markForDelete();
 }
 
@@ -221,6 +223,8 @@ void SkinnedMesh::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, lightVP), &m_uniforms.lightVP, sizeof(Uniforms::lightVP));
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, shadow), &m_uniforms.shadow, sizeof(Uniforms::shadow));
 
+	wgpuQueueWriteBuffer(wgpContext.queue, m_modeBuffer.getBuffer(), 0u, &m_mode, sizeof(unsigned int));
+
 	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
 
 	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_ANIMATION"));
@@ -311,6 +315,11 @@ void SkinnedMesh::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 	}
 
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+	int currentMode = m_mode;
+	if (ImGui::Combo("Mode", &currentMode, "Normal\0Joints\0Weights\0\0")) {
+		m_mode = static_cast<SelectedMode>(currentMode);
+	}
+
 	int currentModel = m_model;
 	if (ImGui::Combo("Model", &currentModel, "Vampire\0Whale\0\0")) {
 		m_model = static_cast<SelectedModel>(currentModel);
@@ -364,7 +373,7 @@ void SkinnedMesh::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 std::vector<WGPUBindGroupLayout> SkinnedMesh::OnBindGroupLayouts() {
 	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
 
-	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(2);
+	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(3);
 	bindingLayoutEntries[0].binding = 0u;
 	bindingLayoutEntries[0].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
 	bindingLayoutEntries[0].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
@@ -374,6 +383,11 @@ std::vector<WGPUBindGroupLayout> SkinnedMesh::OnBindGroupLayouts() {
 	bindingLayoutEntries[1].visibility = WGPUShaderStage_Vertex;
 	bindingLayoutEntries[1].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_ReadOnlyStorage;
 	bindingLayoutEntries[1].buffer.minBindingSize = 16 * sizeof(float);
+
+	bindingLayoutEntries[2].binding = 2u;
+	bindingLayoutEntries[2].visibility = WGPUShaderStage_Fragment;
+	bindingLayoutEntries[2].buffer.type = WGPUBufferBindingType_Uniform;
+	bindingLayoutEntries[2].buffer.minBindingSize = sizeof(unsigned int);
 
 	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
 	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
@@ -387,7 +401,7 @@ std::vector<WGPUBindGroupLayout> SkinnedMesh::OnBindGroupLayouts() {
 std::vector<WGPUBindGroup> SkinnedMesh::OnBindGroups() {
 	std::vector<WGPUBindGroup> bindGroups(1);
 
-	std::vector<WGPUBindGroupEntry> bindGroupEntries(2);
+	std::vector<WGPUBindGroupEntry> bindGroupEntries(3);
 	bindGroupEntries[0].binding = 0u;
 	bindGroupEntries[0].buffer = m_uniformBuffer.getBuffer();
 	bindGroupEntries[0].offset = 0u;
@@ -397,6 +411,11 @@ std::vector<WGPUBindGroup> SkinnedMesh::OnBindGroups() {
 	bindGroupEntries[1].buffer = m_skinBuffer.getBuffer();
 	bindGroupEntries[1].offset = 0u;
 	bindGroupEntries[1].size = wgpuBufferGetSize(m_skinBuffer.getBuffer());
+
+	bindGroupEntries[2].binding = 2u;
+	bindGroupEntries[2].buffer = m_modeBuffer.getBuffer();
+	bindGroupEntries[2].offset = 0u;
+	bindGroupEntries[2].size = wgpuBufferGetSize(m_modeBuffer.getBuffer());
 
 	WGPUBindGroupDescriptor bindGroupDesc = {};
 	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_ANIMATION"), 0u);
