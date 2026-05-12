@@ -22,8 +22,7 @@ class SkinnedMesh : public State, public MouseEventListener, public KeyboardEven
 	};
 	enum SelectedModel {
 		VAMPIRE,
-		WHALE,
-		WHALE_MDL
+		WHALE
 	};
 public:
 
@@ -56,11 +55,11 @@ private:
 	Camera m_camera;
 	Uniforms m_uniforms;
 	Matrix4f m_lightProjection, m_lightView, m_shadow;
-	Animation m_attack, m_swim, m_dance, m_attackAnic;
-	AnimatedModel m_whale, m_vampire, m_whaleMdlc;
+	Animation m_attack, m_swim, m_dance;
+	AnimatedModel m_whale, m_vampire;
 	
 	WgpBuffer m_uniformBuffer, m_skinBuffer;
-	WgpModel m_wgpWhale, m_wgpVampire, m_wgpWhaleMdl;
+	WgpModel m_wgpWhale, m_wgpVampire;
 
 	SelectedAnimation m_animation = SelectedAnimation::ATTACK;
 	SelectedModel m_model = SelectedModel::WHALE;
