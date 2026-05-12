@@ -151,6 +151,11 @@ void Bone::setTransformSilent(const Vector3f& position, const Quaternion& rotati
 	m_scale = scale;
 }
 
+void Bone::setTransform(const Vector3f& position, const Quaternion& rotation, const Vector3f& scale) {
+	setTransformSilent(position, rotation, scale);
+	OnTransformChanged();
+}
+
 void Bone::countChildBones() {
 	m_numChildBones = 0;
 	for (auto it = m_children.begin(); it != m_children.end(); ++it) {

@@ -65,6 +65,7 @@ public:
 	unsigned char getBlendLayer() const;
 
 	void apply();
+	void reset();
 
 private:
 

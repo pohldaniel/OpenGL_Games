@@ -37,7 +37,7 @@ public:
 
 	void update(float dt);
 	void updateSkinning();
-	void applyBindpose();
+	void applyBindpose(bool onTransformChanged = false);
 	void cleanup();
 
 	void loadModelAssimp(const std::string& path, const short addVirtualRoots = 0, const bool reverseBoneList = false);
@@ -90,7 +90,7 @@ public:
 	
 	void update(float dt);
 	void updateSkinning();
-	void applyBindpose();
+	void applyBindpose(bool onTransformChanged = false);
 	void createBones();
 	void cleanup();
 

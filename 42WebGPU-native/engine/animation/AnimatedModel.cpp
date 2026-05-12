@@ -58,9 +58,9 @@ void AnimatedModel::updateSkinning() {
 	}
 }
 
-void AnimatedModel::applyBindpose() {
+void AnimatedModel::applyBindpose(bool onTransformChanged) {
 	for (std::vector<Mesh*>::iterator mesh = m_meshes.begin(); mesh != m_meshes.end(); mesh++) {
-		static_cast<AnimatedMesh*>(*mesh)->applyBindpose();
+		static_cast<AnimatedMesh*>(*mesh)->applyBindpose(onTransformChanged);
 	}
 }
 
@@ -423,13 +423,15 @@ void AnimatedMesh::update(float dt) {
 	}
 }
 
-void AnimatedMesh::applyBindpose() {
+void AnimatedMesh::applyBindpose(bool transformChanged) {
 	for (size_t i = 0u; i < m_numBones; ++i) {
 		Bone* bone = m_bones[i];
 		const BoneDescription& boneDescription = m_boneDescriptions[i];
 		if (bone->animationEnabled()) {
-			bone->setTransformSilent(boneDescription.initialPosition, boneDescription.initialRotation, boneDescription.initialScale);
-		}
+			transformChanged ? 
+				bone->setTransform(boneDescription.initialPosition, boneDescription.initialRotation, boneDescription.initialScale) :
+				bone->setTransformSilent(boneDescription.initialPosition, boneDescription.initialRotation, boneDescription.initialScale);
+		}		
 	}
 }
 

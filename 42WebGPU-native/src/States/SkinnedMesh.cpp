@@ -38,7 +38,11 @@ SkinnedMesh::SkinnedMesh(StateMachine& machine) : State(machine, States::SKINNED
 	m_whale.rotate(-90.0f, 0.0f, 0.0f);
 	m_whale.rotate(0.0f, 0.0f, 180.0f);
 	m_whale.translate(0.0f, -5.0f, 0.0f);
-	m_whale.applyBindpose();
+	if (m_animation == SelectedAnimation::PROCEDURAL) {
+		m_whale.scale(4.0f, 4.0f, 4.0f);
+		m_whale.translate(0.0f, -20.0f, 0.0f);
+	}
+	m_whale.applyBindpose(true);
 	m_whale.addAnimationState(m_attack);
 	m_whale.getAnimationState(0)->setLooped(true);
 
@@ -46,13 +50,14 @@ SkinnedMesh::SkinnedMesh(StateMachine& machine) : State(machine, States::SKINNED
 	//mdlcIO.animatedModelToMdlc("res/whale.mdlc", mesh->getVertexBuffer(), mesh->getIndexBuffer(), mesh->getStride(), mesh->getWeights(), mesh->getJoints(), mesh->getBoneDescriptions());
 
 	m_dance.loadAnimationAssimp("res/models/vampire/dancing_vampire.dae", "Hips", "vampire_dance");
-	m_dance.setPositionOfTrack("Hips", 0.0f, 0.0f, 0.0f);
-	m_dance.scaleTrack("Hips", 0.1f, 0.1f, 0.1f);
+	//m_dance.setPositionOfTrack("Hips", 0.0f, 0.0f, 0.0f);
+	//m_dance.scaleTrack("Hips", 0.1f, 0.1f, 0.1f);
 
 	m_vampire.loadModelAssimp("res/models/vampire/dancing_vampire.dae", 1u);
+	m_vampire.scale(0.1f, 0.1f, 0.1f);
 	m_vampire.rotate(0.0f, 180.0f, 0.0f);
-	m_vampire.translate(0.0f, 0.0f, -25.0f);
-	m_vampire.applyBindpose();
+	m_vampire.translate(-7.5f, -7.5f, -25.0f);
+	m_vampire.applyBindpose(true);
 	m_vampire.addAnimationState(m_dance);
 	m_vampire.getAnimationState(0)->setLooped(true);
 
@@ -197,10 +202,12 @@ void SkinnedMesh::update() {
 	const AnimatedMesh* mesh;
 	if (m_model == SelectedModel::WHALE) {	
 		mesh = static_cast<const AnimatedMesh*>(m_whale.getMesh());
-		m_animation == SelectedAnimation::PROCEDURAL ? proceduralSkinning(mesh->bones(), mesh->getNumBones(), m_fadeValue) : m_whale.update(m_dt);
+		if(m_skinMode)
+			m_animation == SelectedAnimation::PROCEDURAL ? proceduralSkinning(mesh->bones(), mesh->getNumBones(), m_fadeValue) : m_whale.update(m_dt);
 		m_whale.updateSkinning();		
 	}else {
-		m_vampire.update(m_dt);
+		if (m_skinMode)
+			m_vampire.update(m_dt);
 		m_vampire.updateSkinning();
 		mesh = static_cast<const AnimatedMesh*>(m_vampire.getMesh());
 	}
@@ -222,7 +229,6 @@ void SkinnedMesh::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, camPosition), &m_uniforms.camPosition, sizeof(Uniforms::camPosition));
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, lightVP), &m_uniforms.lightVP, sizeof(Uniforms::lightVP));
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, shadow), &m_uniforms.shadow, sizeof(Uniforms::shadow));
-
 	wgpuQueueWriteBuffer(wgpContext.queue, m_modeBuffer.getBuffer(), 0u, &m_mode, sizeof(unsigned int));
 
 	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
@@ -318,6 +324,22 @@ void SkinnedMesh::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 	int currentMode = m_mode;
 	if (ImGui::Combo("Mode", &currentMode, "Normal\0Joints\0Weights\0\0")) {
 		m_mode = static_cast<SelectedMode>(currentMode);
+	}
+
+	if (!m_skinMode) {
+		if (ImGui::Button("Skin Mode On")) {
+			m_skinMode = !m_skinMode;
+		}
+	}else {
+		if (ImGui::Button("Skin Mode Off")) {
+			m_skinMode = !m_skinMode;
+			
+			m_whale.applyBindpose(true);
+			m_whale.getAnimationState(0)->reset();
+
+			m_vampire.applyBindpose(true);
+			m_vampire.getAnimationState(0)->reset();
+		}
 	}
 
 	int currentModel = m_model;

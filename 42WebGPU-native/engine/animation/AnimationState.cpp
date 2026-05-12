@@ -232,6 +232,16 @@ void AnimationState::apply() {
 		applyToModel();
 }
 
+void AnimationState::reset() {
+	for (auto it = m_stateTracks.begin(); it != m_stateTracks.end(); ++it) {
+		AnimationStateTrack& stateTrack = *it;
+		stateTrack.m_keyFrame = 0u;
+		stateTrack.m_weight = 1.0f;
+	}
+	m_stateTime = 0.0f;
+	m_layeredTime = 0.0f;
+}
+
 void AnimationState::applyToModel() {
 
 	for (auto it = m_stateTracks.begin(); it != m_stateTracks.end(); ++it) {

@@ -56,7 +56,6 @@ fn vs_main(in: VertexInput) -> VertexOutput {
 
 @fragment
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
-	//return vec4f(in.weight.xyz, 1.0);
 	switch mode {
 		case 1u: {
 			return vec4f(in.joint.xyz, 1.0);

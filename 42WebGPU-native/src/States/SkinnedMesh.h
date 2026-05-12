@@ -63,6 +63,7 @@ private:
 	float m_fadeValue = 0.0f;
 	float m_speed = 50.0f;
 	float m_angle = 0.2f;
+	bool m_skinMode = true;
 
 	Camera m_camera;
 	Uniforms m_uniforms;
