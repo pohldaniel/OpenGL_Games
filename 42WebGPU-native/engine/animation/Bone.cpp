@@ -144,11 +144,13 @@ bool Bone::animationEnabled() const {
 size_t Bone::getNumChildBones() const {
 	return m_numChildBones;
 }
-
+#include <iostream>
 void Bone::setTransformSilent(const Vector3f& position, const Quaternion& rotation, const Vector3f& scale) {
 	m_position = position;
 	m_orientation = rotation;
 	m_scale = scale;
+
+	std::cout << m_orientation[0] << "  " << m_orientation[1] << "  " << m_orientation[2] << "  " << m_orientation[3] << std::endl;
 }
 
 void Bone::countChildBones() {
@@ -161,4 +163,5 @@ void Bone::countChildBones() {
 
 void Bone::rotate(const float pitch, const float yaw, const float roll) {
 	m_orientation.rotate(pitch, yaw, roll);
+	OnTransformChanged();
 }

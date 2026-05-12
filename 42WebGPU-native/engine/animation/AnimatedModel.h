@@ -48,10 +48,15 @@ public:
 	AnimationState* findAnimationState(const Animation& animation) const;
 	AnimationState* getAnimationState(size_t index) const;
 	void removeAnimationState(const Animation& animation);
+	void removeAllAnimationStates();
+	void applyBindpose();
 
 	void rotate(const float pitch, const float yaw, const float roll);
 	void scale(const float sx, const float sy, const float sz);
 	void translate(const float dx, const float dy, const float dz);
+
+	void setScale(const float sx, const float sy, const float sz);
+
 	void cleanup();
 
 private:
@@ -96,7 +101,11 @@ public:
 	void rotate(const float pitch, const float yaw, const float roll);
 	void scale(const float sx, const float sy, const float sz);
 	void translate(const float dx, const float dy, const float dz);
+
+	void setScale(const float sx, const float sy, const float sz);
+
 	void cleanup();
+	void applyBindpose();
 
 	std::vector<BoneDescription>& boneDescriptions() const;
 	std::vector<float>& vertexBuffer() const;
@@ -104,6 +113,7 @@ public:
 	std::vector<std::array<float, 4>>& weights() const;
 	std::vector<std::array<unsigned int, 4>>& joints() const;
 	unsigned int& stride() const;
+	Bone**& bones() const;
 
 private:
 
@@ -113,7 +123,7 @@ private:
 	Matrix4f* m_skinMatrices;
 
 	Bone* m_rootBone;
-	Bone** m_bones;
+	mutable Bone** m_bones;
 
 	std::vector<std::string> m_boneList;
 	mutable std::vector<std::array<float, 4>> m_weights;

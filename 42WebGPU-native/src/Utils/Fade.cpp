@@ -2,7 +2,7 @@
 #include <algorithm>
 #include "Fade.h"
 
-Fade::Fade(float& fadeValue) : m_transitionSpeed(1.0f), m_fadeValue(fadeValue), m_transitionEnd(fadeValue == 1.0f), m_fadeIn(false), m_fadeOut(false), m_activate(false), m_activateIn(false), m_activateOut(false), OnFadeEnd(nullptr), OnFadeIn(nullptr), OnFadeOut(nullptr){
+Fade::Fade(float& fadeValue) : m_transitionSpeed(1.0f), m_fadeValue(fadeValue), m_transitionEnd(fadeValue == 1.0f), m_fadeIn(false), m_fadeOut(false), m_loop(false), m_activate(false), m_activateIn(false), m_activateOut(false), OnFadeEnd(nullptr), OnFadeIn(nullptr), OnFadeOut(nullptr){
 
 }
 
@@ -12,6 +12,9 @@ void Fade::update(const float dt) {
 		m_fadeIn = m_fadeValue <= 1.0f;
 		m_transitionEnd = !m_fadeIn;	
 		m_fadeValue = std::min(m_fadeValue, 1.0f);
+		m_fadeOut = m_transitionEnd && m_loop;
+		if (m_fadeOut && m_activate && OnFadeEnd)
+			OnFadeEnd();
 	}
 
 	if (m_fadeOut) {		
@@ -19,6 +22,9 @@ void Fade::update(const float dt) {
 		m_fadeOut = m_fadeValue >= 0.0f;
 		m_transitionEnd = m_fadeOut;
 		m_fadeValue = std::max(m_fadeValue, 0.0f);
+		m_fadeIn = !m_transitionEnd && m_loop;
+		if (m_fadeIn && m_activate && OnFadeEnd)
+			OnFadeEnd();
 	}
 
 	if (m_activate && OnFadeEnd && !m_fadeOut && !m_fadeIn) {
@@ -35,6 +41,11 @@ void Fade::update(const float dt) {
 		m_activateOut = false;
 		OnFadeOut();
 	}
+}
+
+void Fade::start(bool activate) {
+	toggleFade(activate);
+	m_loop = true;
 }
 
 void Fade::toggleFade(bool activate) {
@@ -94,4 +105,8 @@ void Fade::setFadeValue(float fadeValue) {
 
 const bool Fade::isActivated() const {
 	return m_activate || m_activateIn || m_activateOut;
+}
+
+const float Fade::getTransitionSpeed() const {
+	return m_transitionSpeed;
 }

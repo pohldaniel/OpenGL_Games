@@ -11,6 +11,7 @@ public:
 	void toggleFade(bool activate = true);
 	void fadeIn(bool activate = true);
 	void fadeOut(bool activate = true);
+	void start(bool activate = true);
 	void setOnFadeEnd(std::function<void()> fun);
 	void setOnFadeIn(std::function<void()> fun);
 	void setOnFadeOut(std::function<void()> fun);
@@ -18,16 +19,19 @@ public:
 	void setTransitionEnd(bool transitionEnd);
 	void setFadeValue(float fadeValue);
 	const bool isActivated() const;
+	const float getTransitionSpeed() const;
 
 private:
 
-	std::function<void()> OnFadeEnd;
-	std::function<void()> OnFadeIn;
-	std::function<void()> OnFadeOut;
+	float& m_fadeValue;
 	float m_transitionSpeed;
 	bool m_transitionEnd;
 	bool m_fadeIn;
 	bool m_fadeOut;
-	float& m_fadeValue;
+	bool m_loop;
 	bool m_activate, m_activateIn, m_activateOut;
+
+	std::function<void()> OnFadeEnd;
+	std::function<void()> OnFadeIn;
+	std::function<void()> OnFadeOut;
 };

@@ -552,9 +552,10 @@ void ObjModel::loadModelCpu(const char* _filename, const Vector3f& axis, float d
 	
 	std::vector<unsigned int>::iterator triangles = numberOfTriangles.begin();
 	Mesh* prevMesh = nullptr;
+	unsigned int triangleOffset = 0u;
 	for (Mesh* _mesh : m_meshes) {
 		ObjMesh* mesh = static_cast<ObjMesh*>(_mesh);
-		unsigned int triangleOffset = prevMesh ? triangleOffset + (prevMesh->m_indexBuffer.size() / 3)  : 0u;
+		triangleOffset = prevMesh ? triangleOffset + (prevMesh->m_indexBuffer.size() / 3)  : 0u;
 
 		std::vector<std::array<int, 10>>::const_iterator first = face.begin() + triangleOffset;
 		std::vector<std::array<int, 10>>::const_iterator last = face.begin() + (triangleOffset + *triangles);

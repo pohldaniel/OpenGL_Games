@@ -39,7 +39,7 @@ fn vs_main(in: VertexInput) -> VertexOutput {
 	let world = get_world_matrix(in.weight, in.joint);  
 	
 	out.position = uniforms.projection * uniforms.view * world * vec4f(in.position, 1.0);
-	out.normal = normalize((world * vec4f(in.normal, 0.0)).xyz);
+	out.normal = in.normal;
 	out.texcoord = in.texcoord;
 	out.color = uniforms.color;
 	

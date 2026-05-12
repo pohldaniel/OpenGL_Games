@@ -12,7 +12,7 @@
 #include "Application.h"
 #include "Globals.h"
 
-SkinnedMesh::SkinnedMesh(StateMachine& machine) : State(machine, States::SKINNED_MESH) {
+SkinnedMesh::SkinnedMesh(StateMachine& machine) : State(machine, States::SKINNED_MESH), m_fade(m_fadeValue) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -40,7 +40,8 @@ SkinnedMesh::SkinnedMesh(StateMachine& machine) : State(machine, States::SKINNED
 	m_whale.translate(0.0f, -5.0f, 0.0f);
 	m_whale.addAnimationState(m_attack);
 	m_whale.getAnimationState(0)->setLooped(true);
-	
+	m_whale.applyBindpose();
+
 	//const AnimatedMesh* mesh = static_cast<const AnimatedMesh*>(m_whale.getMesh());
 	//mdlcIO.animatedModelToMdlc("res/whale.mdlc", mesh->getVertexBuffer(), mesh->getIndexBuffer(), mesh->getStride(), mesh->getWeights(), mesh->getJoints(), mesh->getBoneDescriptions());
 
@@ -84,6 +85,12 @@ SkinnedMesh::SkinnedMesh(StateMachine& machine) : State(machine, States::SKINNED
 	m_wgpWhale.setBindGroups("BG", std::bind(&SkinnedMesh::OnBindGroups, this));
 
 	wgpContext.OnDraw = std::bind(&SkinnedMesh::OnDraw, this, std::placeholders::_1);
+
+	m_fade.start();
+	m_fade.setTransitionSpeed(m_speed * 0.02f);
+	m_fade.setOnFadeEnd([&m_whale = m_whale] {
+		m_whale.applyBindpose();
+	});
 }
 
 SkinnedMesh::~SkinnedMesh() {
@@ -151,6 +158,7 @@ void SkinnedMesh::update() {
 			m_camera.move(direction * m_dt);
 		}
 	}
+	m_fade.update(m_dt);
 
 	m_uniforms.projection = m_camera.getPerspectiveMatrix();
 	m_uniforms.view = m_camera.getViewMatrix();
@@ -160,12 +168,12 @@ void SkinnedMesh::update() {
 	m_uniforms.camPosition = m_camera.getPosition();
 	m_uniforms.lightVP = m_lightProjection * m_lightView;
 	m_uniforms.shadow = Matrix4f::BIAS * m_uniforms.lightVP;
-
+	
 	const AnimatedMesh* mesh;
 	if (m_model == SelectedModel::WHALE) {	
-		m_whale.update(m_dt);
-		m_whale.updateSkinning();
 		mesh = static_cast<const AnimatedMesh*>(m_whale.getMesh());
+		//m_animation == SelectedAnimation::PROCEDURAL ? proceduralSking(mesh->bones(), mesh->getNumBones(), m_fadeValue) : m_whale.update(m_dt);
+		m_whale.updateSkinning();		
 	}else {
 		m_vampire.update(m_dt);
 		m_vampire.updateSkinning();
@@ -282,19 +290,40 @@ void SkinnedMesh::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 
 	if (m_model == SelectedModel::WHALE) {
 		int currentAnimation = m_animation;
-		if (ImGui::Combo("Animation", &currentAnimation, "Attack\0Swim\0\0")) {
+		SelectedAnimation prevAnimation = m_animation;
+		if (ImGui::Combo("Animation", &currentAnimation, "Attack\0Swim\0Procedural\0\0")) {
 			m_animation = static_cast<SelectedAnimation>(currentAnimation);
 			if (m_animation == SelectedAnimation::ATTACK) {
-				m_whale.removeAnimationState(m_swim);
+				m_whale.removeAllAnimationStates();
 				m_whale.addAnimationState(m_attack);
 				m_whale.getAnimationState(0)->setLooped(true);
-			}else {
-				m_whale.removeAnimationState(m_attack);
+				if (prevAnimation == SelectedAnimation::PROCEDURAL) {
+					m_whale.scale(0.25f, 0.25f, 0.25f);
+					m_whale.translate(0.0f, 20.0f, 0.0f);
+				}
+			}else if(m_animation == SelectedAnimation::SWIM) {
+				m_whale.removeAllAnimationStates();
 				m_whale.addAnimationState(m_swim);
 				m_whale.getAnimationState(0)->setLooped(true);
+				m_whale.getAnimationState(0)->setLooped(true);
+				if (prevAnimation == SelectedAnimation::PROCEDURAL) {
+					m_whale.scale(0.25f, 0.25f, 0.25f);
+					m_whale.translate(0.0f, 20.0f, 0.0f);
+				}
+			}else {
+				m_fadeValue = 0.0f;
+				m_whale.scale(4.0f, 4.0f, 4.0f);
+				m_whale.translate(0.0f, -20.0f, 0.0f);
+				m_whale.applyBindpose();
 			}
 		}
 	}
+	if (m_animation == SelectedAnimation::PROCEDURAL) {
+		if (ImGui::SliderFloat("Speed", &m_speed, 10.0f, 100.0f)) {
+			m_fade.setTransitionSpeed(m_speed * 0.02f);
+		}
+		ImGui::SliderFloat("Angle", &m_angle, 0.05f, 0.5f);
+	}	
 
 	ImGui::End();
 
@@ -347,4 +376,20 @@ std::vector<WGPUBindGroup> SkinnedMesh::OnBindGroups() {
 	bindGroups[0] = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
 
 	return bindGroups;
+}
+
+void SkinnedMesh::proceduralSking(Bone**& bones, unsigned short numBones, float angle) {
+	angle = (angle - 0.5f) * 2.0f * m_angle * 0.5f * m_fade.getTransitionSpeed();
+
+	for (size_t i = 0u; i < numBones; ++i) {
+		Bone* bone = bones[i];	
+
+		if (i == 3 || i == 4) {
+			bone->rotate(0.0f, 0.0f, angle);
+		}else if (i == 5 || i == 6) {
+			bone->rotate(0.0f, 0.0f, angle);
+		}else if(i == 1 || i == 2) {
+			bone->rotate(0.0f, i == 1 ? angle : -angle, 0.0f);
+		}
+	}
 }
