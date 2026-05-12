@@ -19,12 +19,12 @@ struct Uniforms {
 
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
 @group(0) @binding(1) var smplr: sampler;
-@group(1) @binding(0) var texture: texture_cube<f32>;
+@group(0) @binding(2) var texture: texture_cube<f32>;
 
 @vertex
 fn vs_main(in: VertexInput) -> VertexOutput {
 	var out: VertexOutput;
-	out.position = uniforms.projection * uniforms.view * vec4f(in.position, 1.0);
+	out.position = uniforms.projection * uniforms.env * vec4f(in.position, 1.0);
 	out.position.z = out.position.w;
 	out.texcoord = in.position;
 	return out;

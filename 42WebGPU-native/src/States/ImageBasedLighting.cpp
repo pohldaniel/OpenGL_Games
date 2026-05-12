@@ -955,6 +955,7 @@ std::vector<WGPUBindGroupLayout> ImageBasedLighting::OnBindGroupLayoutsSkybox() 
 
 	return bindingLayouts;
 }
+
 std::vector<WGPUBindGroup> ImageBasedLighting::OnBindGroupsSkybox() {
 	std::vector<WGPUBindGroup> bindGroups(1);
 	std::vector<WGPUBindGroupEntry> bindGroupEntries(3);

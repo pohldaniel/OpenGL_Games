@@ -48,6 +48,8 @@ private:
 
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayouts();
 	std::vector<WGPUBindGroup> OnBindGroups();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsSkybox();
+	std::vector<WGPUBindGroup> OnBindGroupsSkybox();
 
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 
@@ -63,9 +65,11 @@ private:
 	Animation m_attack, m_swim, m_dance;
 	AnimatedModel m_whale, m_vampire;
 	Fade m_fade;
+	Shape m_cube;
 
 	WgpBuffer m_uniformBuffer, m_skinBuffer;
-	WgpModel m_wgpWhale, m_wgpVampire;
+	WgpModel m_wgpWhale, m_wgpVampire, m_wgpCube;
+	WgpTexture m_wgpTextureCube;
 
 	SelectedAnimation m_animation = SelectedAnimation::ATTACK;
 	SelectedModel m_model = SelectedModel::WHALE;

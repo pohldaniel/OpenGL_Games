@@ -56,12 +56,28 @@ SkinnedMesh::SkinnedMesh(StateMachine& machine) : State(machine, States::SKINNED
 	m_vampire.addAnimationState(m_dance);
 	m_vampire.getAnimationState(0)->setLooped(true);
 
+	m_cube.buildCube({ -1.0f, -1.0f, -1.0f }, { 2.0f, 2.0f, 2.0f }, 1u, 1u, false, false);
+	m_cube.rewind();
+
 	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	m_skinBuffer.createBuffer(sizeof(Matrix4f) * 96u, WGPUBufferUsage_CopyDst | WGPUBufferUsage_Storage);
 
 	wgpContext.setClearColor({ 0.5f, 0.5f, 0.5f, 1.0f });
 	wgpContext.addSahderModule("ANIMATION", "res/shader/animation.wgsl");
 	wgpContext.createRenderPipeline("ANIMATION", "RP_ANIMATION", VL_PTNWJ, std::bind(&SkinnedMesh::OnBindGroupLayouts, this));
+
+	wgpContext.addSahderModule("SKYBOX", "res/shader/env_cube.wgsl");
+	wgpContext.createRenderPipeline("SKYBOX", "RP_SKYBOX", VL_P,
+		std::bind(&SkinnedMesh::OnBindGroupLayoutsSkybox, this),
+		1u,
+		WGPUPrimitiveTopology_TriangleList,
+		WGPUTextureFormat_Undefined,
+		WGPUTextureFormat_Undefined,
+		WGPUCompareFunction_LessEqual,
+		true,
+		false,
+		true
+	);
 
 	m_lightProjection = Matrix4f::Orthographic(-80.0f, 80.0f, -80.0f, 80.0f, -200.0f, 300.0f);
 	m_lightView = Matrix4f::LookAt(Vector3f(50.0f, 100.0f, -100.0f), Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
@@ -79,11 +95,16 @@ SkinnedMesh::SkinnedMesh(StateMachine& machine) : State(machine, States::SKINNED
 
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
 
+	std::string faces[] = { "res/textures/cubemaps/ocean/ocean_cube_px.jpg", "res/textures/cubemaps/ocean/ocean_cube_nx.jpg", "res/textures/cubemaps/ocean/ocean_cube_py.jpg", "res/textures/cubemaps/ocean/ocean_cube_ny.jpg", "res/textures/cubemaps/ocean/ocean_cube_pz.jpg", "res/textures/cubemaps/ocean/ocean_cube_nz.jpg" };
+	m_wgpTextureCube.loadCubeFromFiles(faces, true);
 	m_wgpVampire.create(m_vampire);
 	m_wgpVampire.setBindGroups("BG", std::bind(&SkinnedMesh::OnBindGroups, this));
 
 	m_wgpWhale.create(m_whale);
 	m_wgpWhale.setBindGroups("BG", std::bind(&SkinnedMesh::OnBindGroups, this));
+
+	m_wgpCube.create(m_cube);
+	m_wgpCube.setBindGroups("BG", std::bind(&SkinnedMesh::OnBindGroupsSkybox, this));
 
 	wgpContext.OnDraw = std::bind(&SkinnedMesh::OnDraw, this, std::placeholders::_1);
 
@@ -99,6 +120,7 @@ SkinnedMesh::~SkinnedMesh() {
 	EventDispatcher::RemoveMouseListener(this);
 	m_uniformBuffer.markForDelete();
 	m_skinBuffer.markForDelete();
+	m_wgpTextureCube.markForDelete();
 }
 
 void SkinnedMesh::fixedUpdate() {
@@ -202,7 +224,12 @@ void SkinnedMesh::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
 	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
 
 	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_ANIMATION"));
-	m_model == SelectedModel::WHALE ? m_wgpWhale.draw(renderPassEncoder) : m_wgpVampire.draw(renderPassEncoder);
+	if (m_model == SelectedModel::WHALE) {
+		m_wgpWhale.draw(renderPassEncoder);
+		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_SKYBOX"));
+		m_wgpCube.draw(renderPassEncoder);
+	}else
+		m_wgpVampire.draw(renderPassEncoder);
 	
 	if (m_drawUi)
 		renderUi(renderPassEncoder);
@@ -301,6 +328,7 @@ void SkinnedMesh::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 				if (prevAnimation == SelectedAnimation::PROCEDURAL) {
 					m_whale.scale(0.25f, 0.25f, 0.25f);
 					m_whale.translate(0.0f, 20.0f, 0.0f);
+					m_whale.applyBindpose();
 				}
 			}else if(m_animation == SelectedAnimation::SWIM) {
 				m_whale.removeAllAnimationStates();
@@ -310,6 +338,7 @@ void SkinnedMesh::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 				if (prevAnimation == SelectedAnimation::PROCEDURAL) {
 					m_whale.scale(0.25f, 0.25f, 0.25f);
 					m_whale.translate(0.0f, 20.0f, 0.0f);
+					m_whale.applyBindpose();
 				}
 			}else {
 				m_fadeValue = 0.0f;
@@ -374,6 +403,57 @@ std::vector<WGPUBindGroup> SkinnedMesh::OnBindGroups() {
 	bindGroupDesc.entryCount = (uint32_t)bindGroupEntries.size();
 	bindGroupDesc.entries = bindGroupEntries.data();
 
+	bindGroups[0] = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
+
+	return bindGroups;
+}
+
+std::vector<WGPUBindGroupLayout> SkinnedMesh::OnBindGroupLayoutsSkybox() {
+	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
+
+	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(3);
+	bindingLayoutEntries[0].binding = 0u;
+	bindingLayoutEntries[0].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
+	bindingLayoutEntries[0].buffer.type = WGPUBufferBindingType_Uniform;
+	bindingLayoutEntries[0].buffer.minBindingSize = sizeof(Uniforms);
+
+	bindingLayoutEntries[1].binding = 1u;
+	bindingLayoutEntries[1].visibility = WGPUShaderStage_Fragment;
+	bindingLayoutEntries[1].sampler.type = WGPUSamplerBindingType_Filtering;
+
+	bindingLayoutEntries[2].binding = 2u;
+	bindingLayoutEntries[2].visibility = WGPUShaderStage_Fragment;
+	bindingLayoutEntries[2].texture.viewDimension = WGPUTextureViewDimension_Cube;
+	bindingLayoutEntries[2].texture.sampleType = WGPUTextureSampleType_Float;
+
+	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
+	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
+	bindGroupLayoutDescriptor.entries = bindingLayoutEntries.data();
+
+	bindingLayouts[0] = wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor);
+
+	return bindingLayouts;
+}
+
+std::vector<WGPUBindGroup> SkinnedMesh::OnBindGroupsSkybox() {
+	std::vector<WGPUBindGroup> bindGroups(1);
+	std::vector<WGPUBindGroupEntry> bindGroupEntries(3);
+
+	bindGroupEntries[0].binding = 0u;
+	bindGroupEntries[0].buffer = m_uniformBuffer.getBuffer();
+	bindGroupEntries[0].offset = 0u;
+	bindGroupEntries[0].size = wgpuBufferGetSize(m_uniformBuffer.getBuffer());
+
+	bindGroupEntries[1].binding = 1u;
+	bindGroupEntries[1].sampler = wgpContext.getSampler(SS_LINEAR_CLAMP);
+
+	bindGroupEntries[2].binding = 2u;
+	bindGroupEntries[2].textureView = m_wgpTextureCube.getTextureView();
+
+	WGPUBindGroupDescriptor bindGroupDesc = {};
+	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_SKYBOX"), 0u);
+	bindGroupDesc.entryCount = (uint32_t)bindGroupEntries.size();
+	bindGroupDesc.entries = bindGroupEntries.data();
 	bindGroups[0] = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
 
 	return bindGroups;
