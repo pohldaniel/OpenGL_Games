@@ -56,7 +56,6 @@ private:
 	float m_fadeValue = 0.0f;
 	float m_speed = 50.0f;
 	float m_angle = 0.2f;
-	float m_scale = 1.0f;
 
 	Camera m_camera;
 	Uniforms m_uniforms;
@@ -71,5 +70,5 @@ private:
 	SelectedAnimation m_animation = SelectedAnimation::ATTACK;
 	SelectedModel m_model = SelectedModel::WHALE;
 
-	void proceduralSking(Bone**& bones, unsigned short numBones, float angle);
+	void proceduralSkinning(Bone**& bones, unsigned short numBones, float angle);
 };
