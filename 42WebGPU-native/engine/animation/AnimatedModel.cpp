@@ -496,36 +496,40 @@ const Material& AnimatedMesh::getMaterial() const {
 
 void AnimatedMesh::rotate(const float pitch, const float yaw, const float roll) {
 	for (size_t i = 0u; i < m_numBones; ++i) {
-		if (m_boneDescriptions[i].name == m_rootBone->m_name) {
+		if (m_bones[i]->isRootBone()) {
 			m_boneDescriptions[i].initialRotation.rotate(pitch, yaw, roll);
 			m_rootBone->OnTransformChanged();
+			break;
 		}
 	}
 }
 
 void AnimatedMesh::scale(const float sx, const float sy, const float sz) {
 	for (size_t i = 0u; i < m_numBones; ++i) {
-		if (m_boneDescriptions[i].name == m_rootBone->m_name) {
+		if (m_bones[i]->isRootBone()) {
 			m_boneDescriptions[i].initialScale.scale(sx, sy, sz);
 			m_rootBone->OnTransformChanged();
+			break;
 		}
 	}
 }
 
 void AnimatedMesh::translate(const float dx, const float dy, const float dz) {
 	for (size_t i = 0u; i < m_numBones; ++i) {
-		if (m_boneDescriptions[i].name == m_rootBone->m_name) {
+		if (m_bones[i]->isRootBone()) {
 			m_boneDescriptions[i].initialPosition.translate(dx, dy, dz);
 			m_rootBone->OnTransformChanged();
+			break;
 		}
 	}
 }
 
 void AnimatedMesh::setScale(const float sx, const float sy, const float sz) {
 	for (size_t i = 0u; i < m_numBones; ++i) {
-		if (m_boneDescriptions[i].name == m_rootBone->m_name) {
+		if (m_bones[i]->isRootBone()) {
 			m_boneDescriptions[i].initialScale.set(sx, sy, sz);
 			m_rootBone->OnTransformChanged();
+			break;
 		}
 	}
 }
