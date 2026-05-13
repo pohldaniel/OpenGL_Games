@@ -378,13 +378,14 @@ void SkinnedMesh::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 				m_whale.applyBindpose();
 			}
 		}
-	}
-	if (m_animation == SelectedAnimation::PROCEDURAL) {
-		if (ImGui::SliderFloat("Speed", &m_speed, 10.0f, 100.0f)) {
-			m_fade.setTransitionSpeed(m_speed * 0.02f);
+		if (m_animation == SelectedAnimation::PROCEDURAL) {
+			if (ImGui::SliderFloat("Speed", &m_speed, 10.0f, 100.0f)) {
+				m_fade.setTransitionSpeed(m_speed * 0.02f);
+			}
+			ImGui::SliderFloat("Angle", &m_angle, 0.05f, 0.5f);
 		}
-		ImGui::SliderFloat("Angle", &m_angle, 0.05f, 0.5f);
-	}	
+	}
+	
 
 	ImGui::End();
 
