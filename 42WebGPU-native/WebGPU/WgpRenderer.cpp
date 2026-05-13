@@ -1,4 +1,5 @@
 #include "WgpTexture.h"
+#include "WgpBuffer.h"
 #include "WgpContext.h"
 #include "WgpRenderer.h"
 
@@ -106,4 +107,94 @@ void WgpRenderer::DrawDepth(const WgpTexture& texture, std::function<void(const 
 
 	wgpuQueueSubmit(wgpContext.queue, 1, &commandBuffer);
 	wgpuCommandBufferRelease(commandBuffer);
+}
+
+void WgpRenderer::Dispatch(const WgpTexture& texture, const WgpBuffer& probability, const WgpBuffer& bufferA, const WgpBuffer& bufferB) {
+	uint32_t mipLevelCount = wgpuTextureGetMipLevelCount(texture.getTexture());
+	uint32_t mipWidth = wgpuTextureGetWidth(texture.getTexture());
+	uint32_t mipHeight = wgpuTextureGetHeight(texture.getTexture());
+	WGPUTextureFormat textureFormat = wgpuTextureGetFormat(texture.getTexture());
+
+	std::vector<WGPUTextureView> textureViews = std::vector<WGPUTextureView>(mipLevelCount);
+	std::vector<WGPUBindGroup> bindGroups = std::vector<WGPUBindGroup>(mipLevelCount);
+
+	WGPUCommandEncoder commandEncoder = wgpuDeviceCreateCommandEncoder(wgpContext.device, NULL);
+	for (uint32_t level = 0; level < mipLevelCount; ++level) {
+		const uint32_t levelWidth = mipWidth >> level;
+		const uint32_t levelHeight = mipHeight >> level;
+
+		const WGPUBindGroupLayout pipelineLayout
+			= level == 0 ? wgpuComputePipelineGetBindGroupLayout(wgpContext.computePipelines.at("CP_IMPORT"), 0) :
+			               wgpuComputePipelineGetBindGroupLayout(wgpContext.computePipelines.at("CP_EXPORT"), 0);
+
+		WGPUTextureViewDescriptor textureViewDescriptor = {};
+		textureViewDescriptor.label = WGPU_STR("texture_view");
+		textureViewDescriptor.aspect = WGPUTextureAspect_All;
+		textureViewDescriptor.baseArrayLayer = 0u;
+		textureViewDescriptor.arrayLayerCount = 1u;
+		textureViewDescriptor.baseMipLevel = level;
+		textureViewDescriptor.mipLevelCount = 1u;
+		textureViewDescriptor.dimension = WGPUTextureViewDimension_2D;
+		textureViewDescriptor.format = textureFormat;
+		textureViewDescriptor.nextInChain = NULL;
+
+		textureViews[level] = wgpuTextureCreateView(texture.getTexture(), &textureViewDescriptor);
+
+		std::vector<WGPUBindGroupEntry> bindGroupEntries(4);
+
+		bindGroupEntries[0].binding = 0u;
+		bindGroupEntries[0].buffer = probability.getBuffer();
+		bindGroupEntries[0].offset = 0u;
+		bindGroupEntries[0].size = wgpuBufferGetSize(probability.getBuffer());
+
+		bindGroupEntries[1].binding = 1u;
+		bindGroupEntries[1].buffer = level & 1 ? bufferA.getBuffer() : bufferB.getBuffer();
+		bindGroupEntries[1].offset = 0u;
+		bindGroupEntries[1].size = wgpuBufferGetSize(bindGroupEntries[1].buffer);
+
+		bindGroupEntries[2].binding = 2u;
+		bindGroupEntries[2].buffer = level & 1 ? bufferB.getBuffer() : bufferA.getBuffer();
+		bindGroupEntries[2].offset = 0u;
+		bindGroupEntries[2].size = wgpuBufferGetSize(bindGroupEntries[1].buffer);
+
+		bindGroupEntries[3].binding = 3u;
+		bindGroupEntries[3].textureView = textureViews[level];
+
+		WGPUBindGroupDescriptor bindGroupDesc = {};
+		bindGroupDesc.layout = pipelineLayout;
+		bindGroupDesc.entryCount = (uint32_t)bindGroupEntries.size();
+		bindGroupDesc.entries = bindGroupEntries.data();
+
+		bindGroups[level] = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
+
+		if (level == 0) {
+			WGPUComputePassEncoder computePassEncoder = wgpuCommandEncoderBeginComputePass(commandEncoder, NULL);
+			wgpuComputePassEncoderSetPipeline(computePassEncoder, wgpContext.computePipelines.at("CP_IMPORT"));
+			wgpuComputePassEncoderSetBindGroup(computePassEncoder, 0u, bindGroups[level], 0u, NULL);
+			wgpuComputePassEncoderDispatchWorkgroups(computePassEncoder, ceil(levelWidth / 64.f), levelHeight, 1u);
+			wgpuComputePassEncoderEnd(computePassEncoder);
+			wgpuComputePassEncoderRelease(computePassEncoder);
+		}else {
+			WGPUComputePassEncoder computePassEncoder = wgpuCommandEncoderBeginComputePass(commandEncoder, NULL);
+			wgpuComputePassEncoderSetPipeline(computePassEncoder, wgpContext.computePipelines.at("CP_EXPORT"));
+			wgpuComputePassEncoderSetBindGroup(computePassEncoder, 0u, bindGroups[level], 0u, NULL);
+			wgpuComputePassEncoderDispatchWorkgroups(computePassEncoder, ceil(levelWidth / 64.f), levelHeight, 1u);
+			wgpuComputePassEncoderEnd(computePassEncoder);
+			wgpuComputePassEncoderRelease(computePassEncoder);
+		}
+	}
+
+	WGPUCommandBuffer commandBuffer = wgpuCommandEncoderFinish(commandEncoder, NULL);
+	wgpuQueueSubmit(wgpContext.queue, 1, &commandBuffer);
+
+	wgpuCommandEncoderRelease(commandEncoder);
+	wgpuCommandBufferRelease(commandBuffer);
+
+	for (uint32_t i = 0; i < mipLevelCount; ++i) {
+		wgpuTextureViewRelease(textureViews[i]);
+	}
+
+	for (uint32_t i = 0; i < mipLevelCount; ++i) {
+		wgpuBindGroupRelease(bindGroups[i]);
+	}
 }

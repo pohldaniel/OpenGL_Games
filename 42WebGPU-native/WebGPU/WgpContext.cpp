@@ -789,7 +789,7 @@ void WgpContext::addSampler(const WGPUSampler& sampler, SamplerSlot samplerSlot)
 		samplers[samplerSlot] = sampler;
 }
 
-const WGPUSampler& WgpContext::getSampler(SamplerSlot samplerSlot) {
+const WGPUSampler& WgpContext::getSampler(SamplerSlot samplerSlot) const {
 	return samplers.at(samplerSlot);
 }
 
@@ -797,28 +797,36 @@ void WgpContext::addSahderModule(const std::string& shaderModuleName, const std:
 	shaderModules[shaderModuleName] = fromString ? wgpCreateShaderFromString(stringPath) : wgpCreateShaderFromFile(stringPath);
 }
 
-const WGPUShaderModule& WgpContext::getShaderModule(std::string shaderModuleName) {
+const WGPUShaderModule& WgpContext::getShaderModule(std::string shaderModuleName) const {
 	return shaderModules.at(shaderModuleName);
+}
+
+const WGPUPipelineLayout& WgpContext::getPipelineLayout(std::string pipelineLayoutName) const {
+	return pipelineLayouts.at(pipelineLayoutName);
 }
 
 void WgpContext::setClearColor(const WGPUColor& _clearColor) {
 	clearColor = _clearColor;
 }
 
-void WgpContext::createComputePipeline(std::string shaderModuleName, std::string pipelineLayoutName, const std::function<std::vector<WGPUBindGroupLayout>()>& onBindGroupLayouts) {
-	std::vector<WGPUBindGroupLayout> bindGroupLayouts = onBindGroupLayouts();
+void WgpContext::createComputePipeline(std::string shaderModuleName, 
+	std::string entrypoint,
+	std::string pipelineLayoutName, 
+	const std::function<std::vector<WGPUBindGroupLayout>()>& onBindGroupLayouts) {
 
-	WGPUPipelineLayoutDescriptor pipelineLayoutDescriptor = {};
-	pipelineLayoutDescriptor.bindGroupLayoutCount = bindGroupLayouts.size();
-	pipelineLayoutDescriptor.bindGroupLayouts = bindGroupLayouts.data();
-	pipelineLayouts[pipelineLayoutName] = wgpuDeviceCreatePipelineLayout(device, &pipelineLayoutDescriptor);
+	if (onBindGroupLayouts) {
+		std::vector<WGPUBindGroupLayout> bindGroupLayouts = onBindGroupLayouts();
+		WGPUPipelineLayoutDescriptor pipelineLayoutDescriptor = {};
+		pipelineLayoutDescriptor.bindGroupLayoutCount = bindGroupLayouts.size();
+		pipelineLayoutDescriptor.bindGroupLayouts = bindGroupLayouts.data();
+		pipelineLayouts[pipelineLayoutName] = wgpuDeviceCreatePipelineLayout(device, &pipelineLayoutDescriptor);
+	}
 
 	WGPUComputePipelineDescriptor computePipelineDesc = {};
-	computePipelineDesc.layout = pipelineLayouts.at(pipelineLayoutName);
+	computePipelineDesc.layout = onBindGroupLayouts ? pipelineLayouts.at(pipelineLayoutName) : NULL;
 	computePipelineDesc.compute.module = shaderModules.at(shaderModuleName);
-	//computePipelineDesc.compute.entryPoint = WGPU_STR("computeFilter");
-	computePipelineDesc.compute.entryPoint = WGPU_STR("computeSobelX");
-	computePipelineDesc.compute.constantCount = 0;
+	computePipelineDesc.compute.entryPoint = { entrypoint.c_str(), entrypoint.size()};
+	computePipelineDesc.compute.constantCount = 0u;
 	computePipelineDesc.compute.constants = NULL;
 	
 	computePipelines[pipelineLayoutName] = wgpuDeviceCreateComputePipeline(device, &computePipelineDesc);

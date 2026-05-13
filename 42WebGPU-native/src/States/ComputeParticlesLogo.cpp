@@ -77,6 +77,10 @@ ComputeParticlesLogo::ComputeParticlesLogo(StateMachine& machine) : State(machin
 		true
 	);
 
+	wgpContext.addSahderModule("PROBABILITY", "res/shader/particle_probability.wgsl");
+	wgpContext.createComputePipeline("PROBABILITY", "import_level", "CP_IMPORT");
+	wgpContext.createComputePipeline("PROBABILITY", "export_level", "CP_EXPORT");
+
 	m_lightProjection = Matrix4f::Orthographic(-80.0f, 80.0f, -80.0f, 80.0f, -200.0f, 300.0f);
 	m_lightView = Matrix4f::LookAt(Vector3f(50.0f, 100.0f, -100.0f), Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
 
@@ -95,6 +99,18 @@ ComputeParticlesLogo::ComputeParticlesLogo(StateMachine& machine) : State(machin
 
 	std::string faces[] = { "res/textures/cubemaps/ocean/ocean_cube_px.jpg", "res/textures/cubemaps/ocean/ocean_cube_nx.jpg", "res/textures/cubemaps/ocean/ocean_cube_py.jpg", "res/textures/cubemaps/ocean/ocean_cube_ny.jpg", "res/textures/cubemaps/ocean/ocean_cube_pz.jpg", "res/textures/cubemaps/ocean/ocean_cube_nz.jpg" };
 	m_wgpTextureCube.loadCubeFromFiles(faces, true);
+
+	m_wgpWgpuLogo.setTextureUsage(WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst | WGPUTextureUsage_StorageBinding);
+	m_wgpWgpuLogo.loadFromFile("res/textures/webgpu.png");
+
+	m_probabilityBuffer.createBuffer(16u, WGPUBufferUsage_Uniform | WGPUBufferUsage_CopyDst);
+	wgpuQueueWriteBuffer(wgpContext.queue, m_probabilityBuffer.getBuffer(), 0, &m_wgpWgpuLogo.width(), 16u);
+
+	m_bufferA.createBuffer(m_wgpWgpuLogo.getWidth() * m_wgpWgpuLogo.getHeight() * 4u, WGPUBufferUsage_Storage);
+	m_bufferB.createBuffer(m_wgpWgpuLogo.getWidth() * m_wgpWgpuLogo.getHeight() * 4u, WGPUBufferUsage_Storage);
+
+	WgpRenderer::Dispatch(m_wgpWgpuLogo, m_probabilityBuffer, m_bufferA, m_bufferB);
+
 	m_wgpVampire.create(m_vampire);
 	m_wgpVampire.setBindGroups("BG", std::bind(&ComputeParticlesLogo::OnBindGroups, this));
 
@@ -110,7 +126,7 @@ ComputeParticlesLogo::ComputeParticlesLogo(StateMachine& machine) : State(machin
 	m_fade.setTransitionSpeed(m_speed * 0.02f);
 	m_fade.setOnFadeEnd([&m_whale = m_whale] {
 		m_whale.applyBindpose();
-		});
+	});
 }
 
 ComputeParticlesLogo::~ComputeParticlesLogo() {

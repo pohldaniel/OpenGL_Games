@@ -23,6 +23,7 @@ public:
 	void createEmpty(uint32_t width, uint32_t height, uint32_t depth, WGPUTextureUsage textureUsage, WGPUTextureFormat textureFormat, uint32_t mipLevelCount = 1u);
 	void cleanup();
 	void markForDelete();
+	void setTextureUsage(WGPUTextureUsage textureUsage = WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst);
 
 	const WGPUTexture& getTexture() const;
 	const WGPUTextureView& getTextureView() const;
@@ -30,6 +31,10 @@ public:
 	const unsigned int getWidth() const;
 	const unsigned int getHeight() const;
 	const WGPUTextureFormat getFormat() const;
+	const uint32_t getMipLevelCount() const;
+
+	const unsigned int& width() const;
+	const unsigned int& height() const;
 
 	static unsigned char* LoadFromFile(std::string fileName, const bool flipVertical = false, const short alphaChannel = -1);
 	static unsigned char* LoadFromFile(std::string fileName, uint32_t& width, uint32_t& height, const bool flipVertical = false, const short alphaChannel = -1);
@@ -57,5 +62,6 @@ private:
 	unsigned int m_height;
 	unsigned short m_channels;
 	bool m_markForDelete;
+	WGPUTextureUsage m_textureUsage;
 };
 

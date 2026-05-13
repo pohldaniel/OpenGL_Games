@@ -82,4 +82,9 @@ private:
 	SelectedMode m_mode = SelectedMode::NORMAL;
 
 	void proceduralSkinning(Bone**& bones, unsigned short numBones, float angle);
+
+	WgpTexture m_wgpWgpuLogo;
+
+	WgpBuffer m_probabilityBuffer, m_bufferA, m_bufferB;
+
 };

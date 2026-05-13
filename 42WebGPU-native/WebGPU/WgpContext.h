@@ -73,7 +73,11 @@ struct WgpContext {
 	friend void wgpShaderModulesRelease();
 	friend void wgpPipelineLayoutsRelease();
 
-	void createComputePipeline(std::string shaderModuleName, std::string pipelineLayoutName, const std::function<std::vector<WGPUBindGroupLayout>()>& onBindGroupLayouts);
+	void createComputePipeline(std::string shaderModuleName,
+		                       std::string entrypoint,
+							   std::string pipelineLayoutName, 
+		                       const std::function<std::vector<WGPUBindGroupLayout>()>& onBindGroupLayouts = NULL);
+
 	void createRenderPipeline(std::string shaderModuleName, 
 		std::string pipelineLayoutName, 
 		const VertexLayoutSlot vertexLayoutSlot, 
@@ -89,11 +93,12 @@ struct WgpContext {
 
 	void createVertexBufferLayout(VertexLayoutSlot slot = VL_PTN);
 	void addSampler(const WGPUSampler& sampler, SamplerSlot samplerSlot);
-	const WGPUSampler& getSampler(SamplerSlot samplerSlot);
+	const WGPUSampler& getSampler(SamplerSlot samplerSlot) const;
 	void addSahderModule(const std::string& shaderModuleName, const std::string& stringPath, bool fromString = false);
-	const WGPUShaderModule& getShaderModule(std::string shaderModuleName);
+	const WGPUShaderModule& getShaderModule(std::string shaderModuleName) const;
+	const WGPUPipelineLayout& getPipelineLayout(std::string pipelineLayoutName) const;
 	void setClearColor(const WGPUColor& clearColor);
-	
+
 	WGPUInstance instance = NULL;
 	WGPUAdapter adapter = NULL;
 	WGPUDevice device = NULL;

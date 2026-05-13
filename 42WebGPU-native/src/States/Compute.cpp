@@ -17,7 +17,8 @@ Compute::Compute(StateMachine& machine) : State(machine, States::COMPUTE) {
 	m_uniformBuffer.createBuffer(sizeof(UniformsCompute), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 
 	wgpContext.addSahderModule("COMPUTE", "res/shader/compute.wgsl");
-	wgpContext.createComputePipeline("COMPUTE", "CP_COMPUTE", std::bind(&Compute::OnBindGroupLayouts, this));
+	//"computeFilter"
+	wgpContext.createComputePipeline("COMPUTE", "computeSobelX", "CP_COMPUTE", std::bind(&Compute::OnBindGroupLayouts, this));
 
 	m_inputTexture.loadFromFile("res/textures/input.jpg", true);
 	m_outputTexture.createEmpty(m_inputTexture.getWidth(), m_inputTexture.getHeight(), 1u, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_StorageBinding | WGPUTextureUsage_CopySrc, WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm);	
