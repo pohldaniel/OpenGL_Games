@@ -243,6 +243,9 @@
     <ClCompile Include="engine\animation\BoneDescription.cpp">
       <Filter>engine\animation</Filter>
     </ClCompile>
+    <ClCompile Include="src\States\ComputeParticlesLogo.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\input\ApplicationEventListener.h">
@@ -466,6 +469,9 @@
     </ClInclude>
     <ClInclude Include="engine\animation\BoneDescription.h">
       <Filter>engine\animation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\ComputeParticlesLogo.h">
+      <Filter>Source Files\States</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

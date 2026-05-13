@@ -213,6 +213,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClCompile Include="src\ImguiExtension.cpp" />
     <ClCompile Include="src\LoadingManager.cpp" />
     <ClCompile Include="src\States\Compute.cpp" />
+    <ClCompile Include="src\States\ComputeParticlesLogo.cpp" />
     <ClCompile Include="src\States\ImageBasedLighting.cpp" />
     <ClCompile Include="src\States\InstancedCube.cpp" />
     <ClCompile Include="src\States\MSDFFont.cpp" />
@@ -302,6 +303,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClInclude Include="src\ImguiExtension.h" />
     <ClInclude Include="src\LoadingManager.h" />
     <ClInclude Include="src\States\Compute.h" />
+    <ClInclude Include="src\States\ComputeParticlesLogo.h" />
     <ClInclude Include="src\States\ImageBasedLighting.h" />
     <ClInclude Include="src\States\InstancedCube.h" />
     <ClInclude Include="src\States\MSDFFont.h" />

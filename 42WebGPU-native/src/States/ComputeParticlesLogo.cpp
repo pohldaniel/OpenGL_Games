@@ -8,11 +8,11 @@
 
 #include <engine/utils/BinaryIO.h>
 
-#include "SkinnedMesh.h"
+#include "ComputeParticlesLogo.h"
 #include "Application.h"
 #include "Globals.h"
 
-SkinnedMesh::SkinnedMesh(StateMachine& machine) : State(machine, States::SKINNED_MESH), m_fade(m_fadeValue) {
+ComputeParticlesLogo::ComputeParticlesLogo(StateMachine& machine) : State(machine, States::COMPUTE_PARTICLES_LOGO), m_fade(m_fadeValue) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -29,9 +29,6 @@ SkinnedMesh::SkinnedMesh(StateMachine& machine) : State(machine, States::SKINNED
 	m_attack.loadAnimationAssimp("res/models/whale/whale.glb", "ATTACK", "attack");
 	m_swim.loadAnimationAssimp("res/models/whale/whale.glb", "swim", "swim");
 
-	//Utils::MdlcIO mdlcIO;
-	//mdlcIO.animationToAnic("res/models/whale/swim.anic", m_swim.getAnimationName(), m_swim.getLength(), m_swim.getAnimationTracks());
-	//mdlcIO.animationToAnic("res/models/whale/attack.anic", m_attack.getAnimationName(), m_attack.getLength(), m_attack.getAnimationTracks());
 
 	m_whale.loadModelAssimp("res/models/whale/whale.glb", 1u);
 	m_whale.scale(10.0f, 10.0f, 10.0f);
@@ -45,9 +42,6 @@ SkinnedMesh::SkinnedMesh(StateMachine& machine) : State(machine, States::SKINNED
 	m_whale.applyBindpose(true);
 	m_whale.addAnimationState(m_attack);
 	m_whale.getAnimationState(0)->setLooped(true);
-
-	//const AnimatedMesh* mesh = static_cast<const AnimatedMesh*>(m_whale.getMesh());
-	//mdlcIO.animatedModelToMdlc("res/whale.mdlc", mesh->getVertexBuffer(), mesh->getIndexBuffer(), mesh->getStride(), mesh->getWeights(), mesh->getJoints(), mesh->getBoneDescriptions());
 
 	m_dance.loadAnimationAssimp("res/models/vampire/dancing_vampire.dae", "Hips", "vampire_dance");
 
@@ -68,11 +62,11 @@ SkinnedMesh::SkinnedMesh(StateMachine& machine) : State(machine, States::SKINNED
 
 	wgpContext.setClearColor({ 0.5f, 0.5f, 0.5f, 1.0f });
 	wgpContext.addSahderModule("ANIMATION", "res/shader/animation.wgsl");
-	wgpContext.createRenderPipeline("ANIMATION", "RP_ANIMATION", VL_PTNWJ, std::bind(&SkinnedMesh::OnBindGroupLayouts, this));
+	wgpContext.createRenderPipeline("ANIMATION", "RP_ANIMATION", VL_PTNWJ, std::bind(&ComputeParticlesLogo::OnBindGroupLayouts, this));
 
 	wgpContext.addSahderModule("SKYBOX", "res/shader/env_cube.wgsl");
 	wgpContext.createRenderPipeline("SKYBOX", "RP_SKYBOX", VL_P,
-		std::bind(&SkinnedMesh::OnBindGroupLayoutsSkybox, this),
+		std::bind(&ComputeParticlesLogo::OnBindGroupLayoutsSkybox, this),
 		1u,
 		WGPUPrimitiveTopology_TriangleList,
 		WGPUTextureFormat_Undefined,
@@ -102,24 +96,24 @@ SkinnedMesh::SkinnedMesh(StateMachine& machine) : State(machine, States::SKINNED
 	std::string faces[] = { "res/textures/cubemaps/ocean/ocean_cube_px.jpg", "res/textures/cubemaps/ocean/ocean_cube_nx.jpg", "res/textures/cubemaps/ocean/ocean_cube_py.jpg", "res/textures/cubemaps/ocean/ocean_cube_ny.jpg", "res/textures/cubemaps/ocean/ocean_cube_pz.jpg", "res/textures/cubemaps/ocean/ocean_cube_nz.jpg" };
 	m_wgpTextureCube.loadCubeFromFiles(faces, true);
 	m_wgpVampire.create(m_vampire);
-	m_wgpVampire.setBindGroups("BG", std::bind(&SkinnedMesh::OnBindGroups, this));
+	m_wgpVampire.setBindGroups("BG", std::bind(&ComputeParticlesLogo::OnBindGroups, this));
 
 	m_wgpWhale.create(m_whale);
-	m_wgpWhale.setBindGroups("BG", std::bind(&SkinnedMesh::OnBindGroups, this));
+	m_wgpWhale.setBindGroups("BG", std::bind(&ComputeParticlesLogo::OnBindGroups, this));
 
 	m_wgpCube.create(m_cube);
-	m_wgpCube.setBindGroups("BG", std::bind(&SkinnedMesh::OnBindGroupsSkybox, this));
+	m_wgpCube.setBindGroups("BG", std::bind(&ComputeParticlesLogo::OnBindGroupsSkybox, this));
 
-	wgpContext.OnDraw = std::bind(&SkinnedMesh::OnDraw, this, std::placeholders::_1);
+	wgpContext.OnDraw = std::bind(&ComputeParticlesLogo::OnDraw, this, std::placeholders::_1);
 
 	m_fade.start();
 	m_fade.setTransitionSpeed(m_speed * 0.02f);
 	m_fade.setOnFadeEnd([&m_whale = m_whale] {
 		m_whale.applyBindpose();
-	});
+		});
 }
 
-SkinnedMesh::~SkinnedMesh() {
+ComputeParticlesLogo::~ComputeParticlesLogo() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 	m_uniformBuffer.markForDelete();
@@ -128,11 +122,11 @@ SkinnedMesh::~SkinnedMesh() {
 	m_wgpTextureCube.markForDelete();
 }
 
-void SkinnedMesh::fixedUpdate() {
+void ComputeParticlesLogo::fixedUpdate() {
 
 }
 
-void SkinnedMesh::update() {
+void ComputeParticlesLogo::update() {
 	Keyboard& keyboard = Keyboard::instance();
 	Vector3f direction = Vector3f();
 
@@ -196,14 +190,15 @@ void SkinnedMesh::update() {
 	m_uniforms.camPosition = m_camera.getPosition();
 	m_uniforms.lightVP = m_lightProjection * m_lightView;
 	m_uniforms.shadow = Matrix4f::BIAS * m_uniforms.lightVP;
-	
+
 	const AnimatedMesh* mesh;
-	if (m_model == SelectedModel::WHALE) {	
+	if (m_model == SelectedModel::WHALE) {
 		mesh = static_cast<const AnimatedMesh*>(m_whale.getMesh());
-		if(m_skinMode)
+		if (m_skinMode)
 			m_animation == SelectedAnimation::PROCEDURAL ? proceduralSkinning(mesh->bones(), mesh->getNumBones(), m_fadeValue) : m_whale.update(m_dt);
-		m_whale.updateSkinning();		
-	}else {
+		m_whale.updateSkinning();
+	}
+	else {
 		if (m_skinMode)
 			m_vampire.update(m_dt);
 		m_vampire.updateSkinning();
@@ -213,11 +208,11 @@ void SkinnedMesh::update() {
 	wgpuQueueWriteBuffer(wgpContext.queue, m_skinBuffer.getBuffer(), 0u, mesh->getSkinMatrices(), mesh->getNumBones() * sizeof(Matrix4f));
 }
 
-void SkinnedMesh::render() {
+void ComputeParticlesLogo::render() {
 	wgpDraw();
 }
 
-void SkinnedMesh::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
+void ComputeParticlesLogo::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
 
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, projection), &m_uniforms.projection, sizeof(Uniforms::projection));
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, view), &m_uniforms.view, sizeof(Uniforms::view));
@@ -236,34 +231,35 @@ void SkinnedMesh::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
 		m_wgpWhale.draw(renderPassEncoder);
 		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_SKYBOX"));
 		m_wgpCube.draw(renderPassEncoder);
-	}else
+	}
+	else
 		m_wgpVampire.draw(renderPassEncoder);
-	
+
 	if (m_drawUi)
 		renderUi(renderPassEncoder);
 }
 
-void SkinnedMesh::OnMouseMotion(const Event::MouseMoveEvent& event) {
+void ComputeParticlesLogo::OnMouseMotion(const Event::MouseMoveEvent& event) {
 
 }
 
-void SkinnedMesh::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
+void ComputeParticlesLogo::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
 	if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT) {
 		Mouse::instance().attach(Application::GetWindow());
 	}
 }
 
-void SkinnedMesh::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
+void ComputeParticlesLogo::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
 	if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT) {
 		Mouse::instance().detach();
 	}
 }
 
-void SkinnedMesh::OnMouseWheel(const Event::MouseWheelEvent& event) {
+void ComputeParticlesLogo::OnMouseWheel(const Event::MouseWheelEvent& event) {
 
 }
 
-void SkinnedMesh::OnKeyDown(const Event::KeyboardEvent& event) {
+void ComputeParticlesLogo::OnKeyDown(const Event::KeyboardEvent& event) {
 #if DEVBUILD
 	if (event.keyCode == VK_LMENU) {
 		m_drawUi = !m_drawUi;
@@ -275,16 +271,16 @@ void SkinnedMesh::OnKeyDown(const Event::KeyboardEvent& event) {
 	}
 }
 
-void SkinnedMesh::OnKeyUp(const Event::KeyboardEvent& event) {
+void ComputeParticlesLogo::OnKeyUp(const Event::KeyboardEvent& event) {
 
 }
 
-void SkinnedMesh::resize(int deltaW, int deltaH) {
+void ComputeParticlesLogo::resize(int deltaW, int deltaH) {
 	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 2000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 }
 
-void SkinnedMesh::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
+void ComputeParticlesLogo::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 	ImGui_ImplWGPU_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
@@ -328,10 +324,11 @@ void SkinnedMesh::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 		if (ImGui::Button("Skin Mode On")) {
 			m_skinMode = !m_skinMode;
 		}
-	}else {
+	}
+	else {
 		if (ImGui::Button("Skin Mode Off")) {
 			m_skinMode = !m_skinMode;
-			
+
 			m_whale.applyBindpose(true);
 			m_whale.getAnimationState(0)->reset();
 
@@ -359,7 +356,8 @@ void SkinnedMesh::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 					m_whale.translate(0.0f, 20.0f, 0.0f);
 					m_whale.applyBindpose();
 				}
-			}else if(m_animation == SelectedAnimation::SWIM) {
+			}
+			else if (m_animation == SelectedAnimation::SWIM) {
 				m_whale.removeAllAnimationStates();
 				m_whale.addAnimationState(m_swim);
 				m_whale.getAnimationState(0)->setLooped(true);
@@ -369,7 +367,8 @@ void SkinnedMesh::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 					m_whale.translate(0.0f, 20.0f, 0.0f);
 					m_whale.applyBindpose();
 				}
-			}else {
+			}
+			else {
 				m_fadeValue = 0.0f;
 				m_whale.scale(4.0f, 4.0f, 4.0f);
 				m_whale.translate(0.0f, -20.0f, 0.0f);
@@ -383,7 +382,7 @@ void SkinnedMesh::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 			ImGui::SliderFloat("Angle", &m_angle, 0.05f, 0.5f);
 		}
 	}
-	
+
 
 	ImGui::End();
 
@@ -391,7 +390,7 @@ void SkinnedMesh::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 	ImGui_ImplWGPU_RenderDrawData(ImGui::GetDrawData(), renderPassEncoder);
 }
 
-std::vector<WGPUBindGroupLayout> SkinnedMesh::OnBindGroupLayouts() {
+std::vector<WGPUBindGroupLayout> ComputeParticlesLogo::OnBindGroupLayouts() {
 	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
 
 	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(3);
@@ -419,7 +418,7 @@ std::vector<WGPUBindGroupLayout> SkinnedMesh::OnBindGroupLayouts() {
 	return bindingLayouts;
 }
 
-std::vector<WGPUBindGroup> SkinnedMesh::OnBindGroups() {
+std::vector<WGPUBindGroup> ComputeParticlesLogo::OnBindGroups() {
 	std::vector<WGPUBindGroup> bindGroups(1);
 
 	std::vector<WGPUBindGroupEntry> bindGroupEntries(3);
@@ -448,7 +447,7 @@ std::vector<WGPUBindGroup> SkinnedMesh::OnBindGroups() {
 	return bindGroups;
 }
 
-std::vector<WGPUBindGroupLayout> SkinnedMesh::OnBindGroupLayoutsSkybox() {
+std::vector<WGPUBindGroupLayout> ComputeParticlesLogo::OnBindGroupLayoutsSkybox() {
 	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
 
 	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(3);
@@ -475,7 +474,7 @@ std::vector<WGPUBindGroupLayout> SkinnedMesh::OnBindGroupLayoutsSkybox() {
 	return bindingLayouts;
 }
 
-std::vector<WGPUBindGroup> SkinnedMesh::OnBindGroupsSkybox() {
+std::vector<WGPUBindGroup> ComputeParticlesLogo::OnBindGroupsSkybox() {
 	std::vector<WGPUBindGroup> bindGroups(1);
 	std::vector<WGPUBindGroupEntry> bindGroupEntries(3);
 
@@ -499,17 +498,19 @@ std::vector<WGPUBindGroup> SkinnedMesh::OnBindGroupsSkybox() {
 	return bindGroups;
 }
 
-void SkinnedMesh::proceduralSkinning(Bone**& bones, unsigned short numBones, float angle) {
+void ComputeParticlesLogo::proceduralSkinning(Bone**& bones, unsigned short numBones, float angle) {
 	angle = (angle - 0.5f) * 2.0f * m_angle * 0.5f * m_fade.getTransitionSpeed();
 
 	for (size_t i = 0u; i < numBones; ++i) {
-		Bone* bone = bones[i];	
+		Bone* bone = bones[i];
 
 		if (i == 3 || i == 4) {
 			bone->rotate(0.0f, 0.0f, angle);
-		}else if (i == 5 || i == 6) {
+		}
+		else if (i == 5 || i == 6) {
 			bone->rotate(0.0f, 0.0f, angle);
-		}else if(i == 1 || i == 2) {
+		}
+		else if (i == 1 || i == 2) {
 			bone->rotate(0.0f, i == 1 ? angle : -angle, 0.0f);
 		}
 	}
