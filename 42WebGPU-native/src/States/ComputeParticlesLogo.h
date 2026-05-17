@@ -16,6 +16,22 @@
 #include <WebGPU/WgpModel.h>
 #include <WebGPU/WgpData.h>
 
+#define PARTICLE_NUM (50000u)
+
+struct Seed {
+	float x;
+	float y;
+	float z;
+	float w;
+};
+
+struct ParticleData {
+	float delta_time;
+	float brightness_factor;
+	float pad[2];
+	Seed seed;
+};
+
 class ComputeParticlesLogo : public State, public MouseEventListener, public KeyboardEventListener {
 	enum SelectedAnimation {
 		ATTACK,
@@ -40,6 +56,7 @@ public:
 	void update() override;
 	void render() override;
 	void OnDraw(const WGPURenderPassEncoder& renderPass);
+	void OnDraw2(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor);
 
 	void resize(int deltaW, int deltaH) override;
 	void OnMouseMotion(const Event::MouseMoveEvent& event) override;
@@ -52,9 +69,14 @@ public:
 private:
 
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayouts();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsProbability();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsSimulate();
+
 	std::vector<WGPUBindGroup> OnBindGroups();
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsSkybox();
 	std::vector<WGPUBindGroup> OnBindGroupsSkybox();
+
+	WGPUBindGroup createBindGroup();
 
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 
@@ -85,6 +107,8 @@ private:
 
 	WgpTexture m_wgpWgpuLogo;
 
-	WgpBuffer m_probabilityBuffer, m_bufferA, m_bufferB;
+	WgpBuffer m_probabilityBuffer, m_bufferA, m_bufferB, m_simulationBuffer, m_particlesBuffer;
 
+	ParticleData data;
+	WGPUBindGroup m_bindGroup;
 };

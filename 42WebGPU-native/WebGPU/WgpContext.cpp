@@ -747,20 +747,26 @@ void wgpDraw() {
 	depthStencilAttachment.stencilStoreOp = WGPUStoreOp::WGPUStoreOp_Undefined;
 	depthStencilAttachment.stencilReadOnly = WGPUOptionalBool::WGPUOptionalBool_True;
 
-	WGPURenderPassDescriptor renderPassDesc = {};
-	renderPassDesc.colorAttachmentCount = 1;
-	renderPassDesc.colorAttachments = &renderPassColorAttachment;
-	renderPassDesc.depthStencilAttachment = &depthStencilAttachment;
-	renderPassDesc.timestampWrites = NULL;
+	WGPURenderPassDescriptor renderPassDescriptor = {};
+	renderPassDescriptor.colorAttachmentCount = 1;
+	renderPassDescriptor.colorAttachments = &renderPassColorAttachment;
+	renderPassDescriptor.depthStencilAttachment = &depthStencilAttachment;
+	renderPassDescriptor.timestampWrites = NULL;
 
 	WGPUCommandEncoderDescriptor commandEncoderDescriptor = {};
 	commandEncoderDescriptor.label = WGPU_STR("command_encoder");
 	WGPUCommandEncoder commandEncoder = wgpuDeviceCreateCommandEncoder(wgpContext.device, &commandEncoderDescriptor);
-	WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDesc);
-	wgpContext.OnDraw(renderPassEncoder);
+	
+	if (wgpContext.OnDraw2)
+		wgpContext.OnDraw2(commandEncoder, renderPassDescriptor);
+	else {
+		WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDescriptor);
+		wgpContext.OnDraw(renderPassEncoder);
+		wgpuRenderPassEncoderEnd(renderPassEncoder);
+		wgpuRenderPassEncoderRelease(renderPassEncoder);
+	}
 
-	wgpuRenderPassEncoderEnd(renderPassEncoder);
-	wgpuRenderPassEncoderRelease(renderPassEncoder);
+	
 	wgpuTextureViewRelease(texureView);
 
 	WGPUCommandBufferDescriptor commandBufferDescriptor = {};

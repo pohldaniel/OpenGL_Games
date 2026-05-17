@@ -119,7 +119,8 @@ struct WgpContext {
 
 	std::unordered_map<std::string, WGPUComputePipeline> computePipelines;
 	std::unordered_map<std::string, WGPURenderPipeline> renderPipelines;
-	std::function<void(const WGPURenderPassEncoder& commandBuffer)> OnDraw = NULL;
+	std::function<void(const WGPURenderPassEncoder& renderPassEncoder)> OnDraw = NULL;
+	std::function<void(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor)> OnDraw2 = NULL;
 
 private:
 

@@ -78,8 +78,11 @@ ComputeParticlesLogo::ComputeParticlesLogo(StateMachine& machine) : State(machin
 	);
 
 	wgpContext.addSahderModule("PROBABILITY", "res/shader/particle_probability.wgsl");
-	wgpContext.createComputePipeline("PROBABILITY", "import_level", "CP_IMPORT");
-	wgpContext.createComputePipeline("PROBABILITY", "export_level", "CP_EXPORT");
+	wgpContext.createComputePipeline("PROBABILITY", "import_level", "CP_IMPORT", std::bind(&ComputeParticlesLogo::OnBindGroupLayoutsProbability, this));
+	wgpContext.createComputePipeline("PROBABILITY", "export_level", "CP_EXPORT", std::bind(&ComputeParticlesLogo::OnBindGroupLayoutsProbability, this));
+
+	wgpContext.addSahderModule("SIMULATE", "res/shader/particle_simulate.wgsl");
+	wgpContext.createComputePipeline("SIMULATE", "simulate", "CP_SIMULATE", std::bind(&ComputeParticlesLogo::OnBindGroupLayoutsSimulate, this));
 
 	m_lightProjection = Matrix4f::Orthographic(-80.0f, 80.0f, -80.0f, 80.0f, -200.0f, 300.0f);
 	m_lightView = Matrix4f::LookAt(Vector3f(50.0f, 100.0f, -100.0f), Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
@@ -100,7 +103,7 @@ ComputeParticlesLogo::ComputeParticlesLogo(StateMachine& machine) : State(machin
 	std::string faces[] = { "res/textures/cubemaps/ocean/ocean_cube_px.jpg", "res/textures/cubemaps/ocean/ocean_cube_nx.jpg", "res/textures/cubemaps/ocean/ocean_cube_py.jpg", "res/textures/cubemaps/ocean/ocean_cube_ny.jpg", "res/textures/cubemaps/ocean/ocean_cube_pz.jpg", "res/textures/cubemaps/ocean/ocean_cube_nz.jpg" };
 	m_wgpTextureCube.loadCubeFromFiles(faces, true);
 
-	m_wgpWgpuLogo.setTextureUsage(WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst | WGPUTextureUsage_StorageBinding);
+	m_wgpWgpuLogo.setTextureUsage(WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst);
 	m_wgpWgpuLogo.loadFromFile("res/textures/webgpu.png");
 
 	m_probabilityBuffer.createBuffer(16u, WGPUBufferUsage_Uniform | WGPUBufferUsage_CopyDst);
@@ -111,6 +114,10 @@ ComputeParticlesLogo::ComputeParticlesLogo(StateMachine& machine) : State(machin
 
 	WgpRenderer::Dispatch(m_wgpWgpuLogo, m_probabilityBuffer, m_bufferA, m_bufferB);
 
+	m_simulationBuffer.createBuffer(sizeof(ParticleData), WGPUBufferUsage_Uniform | WGPUBufferUsage_CopyDst);
+	m_particlesBuffer.createBuffer(PARTICLE_NUM * 48u, WGPUBufferUsage_CopyDst | WGPUBufferUsage_Vertex | WGPUBufferUsage_Storage);
+
+
 	m_wgpVampire.create(m_vampire);
 	m_wgpVampire.setBindGroups("BG", std::bind(&ComputeParticlesLogo::OnBindGroups, this));
 
@@ -120,13 +127,15 @@ ComputeParticlesLogo::ComputeParticlesLogo(StateMachine& machine) : State(machin
 	m_wgpCube.create(m_cube);
 	m_wgpCube.setBindGroups("BG", std::bind(&ComputeParticlesLogo::OnBindGroupsSkybox, this));
 
-	wgpContext.OnDraw = std::bind(&ComputeParticlesLogo::OnDraw, this, std::placeholders::_1);
+	wgpContext.OnDraw2 = std::bind(&ComputeParticlesLogo::OnDraw2, this, std::placeholders::_1, std::placeholders::_2);
 
 	m_fade.start();
 	m_fade.setTransitionSpeed(m_speed * 0.02f);
 	m_fade.setOnFadeEnd([&m_whale = m_whale] {
 		m_whale.applyBindpose();
 	});
+
+	m_bindGroup = createBindGroup();
 }
 
 ComputeParticlesLogo::~ComputeParticlesLogo() {
@@ -228,8 +237,7 @@ void ComputeParticlesLogo::render() {
 	wgpDraw();
 }
 
-void ComputeParticlesLogo::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
-
+void ComputeParticlesLogo::OnDraw2(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor) {
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, projection), &m_uniforms.projection, sizeof(Uniforms::projection));
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, view), &m_uniforms.view, sizeof(Uniforms::view));
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, env), &m_uniforms.env, sizeof(Uniforms::env));
@@ -240,6 +248,16 @@ void ComputeParticlesLogo::OnDraw(const WGPURenderPassEncoder& renderPassEncoder
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, shadow), &m_uniforms.shadow, sizeof(Uniforms::shadow));
 	wgpuQueueWriteBuffer(wgpContext.queue, m_modeBuffer.getBuffer(), 0u, &m_mode, sizeof(unsigned int));
 
+	
+	WGPUComputePassEncoder computePassEncoder = wgpuCommandEncoderBeginComputePass(commandEncoder, NULL);
+	wgpuComputePassEncoderSetPipeline(computePassEncoder, wgpContext.computePipelines.at("CP_SIMULATE"));
+
+	wgpuComputePassEncoderSetBindGroup(computePassEncoder, 0u, m_bindGroup, 0u, NULL);
+	wgpuComputePassEncoderDispatchWorkgroups(computePassEncoder, ceil(PARTICLE_NUM / 64.f), 1u, 1u);
+	wgpuComputePassEncoderEnd(computePassEncoder);
+	wgpuComputePassEncoderRelease(computePassEncoder);
+	
+	WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDescriptor);
 	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
 
 	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_ANIMATION"));
@@ -247,12 +265,14 @@ void ComputeParticlesLogo::OnDraw(const WGPURenderPassEncoder& renderPassEncoder
 		m_wgpWhale.draw(renderPassEncoder);
 		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_SKYBOX"));
 		m_wgpCube.draw(renderPassEncoder);
-	}
-	else
+	}else
 		m_wgpVampire.draw(renderPassEncoder);
 
 	if (m_drawUi)
 		renderUi(renderPassEncoder);
+
+	wgpuRenderPassEncoderEnd(renderPassEncoder);
+	wgpuRenderPassEncoderRelease(renderPassEncoder);
 }
 
 void ComputeParticlesLogo::OnMouseMotion(const Event::MouseMoveEvent& event) {
@@ -434,6 +454,72 @@ std::vector<WGPUBindGroupLayout> ComputeParticlesLogo::OnBindGroupLayouts() {
 	return bindingLayouts;
 }
 
+std::vector<WGPUBindGroupLayout> ComputeParticlesLogo::OnBindGroupLayoutsProbability() {
+	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
+
+	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(5);
+	bindingLayoutEntries[0].binding = 0u;
+	bindingLayoutEntries[0].visibility = WGPUShaderStage_Compute;
+	bindingLayoutEntries[0].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
+	bindingLayoutEntries[0].buffer.minBindingSize = 16u;
+
+	bindingLayoutEntries[1].binding = 1u;
+	bindingLayoutEntries[1].visibility = WGPUShaderStage_Compute;
+	bindingLayoutEntries[1].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_ReadOnlyStorage;
+	bindingLayoutEntries[1].buffer.minBindingSize = 512u * 512u * 4u;
+
+	bindingLayoutEntries[2].binding = 2u;
+	bindingLayoutEntries[2].visibility = WGPUShaderStage_Compute;
+	bindingLayoutEntries[2].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Storage;
+	bindingLayoutEntries[2].buffer.minBindingSize = 512u * 512u * 4u;
+
+	bindingLayoutEntries[3].binding = 3u;
+	bindingLayoutEntries[3].visibility = WGPUShaderStage_Compute;
+	bindingLayoutEntries[3].texture.viewDimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
+	bindingLayoutEntries[3].texture.sampleType = WGPUTextureSampleType::WGPUTextureSampleType_Float;
+
+	bindingLayoutEntries[4].binding = 4u;
+	bindingLayoutEntries[4].visibility = WGPUShaderStage_Compute;
+	bindingLayoutEntries[4].storageTexture.access = WGPUStorageTextureAccess::WGPUStorageTextureAccess_WriteOnly;
+	bindingLayoutEntries[4].storageTexture.format = WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm;
+	bindingLayoutEntries[4].storageTexture.viewDimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
+	
+	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
+	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
+	bindGroupLayoutDescriptor.entries = bindingLayoutEntries.data();
+
+	bindingLayouts[0] = wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor);
+
+	return bindingLayouts;
+}
+
+std::vector<WGPUBindGroupLayout> ComputeParticlesLogo::OnBindGroupLayoutsSimulate() {
+	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
+
+	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(3);
+	bindingLayoutEntries[0].binding = 0u;
+	bindingLayoutEntries[0].visibility = WGPUShaderStage_Compute;
+	bindingLayoutEntries[0].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
+	bindingLayoutEntries[0].buffer.minBindingSize = sizeof(ParticleData);
+
+	bindingLayoutEntries[1].binding = 1u;
+	bindingLayoutEntries[1].visibility = WGPUShaderStage_Compute;
+	bindingLayoutEntries[1].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Storage;
+
+	bindingLayoutEntries[2].binding = 2u;
+	bindingLayoutEntries[2].visibility = WGPUShaderStage_Compute;
+	bindingLayoutEntries[2].texture.viewDimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
+	bindingLayoutEntries[2].texture.sampleType = WGPUTextureSampleType::WGPUTextureSampleType_Float;
+
+	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
+	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
+	bindGroupLayoutDescriptor.entries = bindingLayoutEntries.data();
+
+	bindingLayouts[0] = wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor);
+
+	return bindingLayouts;
+}
+
 std::vector<WGPUBindGroup> ComputeParticlesLogo::OnBindGroups() {
 	std::vector<WGPUBindGroup> bindGroups(1);
 
@@ -530,4 +616,27 @@ void ComputeParticlesLogo::proceduralSkinning(Bone**& bones, unsigned short numB
 			bone->rotate(0.0f, i == 1 ? angle : -angle, 0.0f);
 		}
 	}
+}
+
+WGPUBindGroup ComputeParticlesLogo::createBindGroup() {
+	std::vector<WGPUBindGroupEntry> entries(3);
+
+	entries[0].binding = 0u;
+	entries[0].buffer = m_simulationBuffer.getBuffer();
+	entries[0].offset = 0u;
+	entries[0].size = wgpuBufferGetSize(m_simulationBuffer.getBuffer());
+
+	entries[1].binding = 1u;
+	entries[1].buffer = m_particlesBuffer.getBuffer();
+	entries[1].offset = 0u;
+	entries[1].size = wgpuBufferGetSize(m_particlesBuffer.getBuffer());
+
+	entries[2].binding = 2u;
+	entries[2].textureView = m_wgpWgpuLogo.getTextureView();
+
+	WGPUBindGroupDescriptor bindGroupDesc = {};
+	bindGroupDesc.layout = wgpuComputePipelineGetBindGroupLayout(wgpContext.computePipelines.at("CP_SIMULATE"), 0);
+	bindGroupDesc.entryCount = (uint32_t)entries.size();
+	bindGroupDesc.entries = (WGPUBindGroupEntry*)entries.data();
+	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
 }

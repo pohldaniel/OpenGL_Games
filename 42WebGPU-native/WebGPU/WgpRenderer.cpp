@@ -113,9 +113,15 @@ void WgpRenderer::Dispatch(const WgpTexture& texture, const WgpBuffer& probabili
 	uint32_t mipLevelCount = wgpuTextureGetMipLevelCount(texture.getTexture());
 	uint32_t mipWidth = wgpuTextureGetWidth(texture.getTexture());
 	uint32_t mipHeight = wgpuTextureGetHeight(texture.getTexture());
+	uint32_t depth = wgpuTextureGetDepthOrArrayLayers(texture.getTexture());
 	WGPUTextureFormat textureFormat = wgpuTextureGetFormat(texture.getTexture());
 
-	std::vector<WGPUTextureView> textureViews = std::vector<WGPUTextureView>(mipLevelCount);
+	WgpTexture writeTexture;
+	writeTexture.createEmpty(mipWidth, mipHeight, depth,WGPUTextureUsage_StorageBinding | WGPUTextureUsage_CopySrc, textureFormat, mipLevelCount);
+	writeTexture.markForDelete();
+
+	std::vector<WGPUTextureView> textureViewsRead = std::vector<WGPUTextureView>(mipLevelCount);
+	std::vector<WGPUTextureView> textureViewsWrite = std::vector<WGPUTextureView>(mipLevelCount);
 	std::vector<WGPUBindGroup> bindGroups = std::vector<WGPUBindGroup>(mipLevelCount);
 
 	WGPUCommandEncoder commandEncoder = wgpuDeviceCreateCommandEncoder(wgpContext.device, NULL);
@@ -138,9 +144,10 @@ void WgpRenderer::Dispatch(const WgpTexture& texture, const WgpBuffer& probabili
 		textureViewDescriptor.format = textureFormat;
 		textureViewDescriptor.nextInChain = NULL;
 
-		textureViews[level] = wgpuTextureCreateView(texture.getTexture(), &textureViewDescriptor);
+		textureViewsRead[level] = wgpuTextureCreateView(texture.getTexture(), &textureViewDescriptor);
+		textureViewsWrite[level] = wgpuTextureCreateView(writeTexture.getTexture(), &textureViewDescriptor);
 
-		std::vector<WGPUBindGroupEntry> bindGroupEntries(4);
+		std::vector<WGPUBindGroupEntry> bindGroupEntries(5);
 
 		bindGroupEntries[0].binding = 0u;
 		bindGroupEntries[0].buffer = probability.getBuffer();
@@ -158,7 +165,10 @@ void WgpRenderer::Dispatch(const WgpTexture& texture, const WgpBuffer& probabili
 		bindGroupEntries[2].size = wgpuBufferGetSize(bindGroupEntries[1].buffer);
 
 		bindGroupEntries[3].binding = 3u;
-		bindGroupEntries[3].textureView = textureViews[level];
+		bindGroupEntries[3].textureView = textureViewsRead[level];
+
+		bindGroupEntries[4].binding = 4u;
+		bindGroupEntries[4].textureView = textureViewsWrite[level];
 
 		WGPUBindGroupDescriptor bindGroupDesc = {};
 		bindGroupDesc.layout = pipelineLayout;
@@ -181,7 +191,23 @@ void WgpRenderer::Dispatch(const WgpTexture& texture, const WgpBuffer& probabili
 			wgpuComputePassEncoderDispatchWorkgroups(computePassEncoder, ceil(levelWidth / 64.f), levelHeight, 1u);
 			wgpuComputePassEncoderEnd(computePassEncoder);
 			wgpuComputePassEncoderRelease(computePassEncoder);
-		}
+
+			WGPUTexelCopyTextureInfo source = {};
+			source.texture = texture.getTexture();
+			source.mipLevel = level;
+			source.origin = { 0u, 0u,  0u };
+			source.aspect = WGPUTextureAspect_All;
+
+			WGPUTexelCopyTextureInfo destination = {};
+			destination.texture = writeTexture.getTexture();
+			destination.mipLevel = level;
+			destination.origin = { 0u, 0u, 0u };
+			destination.aspect = WGPUTextureAspect_All;
+
+			WGPUExtent3D size = { levelWidth , levelHeight, 1u };
+
+			wgpuCommandEncoderCopyTextureToTexture(commandEncoder, &destination, &source, &size);
+		}	
 	}
 
 	WGPUCommandBuffer commandBuffer = wgpuCommandEncoderFinish(commandEncoder, NULL);
@@ -191,7 +217,11 @@ void WgpRenderer::Dispatch(const WgpTexture& texture, const WgpBuffer& probabili
 	wgpuCommandBufferRelease(commandBuffer);
 
 	for (uint32_t i = 0; i < mipLevelCount; ++i) {
-		wgpuTextureViewRelease(textureViews[i]);
+		wgpuTextureViewRelease(textureViewsRead[i]);
+	}
+
+	for (uint32_t i = 0; i < mipLevelCount; ++i) {
+		wgpuTextureViewRelease(textureViewsWrite[i]);
 	}
 
 	for (uint32_t i = 0; i < mipLevelCount; ++i) {
