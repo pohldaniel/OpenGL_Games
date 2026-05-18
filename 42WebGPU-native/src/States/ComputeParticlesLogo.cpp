@@ -19,20 +19,20 @@ ComputeParticlesLogo::ComputeParticlesLogo(StateMachine& machine) : State(machin
 	EventDispatcher::AddMouseListener(this);
 
 	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm, Application::OnSurfaceChange);
+
 	wgpVertexAttribute(VL_0).push_back({NULL, WGPUVertexFormat_Float32x3, 0u, 0u});
-	wgpVertexAttribute(VL_0).push_back({NULL, WGPUVertexFormat_Float32x4, 3 * sizeof(float), 1u});
+	wgpVertexAttribute(VL_0).push_back({NULL, WGPUVertexFormat_Float32x4, 4 * sizeof(float), 1u});
 	wgpVertexAttribute(VL_1).push_back({NULL, WGPUVertexFormat_Float32x2, 0u, 2u});
 
-	wgpVertexBufferLayout(VL_0).push_back({NULL, WGPUVertexStepMode_Vertex, 48u, wgpVertexAttribute(VL_0).size(), wgpVertexAttribute(VL_0).data()});
+	wgpVertexBufferLayout(VL_0).push_back({NULL, WGPUVertexStepMode_Instance, 48u, wgpVertexAttribute(VL_0).size(), wgpVertexAttribute(VL_0).data()});
 	wgpVertexBufferLayout(VL_0).push_back({NULL, WGPUVertexStepMode_Vertex, 8u , wgpVertexAttribute(VL_1).size(), wgpVertexAttribute(VL_1).data()});
 
 	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 2000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-	m_camera.lookAt(Vector3f(0.0f, 0.0f, -50.0f), Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.lookAt(3.0f, -36.0f, 0.0f);
 	m_camera.setRotationSpeed(0.1f);
-	m_camera.setMovingSpeed(50.0f);
 
-	wgpContext.setClearColor({ 0.5f, 0.5f, 0.5f, 1.0f });
+	wgpContext.setClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
 	
 	wgpContext.addSahderModule("PARTICLE", "res/shader/particle.wgsl");
 	wgpContext.createRenderPipeline("PARTICLE", "RP_PARTICLE", VL_0, std::bind(&ComputeParticlesLogo::OnBindGroupLayoutsParticle, this));
@@ -45,39 +45,55 @@ ComputeParticlesLogo::ComputeParticlesLogo(StateMachine& machine) : State(machin
 	wgpContext.createComputePipeline("SIMULATE", "simulate", "CP_SIMULATE", std::bind(&ComputeParticlesLogo::OnBindGroupLayoutsSimulate, this));
 
 	m_wgpWgpuLogo.setTextureUsage(WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst);
-	m_wgpWgpuLogo.loadFromFile("res/textures/webgpu.png");
+	m_wgpWgpuLogo.loadFromFile("res/textures/webgpu.png", true);
 
 	m_probabilityBuffer.createBuffer(16u, WGPUBufferUsage_Uniform | WGPUBufferUsage_CopyDst);
-	wgpuQueueWriteBuffer(wgpContext.queue, m_probabilityBuffer.getBuffer(), 0, &m_wgpWgpuLogo.width(), 16u);
+	wgpuQueueWriteBuffer(wgpContext.queue, m_probabilityBuffer.getBuffer(), 0u, &m_wgpWgpuLogo.width(), 16u);
 
 	m_bufferA.createBuffer(m_wgpWgpuLogo.getWidth() * m_wgpWgpuLogo.getHeight() * 4u, WGPUBufferUsage_Storage);
 	m_bufferB.createBuffer(m_wgpWgpuLogo.getWidth() * m_wgpWgpuLogo.getHeight() * 4u, WGPUBufferUsage_Storage);
 
 	WgpRenderer::Dispatch(m_wgpWgpuLogo, m_probabilityBuffer, m_bufferA, m_bufferB);
 
-	m_simulationBuffer.createBuffer(sizeof(ParticleData), WGPUBufferUsage_Uniform | WGPUBufferUsage_CopyDst);
 	m_particlesBuffer.createBuffer(PARTICLE_NUM * 48u, WGPUBufferUsage_CopyDst | WGPUBufferUsage_Vertex | WGPUBufferUsage_Storage);
+	m_simulationBuffer.createBuffer(sizeof(ParticleData), WGPUBufferUsage_Uniform | WGPUBufferUsage_CopyDst);
 	m_renderParamsBuffer.createBuffer(sizeof(RenderParams), WGPUBufferUsage_Uniform | WGPUBufferUsage_CopyDst | WGPUBufferUsage_Vertex);
 	
-	static const float vertex_data[6 * 2] = {
+	static const float vertex_data[6 * 3] = {
 		-1.0f, -1.0f, +1.0f, -1.0f, -1.0f, +1.0f,
 		-1.0f, +1.0f, +1.0f, -1.0f, +1.0f, +1.0f,
 	};
+
 	m_quadVerticesBuffer.createBuffer(vertex_data, sizeof(vertex_data), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Vertex);
-	
+
 	m_computeBindGroup = createComputeBindGroup();
 	m_bindGroup = createBindGroup();
 
 	wgpContext.OnDraw = std::bind(&ComputeParticlesLogo::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
+
+	m_renderParams.model_view_projection_matrix = m_camera.getPerspectiveMatrix() * m_camera.getViewMatrix();
+	m_renderParams.right = m_camera.getCamX();
+	m_renderParams.up = m_camera.getCamY();
+
+	wgpuQueueWriteBuffer(wgpContext.queue, m_renderParamsBuffer.getBuffer(), 0u, &m_renderParams, sizeof(RenderParams));
 }
 
 ComputeParticlesLogo::~ComputeParticlesLogo() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
+	m_wgpWgpuLogo.markForDelete();
+
+	m_probabilityBuffer.markForDelete();
+	m_bufferA.markForDelete();
+	m_bufferB.markForDelete();
+	m_simulationBuffer.markForDelete();
+	m_particlesBuffer.markForDelete();
+	m_renderParamsBuffer.markForDelete();
+	m_quadVerticesBuffer.markForDelete();
 }
 
 void ComputeParticlesLogo::fixedUpdate() {
-
+	
 }
 
 void ComputeParticlesLogo::update() {
@@ -134,7 +150,14 @@ void ComputeParticlesLogo::update() {
 			m_camera.move(direction * m_dt);
 		}
 	}
-	
+
+	updateSimulation();
+
+	m_renderParams.model_view_projection_matrix = m_camera.getPerspectiveMatrix() * m_camera.getViewMatrix();
+	m_renderParams.right = m_camera.getCamX();
+	m_renderParams.up = m_camera.getCamY();
+
+	wgpuQueueWriteBuffer(wgpContext.queue, m_renderParamsBuffer.getBuffer(), 0u, &m_renderParams, sizeof(RenderParams));
 }
 
 void ComputeParticlesLogo::render() {
@@ -143,28 +166,32 @@ void ComputeParticlesLogo::render() {
 
 void ComputeParticlesLogo::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor) {
 	
-	WGPUComputePassEncoder computePassEncoder = wgpuCommandEncoderBeginComputePass(commandEncoder, NULL);
-	wgpuComputePassEncoderSetPipeline(computePassEncoder, wgpContext.computePipelines.at("CP_SIMULATE"));
+	{
+		WGPUComputePassEncoder computePassEncoder = wgpuCommandEncoderBeginComputePass(commandEncoder, NULL);
+		wgpuComputePassEncoderSetPipeline(computePassEncoder, wgpContext.computePipelines.at("CP_SIMULATE"));
 
-	wgpuComputePassEncoderSetBindGroup(computePassEncoder, 0u, m_computeBindGroup, 0u, NULL);
-	wgpuComputePassEncoderDispatchWorkgroups(computePassEncoder, ceil(PARTICLE_NUM / 64.f), 1u, 1u);
-	wgpuComputePassEncoderEnd(computePassEncoder);
-	wgpuComputePassEncoderRelease(computePassEncoder);
+		wgpuComputePassEncoderSetBindGroup(computePassEncoder, 0u, m_computeBindGroup, 0u, NULL);
+		wgpuComputePassEncoderDispatchWorkgroups(computePassEncoder, ceil(PARTICLE_NUM / 64.f), 1u, 1u);
+		wgpuComputePassEncoderEnd(computePassEncoder);
+		wgpuComputePassEncoderRelease(computePassEncoder);
+	}
 	
-	WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDescriptor);
-	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
+	{
+		WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDescriptor);
+		wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
 
-	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_PARTICLE"));
-	wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_bindGroup, 0u, 0u);
-	wgpuRenderPassEncoderSetVertexBuffer(renderPassEncoder, 0u, m_particlesBuffer.getBuffer(), 0, wgpuBufferGetSize(m_particlesBuffer.getBuffer()));
-	wgpuRenderPassEncoderSetVertexBuffer(renderPassEncoder, 1u, m_quadVerticesBuffer.getBuffer(), 0u, wgpuBufferGetSize(m_quadVerticesBuffer.getBuffer()));
-	wgpuRenderPassEncoderDraw(renderPassEncoder, 6, PARTICLE_NUM, 0, 0);
+		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_PARTICLE"));
+		wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_bindGroup, 0u, 0u);
+		wgpuRenderPassEncoderSetVertexBuffer(renderPassEncoder, 0u, m_particlesBuffer.getBuffer(), 0, WGPU_WHOLE_SIZE);
+		wgpuRenderPassEncoderSetVertexBuffer(renderPassEncoder, 1u, m_quadVerticesBuffer.getBuffer(), 0u, WGPU_WHOLE_SIZE);
+		wgpuRenderPassEncoderDraw(renderPassEncoder, 6u, PARTICLE_NUM, 0u, 0u);
 
-	if (m_drawUi)
-		renderUi(renderPassEncoder);
+		if (m_drawUi)
+			renderUi(renderPassEncoder);
 
-	wgpuRenderPassEncoderEnd(renderPassEncoder);
-	wgpuRenderPassEncoderRelease(renderPassEncoder);
+		wgpuRenderPassEncoderEnd(renderPassEncoder);
+		wgpuRenderPassEncoderRelease(renderPassEncoder);
+	}
 }
 
 void ComputeParticlesLogo::OnMouseMotion(const Event::MouseMoveEvent& event) {
@@ -300,6 +327,7 @@ std::vector<WGPUBindGroupLayout> ComputeParticlesLogo::OnBindGroupLayoutsSimulat
 	bindingLayoutEntries[1].binding = 1u;
 	bindingLayoutEntries[1].visibility = WGPUShaderStage_Compute;
 	bindingLayoutEntries[1].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Storage;
+	bindingLayoutEntries[1].buffer.minBindingSize = 48u;
 
 	bindingLayoutEntries[2].binding = 2u;
 	bindingLayoutEntries[2].visibility = WGPUShaderStage_Compute;
@@ -369,4 +397,24 @@ WGPUBindGroup ComputeParticlesLogo::createBindGroup() {
 	bindGroupDesc.entryCount = (uint32_t)entries.size();
 	bindGroupDesc.entries = (WGPUBindGroupEntry*)entries.data();
 	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
+}
+
+void ComputeParticlesLogo::updateSimulation() {
+	particleData.delta_time = 0.04f;
+	particleData.brightness_factor = 1.0f;
+
+	particleData.seed.x = randomFloat() * 100.0f;
+	particleData.seed.y = randomFloat() * 100.0f;
+	particleData.seed.z = 1.0f + randomFloat();
+	particleData.seed.w = 1.0f + randomFloat();
+
+	wgpuQueueWriteBuffer(wgpContext.queue, m_simulationBuffer.getBuffer(), 0u, &particleData, wgpuBufferGetSize(m_simulationBuffer.getBuffer()));
+}
+
+float ComputeParticlesLogo::randomFloat(float min, float max){
+	return ((max - min) * ((float)rand() / (float)RAND_MAX)) + min;
+}
+
+float ComputeParticlesLogo::randomFloat(){
+	return randomFloat(0.0f, 1.0f);
 }

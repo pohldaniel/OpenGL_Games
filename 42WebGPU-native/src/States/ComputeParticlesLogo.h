@@ -18,30 +18,30 @@
 
 #define PARTICLE_NUM (50000u)
 
-struct RenderParams {
-	Matrix4f model_view_projection_matrix;
-	Vector3f right;
-	float pad1;
-	Vector3f up;
-	float pad2;
-};
-
-struct Seed {
-	float x;
-	float y;
-	float z;
-	float w;
-};
-
-struct ParticleData {
-	float delta_time;
-	float brightness_factor;
-	float pad[2];
-	Seed seed;
-};
-
 class ComputeParticlesLogo : public State, public MouseEventListener, public KeyboardEventListener {
-	
+
+	struct RenderParams {
+		Matrix4f model_view_projection_matrix;
+		Vector3f right;
+		float pad1;
+		Vector3f up;
+		float pad2;
+	};
+
+	struct Seed {
+		float x;
+		float y;
+		float z;
+		float w;
+	};
+
+	struct ParticleData {
+		float delta_time;
+		float brightness_factor;
+		float pad[2];
+		Seed seed;
+	};
+
 public:
 
 	ComputeParticlesLogo(StateMachine& machine);
@@ -68,16 +68,21 @@ private:
 
 	WGPUBindGroup createComputeBindGroup();
 	WGPUBindGroup createBindGroup();
+	void updateSimulation();
+	float randomFloat(float min, float max);
+	float randomFloat();
 
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
-	
+
 	Camera m_camera;
+	ParticleData particleData;
+	RenderParams m_renderParams;
 
 	WgpTexture m_wgpWgpuLogo;
 	WgpBuffer m_probabilityBuffer, m_bufferA, m_bufferB, m_simulationBuffer, m_particlesBuffer, m_renderParamsBuffer, m_quadVerticesBuffer;
-	ParticleData data;
 	WGPUBindGroup m_computeBindGroup, m_bindGroup;
+	
 };

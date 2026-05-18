@@ -1,5 +1,3 @@
-
-
 ////////////////////////////////////////////////////////////////////////////////
 // Vertex shader
 ////////////////////////////////////////////////////////////////////////////////
@@ -12,7 +10,7 @@ struct RenderParams {
 
 struct VertexInput {
   @location(0) position : vec3f,
-  @location(1) color : vec4f,
+  @location(1) color : vec4f, 
   @location(2) quad_pos : vec2f, // -1..+1
 }
 

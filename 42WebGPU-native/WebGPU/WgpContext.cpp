@@ -874,7 +874,7 @@ void WgpContext::createRenderPipeline(std::string shaderModuleName,
 
 	WGPUBlendState blendState = {};
 	blendState.color.srcFactor = WGPUBlendFactor::WGPUBlendFactor_SrcAlpha;
-	blendState.color.dstFactor = WGPUBlendFactor::WGPUBlendFactor_OneMinusSrcAlpha;
+	blendState.color.dstFactor = WGPUBlendFactor::WGPUBlendFactor_One;
 	blendState.color.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
 	blendState.alpha.srcFactor = WGPUBlendFactor::WGPUBlendFactor_Zero;
 	blendState.alpha.dstFactor = WGPUBlendFactor::WGPUBlendFactor_One;
@@ -896,7 +896,7 @@ void WgpContext::createRenderPipeline(std::string shaderModuleName,
 	WGPUDepthStencilState depthStencilState = {};
 	setDefault(depthStencilState);
 	depthStencilState.depthCompare = depthCompareFunction;
-	depthStencilState.depthWriteEnabled = WGPUOptionalBool::WGPUOptionalBool_True;
+	depthStencilState.depthWriteEnabled = WGPUOptionalBool::WGPUOptionalBool_False;
 	depthStencilState.format = depthTextureFormat == WGPUTextureFormat_Undefined ? depthformat : depthTextureFormat;
 	depthStencilState.stencilReadMask = 0u;
 	depthStencilState.stencilWriteMask = 0u;
@@ -914,7 +914,7 @@ void WgpContext::createRenderPipeline(std::string shaderModuleName,
 	renderPipelineDescriptor.primitive.topology = primitiveTopology;
 	renderPipelineDescriptor.primitive.stripIndexFormat = WGPUIndexFormat::WGPUIndexFormat_Undefined;
 	renderPipelineDescriptor.primitive.frontFace = WGPUFrontFace::WGPUFrontFace_CCW;
-	renderPipelineDescriptor.primitive.cullMode = WGPUCullMode::WGPUCullMode_Back;
+	renderPipelineDescriptor.primitive.cullMode = WGPUCullMode::WGPUCullMode_None;
 
 	renderPipelines[pipelineLayoutName] = wgpuDeviceCreateRenderPipeline(device, &renderPipelineDescriptor);
 }

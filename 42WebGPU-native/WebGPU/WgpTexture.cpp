@@ -796,5 +796,5 @@ std::vector<unsigned char*> WgpTexture::CrossToFaces(unsigned char* source, uint
 
 uint32_t WgpTexture::BitWidth(uint32_t m) {
     if (m == 0u) return 0u;
-    else { uint32_t w = 0u; while (m >>= 1) ++w; return w; }
+    else { uint32_t w = 0u; while (m >>= 1) ++w; return w + 1u; }
 }
