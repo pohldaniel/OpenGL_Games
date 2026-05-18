@@ -28,7 +28,7 @@ public:
 	void fixedUpdate() override;
 	void update() override;
 	void render() override;
-	void OnDraw(const WGPURenderPassEncoder& renderPassEncoder);
+	void OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor);
 
 	void resize(int deltaW, int deltaH) override;
 	void OnMouseMotion(const Event::MouseMoveEvent& event) override;

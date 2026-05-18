@@ -12,13 +12,19 @@
 #include "Application.h"
 #include "Globals.h"
 
-ComputeParticlesLogo::ComputeParticlesLogo(StateMachine& machine) : State(machine, States::COMPUTE_PARTICLES_LOGO), m_fade(m_fadeValue) {
+ComputeParticlesLogo::ComputeParticlesLogo(StateMachine& machine) : State(machine, States::COMPUTE_PARTICLES_LOGO) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
 
 	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm, Application::OnSurfaceChange);
+	wgpVertexAttribute(VL_0).push_back({NULL, WGPUVertexFormat_Float32x3, 0u, 0u});
+	wgpVertexAttribute(VL_0).push_back({NULL, WGPUVertexFormat_Float32x4, 3 * sizeof(float), 1u});
+	wgpVertexAttribute(VL_1).push_back({NULL, WGPUVertexFormat_Float32x2, 0u, 2u});
+
+	wgpVertexBufferLayout(VL_0).push_back({NULL, WGPUVertexStepMode_Vertex, 48u, wgpVertexAttribute(VL_0).size(), wgpVertexAttribute(VL_0).data()});
+	wgpVertexBufferLayout(VL_0).push_back({NULL, WGPUVertexStepMode_Vertex, 8u , wgpVertexAttribute(VL_1).size(), wgpVertexAttribute(VL_1).data()});
 
 	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 2000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
@@ -26,56 +32,10 @@ ComputeParticlesLogo::ComputeParticlesLogo(StateMachine& machine) : State(machin
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(50.0f);
 
-	m_attack.loadAnimationAssimp("res/models/whale/whale.glb", "ATTACK", "attack");
-	m_swim.loadAnimationAssimp("res/models/whale/whale.glb", "swim", "swim");
-
-
-	m_whale.loadModelAssimp("res/models/whale/whale.glb", 1u);
-	m_whale.scale(10.0f, 10.0f, 10.0f);
-	m_whale.rotate(-90.0f, 0.0f, 0.0f);
-	m_whale.rotate(0.0f, 0.0f, 180.0f);
-	m_whale.translate(0.0f, -5.0f, 0.0f);
-	if (m_animation == SelectedAnimation::PROCEDURAL) {
-		m_whale.scale(4.0f, 4.0f, 4.0f);
-		m_whale.translate(0.0f, -20.0f, 0.0f);
-	}
-	m_whale.applyBindpose(true);
-	m_whale.addAnimationState(m_attack);
-	m_whale.getAnimationState(0)->setLooped(true);
-
-	m_dance.loadAnimationAssimp("res/models/vampire/dancing_vampire.dae", "Hips", "vampire_dance");
-
-	m_vampire.loadModelAssimp("res/models/vampire/dancing_vampire.dae", 1u);
-	m_vampire.scale(0.1f, 0.1f, 0.1f);
-	m_vampire.rotate(0.0f, 180.0f, 0.0f);
-	m_vampire.translate(-7.5f, -7.5f, -25.0f);
-	m_vampire.applyBindpose(true);
-	m_vampire.addAnimationState(m_dance);
-	m_vampire.getAnimationState(0)->setLooped(true);
-
-	m_cube.buildCube({ -1.0f, -1.0f, -1.0f }, { 2.0f, 2.0f, 2.0f }, 1u, 1u, false, false);
-	m_cube.rewind();
-
-	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
-	m_skinBuffer.createBuffer(sizeof(Matrix4f) * 96u, WGPUBufferUsage_CopyDst | WGPUBufferUsage_Storage);
-	m_modeBuffer.createBuffer(sizeof(unsigned int), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
-
 	wgpContext.setClearColor({ 0.5f, 0.5f, 0.5f, 1.0f });
-	wgpContext.addSahderModule("ANIMATION", "res/shader/animation.wgsl");
-	wgpContext.createRenderPipeline("ANIMATION", "RP_ANIMATION", VL_PTNWJ, std::bind(&ComputeParticlesLogo::OnBindGroupLayouts, this));
-
-	wgpContext.addSahderModule("SKYBOX", "res/shader/env_cube.wgsl");
-	wgpContext.createRenderPipeline("SKYBOX", "RP_SKYBOX", VL_P,
-		std::bind(&ComputeParticlesLogo::OnBindGroupLayoutsSkybox, this),
-		1u,
-		WGPUPrimitiveTopology_TriangleList,
-		WGPUTextureFormat_Undefined,
-		WGPUTextureFormat_Undefined,
-		WGPUCompareFunction_LessEqual,
-		true,
-		false,
-		true
-	);
+	
+	wgpContext.addSahderModule("PARTICLE", "res/shader/particle.wgsl");
+	wgpContext.createRenderPipeline("PARTICLE", "RP_PARTICLE", VL_0, std::bind(&ComputeParticlesLogo::OnBindGroupLayoutsParticle, this));
 
 	wgpContext.addSahderModule("PROBABILITY", "res/shader/particle_probability.wgsl");
 	wgpContext.createComputePipeline("PROBABILITY", "import_level", "CP_IMPORT", std::bind(&ComputeParticlesLogo::OnBindGroupLayoutsProbability, this));
@@ -83,25 +43,6 @@ ComputeParticlesLogo::ComputeParticlesLogo(StateMachine& machine) : State(machin
 
 	wgpContext.addSahderModule("SIMULATE", "res/shader/particle_simulate.wgsl");
 	wgpContext.createComputePipeline("SIMULATE", "simulate", "CP_SIMULATE", std::bind(&ComputeParticlesLogo::OnBindGroupLayoutsSimulate, this));
-
-	m_lightProjection = Matrix4f::Orthographic(-80.0f, 80.0f, -80.0f, 80.0f, -200.0f, 300.0f);
-	m_lightView = Matrix4f::LookAt(Vector3f(50.0f, 100.0f, -100.0f), Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
-
-	m_uniforms.projection = m_camera.getPerspectiveMatrix();
-	m_uniforms.view = m_camera.getViewMatrix();
-	m_uniforms.env = m_camera.getRotationMatrix();
-	m_uniforms.model = Matrix4f::IDENTITY;
-	m_uniforms.normal = Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_uniforms.model);
-	m_uniforms.color = { 1.0f, 1.0f, 1.0f, 1.0f };
-	m_uniforms.camPosition = m_camera.getPosition();
-	m_uniforms.lightVP = m_lightProjection * m_lightView;
-	m_uniforms.shadow = Matrix4f::BIAS * m_uniforms.lightVP;
-	m_uniforms.lightPosition = Vector3f(50.0f, 100.0f, -100.0f);
-
-	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
-
-	std::string faces[] = { "res/textures/cubemaps/ocean/ocean_cube_px.jpg", "res/textures/cubemaps/ocean/ocean_cube_nx.jpg", "res/textures/cubemaps/ocean/ocean_cube_py.jpg", "res/textures/cubemaps/ocean/ocean_cube_ny.jpg", "res/textures/cubemaps/ocean/ocean_cube_pz.jpg", "res/textures/cubemaps/ocean/ocean_cube_nz.jpg" };
-	m_wgpTextureCube.loadCubeFromFiles(faces, true);
 
 	m_wgpWgpuLogo.setTextureUsage(WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst);
 	m_wgpWgpuLogo.loadFromFile("res/textures/webgpu.png");
@@ -116,35 +57,23 @@ ComputeParticlesLogo::ComputeParticlesLogo(StateMachine& machine) : State(machin
 
 	m_simulationBuffer.createBuffer(sizeof(ParticleData), WGPUBufferUsage_Uniform | WGPUBufferUsage_CopyDst);
 	m_particlesBuffer.createBuffer(PARTICLE_NUM * 48u, WGPUBufferUsage_CopyDst | WGPUBufferUsage_Vertex | WGPUBufferUsage_Storage);
-
-
-	m_wgpVampire.create(m_vampire);
-	m_wgpVampire.setBindGroups("BG", std::bind(&ComputeParticlesLogo::OnBindGroups, this));
-
-	m_wgpWhale.create(m_whale);
-	m_wgpWhale.setBindGroups("BG", std::bind(&ComputeParticlesLogo::OnBindGroups, this));
-
-	m_wgpCube.create(m_cube);
-	m_wgpCube.setBindGroups("BG", std::bind(&ComputeParticlesLogo::OnBindGroupsSkybox, this));
-
-	wgpContext.OnDraw2 = std::bind(&ComputeParticlesLogo::OnDraw2, this, std::placeholders::_1, std::placeholders::_2);
-
-	m_fade.start();
-	m_fade.setTransitionSpeed(m_speed * 0.02f);
-	m_fade.setOnFadeEnd([&m_whale = m_whale] {
-		m_whale.applyBindpose();
-	});
-
+	m_renderParamsBuffer.createBuffer(sizeof(RenderParams), WGPUBufferUsage_Uniform | WGPUBufferUsage_CopyDst | WGPUBufferUsage_Vertex);
+	
+	static const float vertex_data[6 * 2] = {
+		-1.0f, -1.0f, +1.0f, -1.0f, -1.0f, +1.0f,
+		-1.0f, +1.0f, +1.0f, -1.0f, +1.0f, +1.0f,
+	};
+	m_quadVerticesBuffer.createBuffer(vertex_data, sizeof(vertex_data), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Vertex);
+	
+	m_computeBindGroup = createComputeBindGroup();
 	m_bindGroup = createBindGroup();
+
+	wgpContext.OnDraw = std::bind(&ComputeParticlesLogo::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
 }
 
 ComputeParticlesLogo::~ComputeParticlesLogo() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
-	m_uniformBuffer.markForDelete();
-	m_skinBuffer.markForDelete();
-	m_modeBuffer.markForDelete();
-	m_wgpTextureCube.markForDelete();
 }
 
 void ComputeParticlesLogo::fixedUpdate() {
@@ -205,54 +134,19 @@ void ComputeParticlesLogo::update() {
 			m_camera.move(direction * m_dt);
 		}
 	}
-	m_fade.update(m_dt);
-
-	m_uniforms.projection = m_camera.getPerspectiveMatrix();
-	m_uniforms.view = m_camera.getViewMatrix();
-	m_uniforms.env = m_camera.getRotationMatrix();
-	m_uniforms.model = Matrix4f::IDENTITY;
-	m_uniforms.normal = Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_uniforms.model);
-	m_uniforms.camPosition = m_camera.getPosition();
-	m_uniforms.lightVP = m_lightProjection * m_lightView;
-	m_uniforms.shadow = Matrix4f::BIAS * m_uniforms.lightVP;
-
-	const AnimatedMesh* mesh;
-	if (m_model == SelectedModel::WHALE) {
-		mesh = static_cast<const AnimatedMesh*>(m_whale.getMesh());
-		if (m_skinMode)
-			m_animation == SelectedAnimation::PROCEDURAL ? proceduralSkinning(mesh->bones(), mesh->getNumBones(), m_fadeValue) : m_whale.update(m_dt);
-		m_whale.updateSkinning();
-	}
-	else {
-		if (m_skinMode)
-			m_vampire.update(m_dt);
-		m_vampire.updateSkinning();
-		mesh = static_cast<const AnimatedMesh*>(m_vampire.getMesh());
-	}
-
-	wgpuQueueWriteBuffer(wgpContext.queue, m_skinBuffer.getBuffer(), 0u, mesh->getSkinMatrices(), mesh->getNumBones() * sizeof(Matrix4f));
+	
 }
 
 void ComputeParticlesLogo::render() {
 	wgpDraw();
 }
 
-void ComputeParticlesLogo::OnDraw2(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor) {
-	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, projection), &m_uniforms.projection, sizeof(Uniforms::projection));
-	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, view), &m_uniforms.view, sizeof(Uniforms::view));
-	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, env), &m_uniforms.env, sizeof(Uniforms::env));
-	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, model), &m_uniforms.model, sizeof(Uniforms::model));
-	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, normal), &m_uniforms.normal, sizeof(Uniforms::normal));
-	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, camPosition), &m_uniforms.camPosition, sizeof(Uniforms::camPosition));
-	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, lightVP), &m_uniforms.lightVP, sizeof(Uniforms::lightVP));
-	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, shadow), &m_uniforms.shadow, sizeof(Uniforms::shadow));
-	wgpuQueueWriteBuffer(wgpContext.queue, m_modeBuffer.getBuffer(), 0u, &m_mode, sizeof(unsigned int));
-
+void ComputeParticlesLogo::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor) {
 	
 	WGPUComputePassEncoder computePassEncoder = wgpuCommandEncoderBeginComputePass(commandEncoder, NULL);
 	wgpuComputePassEncoderSetPipeline(computePassEncoder, wgpContext.computePipelines.at("CP_SIMULATE"));
 
-	wgpuComputePassEncoderSetBindGroup(computePassEncoder, 0u, m_bindGroup, 0u, NULL);
+	wgpuComputePassEncoderSetBindGroup(computePassEncoder, 0u, m_computeBindGroup, 0u, NULL);
 	wgpuComputePassEncoderDispatchWorkgroups(computePassEncoder, ceil(PARTICLE_NUM / 64.f), 1u, 1u);
 	wgpuComputePassEncoderEnd(computePassEncoder);
 	wgpuComputePassEncoderRelease(computePassEncoder);
@@ -260,13 +154,11 @@ void ComputeParticlesLogo::OnDraw2(const WGPUCommandEncoder& commandEncoder, con
 	WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDescriptor);
 	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
 
-	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_ANIMATION"));
-	if (m_model == SelectedModel::WHALE) {
-		m_wgpWhale.draw(renderPassEncoder);
-		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_SKYBOX"));
-		m_wgpCube.draw(renderPassEncoder);
-	}else
-		m_wgpVampire.draw(renderPassEncoder);
+	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_PARTICLE"));
+	wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_bindGroup, 0u, 0u);
+	wgpuRenderPassEncoderSetVertexBuffer(renderPassEncoder, 0u, m_particlesBuffer.getBuffer(), 0, wgpuBufferGetSize(m_particlesBuffer.getBuffer()));
+	wgpuRenderPassEncoderSetVertexBuffer(renderPassEncoder, 1u, m_quadVerticesBuffer.getBuffer(), 0u, wgpuBufferGetSize(m_quadVerticesBuffer.getBuffer()));
+	wgpuRenderPassEncoderDraw(renderPassEncoder, 6, PARTICLE_NUM, 0, 0);
 
 	if (m_drawUi)
 		renderUi(renderPassEncoder);
@@ -351,107 +243,10 @@ void ComputeParticlesLogo::renderUi(const WGPURenderPassEncoder& renderPassEncod
 	}
 
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-	int currentMode = m_mode;
-	if (ImGui::Combo("Mode", &currentMode, "Normal\0Joints\0Weights\0\0")) {
-		m_mode = static_cast<SelectedMode>(currentMode);
-	}
-
-	if (!m_skinMode) {
-		if (ImGui::Button("Skin Mode On")) {
-			m_skinMode = !m_skinMode;
-		}
-	}
-	else {
-		if (ImGui::Button("Skin Mode Off")) {
-			m_skinMode = !m_skinMode;
-
-			m_whale.applyBindpose(true);
-			m_whale.getAnimationState(0)->reset();
-
-			m_vampire.applyBindpose(true);
-			m_vampire.getAnimationState(0)->reset();
-		}
-	}
-
-	int currentModel = m_model;
-	if (ImGui::Combo("Model", &currentModel, "Vampire\0Whale\0\0")) {
-		m_model = static_cast<SelectedModel>(currentModel);
-	}
-
-	if (m_model == SelectedModel::WHALE) {
-		int currentAnimation = m_animation;
-		SelectedAnimation prevAnimation = m_animation;
-		if (ImGui::Combo("Animation", &currentAnimation, "Attack\0Swim\0Procedural\0\0")) {
-			m_animation = static_cast<SelectedAnimation>(currentAnimation);
-			if (m_animation == SelectedAnimation::ATTACK) {
-				m_whale.removeAllAnimationStates();
-				m_whale.addAnimationState(m_attack);
-				m_whale.getAnimationState(0)->setLooped(true);
-				if (prevAnimation == SelectedAnimation::PROCEDURAL) {
-					m_whale.scale(0.25f, 0.25f, 0.25f);
-					m_whale.translate(0.0f, 20.0f, 0.0f);
-					m_whale.applyBindpose();
-				}
-			}
-			else if (m_animation == SelectedAnimation::SWIM) {
-				m_whale.removeAllAnimationStates();
-				m_whale.addAnimationState(m_swim);
-				m_whale.getAnimationState(0)->setLooped(true);
-				m_whale.getAnimationState(0)->setLooped(true);
-				if (prevAnimation == SelectedAnimation::PROCEDURAL) {
-					m_whale.scale(0.25f, 0.25f, 0.25f);
-					m_whale.translate(0.0f, 20.0f, 0.0f);
-					m_whale.applyBindpose();
-				}
-			}
-			else {
-				m_fadeValue = 0.0f;
-				m_whale.scale(4.0f, 4.0f, 4.0f);
-				m_whale.translate(0.0f, -20.0f, 0.0f);
-				m_whale.applyBindpose();
-			}
-		}
-		if (m_animation == SelectedAnimation::PROCEDURAL) {
-			if (ImGui::SliderFloat("Speed", &m_speed, 10.0f, 100.0f)) {
-				m_fade.setTransitionSpeed(m_speed * 0.02f);
-			}
-			ImGui::SliderFloat("Angle", &m_angle, 0.05f, 0.5f);
-		}
-	}
-
-
 	ImGui::End();
 
 	ImGui::Render();
 	ImGui_ImplWGPU_RenderDrawData(ImGui::GetDrawData(), renderPassEncoder);
-}
-
-std::vector<WGPUBindGroupLayout> ComputeParticlesLogo::OnBindGroupLayouts() {
-	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
-
-	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(3);
-	bindingLayoutEntries[0].binding = 0u;
-	bindingLayoutEntries[0].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
-	bindingLayoutEntries[0].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
-	bindingLayoutEntries[0].buffer.minBindingSize = sizeof(Uniforms);
-
-	bindingLayoutEntries[1].binding = 1u;
-	bindingLayoutEntries[1].visibility = WGPUShaderStage_Vertex;
-	bindingLayoutEntries[1].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_ReadOnlyStorage;
-	bindingLayoutEntries[1].buffer.minBindingSize = 16 * sizeof(float);
-
-	bindingLayoutEntries[2].binding = 2u;
-	bindingLayoutEntries[2].visibility = WGPUShaderStage_Fragment;
-	bindingLayoutEntries[2].buffer.type = WGPUBufferBindingType_Uniform;
-	bindingLayoutEntries[2].buffer.minBindingSize = sizeof(unsigned int);
-
-	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
-	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
-	bindGroupLayoutDescriptor.entries = bindingLayoutEntries.data();
-
-	bindingLayouts[0] = wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor);
-
-	return bindingLayouts;
 }
 
 std::vector<WGPUBindGroupLayout> ComputeParticlesLogo::OnBindGroupLayoutsProbability() {
@@ -520,52 +315,14 @@ std::vector<WGPUBindGroupLayout> ComputeParticlesLogo::OnBindGroupLayoutsSimulat
 	return bindingLayouts;
 }
 
-std::vector<WGPUBindGroup> ComputeParticlesLogo::OnBindGroups() {
-	std::vector<WGPUBindGroup> bindGroups(1);
-
-	std::vector<WGPUBindGroupEntry> bindGroupEntries(3);
-	bindGroupEntries[0].binding = 0u;
-	bindGroupEntries[0].buffer = m_uniformBuffer.getBuffer();
-	bindGroupEntries[0].offset = 0u;
-	bindGroupEntries[0].size = sizeof(Uniforms);
-
-	bindGroupEntries[1].binding = 1u;
-	bindGroupEntries[1].buffer = m_skinBuffer.getBuffer();
-	bindGroupEntries[1].offset = 0u;
-	bindGroupEntries[1].size = wgpuBufferGetSize(m_skinBuffer.getBuffer());
-
-	bindGroupEntries[2].binding = 2u;
-	bindGroupEntries[2].buffer = m_modeBuffer.getBuffer();
-	bindGroupEntries[2].offset = 0u;
-	bindGroupEntries[2].size = wgpuBufferGetSize(m_modeBuffer.getBuffer());
-
-	WGPUBindGroupDescriptor bindGroupDesc = {};
-	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_ANIMATION"), 0u);
-	bindGroupDesc.entryCount = (uint32_t)bindGroupEntries.size();
-	bindGroupDesc.entries = bindGroupEntries.data();
-
-	bindGroups[0] = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
-
-	return bindGroups;
-}
-
-std::vector<WGPUBindGroupLayout> ComputeParticlesLogo::OnBindGroupLayoutsSkybox() {
+std::vector<WGPUBindGroupLayout> ComputeParticlesLogo::OnBindGroupLayoutsParticle() {
 	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
 
-	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(3);
+	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(1);
 	bindingLayoutEntries[0].binding = 0u;
-	bindingLayoutEntries[0].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
-	bindingLayoutEntries[0].buffer.type = WGPUBufferBindingType_Uniform;
-	bindingLayoutEntries[0].buffer.minBindingSize = sizeof(Uniforms);
-
-	bindingLayoutEntries[1].binding = 1u;
-	bindingLayoutEntries[1].visibility = WGPUShaderStage_Fragment;
-	bindingLayoutEntries[1].sampler.type = WGPUSamplerBindingType_Filtering;
-
-	bindingLayoutEntries[2].binding = 2u;
-	bindingLayoutEntries[2].visibility = WGPUShaderStage_Fragment;
-	bindingLayoutEntries[2].texture.viewDimension = WGPUTextureViewDimension_Cube;
-	bindingLayoutEntries[2].texture.sampleType = WGPUTextureSampleType_Float;
+	bindingLayoutEntries[0].visibility = WGPUShaderStage_Vertex;
+	bindingLayoutEntries[0].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
+	bindingLayoutEntries[0].buffer.minBindingSize = sizeof(RenderParams);
 
 	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
 	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
@@ -576,49 +333,7 @@ std::vector<WGPUBindGroupLayout> ComputeParticlesLogo::OnBindGroupLayoutsSkybox(
 	return bindingLayouts;
 }
 
-std::vector<WGPUBindGroup> ComputeParticlesLogo::OnBindGroupsSkybox() {
-	std::vector<WGPUBindGroup> bindGroups(1);
-	std::vector<WGPUBindGroupEntry> bindGroupEntries(3);
-
-	bindGroupEntries[0].binding = 0u;
-	bindGroupEntries[0].buffer = m_uniformBuffer.getBuffer();
-	bindGroupEntries[0].offset = 0u;
-	bindGroupEntries[0].size = wgpuBufferGetSize(m_uniformBuffer.getBuffer());
-
-	bindGroupEntries[1].binding = 1u;
-	bindGroupEntries[1].sampler = wgpContext.getSampler(SS_LINEAR_CLAMP);
-
-	bindGroupEntries[2].binding = 2u;
-	bindGroupEntries[2].textureView = m_wgpTextureCube.getTextureView();
-
-	WGPUBindGroupDescriptor bindGroupDesc = {};
-	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_SKYBOX"), 0u);
-	bindGroupDesc.entryCount = (uint32_t)bindGroupEntries.size();
-	bindGroupDesc.entries = bindGroupEntries.data();
-	bindGroups[0] = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
-
-	return bindGroups;
-}
-
-void ComputeParticlesLogo::proceduralSkinning(Bone**& bones, unsigned short numBones, float angle) {
-	angle = (angle - 0.5f) * 2.0f * m_angle * 0.5f * m_fade.getTransitionSpeed();
-
-	for (size_t i = 0u; i < numBones; ++i) {
-		Bone* bone = bones[i];
-
-		if (i == 3 || i == 4) {
-			bone->rotate(0.0f, 0.0f, angle);
-		}
-		else if (i == 5 || i == 6) {
-			bone->rotate(0.0f, 0.0f, angle);
-		}
-		else if (i == 1 || i == 2) {
-			bone->rotate(0.0f, i == 1 ? angle : -angle, 0.0f);
-		}
-	}
-}
-
-WGPUBindGroup ComputeParticlesLogo::createBindGroup() {
+WGPUBindGroup ComputeParticlesLogo::createComputeBindGroup() {
 	std::vector<WGPUBindGroupEntry> entries(3);
 
 	entries[0].binding = 0u;
@@ -636,6 +351,21 @@ WGPUBindGroup ComputeParticlesLogo::createBindGroup() {
 
 	WGPUBindGroupDescriptor bindGroupDesc = {};
 	bindGroupDesc.layout = wgpuComputePipelineGetBindGroupLayout(wgpContext.computePipelines.at("CP_SIMULATE"), 0);
+	bindGroupDesc.entryCount = (uint32_t)entries.size();
+	bindGroupDesc.entries = (WGPUBindGroupEntry*)entries.data();
+	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
+}
+
+WGPUBindGroup ComputeParticlesLogo::createBindGroup() {
+	std::vector<WGPUBindGroupEntry> entries(1);
+
+	entries[0].binding = 0u;
+	entries[0].buffer = m_renderParamsBuffer.getBuffer();
+	entries[0].offset = 0u;
+	entries[0].size = wgpuBufferGetSize(m_renderParamsBuffer.getBuffer());
+
+	WGPUBindGroupDescriptor bindGroupDesc = {};
+	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_PARTICLE"), 0u);
 	bindGroupDesc.entryCount = (uint32_t)entries.size();
 	bindGroupDesc.entries = (WGPUBindGroupEntry*)entries.data();
 	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);

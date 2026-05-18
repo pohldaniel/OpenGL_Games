@@ -28,7 +28,7 @@ InstancedCube::InstancedCube(StateMachine& machine) : State(machine, States::INS
 	wgpContext.setClearColor({ 0.1f, 0.2f, 0.3f, 1.0f });
 	wgpContext.addSahderModule("CUBE", "res/shader/instance.wgsl");
 	wgpContext.createRenderPipeline("CUBE", "RP_INSTANCED", VL_PTN, std::bind(&InstancedCube::OnBindGroupLayouts, this));
-	wgpContext.OnDraw = std::bind(&InstancedCube::OnDraw, this, std::placeholders::_1);
+	wgpContext.OnDraw = std::bind(&InstancedCube::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
 
 	m_cube.buildCube({ -1.0f, -1.0f, -1.0f }, { 2.0f, 2.0f, 2.0f }, 1u, 1u, true, true, false);
 	m_wgpCube.create(m_cube);
@@ -110,8 +110,8 @@ void InstancedCube::render() {
 	wgpDraw();
 }
 
-void InstancedCube::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
-
+void InstancedCube::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor) {
+	WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDescriptor);
 	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
 
 	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_INSTANCED"));
@@ -119,6 +119,9 @@ void InstancedCube::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
 
 	if (m_drawUi)
 		renderUi(renderPassEncoder);
+
+	wgpuRenderPassEncoderEnd(renderPassEncoder);
+	wgpuRenderPassEncoderRelease(renderPassEncoder);
 }
 
 void InstancedCube::OnMouseMotion(const Event::MouseMoveEvent& event) {

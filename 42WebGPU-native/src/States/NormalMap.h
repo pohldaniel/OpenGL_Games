@@ -30,7 +30,7 @@ public:
 	void fixedUpdate() override;
 	void update() override;
 	void render() override;
-	void OnDraw(const WGPURenderPassEncoder& renderPass);
+	void OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor);
 
 
 	void resize(int deltaW, int deltaH) override;

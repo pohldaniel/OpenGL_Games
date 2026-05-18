@@ -20,13 +20,16 @@ enum VertexLayoutSlot {
 	VL_PTNC,
 	VL_PTNTB,
 	VL_PTNWJ,
-	VL_BATCH
+	VL_BATCH,
+	VL_0,
+	VL_1,
+	VL_2
 };
 
 struct WgpContext;
 extern WgpContext wgpContext;
 extern std::unordered_map<VertexLayoutSlot, std::vector<WGPUVertexAttribute>> wgpVertexAttributes;
-extern std::unordered_map<VertexLayoutSlot, WGPUVertexBufferLayout> wgpVertexBufferLayouts;
+extern std::unordered_map<VertexLayoutSlot, std::vector<WGPUVertexBufferLayout>> wgpVertexBufferLayouts;
 
 extern "C" {
 	void wgpInit(void* window);
@@ -39,6 +42,8 @@ extern "C" {
 	WGPUSampler wgpCreateSampler(WGPUFilterMode filterMode = WGPUFilterMode_Linear, WGPUAddressMode addressMode = WGPUAddressMode_ClampToEdge, uint16_t maxAnisotropy = 1u, WGPUMipmapFilterMode mipmapFilterMode = WGPUMipmapFilterMode_Undefined, WGPUCompareFunction compareFunction = WGPUCompareFunction_Undefined);
 	WGPUShaderModule wgpCreateShaderFromFile(std::string path);
 	WGPUShaderModule wgpCreateShaderFromString(std::string strng);
+	std::vector<WGPUVertexAttribute>& wgpVertexAttribute(VertexLayoutSlot vertexLayoutSlot);
+	std::vector<WGPUVertexBufferLayout>& wgpVertexBufferLayout(VertexLayoutSlot vertexLayoutSlot);
 
 	void wgpCreateVertexBufferLayout(VertexLayoutSlot slot = VL_PTN);
 	void wgpShutDown();
@@ -46,7 +51,7 @@ extern "C" {
 	void wgpSamplersRelease();
 	void wgpShaderModulesRelease();
 	void wgpPipelineLayoutsRelease();
-
+	
 	void wgpDraw();
 	void wgpResize(uint32_t width, uint32_t height);
 	void wgpToggleVerticalSync();
@@ -105,7 +110,8 @@ struct WgpContext {
 	WGPUSurface surface = NULL;
 	WGPUQueue queue = NULL;
 	WGPUColor clearColor = { 0.2f, 0.2f, 0.2f, 1.0f };
-	
+	WGPUCommandEncoder commandEncoder = NULL;
+
 	WGPUTextureView depthTextureView = NULL;
 	WGPUTexture depthTexture = NULL;
 	WGPUTextureView msaaTextureView = NULL;
@@ -119,8 +125,7 @@ struct WgpContext {
 
 	std::unordered_map<std::string, WGPUComputePipeline> computePipelines;
 	std::unordered_map<std::string, WGPURenderPipeline> renderPipelines;
-	std::function<void(const WGPURenderPassEncoder& renderPassEncoder)> OnDraw = NULL;
-	std::function<void(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor)> OnDraw2 = NULL;
+	std::function<void(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor)> OnDraw = NULL;
 
 private:
 

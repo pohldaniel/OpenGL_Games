@@ -24,7 +24,7 @@ Compute::Compute(StateMachine& machine) : State(machine, States::COMPUTE) {
 	m_outputTexture.createEmpty(m_inputTexture.getWidth(), m_inputTexture.getHeight(), 1u, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_StorageBinding | WGPUTextureUsage_CopySrc, WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm);	
 	m_bindGroup = createBindGroup();
 
-	wgpContext.OnDraw = std::bind(&Compute::OnDraw, this, std::placeholders::_1);
+	wgpContext.OnDraw = std::bind(&Compute::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
 }
 
 Compute::~Compute() {
@@ -54,8 +54,13 @@ void Compute::render() {
 	compute();
 }
 
-void Compute::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
+void Compute::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor) {
+	WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDescriptor);
+	
 	renderUi(renderPassEncoder, m_force);
+
+	wgpuRenderPassEncoderEnd(renderPassEncoder);
+	wgpuRenderPassEncoderRelease(renderPassEncoder);
 }
 
 void Compute::compute() {

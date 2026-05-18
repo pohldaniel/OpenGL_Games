@@ -18,6 +18,14 @@
 
 #define PARTICLE_NUM (50000u)
 
+struct RenderParams {
+	Matrix4f model_view_projection_matrix;
+	Vector3f right;
+	float pad1;
+	Vector3f up;
+	float pad2;
+};
+
 struct Seed {
 	float x;
 	float y;
@@ -33,20 +41,7 @@ struct ParticleData {
 };
 
 class ComputeParticlesLogo : public State, public MouseEventListener, public KeyboardEventListener {
-	enum SelectedAnimation {
-		ATTACK,
-		SWIM,
-		PROCEDURAL
-	};
-	enum SelectedModel {
-		VAMPIRE,
-		WHALE
-	};
-	enum SelectedMode {
-		NORMAL,
-		JOINTS,
-		WEIGHT
-	};
+	
 public:
 
 	ComputeParticlesLogo(StateMachine& machine);
@@ -55,8 +50,7 @@ public:
 	void fixedUpdate() override;
 	void update() override;
 	void render() override;
-	void OnDraw(const WGPURenderPassEncoder& renderPass);
-	void OnDraw2(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor);
+	void OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor);
 
 	void resize(int deltaW, int deltaH) override;
 	void OnMouseMotion(const Event::MouseMoveEvent& event) override;
@@ -68,47 +62,22 @@ public:
 
 private:
 
-	std::vector<WGPUBindGroupLayout> OnBindGroupLayouts();
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsProbability();
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsSimulate();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsParticle();
 
-	std::vector<WGPUBindGroup> OnBindGroups();
-	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsSkybox();
-	std::vector<WGPUBindGroup> OnBindGroupsSkybox();
-
+	WGPUBindGroup createComputeBindGroup();
 	WGPUBindGroup createBindGroup();
 
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
-	float m_fadeValue = 0.0f;
-	float m_speed = 50.0f;
-	float m_angle = 0.2f;
-	bool m_skinMode = true;
-
+	
 	Camera m_camera;
-	Uniforms m_uniforms;
-	Matrix4f m_lightProjection, m_lightView, m_shadow;
-	Animation m_attack, m_swim, m_dance;
-	AnimatedModel m_whale, m_vampire;
-	Fade m_fade;
-	Shape m_cube;
-
-	WgpBuffer m_uniformBuffer, m_skinBuffer, m_modeBuffer;
-	WgpModel m_wgpWhale, m_wgpVampire, m_wgpCube;
-	WgpTexture m_wgpTextureCube;
-
-	SelectedAnimation m_animation = SelectedAnimation::PROCEDURAL;
-	SelectedModel m_model = SelectedModel::WHALE;
-	SelectedMode m_mode = SelectedMode::NORMAL;
-
-	void proceduralSkinning(Bone**& bones, unsigned short numBones, float angle);
 
 	WgpTexture m_wgpWgpuLogo;
-
-	WgpBuffer m_probabilityBuffer, m_bufferA, m_bufferB, m_simulationBuffer, m_particlesBuffer;
-
+	WgpBuffer m_probabilityBuffer, m_bufferA, m_bufferB, m_simulationBuffer, m_particlesBuffer, m_renderParamsBuffer, m_quadVerticesBuffer;
 	ParticleData data;
-	WGPUBindGroup m_bindGroup;
+	WGPUBindGroup m_computeBindGroup, m_bindGroup;
 };

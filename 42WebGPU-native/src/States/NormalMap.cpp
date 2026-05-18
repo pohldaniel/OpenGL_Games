@@ -71,7 +71,7 @@ NormalMap::NormalMap(StateMachine& machine) : State(machine, States::NORMAL_MAP)
 	m_wgpSpiral.create(m_spiral);
 	m_wgpSpiral.setBindGroups("BG", std::bind(&NormalMap::OnBindGroups, this));
 
-	wgpContext.OnDraw = std::bind(&NormalMap::OnDraw, this, std::placeholders::_1);
+	wgpContext.OnDraw = std::bind(&NormalMap::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
 
 	m_trackball.reshape(Application::Width, Application::Height);
 	m_trackball.setTrackballScale(0.5f);
@@ -234,7 +234,7 @@ void NormalMap::render() {
 	wgpDraw();
 }
 
-void NormalMap::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
+void NormalMap::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor) {
 
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, projection), &m_uniforms.projection, sizeof(Uniforms::projection));
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, view), &m_uniforms.view, sizeof(Uniforms::view));
@@ -243,6 +243,7 @@ void NormalMap::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
 
 	wgpuQueueWriteBuffer(wgpContext.queue, m_normalUniformBuffer.getBuffer(), 0u, &m_normalUniforms.light_pos_vs, sizeof(NormalUniforms::light_pos_vs));
 
+	WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDescriptor);
 	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
 
 	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_PTNTB"));
@@ -254,6 +255,9 @@ void NormalMap::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
 
 	if (m_drawUi)
 		renderUi(renderPassEncoder);
+
+	wgpuRenderPassEncoderEnd(renderPassEncoder);
+	wgpuRenderPassEncoderRelease(renderPassEncoder);
 }
 
 void NormalMap::OnMouseMotion(const Event::MouseMoveEvent& event) {
