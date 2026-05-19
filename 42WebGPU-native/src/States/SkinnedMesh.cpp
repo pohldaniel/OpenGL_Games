@@ -78,10 +78,7 @@ SkinnedMesh::SkinnedMesh(StateMachine& machine) : State(machine, States::SKINNED
 		WGPUTextureFormat_Undefined,
 		WGPUTextureFormat_Undefined,
 		WGPUCompareFunction_LessEqual,
-		true,
-		true,
-		false,
-		true
+		{ WRITE_DEPTH | DEPTH_STENCIL_STATE | FRAGMENT_STATE, BlendMode::ALPHA_BLENDING }
 	);
 
 	m_lightProjection = Matrix4f::Orthographic(-80.0f, 80.0f, -80.0f, 80.0f, -200.0f, 300.0f);

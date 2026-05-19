@@ -70,15 +70,23 @@ enum SamplerSlot {
 	SS_2
 };
 
+enum RenderPipelineFlags {
+	WRITE_DEPTH = 1,
+	DEPTH_STENCIL_STATE = 2,
+	BLEND_STATE = 4,
+	FRAGMENT_STATE = 8
+};
+
 enum BlendMode {
 	ALPHA_BLENDING,
-	ADDITIVE_BLENDING_0,
-	ADDITIVE_BLENDING_1
+	ADDITIVE_BLENDING_SRC,
+	ADDITIVE_BLENDING_ONE
 };
 
 struct WgpContext {
 
 	struct PipelineConfiguration {
+		unsigned int flags;
 		BlendMode blendMode;
 	};
 
@@ -101,12 +109,8 @@ struct WgpContext {
 		WGPUPrimitiveTopology primitiveTopology = WGPUPrimitiveTopology::WGPUPrimitiveTopology_TriangleList,
 		WGPUTextureFormat colorTextureFormat = WGPUTextureFormat::WGPUTextureFormat_Undefined,
 		WGPUTextureFormat depthTextureFormat = WGPUTextureFormat::WGPUTextureFormat_Undefined,
-		WGPUCompareFunction depthCompareFunction = WGPUCompareFunction::WGPUCompareFunction_Less,
-		bool writeDepth = true,
-		bool addDepthStencilState = true,
-		bool addBlendState = true,
-		bool addFragmentState = true,
-		const PipelineConfiguration configuration = { BlendMode::ALPHA_BLENDING });
+		WGPUCompareFunction depthCompareFunction = WGPUCompareFunction::WGPUCompareFunction_Less,	
+		const PipelineConfiguration configuration = { WRITE_DEPTH | DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE, BlendMode::ALPHA_BLENDING });
 
 	void createVertexBufferLayout(VertexLayoutSlot slot = VL_PTN);
 	void addSampler(const WGPUSampler& sampler, SamplerSlot samplerSlot);

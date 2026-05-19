@@ -44,10 +44,7 @@ ShadowMapping::ShadowMapping(StateMachine& machine) : State(machine, States::SHA
 		WGPUTextureFormat_Undefined,
 		WGPUTextureFormat_Depth32Float,
 		WGPUCompareFunction_Less,
-		true,
-		true,
-		false,
-		false
+		{ WRITE_DEPTH | DEPTH_STENCIL_STATE, BlendMode::ALPHA_BLENDING }
 	);
 	
 	m_lightProjection = Matrix4f::Orthographic(-80.0f, 80.0f, -80.0f, 80.0f, -200.0f, 300.0f);

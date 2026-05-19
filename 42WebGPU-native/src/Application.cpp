@@ -316,9 +316,9 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new MSDFFont(*Machine));
 	//Machine->addStateAtTop(new InstancedCube(*Machine));
 	//Machine->addStateAtTop(new ImageBasedLighting(*Machine));
-	//Machine->addStateAtTop(new ShadowMapping(*Machine));
+	Machine->addStateAtTop(new ShadowMapping(*Machine));
 	//Machine->addStateAtTop(new SkinnedMesh(*Machine));
-	Machine->addStateAtTop(new ComputeParticleLogo(*Machine));	
+	//Machine->addStateAtTop(new ComputeParticleLogo(*Machine));	
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

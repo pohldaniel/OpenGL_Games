@@ -68,12 +68,9 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 		WGPUTextureFormat_Undefined,
 		WGPUTextureFormat_Undefined,
 		WGPUCompareFunction_LessEqual,
-		true,
-		true,
-		false,
-		true
+		{ WRITE_DEPTH | DEPTH_STENCIL_STATE | FRAGMENT_STATE, BlendMode::ALPHA_BLENDING }
 	);
-
+	
 	wgpContext.addSahderModule("IRRADIANCE", "res/shader/irradiance.wgsl");
 	wgpContext.createRenderPipeline("IRRADIANCE", "RP_IRRADIANCE", VL_P, 
 		std::bind(&ImageBasedLighting::OnBindGroupLayoutsIrradiance, this), 
@@ -82,10 +79,8 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 		WGPUTextureFormat_RGBA16Float,
 		WGPUTextureFormat_Undefined,
 		WGPUCompareFunction_Less,
-		true,
-		false,
-		false,
-		true);
+		{ WRITE_DEPTH | FRAGMENT_STATE, BlendMode::ALPHA_BLENDING }
+	);
 
 	wgpContext.addSahderModule("CUBE", "res/shader/cube_map.wgsl");
 	wgpContext.createRenderPipeline("CUBE", "RP_CUBE", VL_P,
@@ -95,10 +90,8 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 		WGPUTextureFormat_RGBA16Float,
 		WGPUTextureFormat_Undefined,
 		WGPUCompareFunction_Less,
-		true,
-		false,
-		false,
-		true);
+		{ WRITE_DEPTH | FRAGMENT_STATE, BlendMode::ALPHA_BLENDING }
+	);
 
 	wgpContext.addSahderModule("PREFILTER", "res/shader/prefilter.wgsl");
 	wgpContext.createRenderPipeline("PREFILTER", "RP_PREFILTER", VL_P,
@@ -108,10 +101,8 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 		WGPUTextureFormat_RGBA16Float,
 		WGPUTextureFormat_Undefined,
 		WGPUCompareFunction_Less,
-		true,
-		false,
-		false,
-		true);
+		{ WRITE_DEPTH | FRAGMENT_STATE, BlendMode::ALPHA_BLENDING }
+	);
 
 	wgpContext.addSahderModule("BRDF", "res/shader/brdf.wgsl");
 	wgpContext.createRenderPipeline("BRDF", "RP_BRDF", VL_PT,
@@ -121,10 +112,8 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 		WGPUTextureFormat_RG16Float,
 		WGPUTextureFormat_Undefined,
 		WGPUCompareFunction_Less,
-		true,
-		false,
-		false,
-		true);
+		{ WRITE_DEPTH | FRAGMENT_STATE, BlendMode::ALPHA_BLENDING }
+	);
 
 	m_wgpCube.create(m_cube);
 	m_wgpQuad.create(m_quad);

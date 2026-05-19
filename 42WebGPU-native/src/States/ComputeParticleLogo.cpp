@@ -43,11 +43,7 @@ ComputeParticleLogo::ComputeParticleLogo(StateMachine& machine) : State(machine,
 		WGPUTextureFormat_Undefined, 
 		WGPUTextureFormat_Undefined, 
 		WGPUCompareFunction_Less, 
-		false, 
-		true, 
-		true, 
-		true,
-		{BlendMode::ADDITIVE_BLENDING_0}
+		{ DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE, BlendMode::ADDITIVE_BLENDING_SRC }
 	);
 
 	wgpContext.addSahderModule("PROBABILITY", "res/shader/particle_probability.wgsl");
