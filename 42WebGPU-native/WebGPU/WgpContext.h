@@ -121,9 +121,9 @@ struct WgpContext {
 	WGPUDevice device = NULL;
 	WGPUSurface surface = NULL;
 	WGPUQueue queue = NULL;
-	WGPUColor clearColor = { 0.2f, 0.2f, 0.2f, 1.0f };
 	WGPUCommandEncoder commandEncoder = NULL;
-
+	WGPUColor clearColor = { 0.2f, 0.2f, 0.2f, 1.0f };
+	
 	WGPUTextureView depthTextureView = NULL;
 	WGPUTexture depthTexture = NULL;
 	WGPUTextureView msaaTextureView = NULL;

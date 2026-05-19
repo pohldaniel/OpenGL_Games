@@ -777,7 +777,6 @@ void wgpDraw() {
 	WGPUCommandBufferDescriptor commandBufferDescriptor = {};
 	commandBufferDescriptor.label = WGPU_STR("command_buffer");
 	WGPUCommandBuffer commandBuffer = wgpuCommandEncoderFinish(wgpContext.commandEncoder, &commandBufferDescriptor);
-	wgpuCommandEncoderRelease(wgpContext.commandEncoder);
 
 	wgpuQueueSubmit(wgpContext.queue, 1, &commandBuffer);
 
@@ -788,6 +787,7 @@ void wgpDraw() {
 	wgpuInstanceProcessEvents(wgpContext.instance);
 
 	wgpuCommandBufferRelease(commandBuffer);
+	wgpuCommandEncoderRelease(wgpContext.commandEncoder);
 	wgpuTextureRelease(surfaceTexture.texture);
 }
 
