@@ -75,7 +75,7 @@ private:
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 
 	bool m_initUi = true;
-	bool m_drawUi = true;
+	bool m_drawUi = false;
 
 	Camera m_camera;
 	ParticleData particleData;

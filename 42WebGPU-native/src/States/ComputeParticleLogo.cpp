@@ -12,7 +12,7 @@
 #include "Application.h"
 #include "Globals.h"
 
-ComputeParticleLogo::ComputeParticleLogo(StateMachine& machine) : State(machine, States::COMPUTE_PARTICLES_LOGO) {
+ComputeParticleLogo::ComputeParticleLogo(StateMachine& machine) : State(machine, States::COMPUTE_PARTICLE_LOGO) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
