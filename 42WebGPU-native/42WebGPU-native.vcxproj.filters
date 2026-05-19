@@ -246,6 +246,9 @@
     <ClCompile Include="src\States\ComputeParticleLogo.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
+    <ClCompile Include="src\States\PrimitivePicking.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\input\ApplicationEventListener.h">
@@ -471,6 +474,9 @@
       <Filter>engine\animation</Filter>
     </ClInclude>
     <ClInclude Include="src\States\ComputeParticleLogo.h">
+      <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\PrimitivePicking.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
   </ItemGroup>

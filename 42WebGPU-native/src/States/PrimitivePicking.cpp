@@ -8,11 +8,11 @@
 
 #include <engine/utils/BinaryIO.h>
 
-#include "ComputeParticleLogo.h"
+#include "PrimitivePicking.h"
 #include "Application.h"
 #include "Globals.h"
 
-ComputeParticleLogo::ComputeParticleLogo(StateMachine& machine) : State(machine, States::COMPUTE_PARTICLE_LOGO) {
+PrimitivePicking::PrimitivePicking(StateMachine& machine) : State(machine, States::PRIMITIVE_PICKING) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -20,12 +20,12 @@ ComputeParticleLogo::ComputeParticleLogo(StateMachine& machine) : State(machine,
 
 	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm, Application::OnSurfaceChange);
 
-	wgpVertexAttribute(VL_0).push_back({NULL, WGPUVertexFormat_Float32x3, 0u, 0u});
-	wgpVertexAttribute(VL_0).push_back({NULL, WGPUVertexFormat_Float32x4, 4 * sizeof(float), 1u});
-	wgpVertexAttribute(VL_1).push_back({NULL, WGPUVertexFormat_Float32x2, 0u, 2u});
+	wgpVertexAttribute(VL_0).push_back({ NULL, WGPUVertexFormat_Float32x3, 0u, 0u });
+	wgpVertexAttribute(VL_0).push_back({ NULL, WGPUVertexFormat_Float32x4, 4 * sizeof(float), 1u });
+	wgpVertexAttribute(VL_1).push_back({ NULL, WGPUVertexFormat_Float32x2, 0u, 2u });
 
-	wgpVertexBufferLayout(VL_0).push_back(WGPUVertexBufferLayout{NULL, WGPUVertexStepMode_Instance, 48u, wgpVertexAttribute(VL_0).size(), wgpVertexAttribute(VL_0).data()});
-	wgpVertexBufferLayout(VL_0).push_back(WGPUVertexBufferLayout{NULL, WGPUVertexStepMode_Vertex, 8u , wgpVertexAttribute(VL_1).size(), wgpVertexAttribute(VL_1).data()});
+	wgpVertexBufferLayout(VL_0).push_back(WGPUVertexBufferLayout{ NULL, WGPUVertexStepMode_Instance, 48u, wgpVertexAttribute(VL_0).size(), wgpVertexAttribute(VL_0).data() });
+	wgpVertexBufferLayout(VL_0).push_back(WGPUVertexBufferLayout{ NULL, WGPUVertexStepMode_Vertex, 8u , wgpVertexAttribute(VL_1).size(), wgpVertexAttribute(VL_1).data() });
 
 	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 2000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
@@ -33,25 +33,25 @@ ComputeParticleLogo::ComputeParticleLogo(StateMachine& machine) : State(machine,
 	m_camera.setRotationSpeed(0.1f);
 
 	wgpContext.setClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
-	
+
 	wgpContext.addSahderModule("PARTICLE", "res/shader/particle.wgsl");
-	wgpContext.createRenderPipeline("PARTICLE", "RP_PARTICLE", 
-		VL_0, 
-		std::bind(&ComputeParticleLogo::OnBindGroupLayoutsParticle, this),
-		1u, 
-		WGPUPrimitiveTopology_TriangleList, 
-		WGPUTextureFormat_Undefined, 
-		WGPUTextureFormat_Undefined, 
-		WGPUCompareFunction_Less, 
+	wgpContext.createRenderPipeline("PARTICLE", "RP_PARTICLE",
+		VL_0,
+		std::bind(&PrimitivePicking::OnBindGroupLayoutsParticle, this),
+		1u,
+		WGPUPrimitiveTopology_TriangleList,
+		WGPUTextureFormat_Undefined,
+		WGPUTextureFormat_Undefined,
+		WGPUCompareFunction_Less,
 		{ DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE, BlendMode::ADDITIVE_BLENDING_SRC }
 	);
 
 	wgpContext.addSahderModule("PROBABILITY", "res/shader/particle_probability.wgsl");
-	wgpContext.createComputePipeline("PROBABILITY", "import_level", "CP_IMPORT", std::bind(&ComputeParticleLogo::OnBindGroupLayoutsProbability, this));
-	wgpContext.createComputePipeline("PROBABILITY", "export_level", "CP_EXPORT", std::bind(&ComputeParticleLogo::OnBindGroupLayoutsProbability, this));
+	wgpContext.createComputePipeline("PROBABILITY", "import_level", "CP_IMPORT", std::bind(&PrimitivePicking::OnBindGroupLayoutsProbability, this));
+	wgpContext.createComputePipeline("PROBABILITY", "export_level", "CP_EXPORT", std::bind(&PrimitivePicking::OnBindGroupLayoutsProbability, this));
 
 	wgpContext.addSahderModule("SIMULATE", "res/shader/particle_simulate.wgsl");
-	wgpContext.createComputePipeline("SIMULATE", "simulate", "CP_SIMULATE", std::bind(&ComputeParticleLogo::OnBindGroupLayoutsSimulate, this));
+	wgpContext.createComputePipeline("SIMULATE", "simulate", "CP_SIMULATE", std::bind(&PrimitivePicking::OnBindGroupLayoutsSimulate, this));
 
 	m_wgpWgpuLogo.setTextureUsage(WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst);
 	m_wgpWgpuLogo.loadFromFile("res/textures/webgpu.png", true);
@@ -67,7 +67,7 @@ ComputeParticleLogo::ComputeParticleLogo(StateMachine& machine) : State(machine,
 	m_particlesBuffer.createBuffer(PARTICLE_NUM * 48u, WGPUBufferUsage_CopyDst | WGPUBufferUsage_Vertex | WGPUBufferUsage_Storage);
 	m_simulationBuffer.createBuffer(sizeof(ParticleData), WGPUBufferUsage_Uniform | WGPUBufferUsage_CopyDst);
 	m_renderParamsBuffer.createBuffer(sizeof(RenderParams), WGPUBufferUsage_Uniform | WGPUBufferUsage_CopyDst | WGPUBufferUsage_Vertex);
-	
+
 	static const float vertex_data[6 * 3] = {
 		-1.0f, -1.0f, +1.0f, -1.0f, -1.0f, +1.0f,
 		-1.0f, +1.0f, +1.0f, -1.0f, +1.0f, +1.0f,
@@ -78,7 +78,7 @@ ComputeParticleLogo::ComputeParticleLogo(StateMachine& machine) : State(machine,
 	m_computeBindGroup = createComputeBindGroup();
 	m_bindGroup = createBindGroup();
 
-	wgpContext.OnDraw = std::bind(&ComputeParticleLogo::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
+	wgpContext.OnDraw = std::bind(&PrimitivePicking::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
 
 	m_renderParams.model_view_projection_matrix = m_camera.getPerspectiveMatrix() * m_camera.getViewMatrix();
 	m_renderParams.right = m_camera.getCamX();
@@ -87,7 +87,7 @@ ComputeParticleLogo::ComputeParticleLogo(StateMachine& machine) : State(machine,
 	wgpuQueueWriteBuffer(wgpContext.queue, m_renderParamsBuffer.getBuffer(), 0u, &m_renderParams, sizeof(RenderParams));
 }
 
-ComputeParticleLogo::~ComputeParticleLogo() {
+PrimitivePicking::~PrimitivePicking() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 	m_wgpWgpuLogo.markForDelete();
@@ -101,11 +101,11 @@ ComputeParticleLogo::~ComputeParticleLogo() {
 	m_quadVerticesBuffer.markForDelete();
 }
 
-void ComputeParticleLogo::fixedUpdate() {
-	
+void PrimitivePicking::fixedUpdate() {
+
 }
 
-void ComputeParticleLogo::update() {
+void PrimitivePicking::update() {
 	Keyboard& keyboard = Keyboard::instance();
 	Vector3f direction = Vector3f();
 
@@ -169,12 +169,12 @@ void ComputeParticleLogo::update() {
 	wgpuQueueWriteBuffer(wgpContext.queue, m_renderParamsBuffer.getBuffer(), 0u, &m_renderParams, sizeof(RenderParams));
 }
 
-void ComputeParticleLogo::render() {
+void PrimitivePicking::render() {
 	wgpDraw();
 }
 
-void ComputeParticleLogo::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor) {
-	
+void PrimitivePicking::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor) {
+
 	{
 		WGPUComputePassEncoder computePassEncoder = wgpuCommandEncoderBeginComputePass(commandEncoder, NULL);
 		wgpuComputePassEncoderSetPipeline(computePassEncoder, wgpContext.computePipelines.at("CP_SIMULATE"));
@@ -184,7 +184,7 @@ void ComputeParticleLogo::OnDraw(const WGPUCommandEncoder& commandEncoder, const
 		wgpuComputePassEncoderEnd(computePassEncoder);
 		wgpuComputePassEncoderRelease(computePassEncoder);
 	}
-	
+
 	{
 		WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDescriptor);
 		wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
@@ -203,27 +203,27 @@ void ComputeParticleLogo::OnDraw(const WGPUCommandEncoder& commandEncoder, const
 	}
 }
 
-void ComputeParticleLogo::OnMouseMotion(const Event::MouseMoveEvent& event) {
+void PrimitivePicking::OnMouseMotion(const Event::MouseMoveEvent& event) {
 
 }
 
-void ComputeParticleLogo::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
+void PrimitivePicking::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
 	if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT) {
 		Mouse::instance().attach(Application::GetWindow());
 	}
 }
 
-void ComputeParticleLogo::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
+void PrimitivePicking::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
 	if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT) {
 		Mouse::instance().detach();
 	}
 }
 
-void ComputeParticleLogo::OnMouseWheel(const Event::MouseWheelEvent& event) {
+void PrimitivePicking::OnMouseWheel(const Event::MouseWheelEvent& event) {
 
 }
 
-void ComputeParticleLogo::OnKeyDown(const Event::KeyboardEvent& event) {
+void PrimitivePicking::OnKeyDown(const Event::KeyboardEvent& event) {
 #if DEVBUILD
 	if (event.keyCode == VK_LMENU) {
 		m_drawUi = !m_drawUi;
@@ -235,16 +235,16 @@ void ComputeParticleLogo::OnKeyDown(const Event::KeyboardEvent& event) {
 	}
 }
 
-void ComputeParticleLogo::OnKeyUp(const Event::KeyboardEvent& event) {
+void PrimitivePicking::OnKeyUp(const Event::KeyboardEvent& event) {
 
 }
 
-void ComputeParticleLogo::resize(int deltaW, int deltaH) {
+void PrimitivePicking::resize(int deltaW, int deltaH) {
 	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 2000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 }
 
-void ComputeParticleLogo::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
+void PrimitivePicking::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 	ImGui_ImplWGPU_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
@@ -285,7 +285,7 @@ void ComputeParticleLogo::renderUi(const WGPURenderPassEncoder& renderPassEncode
 	ImGui_ImplWGPU_RenderDrawData(ImGui::GetDrawData(), renderPassEncoder);
 }
 
-std::vector<WGPUBindGroupLayout> ComputeParticleLogo::OnBindGroupLayoutsProbability() {
+std::vector<WGPUBindGroupLayout> PrimitivePicking::OnBindGroupLayoutsProbability() {
 	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
 
 	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(5);
@@ -314,7 +314,7 @@ std::vector<WGPUBindGroupLayout> ComputeParticleLogo::OnBindGroupLayoutsProbabil
 	bindingLayoutEntries[4].storageTexture.access = WGPUStorageTextureAccess::WGPUStorageTextureAccess_WriteOnly;
 	bindingLayoutEntries[4].storageTexture.format = WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm;
 	bindingLayoutEntries[4].storageTexture.viewDimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
-	
+
 	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
 	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
 	bindGroupLayoutDescriptor.entries = bindingLayoutEntries.data();
@@ -324,7 +324,7 @@ std::vector<WGPUBindGroupLayout> ComputeParticleLogo::OnBindGroupLayoutsProbabil
 	return bindingLayouts;
 }
 
-std::vector<WGPUBindGroupLayout> ComputeParticleLogo::OnBindGroupLayoutsSimulate() {
+std::vector<WGPUBindGroupLayout> PrimitivePicking::OnBindGroupLayoutsSimulate() {
 	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
 
 	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(3);
@@ -352,7 +352,7 @@ std::vector<WGPUBindGroupLayout> ComputeParticleLogo::OnBindGroupLayoutsSimulate
 	return bindingLayouts;
 }
 
-std::vector<WGPUBindGroupLayout> ComputeParticleLogo::OnBindGroupLayoutsParticle() {
+std::vector<WGPUBindGroupLayout> PrimitivePicking::OnBindGroupLayoutsParticle() {
 	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
 
 	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(1);
@@ -370,7 +370,7 @@ std::vector<WGPUBindGroupLayout> ComputeParticleLogo::OnBindGroupLayoutsParticle
 	return bindingLayouts;
 }
 
-WGPUBindGroup ComputeParticleLogo::createComputeBindGroup() {
+WGPUBindGroup PrimitivePicking::createComputeBindGroup() {
 	std::vector<WGPUBindGroupEntry> entries(3);
 
 	entries[0].binding = 0u;
@@ -393,7 +393,7 @@ WGPUBindGroup ComputeParticleLogo::createComputeBindGroup() {
 	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
 }
 
-WGPUBindGroup ComputeParticleLogo::createBindGroup() {
+WGPUBindGroup PrimitivePicking::createBindGroup() {
 	std::vector<WGPUBindGroupEntry> entries(1);
 
 	entries[0].binding = 0u;
@@ -408,7 +408,7 @@ WGPUBindGroup ComputeParticleLogo::createBindGroup() {
 	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
 }
 
-void ComputeParticleLogo::updateSimulation() {
+void PrimitivePicking::updateSimulation() {
 	particleData.delta_time = 0.04f;
 	particleData.brightness_factor = 1.0f;
 
@@ -420,10 +420,10 @@ void ComputeParticleLogo::updateSimulation() {
 	wgpuQueueWriteBuffer(wgpContext.queue, m_simulationBuffer.getBuffer(), 0u, &particleData, wgpuBufferGetSize(m_simulationBuffer.getBuffer()));
 }
 
-float ComputeParticleLogo::randomFloat(float min, float max){
+float PrimitivePicking::randomFloat(float min, float max) {
 	return ((max - min) * ((float)rand() / (float)RAND_MAX)) + min;
 }
 
-float ComputeParticleLogo::randomFloat(){
+float PrimitivePicking::randomFloat() {
 	return randomFloat(0.0f, 1.0f);
 }
