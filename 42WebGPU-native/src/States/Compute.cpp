@@ -37,8 +37,6 @@ Compute::~Compute() {
 
 	wgpuBindGroupRelease(m_bindGroup);
 	m_bindGroup = NULL;
-
-	
 }
 
 void Compute::fixedUpdate() {
@@ -51,7 +49,6 @@ void Compute::update() {
 
 void Compute::render() {
 	wgpDraw();
-	compute();
 }
 
 void Compute::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor) {
@@ -61,38 +58,32 @@ void Compute::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderP
 
 	wgpuRenderPassEncoderEnd(renderPassEncoder);
 	wgpuRenderPassEncoderRelease(renderPassEncoder);
+
+	compute(commandEncoder);
 }
 
-void Compute::compute() {
+void Compute::compute(const WGPUCommandEncoder& commandEncoder) {
 	if (m_shouldCompute) {
 		wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(UniformsCompute));
 
-		WGPUCommandEncoderDescriptor commandEncoderDesc = {};
-		commandEncoderDesc.label = WGPU_STR("command_encoder");
-		WGPUCommandEncoder encoder = wgpuDeviceCreateCommandEncoder(wgpContext.device, &commandEncoderDesc);
-
-
 		WGPUComputePassDescriptor computePassDesc = {};
 		computePassDesc.timestampWrites = NULL;
-		WGPUComputePassEncoder computePass = wgpuCommandEncoderBeginComputePass(encoder, &computePassDesc);
-		wgpuComputePassEncoderSetPipeline(computePass, wgpContext.computePipelines.at("CP_COMPUTE"));
+		WGPUComputePassEncoder computePassEncoder = wgpuCommandEncoderBeginComputePass(commandEncoder, &computePassDesc);
+		wgpuComputePassEncoderSetPipeline(computePassEncoder, wgpContext.computePipelines.at("CP_COMPUTE"));
 
 		for (uint32_t i = 0; i < 1; ++i) {
-			wgpuComputePassEncoderSetBindGroup(computePass, 0, m_bindGroup, 0, nullptr);
+			wgpuComputePassEncoderSetBindGroup(computePassEncoder, 0, m_bindGroup, 0, nullptr);
 			uint32_t invocationCountX = m_inputTexture.getWidth();
 			uint32_t invocationCountY = m_inputTexture.getHeight();
 			uint32_t workgroupSizePerDim = 8;
 			uint32_t workgroupCountX = (invocationCountX + workgroupSizePerDim - 1) / workgroupSizePerDim;
 			uint32_t workgroupCountY = (invocationCountY + workgroupSizePerDim - 1) / workgroupSizePerDim;
-			wgpuComputePassEncoderDispatchWorkgroups(computePass, workgroupCountX, workgroupCountY, 1);
+			wgpuComputePassEncoderDispatchWorkgroups(computePassEncoder, workgroupCountX, workgroupCountY, 1);
 		}
 
-		wgpuComputePassEncoderEnd(computePass);
-		WGPUCommandBufferDescriptor commandBufferDescriptor = {};
-		commandBufferDescriptor.label = WGPU_STR("command_buffer");
-		WGPUCommandBuffer commands = wgpuCommandEncoderFinish(encoder, &commandBufferDescriptor);
+		wgpuComputePassEncoderEnd(computePassEncoder);
+		wgpuComputePassEncoderRelease(computePassEncoder);
 
-		wgpuQueueSubmit(wgpContext.queue, 1, &commands);
 		m_shouldCompute = false;
 		m_force = false;
 	}

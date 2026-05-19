@@ -17,7 +17,7 @@
 #include <States/ImageBasedLighting.h>
 #include <States/ShadowMapping.h>
 #include <States/SkinnedMesh.h>
-#include <States/ComputeParticlesLogo.h>
+#include <States/ComputeParticleLogo.h>
 
 #include "Application.h"
 #include "Globals.h"
@@ -318,7 +318,7 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new ImageBasedLighting(*Machine));
 	//Machine->addStateAtTop(new ShadowMapping(*Machine));
 	//Machine->addStateAtTop(new SkinnedMesh(*Machine));
-	Machine->addStateAtTop(new ComputeParticlesLogo(*Machine));	
+	Machine->addStateAtTop(new ComputeParticleLogo(*Machine));	
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

@@ -243,7 +243,7 @@
     <ClCompile Include="engine\animation\BoneDescription.cpp">
       <Filter>engine\animation</Filter>
     </ClCompile>
-    <ClCompile Include="src\States\ComputeParticlesLogo.cpp">
+    <ClCompile Include="src\States\ComputeParticleLogo.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
   </ItemGroup>
@@ -470,7 +470,7 @@
     <ClInclude Include="engine\animation\BoneDescription.h">
       <Filter>engine\animation</Filter>
     </ClInclude>
-    <ClInclude Include="src\States\ComputeParticlesLogo.h">
+    <ClInclude Include="src\States\ComputeParticleLogo.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
   </ItemGroup>

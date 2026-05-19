@@ -8,11 +8,11 @@
 
 #include <engine/utils/BinaryIO.h>
 
-#include "ComputeParticlesLogo.h"
+#include "ComputeParticleLogo.h"
 #include "Application.h"
 #include "Globals.h"
 
-ComputeParticlesLogo::ComputeParticlesLogo(StateMachine& machine) : State(machine, States::COMPUTE_PARTICLES_LOGO) {
+ComputeParticleLogo::ComputeParticleLogo(StateMachine& machine) : State(machine, States::COMPUTE_PARTICLES_LOGO) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -35,14 +35,27 @@ ComputeParticlesLogo::ComputeParticlesLogo(StateMachine& machine) : State(machin
 	wgpContext.setClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
 	
 	wgpContext.addSahderModule("PARTICLE", "res/shader/particle.wgsl");
-	wgpContext.createRenderPipeline("PARTICLE", "RP_PARTICLE", VL_0, std::bind(&ComputeParticlesLogo::OnBindGroupLayoutsParticle, this));
+	wgpContext.createRenderPipeline("PARTICLE", "RP_PARTICLE", 
+		VL_0, 
+		std::bind(&ComputeParticleLogo::OnBindGroupLayoutsParticle, this),
+		1u, 
+		WGPUPrimitiveTopology_TriangleList, 
+		WGPUTextureFormat_Undefined, 
+		WGPUTextureFormat_Undefined, 
+		WGPUCompareFunction_Less, 
+		false, 
+		true, 
+		true, 
+		true,
+		{BlendMode::ADDITIVE_BLENDING_0}
+	);
 
 	wgpContext.addSahderModule("PROBABILITY", "res/shader/particle_probability.wgsl");
-	wgpContext.createComputePipeline("PROBABILITY", "import_level", "CP_IMPORT", std::bind(&ComputeParticlesLogo::OnBindGroupLayoutsProbability, this));
-	wgpContext.createComputePipeline("PROBABILITY", "export_level", "CP_EXPORT", std::bind(&ComputeParticlesLogo::OnBindGroupLayoutsProbability, this));
+	wgpContext.createComputePipeline("PROBABILITY", "import_level", "CP_IMPORT", std::bind(&ComputeParticleLogo::OnBindGroupLayoutsProbability, this));
+	wgpContext.createComputePipeline("PROBABILITY", "export_level", "CP_EXPORT", std::bind(&ComputeParticleLogo::OnBindGroupLayoutsProbability, this));
 
 	wgpContext.addSahderModule("SIMULATE", "res/shader/particle_simulate.wgsl");
-	wgpContext.createComputePipeline("SIMULATE", "simulate", "CP_SIMULATE", std::bind(&ComputeParticlesLogo::OnBindGroupLayoutsSimulate, this));
+	wgpContext.createComputePipeline("SIMULATE", "simulate", "CP_SIMULATE", std::bind(&ComputeParticleLogo::OnBindGroupLayoutsSimulate, this));
 
 	m_wgpWgpuLogo.setTextureUsage(WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst);
 	m_wgpWgpuLogo.loadFromFile("res/textures/webgpu.png", true);
@@ -69,7 +82,7 @@ ComputeParticlesLogo::ComputeParticlesLogo(StateMachine& machine) : State(machin
 	m_computeBindGroup = createComputeBindGroup();
 	m_bindGroup = createBindGroup();
 
-	wgpContext.OnDraw = std::bind(&ComputeParticlesLogo::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
+	wgpContext.OnDraw = std::bind(&ComputeParticleLogo::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
 
 	m_renderParams.model_view_projection_matrix = m_camera.getPerspectiveMatrix() * m_camera.getViewMatrix();
 	m_renderParams.right = m_camera.getCamX();
@@ -78,7 +91,7 @@ ComputeParticlesLogo::ComputeParticlesLogo(StateMachine& machine) : State(machin
 	wgpuQueueWriteBuffer(wgpContext.queue, m_renderParamsBuffer.getBuffer(), 0u, &m_renderParams, sizeof(RenderParams));
 }
 
-ComputeParticlesLogo::~ComputeParticlesLogo() {
+ComputeParticleLogo::~ComputeParticleLogo() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 	m_wgpWgpuLogo.markForDelete();
@@ -92,11 +105,11 @@ ComputeParticlesLogo::~ComputeParticlesLogo() {
 	m_quadVerticesBuffer.markForDelete();
 }
 
-void ComputeParticlesLogo::fixedUpdate() {
+void ComputeParticleLogo::fixedUpdate() {
 	
 }
 
-void ComputeParticlesLogo::update() {
+void ComputeParticleLogo::update() {
 	Keyboard& keyboard = Keyboard::instance();
 	Vector3f direction = Vector3f();
 
@@ -160,11 +173,11 @@ void ComputeParticlesLogo::update() {
 	wgpuQueueWriteBuffer(wgpContext.queue, m_renderParamsBuffer.getBuffer(), 0u, &m_renderParams, sizeof(RenderParams));
 }
 
-void ComputeParticlesLogo::render() {
+void ComputeParticleLogo::render() {
 	wgpDraw();
 }
 
-void ComputeParticlesLogo::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor) {
+void ComputeParticleLogo::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor) {
 	
 	{
 		WGPUComputePassEncoder computePassEncoder = wgpuCommandEncoderBeginComputePass(commandEncoder, NULL);
@@ -194,27 +207,27 @@ void ComputeParticlesLogo::OnDraw(const WGPUCommandEncoder& commandEncoder, cons
 	}
 }
 
-void ComputeParticlesLogo::OnMouseMotion(const Event::MouseMoveEvent& event) {
+void ComputeParticleLogo::OnMouseMotion(const Event::MouseMoveEvent& event) {
 
 }
 
-void ComputeParticlesLogo::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
+void ComputeParticleLogo::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
 	if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT) {
 		Mouse::instance().attach(Application::GetWindow());
 	}
 }
 
-void ComputeParticlesLogo::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
+void ComputeParticleLogo::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
 	if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT) {
 		Mouse::instance().detach();
 	}
 }
 
-void ComputeParticlesLogo::OnMouseWheel(const Event::MouseWheelEvent& event) {
+void ComputeParticleLogo::OnMouseWheel(const Event::MouseWheelEvent& event) {
 
 }
 
-void ComputeParticlesLogo::OnKeyDown(const Event::KeyboardEvent& event) {
+void ComputeParticleLogo::OnKeyDown(const Event::KeyboardEvent& event) {
 #if DEVBUILD
 	if (event.keyCode == VK_LMENU) {
 		m_drawUi = !m_drawUi;
@@ -226,16 +239,16 @@ void ComputeParticlesLogo::OnKeyDown(const Event::KeyboardEvent& event) {
 	}
 }
 
-void ComputeParticlesLogo::OnKeyUp(const Event::KeyboardEvent& event) {
+void ComputeParticleLogo::OnKeyUp(const Event::KeyboardEvent& event) {
 
 }
 
-void ComputeParticlesLogo::resize(int deltaW, int deltaH) {
+void ComputeParticleLogo::resize(int deltaW, int deltaH) {
 	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 2000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 }
 
-void ComputeParticlesLogo::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
+void ComputeParticleLogo::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 	ImGui_ImplWGPU_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
@@ -276,7 +289,7 @@ void ComputeParticlesLogo::renderUi(const WGPURenderPassEncoder& renderPassEncod
 	ImGui_ImplWGPU_RenderDrawData(ImGui::GetDrawData(), renderPassEncoder);
 }
 
-std::vector<WGPUBindGroupLayout> ComputeParticlesLogo::OnBindGroupLayoutsProbability() {
+std::vector<WGPUBindGroupLayout> ComputeParticleLogo::OnBindGroupLayoutsProbability() {
 	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
 
 	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(5);
@@ -315,7 +328,7 @@ std::vector<WGPUBindGroupLayout> ComputeParticlesLogo::OnBindGroupLayoutsProbabi
 	return bindingLayouts;
 }
 
-std::vector<WGPUBindGroupLayout> ComputeParticlesLogo::OnBindGroupLayoutsSimulate() {
+std::vector<WGPUBindGroupLayout> ComputeParticleLogo::OnBindGroupLayoutsSimulate() {
 	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
 
 	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(3);
@@ -343,7 +356,7 @@ std::vector<WGPUBindGroupLayout> ComputeParticlesLogo::OnBindGroupLayoutsSimulat
 	return bindingLayouts;
 }
 
-std::vector<WGPUBindGroupLayout> ComputeParticlesLogo::OnBindGroupLayoutsParticle() {
+std::vector<WGPUBindGroupLayout> ComputeParticleLogo::OnBindGroupLayoutsParticle() {
 	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
 
 	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(1);
@@ -361,7 +374,7 @@ std::vector<WGPUBindGroupLayout> ComputeParticlesLogo::OnBindGroupLayoutsParticl
 	return bindingLayouts;
 }
 
-WGPUBindGroup ComputeParticlesLogo::createComputeBindGroup() {
+WGPUBindGroup ComputeParticleLogo::createComputeBindGroup() {
 	std::vector<WGPUBindGroupEntry> entries(3);
 
 	entries[0].binding = 0u;
@@ -384,7 +397,7 @@ WGPUBindGroup ComputeParticlesLogo::createComputeBindGroup() {
 	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
 }
 
-WGPUBindGroup ComputeParticlesLogo::createBindGroup() {
+WGPUBindGroup ComputeParticleLogo::createBindGroup() {
 	std::vector<WGPUBindGroupEntry> entries(1);
 
 	entries[0].binding = 0u;
@@ -399,7 +412,7 @@ WGPUBindGroup ComputeParticlesLogo::createBindGroup() {
 	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
 }
 
-void ComputeParticlesLogo::updateSimulation() {
+void ComputeParticleLogo::updateSimulation() {
 	particleData.delta_time = 0.04f;
 	particleData.brightness_factor = 1.0f;
 
@@ -411,10 +424,10 @@ void ComputeParticlesLogo::updateSimulation() {
 	wgpuQueueWriteBuffer(wgpContext.queue, m_simulationBuffer.getBuffer(), 0u, &particleData, wgpuBufferGetSize(m_simulationBuffer.getBuffer()));
 }
 
-float ComputeParticlesLogo::randomFloat(float min, float max){
+float ComputeParticleLogo::randomFloat(float min, float max){
 	return ((max - min) * ((float)rand() / (float)RAND_MAX)) + min;
 }
 
-float ComputeParticlesLogo::randomFloat(){
+float ComputeParticleLogo::randomFloat(){
 	return randomFloat(0.0f, 1.0f);
 }

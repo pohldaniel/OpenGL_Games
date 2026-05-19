@@ -69,6 +69,7 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 		WGPUTextureFormat_Undefined,
 		WGPUCompareFunction_LessEqual,
 		true,
+		true,
 		false,
 		true
 	);
@@ -81,6 +82,7 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 		WGPUTextureFormat_RGBA16Float,
 		WGPUTextureFormat_Undefined,
 		WGPUCompareFunction_Less,
+		true,
 		false,
 		false,
 		true);
@@ -93,6 +95,7 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 		WGPUTextureFormat_RGBA16Float,
 		WGPUTextureFormat_Undefined,
 		WGPUCompareFunction_Less,
+		true,
 		false,
 		false,
 		true);
@@ -105,6 +108,7 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 		WGPUTextureFormat_RGBA16Float,
 		WGPUTextureFormat_Undefined,
 		WGPUCompareFunction_Less,
+		true,
 		false,
 		false,
 		true);
@@ -117,6 +121,7 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 		WGPUTextureFormat_RG16Float,
 		WGPUTextureFormat_Undefined,
 		WGPUCompareFunction_Less,
+		true,
 		false,
 		false,
 		true);

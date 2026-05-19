@@ -79,6 +79,7 @@ SkinnedMesh::SkinnedMesh(StateMachine& machine) : State(machine, States::SKINNED
 		WGPUTextureFormat_Undefined,
 		WGPUCompareFunction_LessEqual,
 		true,
+		true,
 		false,
 		true
 	);

@@ -39,7 +39,7 @@ public:
 	void update() override;
 	void render() override;
 	void OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor);
-	void compute();
+	void compute(const WGPUCommandEncoder& commandEncoder);
 
 	void resize(int deltaW, int deltaH) override;
 	void OnMouseMotion(const Event::MouseMoveEvent& event) override;

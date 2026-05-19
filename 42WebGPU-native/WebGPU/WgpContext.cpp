@@ -852,9 +852,11 @@ void WgpContext::createRenderPipeline(std::string shaderModuleName,
 	WGPUTextureFormat colorTextureFormat,
 	WGPUTextureFormat depthTextureFormat,
 	WGPUCompareFunction depthCompareFunction,
+	bool writeDepth,
 	bool addDepthStencilState,
 	bool addBlendState,
-	bool addFragmentState) {
+	bool addFragmentState,
+	const PipelineConfiguration configuration) {
 
 	if (onBindGroupLayouts) {
 		std::vector<WGPUBindGroupLayout> bindGroupLayouts = onBindGroupLayouts();
@@ -873,12 +875,28 @@ void WgpContext::createRenderPipeline(std::string shaderModuleName,
 	vertexState.buffers = vertexLayoutSlot == VertexLayoutSlot::VL_NONE ? NULL : wgpVertexBufferLayouts.at(vertexLayoutSlot).data();
 
 	WGPUBlendState blendState = {};
-	blendState.color.srcFactor = WGPUBlendFactor::WGPUBlendFactor_SrcAlpha;
-	blendState.color.dstFactor = WGPUBlendFactor::WGPUBlendFactor_One;
-	blendState.color.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
-	blendState.alpha.srcFactor = WGPUBlendFactor::WGPUBlendFactor_Zero;
-	blendState.alpha.dstFactor = WGPUBlendFactor::WGPUBlendFactor_One;
-	blendState.alpha.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
+	if (configuration.blendMode == ALPHA_BLENDING) {
+		blendState.color.srcFactor = WGPUBlendFactor::WGPUBlendFactor_SrcAlpha;
+		blendState.color.dstFactor = WGPUBlendFactor::WGPUBlendFactor_OneMinusSrcAlpha;
+		blendState.color.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
+		blendState.alpha.srcFactor = WGPUBlendFactor::WGPUBlendFactor_Zero;
+		blendState.alpha.dstFactor = WGPUBlendFactor::WGPUBlendFactor_One;
+		blendState.alpha.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
+	}else if (configuration.blendMode == ADDITIVE_BLENDING_0) {
+		blendState.color.srcFactor = WGPUBlendFactor::WGPUBlendFactor_SrcAlpha;
+		blendState.color.dstFactor = WGPUBlendFactor::WGPUBlendFactor_One;
+		blendState.color.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
+		blendState.alpha.srcFactor = WGPUBlendFactor::WGPUBlendFactor_Zero;
+		blendState.alpha.dstFactor = WGPUBlendFactor::WGPUBlendFactor_One;
+		blendState.alpha.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
+	}else if (configuration.blendMode == ADDITIVE_BLENDING_1) {
+		blendState.color.srcFactor = WGPUBlendFactor::WGPUBlendFactor_One;
+		blendState.color.dstFactor = WGPUBlendFactor::WGPUBlendFactor_One;
+		blendState.color.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
+		blendState.alpha.srcFactor = WGPUBlendFactor::WGPUBlendFactor_Zero;
+		blendState.alpha.dstFactor = WGPUBlendFactor::WGPUBlendFactor_One;
+		blendState.alpha.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
+	}
 
 	WGPUColorTargetState colorTarget = {};
 	colorTarget.format = colorTextureFormat == WGPUTextureFormat_Undefined ? colorformat : colorTextureFormat;
@@ -896,7 +914,7 @@ void WgpContext::createRenderPipeline(std::string shaderModuleName,
 	WGPUDepthStencilState depthStencilState = {};
 	setDefault(depthStencilState);
 	depthStencilState.depthCompare = depthCompareFunction;
-	depthStencilState.depthWriteEnabled = WGPUOptionalBool::WGPUOptionalBool_False;
+	depthStencilState.depthWriteEnabled = writeDepth ? WGPUOptionalBool::WGPUOptionalBool_True : WGPUOptionalBool::WGPUOptionalBool_False;
 	depthStencilState.format = depthTextureFormat == WGPUTextureFormat_Undefined ? depthformat : depthTextureFormat;
 	depthStencilState.stencilReadMask = 0u;
 	depthStencilState.stencilWriteMask = 0u;

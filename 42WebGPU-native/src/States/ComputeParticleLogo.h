@@ -18,7 +18,7 @@
 
 #define PARTICLE_NUM (50000u)
 
-class ComputeParticlesLogo : public State, public MouseEventListener, public KeyboardEventListener {
+class ComputeParticleLogo : public State, public MouseEventListener, public KeyboardEventListener {
 
 	struct RenderParams {
 		Matrix4f model_view_projection_matrix;
@@ -44,8 +44,8 @@ class ComputeParticlesLogo : public State, public MouseEventListener, public Key
 
 public:
 
-	ComputeParticlesLogo(StateMachine& machine);
-	~ComputeParticlesLogo();
+	ComputeParticleLogo(StateMachine& machine);
+	~ComputeParticleLogo();
 
 	void fixedUpdate() override;
 	void update() override;
@@ -84,5 +84,4 @@ private:
 	WgpTexture m_wgpWgpuLogo;
 	WgpBuffer m_probabilityBuffer, m_bufferA, m_bufferB, m_simulationBuffer, m_particlesBuffer, m_renderParamsBuffer, m_quadVerticesBuffer;
 	WGPUBindGroup m_computeBindGroup, m_bindGroup;
-	
 };

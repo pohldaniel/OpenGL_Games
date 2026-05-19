@@ -45,6 +45,7 @@ ShadowMapping::ShadowMapping(StateMachine& machine) : State(machine, States::SHA
 		WGPUTextureFormat_Depth32Float,
 		WGPUCompareFunction_Less,
 		true,
+		true,
 		false,
 		false
 	);

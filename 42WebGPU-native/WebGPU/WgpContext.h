@@ -70,7 +70,17 @@ enum SamplerSlot {
 	SS_2
 };
 
+enum BlendMode {
+	ALPHA_BLENDING,
+	ADDITIVE_BLENDING_0,
+	ADDITIVE_BLENDING_1
+};
+
 struct WgpContext {
+
+	struct PipelineConfiguration {
+		BlendMode blendMode;
+	};
 
 	friend bool wgpCreateDevice(void* window);
 	friend void wgpPipelinesRelease();
@@ -92,9 +102,11 @@ struct WgpContext {
 		WGPUTextureFormat colorTextureFormat = WGPUTextureFormat::WGPUTextureFormat_Undefined,
 		WGPUTextureFormat depthTextureFormat = WGPUTextureFormat::WGPUTextureFormat_Undefined,
 		WGPUCompareFunction depthCompareFunction = WGPUCompareFunction::WGPUCompareFunction_Less,
+		bool writeDepth = true,
 		bool addDepthStencilState = true,
 		bool addBlendState = true,
-		bool addFragmentState = true);
+		bool addFragmentState = true,
+		const PipelineConfiguration configuration = { BlendMode::ALPHA_BLENDING });
 
 	void createVertexBufferLayout(VertexLayoutSlot slot = VL_PTN);
 	void addSampler(const WGPUSampler& sampler, SamplerSlot samplerSlot);
