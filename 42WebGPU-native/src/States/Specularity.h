@@ -53,7 +53,7 @@ public:
 private:
 
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayouts();
-	std::vector <WGPUBindGroup> OnBindGroups();
+	std::vector<WGPUBindGroup> OnBindGroups();
 
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 	void updateViewMatrix();

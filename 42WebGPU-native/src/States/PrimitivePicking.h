@@ -6,6 +6,8 @@
 #include <engine/animation/Animation.h>
 #include <engine/shape/Shape.h>
 #include <engine/AssimpModel.h>
+#include <engine/ObjModel.h>
+#include <engine/TrackBall.h>
 #include <engine/Camera.h>
 #include <Utils/Fade.h>
 
@@ -16,31 +18,7 @@
 #include <WebGPU/WgpModel.h>
 #include <WebGPU/WgpData.h>
 
-#define PARTICLE_NUM (50000u)
-
 class PrimitivePicking : public State, public MouseEventListener, public KeyboardEventListener {
-
-	struct RenderParams {
-		Matrix4f model_view_projection_matrix;
-		Vector3f right;
-		float pad1;
-		Vector3f up;
-		float pad2;
-	};
-
-	struct Seed {
-		float x;
-		float y;
-		float z;
-		float w;
-	};
-
-	struct ParticleData {
-		float delta_time;
-		float brightness_factor;
-		float pad[2];
-		Seed seed;
-	};
 
 public:
 
@@ -62,15 +40,8 @@ public:
 
 private:
 
-	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsProbability();
-	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsSimulate();
-	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsParticle();
-
-	WGPUBindGroup createComputeBindGroup();
-	WGPUBindGroup createBindGroup();
-	void updateSimulation();
-	float randomFloat(float min, float max);
-	float randomFloat();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsColor();
+	std::vector<WGPUBindGroup> OnBindGroupsColor();
 
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 
@@ -78,10 +49,10 @@ private:
 	bool m_drawUi = false;
 
 	Camera m_camera;
-	ParticleData particleData;
-	RenderParams m_renderParams;
+	ObjModel m_teapot;
+	Uniforms m_uniforms;
+	TrackBall m_trackball;
 
-	WgpTexture m_wgpWgpuLogo;
-	WgpBuffer m_probabilityBuffer, m_bufferA, m_bufferB, m_simulationBuffer, m_particlesBuffer, m_renderParamsBuffer, m_quadVerticesBuffer;
-	WGPUBindGroup m_computeBindGroup, m_bindGroup;
+	WgpModel m_wgpTeapot;
+	WgpBuffer m_uniformBuffer;
 };

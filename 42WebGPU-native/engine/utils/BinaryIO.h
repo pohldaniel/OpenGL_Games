@@ -52,4 +52,8 @@ namespace Utils {
 		void animationToAnic(const char* out, const std::string& animationName, const float length, const std::vector<AnimationTrack>& animationTracks);
 		void anicToBuffer(const char* in, std::string& animationName, float& length, std::map<std::string, AnimationTrack>& animationTracks);
 	};
+
+	struct JsonIO {
+		void jsonToObj(const char* path, const char* outFileObj);
+	};
 }

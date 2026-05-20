@@ -1,4 +1,6 @@
 #include <iostream>
+#include <rapidjson/document.h>
+#include <rapidjson/istreamwrapper.h>
 #include "BinaryIO.h"
 
 float Utils::bytesToFloatLE(unsigned char b0, unsigned char b1, unsigned char b2, unsigned char b3) {
@@ -427,4 +429,54 @@ void Utils::MdlcIO::anicToBuffer(const char* in, std::string& animationName, flo
 		delete[] buffer;
 	}
 	file.close();
+}
+
+void Utils::JsonIO::jsonToObj(const char* path, const char* outFileObj) {
+	std::ifstream file(path, std::ios::in);
+	if (!file.is_open()) {
+		std::cout << "Could not open file: " << std::string(path) << std::endl;
+	}
+
+	std::vector<std::array<float, 3>> positions;
+	std::vector<std::array<short, 3>> faces;
+
+	rapidjson::IStreamWrapper streamWrapper(file);
+	rapidjson::Document doc;
+	doc.ParseStream(streamWrapper);
+	int tmp = 0;
+	for (rapidjson::Value::ConstValueIterator position = doc["positions"].GetArray().Begin(); position != doc["positions"].GetArray().End(); ++position) {		
+		rapidjson::Value::ConstValueIterator coord = position->Begin();
+		float x = coord->GetFloat();
+		coord++;
+		float y = coord->GetFloat();
+		coord++;
+		float z = coord->GetFloat();
+		positions.push_back({ x, y, z});
+	}
+
+	for (rapidjson::Value::ConstValueIterator face = doc["cells"].GetArray().Begin(); face != doc["cells"].GetArray().End(); ++face) {
+		rapidjson::Value::ConstValueIterator coord = face->Begin();
+		short f0 = coord->GetInt();
+		coord++;
+		short f1 = coord->GetInt();
+		coord++;
+		short f2 = coord->GetInt();
+		faces.push_back({ f0, f1, f2 });
+	}
+	file.close();
+
+	std::ofstream fileOut;
+	fileOut << std::setprecision(6) << std::fixed;
+	fileOut.open(outFileObj);
+	fileOut << "# OBJ file\n";
+
+	for (int i = 0; i < positions.size(); i++) {
+		fileOut << "v " << positions[i][0] << " " << positions[i][1] << " " << positions[i][2] << std::endl;
+	}
+
+	for (int i = 0; i < faces.size(); i++) {
+		fileOut << "f " << faces[i][0] + 1  << " " << faces[i][1] + 1 << " " << faces[i][2] + 1 << std::endl;
+	}
+
+	fileOut.close();
 }
