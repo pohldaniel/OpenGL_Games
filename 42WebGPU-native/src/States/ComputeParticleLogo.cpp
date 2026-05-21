@@ -20,9 +20,9 @@ ComputeParticleLogo::ComputeParticleLogo(StateMachine& machine) : State(machine,
 
 	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm, Application::OnSurfaceChange);
 
-	wgpVertexAttribute(VL_0).push_back({NULL, WGPUVertexFormat_Float32x3, 0u, 0u});
-	wgpVertexAttribute(VL_0).push_back({NULL, WGPUVertexFormat_Float32x4, 4 * sizeof(float), 1u});
-	wgpVertexAttribute(VL_1).push_back({NULL, WGPUVertexFormat_Float32x2, 0u, 2u});
+	wgpVertexAttribute(VL_0).push_back(WGPUVertexAttribute{NULL, WGPUVertexFormat_Float32x3, 0u, 0u});
+	wgpVertexAttribute(VL_0).push_back(WGPUVertexAttribute{NULL, WGPUVertexFormat_Float32x4, 4 * sizeof(float), 1u});
+	wgpVertexAttribute(VL_1).push_back(WGPUVertexAttribute{NULL, WGPUVertexFormat_Float32x2, 0u, 2u});
 
 	wgpVertexBufferLayout(VL_0).push_back(WGPUVertexBufferLayout{NULL, WGPUVertexStepMode_Instance, 48u, wgpVertexAttribute(VL_0).size(), wgpVertexAttribute(VL_0).data()});
 	wgpVertexBufferLayout(VL_0).push_back(WGPUVertexBufferLayout{NULL, WGPUVertexStepMode_Vertex, 8u , wgpVertexAttribute(VL_1).size(), wgpVertexAttribute(VL_1).data()});

@@ -122,10 +122,11 @@ bool wgpCreateDevice(void* window) {
 	//instanceDescriptor.features.
 	wgpContext.instance = wgpuCreateInstance(&instanceDescriptor);
 #else	
-	static const WGPUInstanceFeatureName ckTimedWaitAny = WGPUInstanceFeatureName::WGPUInstanceFeatureName_TimedWaitAny;
+	std::vector<WGPUInstanceFeatureName> instancefeatures;
+	instancefeatures.push_back(WGPUInstanceFeatureName::WGPUInstanceFeatureName_TimedWaitAny);
 	WGPUInstanceDescriptor cinstanceDesc = {};
-	cinstanceDesc.requiredFeatureCount = 1;
-	cinstanceDesc.requiredFeatures = &ckTimedWaitAny;
+	cinstanceDesc.requiredFeatureCount = instancefeatures.size();
+	cinstanceDesc.requiredFeatures = instancefeatures.data();
 	wgpContext.instance = wgpuCreateInstance(&cinstanceDesc);
 #endif
 	
@@ -172,9 +173,14 @@ bool wgpCreateDevice(void* window) {
 	WGPUUncapturedErrorCallbackInfo errorCallbackInfo = {};
 	errorCallbackInfo.callback = OnErrorDevice;
 
+	std::vector<WGPUFeatureName> deviceFeatures;
+	deviceFeatures.push_back(WGPUFeatureName::WGPUFeatureName_PrimitiveIndex);
+
 	WGPUDeviceDescriptor deviceDescriptor = {};
 	deviceDescriptor.requiredLimits = &requiredLimits;
 	deviceDescriptor.uncapturedErrorCallbackInfo = errorCallbackInfo;
+	deviceDescriptor.requiredFeatures = deviceFeatures.data();
+	deviceDescriptor.requiredFeatureCount = deviceFeatures.size();
 
 	WGPUFuture futureDevice = wgpuAdapterRequestDevice(wgpContext.adapter, &deviceDescriptor, deviceCallbackInfo);
 

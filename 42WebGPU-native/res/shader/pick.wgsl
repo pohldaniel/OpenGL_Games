@@ -1,7 +1,8 @@
+enable primitive_index;
+
 struct VertexInput {
 	@location(0) position: vec3f,
 	@location(1) normal: vec3f,
-	@builtin(vertex_index) vertexIndex : u32
 };
 
 struct Uniforms {
@@ -30,7 +31,6 @@ struct Frame {
 struct VertexOutput {
    @builtin(position) position : vec4f,
    @location(0) normal : vec3f,
-   @location(1) @interpolate(flat) vertexIndex : u32,
 }
 
 @vertex
@@ -39,7 +39,6 @@ fn vs_main(in: VertexInput) -> VertexOutput {
    let worldPosition = (uniforms.model * vec4(in.position, 1.0)).xyz;
    out.position = frame.viewProjectionMatrix * vec4(worldPosition, 1.0);
    out.normal = normalize((uniforms.normal * vec4(in.normal, 1.0)).xyz);
-   out.vertexIndex = in.vertexIndex;
    return out;
 }
 
@@ -49,9 +48,9 @@ struct PassOutput {
 }
 
 @fragment 
-fn fs_main(in: VertexOutput) -> PassOutput {
+fn fs_main(in: VertexOutput, @builtin(primitive_index) primitive_index: u32) -> PassOutput {
   // Compute primitive index from vertex index (3 vertices per triangle)
-  let primIndex = in.vertexIndex / 3u;
+  let primIndex = primitive_index;
 
   // Very simple N-dot-L lighting model
   let lightDirection = normalize(vec3f(4, 10, 6));
