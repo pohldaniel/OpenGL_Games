@@ -23,6 +23,7 @@ public:
 	void create(const AssimpModel& model);
 	void create(const AnimatedModel& model);
 	void create(const Shape& shape);
+	void create(const WgpBuffer& vertexBuffer, const WgpBuffer& indexBuffer);
 
 	void markForDelete();
 

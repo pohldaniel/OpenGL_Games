@@ -746,13 +746,13 @@ void wgpDraw() {
 	}
 
 	WGPUTextureView texureView = wgpuTextureCreateView(surfaceTexture.texture, NULL);
-
-	wgpContext.renderPassColorAttachment.view = wgpContext.msaaSampleCount == 1u ? texureView  : wgpContext.msaaTextureView;
-	wgpContext.renderPassColorAttachment.resolveTarget = wgpContext.msaaSampleCount == 1u ? NULL : texureView;
-	wgpContext.renderPassColorAttachment.loadOp = WGPULoadOp::WGPULoadOp_Clear;
-	wgpContext.renderPassColorAttachment.storeOp = WGPUStoreOp::WGPUStoreOp_Store;
-	wgpContext.renderPassColorAttachment.clearValue = wgpContext.clearColor;
-	wgpContext.renderPassColorAttachment.depthSlice = WGPU_DEPTH_SLICE_UNDEFINED;
+	WGPURenderPassColorAttachment renderPassColorAttachment = {};
+	renderPassColorAttachment.view = wgpContext.msaaSampleCount == 1u ? texureView  : wgpContext.msaaTextureView;
+	renderPassColorAttachment.resolveTarget = wgpContext.msaaSampleCount == 1u ? NULL : texureView;
+	renderPassColorAttachment.loadOp = WGPULoadOp::WGPULoadOp_Clear;
+	renderPassColorAttachment.storeOp = WGPUStoreOp::WGPUStoreOp_Store;
+	renderPassColorAttachment.clearValue = wgpContext.clearColor;
+	renderPassColorAttachment.depthSlice = WGPU_DEPTH_SLICE_UNDEFINED;
 
 	WGPURenderPassDepthStencilAttachment depthStencilAttachment = {};
 	depthStencilAttachment.view = wgpContext.depthTextureView;
@@ -767,7 +767,7 @@ void wgpDraw() {
 
 	WGPURenderPassDescriptor renderPassDescriptor = {};
 	renderPassDescriptor.colorAttachmentCount = 1u;
-	renderPassDescriptor.colorAttachments = &wgpContext.renderPassColorAttachment;
+	renderPassDescriptor.colorAttachments = &renderPassColorAttachment;
 	renderPassDescriptor.depthStencilAttachment = &depthStencilAttachment;
 	renderPassDescriptor.timestampWrites = NULL;
 
@@ -913,10 +913,6 @@ void WgpContext::createRenderPipeline(std::string shaderModuleName,
 	}
 
 	std::vector<WGPUColorTargetState> colorTargetStates;
-	
-
-	
-
 	if (configuration.colorTextureFormat != WGPUTextureFormat_Undefined) {
 		colorTargetStates.push_back({ NULL, configuration.colorTextureFormat ,
 										   (configuration.flags & BLEND_STATE) && isBlendAble(configuration.colorTextureFormat) ? &blendState : NULL,
@@ -956,7 +952,7 @@ void WgpContext::createRenderPipeline(std::string shaderModuleName,
 	renderPipelineDescriptor.primitive.topology = primitiveTopology;
 	renderPipelineDescriptor.primitive.stripIndexFormat = WGPUIndexFormat::WGPUIndexFormat_Undefined;
 	renderPipelineDescriptor.primitive.frontFace = WGPUFrontFace::WGPUFrontFace_CCW;
-	renderPipelineDescriptor.primitive.cullMode = WGPUCullMode::WGPUCullMode_None;
+	renderPipelineDescriptor.primitive.cullMode = configuration.cullMode == WGPUCullMode_Undefined ? WGPUCullMode::WGPUCullMode_Back : configuration.cullMode;
 
 	renderPipelines[pipelineLayoutName] = wgpuDeviceCreateRenderPipeline(device, &renderPipelineDescriptor);
 }

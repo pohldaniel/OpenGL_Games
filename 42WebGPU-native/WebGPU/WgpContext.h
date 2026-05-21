@@ -90,6 +90,7 @@ struct WgpContext {
 		unsigned int flags;
 		BlendMode blendMode;
 		WGPUTextureFormat colorTextureFormat;
+		WGPUCullMode cullMode;
 	};
 
 	friend bool wgpCreateDevice(void* window);
@@ -113,7 +114,7 @@ struct WgpContext {
 		WGPUTextureFormat colorTextureFormat = WGPUTextureFormat::WGPUTextureFormat_Undefined,
 		WGPUTextureFormat depthTextureFormat = WGPUTextureFormat::WGPUTextureFormat_Undefined,
 		WGPUCompareFunction depthCompareFunction = WGPUCompareFunction::WGPUCompareFunction_Less,	
-		const PipelineConfiguration configuration = { WRITE_DEPTH | DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_Undefined });
+		const PipelineConfiguration configuration = { WRITE_DEPTH | DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_Undefined, WGPUCullMode_Undefined });
 
 	void createVertexBufferLayout(VertexLayoutSlot slot = VL_PTN);
 	void addSampler(const WGPUSampler& sampler, SamplerSlot samplerSlot);
@@ -137,7 +138,6 @@ struct WgpContext {
 	WGPUTextureView msaaTextureView = NULL;
 	WGPUTexture msaaTexture = NULL;
 	uint32_t msaaSampleCount = 1u;
-	WGPURenderPassColorAttachment renderPassColorAttachment;
 
 	WGPUSurfaceConfiguration config = {};
 	WGPUSurfaceCapabilities surfaceCapabilities;

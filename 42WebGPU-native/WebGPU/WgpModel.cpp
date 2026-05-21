@@ -54,6 +54,10 @@ void WgpModel::create(const Shape& shape) {
 	markForDelete();
 }
 
+void WgpModel::create(const WgpBuffer& vertexBuffer, const WgpBuffer& indexBuffer) {
+	m_meshes.push_back(WgpMesh(vertexBuffer, indexBuffer));
+}
+
 void WgpModel::markForDelete() {
 	for (WgpMesh& mesh : m_meshes) {
 		mesh.markForDelete();

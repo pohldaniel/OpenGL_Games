@@ -41,12 +41,6 @@ PrimitivePicking::PrimitivePicking(StateMachine& machine) : State(machine, State
 
 	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm, Application::OnSurfaceChange);
 
-	wgpVertexAttribute(VL_0) = wgpVertexAttribute(VL_PN);
-	wgpVertexAttribute(VL_1).push_back(WGPUVertexAttribute{ NULL, WGPUVertexFormat_Uint32, 0u, 2u });
-
-	wgpVertexBufferLayout(VL_0).push_back(WGPUVertexBufferLayout{ NULL, WGPUVertexStepMode_Vertex, 6u * sizeof(float) , wgpVertexAttribute(VL_0).size(), wgpVertexAttribute(VL_0).data()});
-	wgpVertexBufferLayout(VL_0).push_back(WGPUVertexBufferLayout{ NULL, WGPUVertexStepMode_Vertex, sizeof(unsigned int), wgpVertexAttribute(VL_1).size(), wgpVertexAttribute(VL_1).data() });
-
 	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 2000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 	m_camera.lookAt(Vector3f(0.0f, 12.0f, 25.0f), Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
@@ -97,7 +91,7 @@ PrimitivePicking::PrimitivePicking(StateMachine& machine) : State(machine, State
 		WGPUTextureFormat_Undefined,
 		WGPUTextureFormat_Undefined,
 		WGPUCompareFunction_Less,
-		{ WRITE_DEPTH | DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_R32Uint }
+		{ WRITE_DEPTH | DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_R32Uint , WGPUCullMode_None }
 	);
 
 	wgpContext.addSahderModule("PICK_DEBUG", "res/shader/pick_debug.wgsl");
