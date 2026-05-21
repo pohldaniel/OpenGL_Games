@@ -53,11 +53,12 @@ extern "C" {
 	void wgpPipelineLayoutsRelease();
 	
 	void wgpDraw();
+	void wgpSubmitQueue();
 	void wgpResize(uint32_t width, uint32_t height);
 	void wgpToggleVerticalSync();
 	void wgpConfigureSurface();
 	void wgpSetSurfaceColorFormat(WGPUTextureFormat textureFormat, const std::function<void()>& onSurfaceChange = NULL);
-	void wgpSetMSAASampleCount(const uint32_t count, const std::function<void()>& onSurfaceChange = NULL);
+	void wgpSetMSAASampleCount(const uint32_t count, const std::function<void()>& onSurfaceChange = NULL);	
 }
 
 enum SamplerSlot {
@@ -88,6 +89,7 @@ struct WgpContext {
 	struct PipelineConfiguration {
 		unsigned int flags;
 		BlendMode blendMode;
+		WGPUTextureFormat colorTextureFormat;
 	};
 
 	friend bool wgpCreateDevice(void* window);
@@ -95,6 +97,7 @@ struct WgpContext {
 	friend void wgpSamplersRelease();
 	friend void wgpShaderModulesRelease();
 	friend void wgpPipelineLayoutsRelease();
+	friend void wgpDraw();
 
 	void createComputePipeline(std::string shaderModuleName,
 		                       std::string entrypoint,
@@ -110,7 +113,7 @@ struct WgpContext {
 		WGPUTextureFormat colorTextureFormat = WGPUTextureFormat::WGPUTextureFormat_Undefined,
 		WGPUTextureFormat depthTextureFormat = WGPUTextureFormat::WGPUTextureFormat_Undefined,
 		WGPUCompareFunction depthCompareFunction = WGPUCompareFunction::WGPUCompareFunction_Less,	
-		const PipelineConfiguration configuration = { WRITE_DEPTH | DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE, BlendMode::ALPHA_BLENDING });
+		const PipelineConfiguration configuration = { WRITE_DEPTH | DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_Undefined });
 
 	void createVertexBufferLayout(VertexLayoutSlot slot = VL_PTN);
 	void addSampler(const WGPUSampler& sampler, SamplerSlot samplerSlot);
@@ -119,6 +122,7 @@ struct WgpContext {
 	const WGPUShaderModule& getShaderModule(std::string shaderModuleName) const;
 	const WGPUPipelineLayout& getPipelineLayout(std::string pipelineLayoutName) const;
 	void setClearColor(const WGPUColor& clearColor);
+	bool isBlendAble(WGPUTextureFormat textureFormat);
 
 	WGPUInstance instance = NULL;
 	WGPUAdapter adapter = NULL;
@@ -133,6 +137,7 @@ struct WgpContext {
 	WGPUTextureView msaaTextureView = NULL;
 	WGPUTexture msaaTexture = NULL;
 	uint32_t msaaSampleCount = 1u;
+	WGPURenderPassColorAttachment renderPassColorAttachment;
 
 	WGPUSurfaceConfiguration config = {};
 	WGPUSurfaceCapabilities surfaceCapabilities;
@@ -142,7 +147,7 @@ struct WgpContext {
 	std::unordered_map<std::string, WGPUComputePipeline> computePipelines;
 	std::unordered_map<std::string, WGPURenderPipeline> renderPipelines;
 	std::function<void(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor)> OnDraw = NULL;
-
+	
 private:
 
 	std::unordered_map<std::string, WGPUPipelineLayout> pipelineLayouts;

@@ -741,14 +741,13 @@ void wgpDraw() {
 
 	WGPUTextureView texureView = wgpuTextureCreateView(surfaceTexture.texture, NULL);
 
-	WGPURenderPassColorAttachment renderPassColorAttachment = {};
-	renderPassColorAttachment.view = wgpContext.msaaSampleCount == 1u ? texureView  : wgpContext.msaaTextureView;
-	renderPassColorAttachment.resolveTarget = wgpContext.msaaSampleCount == 1u ? NULL : texureView;
-	renderPassColorAttachment.loadOp = WGPULoadOp::WGPULoadOp_Clear;
-	renderPassColorAttachment.storeOp = WGPUStoreOp::WGPUStoreOp_Store;
-	renderPassColorAttachment.clearValue = wgpContext.clearColor;
-	renderPassColorAttachment.depthSlice = WGPU_DEPTH_SLICE_UNDEFINED;
-	
+	wgpContext.renderPassColorAttachment.view = wgpContext.msaaSampleCount == 1u ? texureView  : wgpContext.msaaTextureView;
+	wgpContext.renderPassColorAttachment.resolveTarget = wgpContext.msaaSampleCount == 1u ? NULL : texureView;
+	wgpContext.renderPassColorAttachment.loadOp = WGPULoadOp::WGPULoadOp_Clear;
+	wgpContext.renderPassColorAttachment.storeOp = WGPUStoreOp::WGPUStoreOp_Store;
+	wgpContext.renderPassColorAttachment.clearValue = wgpContext.clearColor;
+	wgpContext.renderPassColorAttachment.depthSlice = WGPU_DEPTH_SLICE_UNDEFINED;
+
 	WGPURenderPassDepthStencilAttachment depthStencilAttachment = {};
 	depthStencilAttachment.view = wgpContext.depthTextureView;
 	depthStencilAttachment.depthClearValue = 1.0f;
@@ -761,8 +760,8 @@ void wgpDraw() {
 	depthStencilAttachment.stencilReadOnly = WGPUOptionalBool::WGPUOptionalBool_True;
 
 	WGPURenderPassDescriptor renderPassDescriptor = {};
-	renderPassDescriptor.colorAttachmentCount = 1;
-	renderPassDescriptor.colorAttachments = &renderPassColorAttachment;
+	renderPassDescriptor.colorAttachmentCount = 1u;
+	renderPassDescriptor.colorAttachments = &wgpContext.renderPassColorAttachment;
 	renderPassDescriptor.depthStencilAttachment = &depthStencilAttachment;
 	renderPassDescriptor.timestampWrites = NULL;
 
@@ -789,6 +788,15 @@ void wgpDraw() {
 	wgpuCommandBufferRelease(commandBuffer);
 	wgpuCommandEncoderRelease(wgpContext.commandEncoder);
 	wgpuTextureRelease(surfaceTexture.texture);
+}
+
+void wgpSubmitQueue() {
+	WGPUCommandBuffer commandBuffer = wgpuCommandEncoderFinish(wgpContext.commandEncoder, NULL);
+	wgpuQueueSubmit(wgpContext.queue, 1, &commandBuffer);
+	wgpuCommandBufferRelease(commandBuffer);
+	wgpuCommandEncoderRelease(wgpContext.commandEncoder);
+
+	wgpContext.commandEncoder = wgpuDeviceCreateCommandEncoder(wgpContext.device, NULL);
 }
 
 void WgpContext::createVertexBufferLayout(VertexLayoutSlot slot) {
@@ -818,6 +826,10 @@ const WGPUPipelineLayout& WgpContext::getPipelineLayout(std::string pipelineLayo
 
 void WgpContext::setClearColor(const WGPUColor& _clearColor) {
 	clearColor = _clearColor;
+}
+
+bool WgpContext::isBlendAble(WGPUTextureFormat textureFormat) {
+	return textureFormat != WGPUTextureFormat_R32Uint && textureFormat != WGPUTextureFormat_R32Sint;
 }
 
 void WgpContext::createComputePipeline(std::string shaderModuleName, 
@@ -894,18 +906,28 @@ void WgpContext::createRenderPipeline(std::string shaderModuleName,
 		blendState.alpha.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
 	}
 
-	WGPUColorTargetState colorTarget = {};
-	colorTarget.format = colorTextureFormat == WGPUTextureFormat_Undefined ? colorformat : colorTextureFormat;
-	colorTarget.blend = (configuration.flags & BLEND_STATE) ? &blendState : NULL;
-	colorTarget.writeMask = WGPUColorWriteMask_All;
+	std::vector<WGPUColorTargetState> colorTargetStates;
+	
+
+	
+
+	if (configuration.colorTextureFormat != WGPUTextureFormat_Undefined) {
+		colorTargetStates.push_back({ NULL, configuration.colorTextureFormat ,
+										   (configuration.flags & BLEND_STATE) && isBlendAble(configuration.colorTextureFormat) ? &blendState : NULL,
+											WGPUColorWriteMask_All });
+	}
+
+	colorTargetStates.push_back({ NULL, colorTextureFormat == WGPUTextureFormat_Undefined ? colorformat : colorTextureFormat,
+									   (configuration.flags & BLEND_STATE) ? &blendState : NULL,
+										WGPUColorWriteMask_All });
 
 	WGPUFragmentState fragmentState = {};
 	fragmentState.module = shaderModules.at(shaderModuleName);
 	fragmentState.entryPoint = WGPU_STR("fs_main");
 	fragmentState.constantCount = 0u;
 	fragmentState.constants = NULL;
-	fragmentState.targetCount = 1;
-	fragmentState.targets = &colorTarget;
+	fragmentState.targetCount = colorTargetStates.size();
+	fragmentState.targets = colorTargetStates.data();
 
 	WGPUDepthStencilState depthStencilState = {};
 	setDefault(depthStencilState);

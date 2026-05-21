@@ -1,5 +1,5 @@
 #pragma once
-
+#include <vector>
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
 #include <engine/animation/AnimatedModel.h>
@@ -19,6 +19,12 @@
 #include <WebGPU/WgpData.h>
 
 class PrimitivePicking : public State, public MouseEventListener, public KeyboardEventListener {
+	struct Frame {
+		Matrix4f viewProjectionMatrix;
+		Matrix4f invViewProjectionMatrix;
+		Vector2f pickCoord;
+		uint32_t pickedPrimitive;
+	};
 
 public:
 
@@ -40,13 +46,20 @@ public:
 
 private:
 
-	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsColor();
-	std::vector<WGPUBindGroup> OnBindGroupsColor();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsPick();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsCompute();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsDebug();
+
+	std::vector<WGPUBindGroup> OnBindGroupsPick();
+	WGPUBindGroup createComputeBindGroup();
+	WGPUBindGroup createDebugBindGroup();
 
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
+	void readBuffer();
 
 	bool m_initUi = true;
-	bool m_drawUi = false;
+	bool m_drawUi = true;
+	bool m_debug = false;
 
 	Camera m_camera;
 	ObjModel m_teapot;
@@ -54,5 +67,10 @@ private:
 	TrackBall m_trackball;
 
 	WgpModel m_wgpTeapot;
-	WgpBuffer m_uniformBuffer;
+	WgpBuffer m_uniformBuffer, m_computeBuffer, m_stagingBuffer;
+
+	WGPUBindGroup m_computeBindGroup, m_debugBindGroup;
+	WgpTexture m_indexTexture;
+
+	std::vector<WGPURenderPassColorAttachment> renderPassColorAttachments;
 };
