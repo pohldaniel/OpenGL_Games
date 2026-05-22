@@ -175,6 +175,11 @@ void PrimitivePicking::update() {
 	}
 	m_trackball.idle();
 
+	Vector3f position = m_camera.getPosition();
+
+	Vector3f::RotateY(position, m_dt * 180.0f * 0.2f);
+	m_camera.setPosition(position, true);
+
 	m_uniforms.projection = m_camera.getPerspectiveMatrix();
 	m_uniforms.view = m_camera.getViewMatrix();
 	m_uniforms.env = m_camera.getRotationMatrix();
@@ -266,7 +271,6 @@ void PrimitivePicking::OnMouseMotion(const Event::MouseMoveEvent& event) {
 }
 
 void PrimitivePicking::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
-	m_buttonDown = true;
 	if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {
 		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, true, event.x, event.y);
 		Mouse::instance().detach();	
@@ -279,7 +283,6 @@ void PrimitivePicking::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
 }
 
 void PrimitivePicking::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
-	m_buttonDown = false;
 	if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {
 		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, false, event.x, event.y);
 		Mouse::instance().attach(Application::GetWindow(), false, true);
