@@ -21,10 +21,11 @@ public:
 	void loadCubeFromFiles(std::string* fileNames, const bool flipVertical = false);
 
 	void createEmpty(uint32_t width, uint32_t height, uint32_t depth, WGPUTextureUsage textureUsage, WGPUTextureFormat textureFormat, uint32_t mipLevelCount = 1u);
+	void resize(uint32_t width, uint32_t height);
 	void cleanup();
 	void markForDelete();
 	void setTextureUsage(WGPUTextureUsage textureUsage = WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst);
-
+	
 	const WGPUTexture& getTexture() const;
 	const WGPUTextureView& getTextureView() const;
 

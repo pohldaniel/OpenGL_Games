@@ -39,7 +39,7 @@ PrimitivePicking::PrimitivePicking(StateMachine& machine) : State(machine, State
 	EventDispatcher::AddMouseListener(this);
 	Mouse::instance().attach(Application::GetWindow(), false, true);
 
-	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm, Application::OnSurfaceChange);
+	//wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm, Application::OnSurfaceChange);
 
 	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 2000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
@@ -110,8 +110,10 @@ PrimitivePicking::PrimitivePicking(StateMachine& machine) : State(machine, State
 PrimitivePicking::~PrimitivePicking() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
+
 	m_uniformBuffer.markForDelete();
 	m_computeBuffer.markForDelete();
+	m_indexTexture.markForDelete();
 }
 
 void PrimitivePicking::fixedUpdate() {
@@ -176,7 +178,6 @@ void PrimitivePicking::update() {
 	m_trackball.idle();
 
 	Vector3f position = m_camera.getPosition();
-
 	Vector3f::RotateY(position, m_dt * 180.0f * 0.2f);
 	m_camera.setPosition(position, true);
 
@@ -206,7 +207,7 @@ void PrimitivePicking::render() {
 
 void PrimitivePicking::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor) {
 
-	{	
+	{
 		renderPassColorAttachments.push_back(renderPassDescriptor.colorAttachments[0]);
 
 		WGPURenderPassDescriptor rndrPssDscrptor = renderPassDescriptor;
@@ -215,23 +216,23 @@ void PrimitivePicking::OnDraw(const WGPUCommandEncoder& commandEncoder, const WG
 
 		WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &rndrPssDscrptor);
 		wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
-		
+
 		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_PICK"));
-		m_wgpTeapot.draw(renderPassEncoder);		
-		
+		m_wgpTeapot.draw(renderPassEncoder);
+
 		wgpuRenderPassEncoderEnd(renderPassEncoder);
 		wgpuRenderPassEncoderRelease(renderPassEncoder);
 
-		renderPassColorAttachments.pop_back();	
+		renderPassColorAttachments.pop_back();
 	}
 
-	if(m_debug)
+	if (m_debug)
 	{
 		WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDescriptor);
 		wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
 
 		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_PICK_DEBUG"));
-		
+
 		wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_debugBindGroup, 0u, NULL);
 		wgpuRenderPassEncoderDraw(renderPassEncoder, 6u, 1u, 0, 0);
 
@@ -239,7 +240,7 @@ void PrimitivePicking::OnDraw(const WGPUCommandEncoder& commandEncoder, const WG
 		wgpuRenderPassEncoderRelease(renderPassEncoder);
 	}
 
-	if(Mouse::instance().isVisibile())
+	if (Mouse::instance().isVisibile())
 	{
 		WGPUComputePassEncoder computePassEncoder = wgpuCommandEncoderBeginComputePass(commandEncoder, NULL);
 		wgpuComputePassEncoderSetPipeline(computePassEncoder, wgpContext.computePipelines.at("CP_PICK"));
@@ -273,11 +274,12 @@ void PrimitivePicking::OnMouseMotion(const Event::MouseMoveEvent& event) {
 void PrimitivePicking::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
 	if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {
 		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, true, event.x, event.y);
-		Mouse::instance().detach();	
-	}else if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT) {
-		Mouse::instance().attach(Application::GetWindow(), true, true, true);
+		Mouse::instance().detach();
 	}
 
+	if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT) 
+		Mouse::instance().attach(Application::GetWindow(), true, true, true);
+	
 	uint32_t primitveId = 0u;
 	wgpuQueueWriteBuffer(wgpContext.queue, m_computeBuffer.getBuffer(), 2 * sizeof(Matrix4f) + 2 * sizeof(float), &primitveId, sizeof(uint32_t));
 }
@@ -286,9 +288,10 @@ void PrimitivePicking::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
 	if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {
 		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, false, event.x, event.y);
 		Mouse::instance().attach(Application::GetWindow(), false, true);
-	}else if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT) {
-		Mouse::instance().attach(Application::GetWindow(), false, false, true);
 	}
+
+	if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT) 
+		Mouse::instance().attach(Application::GetWindow(), false, false, true);	
 }
 
 void PrimitivePicking::OnMouseWheel(const Event::MouseWheelEvent& event) {
@@ -314,6 +317,15 @@ void PrimitivePicking::OnKeyUp(const Event::KeyboardEvent& event) {
 void PrimitivePicking::resize(int deltaW, int deltaH) {
 	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 2000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
+	m_indexTexture.resize(Application::Width, Application::Height);
+
+	wgpuBindGroupLayoutRelease(wgpuComputePipelineGetBindGroupLayout(wgpContext.computePipelines.at("CP_PICK"), 0u));
+	wgpuBindGroupLayoutRelease(wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_PICK_DEBUG"), 0u));
+
+	renderPassColorAttachments[0].view = m_indexTexture.getTextureView();
+
+	m_computeBindGroup = createComputeBindGroup();
+	m_debugBindGroup = createDebugBindGroup();
 }
 
 void PrimitivePicking::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {

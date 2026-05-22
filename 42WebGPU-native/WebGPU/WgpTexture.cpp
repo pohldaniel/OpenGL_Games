@@ -463,6 +463,24 @@ void WgpTexture::createEmpty(uint32_t width, uint32_t height, uint32_t depth, WG
     m_textureView = wgpCreateTextureView(m_texture, WGPUTextureAspect::WGPUTextureAspect_All);
 }
 
+void WgpTexture::resize(uint32_t width, uint32_t height) {
+    if (m_texture) {
+        uint32_t mipLevelCount = wgpuTextureGetMipLevelCount(m_texture);
+        uint32_t depth = wgpuTextureGetDepthOrArrayLayers(m_texture);
+        WGPUTextureUsage textureUsage = wgpuTextureGetUsage(m_texture);
+
+        wgpuTextureDestroy(m_texture);
+        wgpuTextureRelease(m_texture);
+        wgpuTextureViewRelease(m_textureView);
+
+        m_width = width;
+        m_height = height;
+
+        m_texture = wgpCreateTexture(m_width, m_height, depth, textureUsage, m_format, mipLevelCount);
+        m_textureView = wgpCreateTextureView(m_texture, WGPUTextureAspect::WGPUTextureAspect_All);
+    }
+}
+
 unsigned char* WgpTexture::LoadFromFile(std::string fileName, const bool flipVertical, const short alphaChannel) {
     std::filesystem::path filePath = fileName;
 
