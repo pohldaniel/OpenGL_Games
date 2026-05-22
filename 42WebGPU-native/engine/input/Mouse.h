@@ -20,6 +20,10 @@ public:
 		return m_pCurrButtonStates[button];
 	}
 
+	bool buttonDownInvisible(MouseButton button) const {
+		return m_pCurrButtonStates[button] && !m_cursorVisible;
+	}
+
 	bool buttonPressed(MouseButton button) const{
 		return m_pCurrButtonStates[button] && !m_pPrevButtonStates[button];
 	}
@@ -63,7 +67,7 @@ public:
 
 	bool attachRaw(HWND hWnd);
 	void detachRaw();
-	void attach(HWND hWnd, bool hideCursor = true, bool reattach = false, bool reset = false);
+	void attach(HWND hWnd, bool hideCursor = true, bool reset = false, bool reattach = false);
 	void detach();
 	void handleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	void handleEvent(Event event);
@@ -78,6 +82,7 @@ public:
 	void updateWheelDelta(int delta);
 
 	bool isAttached();
+	bool isVisibile();
 	void resetCursor();
 
 private:

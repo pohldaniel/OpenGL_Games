@@ -294,12 +294,12 @@ void Application::render() {
 }
 
 void Application::update() {
-	Mouse::instance().update();
-	Keyboard::instance().update();
-	
-	if (!Machine->isRunning()) {
+	if(!Machine->isRunning()) {
 		SendMessage(Window, WM_DESTROY, NULL, NULL);
 	}
+
+	Mouse::instance().update();
+	Keyboard::instance().update();
 
 	Machine->update();
 }

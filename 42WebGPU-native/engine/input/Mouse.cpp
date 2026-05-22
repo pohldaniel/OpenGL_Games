@@ -231,6 +231,10 @@ bool Mouse::isAttached() {
 	return m_attached;
 }
 
+bool Mouse::isVisibile() {
+	return m_cursorVisible;
+}
+
 void Mouse::setPosition(UINT x, UINT y){
 	POINT pt = { LONG(x), LONG(y) };
 
@@ -296,32 +300,21 @@ void Mouse::update(){
 		GetCursorPos(&CursorPos);		
 		m_xDelta = static_cast< float >((CursorPos.x - m_centerX));
 		m_yDelta = static_cast< float >((CursorPos.y - m_centerY));
-		
-		if(!m_cursorVisible)
+
+		if (!m_cursorVisible)
 			setCursorToMiddle();
 		else {
 			ScreenToClient(m_hWnd, &CursorPos);
 			m_xPos = CursorPos.x;
 			m_yPos = CursorPos.y;
 		}
-	}
-	
+	}	
 }
 
-void Mouse::attach(HWND hWnd, bool _hideCursor, bool reattach, bool reset) {
+void Mouse::attach(HWND hWnd, bool _hideCursor, bool reset, bool reattach) {
 	if (m_attached && !reattach) return;
+	
 	m_hWnd = hWnd;
-
-	if (!m_reset) {
-		POINT        CursorPos;
-		GetCursorPos(&CursorPos);
-		m_xLastPos = CursorPos.x;
-		m_yLastPos = CursorPos.y;
-
-		ScreenToClient(m_hWnd, &CursorPos);
-		m_xPos = CursorPos.x;
-		m_yPos = CursorPos.y;
-	}
 
 	RECT rectClient, rectWindow;
 	GetWindowRect(m_hWnd, &rectWindow);
@@ -330,14 +323,27 @@ void Mouse::attach(HWND hWnd, bool _hideCursor, bool reattach, bool reset) {
 	m_centerX = rectWindow.left + rectClient.right / 2;
 	m_centerY = rectWindow.top + rectClient.bottom / 2;
 
+	if (reset) {
+		POINT        CursorPos;
+		GetCursorPos(&CursorPos);
+		m_xLastPos = CursorPos.x;
+		m_yLastPos = CursorPos.y;
+		
+		ScreenToClient(m_hWnd, &CursorPos);
+		m_xPos = CursorPos.x;
+		m_yPos = CursorPos.y;	
+	}
 	
 	if (_hideCursor) {
 		hideCursor(true);
-		setCursorToMiddle();
+		setCursorToMiddle();		
+	}else {
+		SetCursorPos(m_xLastPos, m_yLastPos);
+		hideCursor(false);
 	}
+
 	m_attached = true;
 	m_reset = reset;
-	
 }
 
 void Mouse::detach() {

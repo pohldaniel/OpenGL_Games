@@ -37,7 +37,7 @@ PrimitivePicking::PrimitivePicking(StateMachine& machine) : State(machine, State
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
-	Mouse::instance().attach(Application::GetWindow(), false, false, false);
+	Mouse::instance().attach(Application::GetWindow(), false, true);
 
 	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm, Application::OnSurfaceChange);
 
@@ -158,13 +158,14 @@ void PrimitivePicking::update() {
 
 	Mouse& mouse = Mouse::instance();
 
-	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {
+	if (mouse.buttonDownInvisible(Mouse::MouseButton::BUTTON_RIGHT)) {	
 		dx = mouse.xDelta();
 		dy = mouse.yDelta();
 	}
 
 	if (move || dx != 0.0f || dy != 0.0f) {
 		if (dx || dy) {
+			
 			m_camera.rotate(dx, dy);
 		}
 
@@ -219,7 +220,8 @@ void PrimitivePicking::OnDraw(const WGPUCommandEncoder& commandEncoder, const WG
 		renderPassColorAttachments.pop_back();	
 	}
 
-	if(m_debug){
+	if(m_debug)
+	{
 		WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDescriptor);
 		wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
 
@@ -232,6 +234,7 @@ void PrimitivePicking::OnDraw(const WGPUCommandEncoder& commandEncoder, const WG
 		wgpuRenderPassEncoderRelease(renderPassEncoder);
 	}
 
+	if(Mouse::instance().isVisibile())
 	{
 		WGPUComputePassEncoder computePassEncoder = wgpuCommandEncoderBeginComputePass(commandEncoder, NULL);
 		wgpuComputePassEncoderSetPipeline(computePassEncoder, wgpContext.computePipelines.at("CP_PICK"));
@@ -263,18 +266,25 @@ void PrimitivePicking::OnMouseMotion(const Event::MouseMoveEvent& event) {
 }
 
 void PrimitivePicking::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
+	m_buttonDown = true;
 	if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {
 		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, true, event.x, event.y);
+		Mouse::instance().detach();	
 	}else if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT) {
-		Mouse::instance().attach(Application::GetWindow());
+		Mouse::instance().attach(Application::GetWindow(), true, true, true);
 	}
+
+	uint32_t primitveId = 0u;
+	wgpuQueueWriteBuffer(wgpContext.queue, m_computeBuffer.getBuffer(), 2 * sizeof(Matrix4f) + 2 * sizeof(float), &primitveId, sizeof(uint32_t));
 }
 
 void PrimitivePicking::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
+	m_buttonDown = false;
 	if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {
 		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, false, event.x, event.y);
+		Mouse::instance().attach(Application::GetWindow(), false, true);
 	}else if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT) {
-		Mouse::instance().detach();
+		Mouse::instance().attach(Application::GetWindow(), false, false, true);
 	}
 }
 
