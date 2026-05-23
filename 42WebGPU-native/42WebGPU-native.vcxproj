@@ -193,7 +193,9 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClCompile Include="engine\Object.cpp" />
     <ClCompile Include="engine\RandomColor.cpp" />
     <ClCompile Include="engine\RandomNew.cpp" />
+    <ClCompile Include="engine\shape\Capsule.cpp" />
     <ClCompile Include="engine\shape\Cube.cpp" />
+    <ClCompile Include="engine\shape\Cylinder.cpp" />
     <ClCompile Include="engine\shape\Quad.cpp" />
     <ClCompile Include="engine\shape\Shape.cpp" />
     <ClCompile Include="engine\shape\Sphere.cpp" />
@@ -223,6 +225,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClCompile Include="src\States\SkinnedMesh.cpp" />
     <ClCompile Include="src\States\Specularity.cpp" />
     <ClCompile Include="src\States\StateMachine.cpp" />
+    <ClCompile Include="src\States\StencilMask.cpp" />
     <ClCompile Include="src\States\Wireframe.cpp" />
     <ClCompile Include="src\Utils\Fade.cpp" />
     <ClCompile Include="engine\Camera.cpp" />
@@ -277,7 +280,9 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClInclude Include="engine\RandomColor.h" />
     <ClInclude Include="engine\RandomNew.h" />
     <ClInclude Include="engine\Rect.h" />
+    <ClInclude Include="engine\shape\Capsule.h" />
     <ClInclude Include="engine\shape\Cube.h" />
+    <ClInclude Include="engine\shape\Cylinder.h" />
     <ClInclude Include="engine\shape\Quad.h" />
     <ClInclude Include="engine\shape\Shape.h" />
     <ClInclude Include="engine\shape\Sphere.h" />
@@ -314,6 +319,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClInclude Include="src\States\SkinnedMesh.h" />
     <ClInclude Include="src\States\Specularity.h" />
     <ClInclude Include="src\States\StateMachine.h" />
+    <ClInclude Include="src\States\StencilMask.h" />
     <ClInclude Include="src\States\Wireframe.h" />
     <ClInclude Include="src\Utils\Fade.h" />
     <ClInclude Include="WebGPU\WgpBatchRenderer.h" />

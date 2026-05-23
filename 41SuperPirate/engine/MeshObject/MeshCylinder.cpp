@@ -57,8 +57,8 @@ void MeshCylinder::BuildMesh(float baseRadius, float topRadius, float length, co
 	float radius;                                   // radius for each stack
 
 	float zAngle = atan2(baseRadius - topRadius, length);
-	float x0 = cos(zAngle);     // nx
-	float y0 = sin(zAngle);     // ny
+	float x0 = cosf(zAngle);     // nx
+	float y0 = sinf(zAngle);     // ny
 	// put vertices of side cylinder to array by scaling unit circle
 	for (int i = 0; i <= uResolution; ++i) {
 		y = -(length * 0.5f) + (float)i / uResolution * length;      // vertex position z
@@ -70,15 +70,15 @@ void MeshCylinder::BuildMesh(float baseRadius, float topRadius, float length, co
 
 		for (int j = 0, k = 0; j <= vResolution; ++j, k += 3) {
 			sectorAngle = j * sectorStep;
-			x = cos(sectorAngle);
-			z = sin(sectorAngle);
+			x = cosf(sectorAngle);
+			z = sinf(sectorAngle);
 			positions.push_back(Vector3f(x * radius, y, z * radius) + position);
 
 			if (generateTexels)
 				texels.push_back(Vector2f(1.0f - (float)j / vResolution, 1.0f - t));
 
 			if (generateNormals) {
-				normals.push_back(Vector3f(cos(sectorAngle)*x0, y0, sin(sectorAngle)*x0));
+				normals.push_back(Vector3f(x * x0, y0, z * x0));
 			}
 
 			if (generateTangents) {

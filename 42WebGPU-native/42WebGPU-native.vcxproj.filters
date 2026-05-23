@@ -249,6 +249,15 @@
     <ClCompile Include="src\States\PrimitivePicking.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
+    <ClCompile Include="engine\shape\Cylinder.cpp">
+      <Filter>engine\shape</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\shape\Capsule.cpp">
+      <Filter>engine\shape</Filter>
+    </ClCompile>
+    <ClCompile Include="src\States\StencilMask.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\input\ApplicationEventListener.h">
@@ -477,6 +486,15 @@
       <Filter>Source Files\States</Filter>
     </ClInclude>
     <ClInclude Include="src\States\PrimitivePicking.h">
+      <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\shape\Cylinder.h">
+      <Filter>engine\shape</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\shape\Capsule.h">
+      <Filter>engine\shape</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\StencilMask.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
   </ItemGroup>

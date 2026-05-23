@@ -6,33 +6,12 @@
 #include <WebGPU/WgpContext.h>
 #include <WebGPU/WgpRenderer.h>
 
-#include <engine/utils/BinaryIO.h>
-
-#include "PrimitivePicking.h"
+#include "StencilMask.h"
 #include "Application.h"
 #include "Globals.h"
 
-void OnMapBuffer(WGPUMapAsyncStatus status, WGPUStringView message, void* userdata1, void* userdata2) {
-	if (status == WGPUMapAsyncStatus_Success) {
-		std::cout << "Success Buffer" << std::endl;		
-		bool* ready = (bool*)userdata1;
-		*ready = true;
-	}else {
-		std::cout << "Buffer message: " << message.data << std::endl;
-	}
-}
 
-void OnQueueWorkDone(WGPUQueueWorkDoneStatus status, WGPUStringView message, void* userdata1, void* userdata2) {
-	if (status == WGPUQueueWorkDoneStatus_Success) {
-		std::cout << "Success Queue" << std::endl;
-		bool* ready = (bool*)userdata1;
-		*ready = true;
-	}else {
-		std::cout << "Queue message: " << message.data << std::endl;
-	}
-}
-
-PrimitivePicking::PrimitivePicking(StateMachine& machine) : State(machine, States::PRIMITIVE_PICKING) {
+StencilMask::StencilMask(StateMachine& machine) : State(machine, States::STENCIL_MASK) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -47,15 +26,13 @@ PrimitivePicking::PrimitivePicking(StateMachine& machine) : State(machine, State
 	m_camera.setMovingSpeed(20.0f);
 	m_camera.setRotationSpeed(0.1f);
 
-	//Utils::JsonIO jsonIO;
-	//jsonIO.jsonToObj("res/models/teapot.json", "res/models/teapot.obj");
 	m_teapot.loadModel("res/models/teapot.obj", false, false, true);
 	m_trackball.reshape(Application::Width, Application::Height);
 
 	wgpContext.setClearColor({ 0.0f, 0.0f, 1.0f, 1.0f });
 
 	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
-	m_computeBuffer.createBuffer(2 * sizeof(Matrix4f) + 4 * sizeof(float), WGPUBufferUsage_CopyDst | WGPUBufferUsage_CopySrc | WGPUBufferUsage_Uniform| WGPUBufferUsage_Storage);
+	m_computeBuffer.createBuffer(2 * sizeof(Matrix4f) + 4 * sizeof(float), WGPUBufferUsage_CopyDst | WGPUBufferUsage_CopySrc | WGPUBufferUsage_Uniform | WGPUBufferUsage_Storage);
 
 	m_indexTexture.createEmpty(Application::Width, Application::Height, 1u, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_RenderAttachment, WGPUTextureFormat_R32Uint);
 
@@ -82,10 +59,10 @@ PrimitivePicking::PrimitivePicking(StateMachine& machine) : State(machine, State
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
 
 	wgpContext.addSahderModule("PICK_COMPUTE", "res/shader/pick_compute.wgsl");
-	wgpContext.createComputePipeline("PICK_COMPUTE", "cs_main", "CP_PICK", std::bind(&PrimitivePicking::OnBindGroupLayoutsCompute, this));
-	
+	wgpContext.createComputePipeline("PICK_COMPUTE", "cs_main", "CP_PICK", std::bind(&StencilMask::OnBindGroupLayoutsCompute, this));
+
 	wgpContext.addSahderModule("PICK", "res/shader/pick.wgsl");
-	wgpContext.createRenderPipeline("PICK", "RP_PICK", VL_PN, std::bind(&PrimitivePicking::OnBindGroupLayoutsPick, this),
+	wgpContext.createRenderPipeline("PICK", "RP_PICK", VL_PN, std::bind(&StencilMask::OnBindGroupLayoutsPick, this),
 		1u,
 		WGPUPrimitiveTopology_TriangleList,
 		WGPUTextureFormat_Undefined,
@@ -95,19 +72,18 @@ PrimitivePicking::PrimitivePicking(StateMachine& machine) : State(machine, State
 	);
 
 	wgpContext.addSahderModule("PICK_DEBUG", "res/shader/pick_debug.wgsl");
-	wgpContext.createRenderPipeline("PICK_DEBUG", "RP_PICK_DEBUG", VL_NONE, std::bind(&PrimitivePicking::OnBindGroupLayoutsDebug, this));
+	wgpContext.createRenderPipeline("PICK_DEBUG", "RP_PICK_DEBUG", VL_NONE, std::bind(&StencilMask::OnBindGroupLayoutsDebug, this));
 
 	m_computeBindGroup = createComputeBindGroup();
 	m_debugBindGroup = createDebugBindGroup();
 
 	m_wgpTeapot.create(m_teapot);
-	m_wgpTeapot.setBindGroups("BG", std::bind(&PrimitivePicking::OnBindGroupsPick, this));
+	m_wgpTeapot.setBindGroups("BG", std::bind(&StencilMask::OnBindGroupsPick, this));
 
-	wgpContext.OnDraw = std::bind(&PrimitivePicking::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
-	//readBuffer();
+	wgpContext.OnDraw = std::bind(&StencilMask::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
 }
 
-PrimitivePicking::~PrimitivePicking() {
+StencilMask::~StencilMask() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 
@@ -116,11 +92,11 @@ PrimitivePicking::~PrimitivePicking() {
 	m_indexTexture.markForDelete();
 }
 
-void PrimitivePicking::fixedUpdate() {
+void StencilMask::fixedUpdate() {
 
 }
 
-void PrimitivePicking::update() {
+void StencilMask::update() {
 	Keyboard& keyboard = Keyboard::instance();
 	Vector3f direction = Vector3f();
 
@@ -160,14 +136,14 @@ void PrimitivePicking::update() {
 
 	Mouse& mouse = Mouse::instance();
 
-	if (mouse.buttonDownInvisible(Mouse::MouseButton::BUTTON_RIGHT)) {	
+	if (mouse.buttonDownInvisible(Mouse::MouseButton::BUTTON_RIGHT)) {
 		dx = mouse.xDelta();
 		dy = mouse.yDelta();
 	}
 
 	if (move || dx != 0.0f || dy != 0.0f) {
 		if (dx || dy) {
-			
+
 			m_camera.rotate(dx, dy);
 		}
 
@@ -193,7 +169,7 @@ void PrimitivePicking::update() {
 	m_uniforms.lightPosition = Vector3f(0.0f, 0.0f, 0.0f);
 
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0u, &m_uniforms, sizeof(Uniforms));
-	
+
 	Matrix4f matrices[2] = { m_camera.getPerspectiveMatrix() * m_camera.getViewMatrix() , Matrix4f::IDENTITY };
 	float pickData[2] = { static_cast<float>(mouse.xPos()),  static_cast<float>(mouse.yPos()) };
 
@@ -201,11 +177,11 @@ void PrimitivePicking::update() {
 	wgpuQueueWriteBuffer(wgpContext.queue, m_computeBuffer.getBuffer(), 2 * sizeof(Matrix4f), pickData, 2 * sizeof(float));
 }
 
-void PrimitivePicking::render() {
+void StencilMask::render() {
 	wgpDraw();
 }
 
-void PrimitivePicking::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor) {
+void StencilMask::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor) {
 
 	{
 		renderPassColorAttachments.push_back(renderPassDescriptor.colorAttachments[0]);
@@ -267,38 +243,38 @@ void PrimitivePicking::OnDraw(const WGPUCommandEncoder& commandEncoder, const WG
 	}
 }
 
-void PrimitivePicking::OnMouseMotion(const Event::MouseMoveEvent& event) {
+void StencilMask::OnMouseMotion(const Event::MouseMoveEvent& event) {
 	m_trackball.motion(event.x, event.y);
 }
 
-void PrimitivePicking::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
+void StencilMask::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
 	if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {
 		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, true, event.x, event.y);
 		Mouse::instance().detach();
 	}
 
-	if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT) 
+	if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT)
 		Mouse::instance().attach(Application::GetWindow(), true, true, true);
-	
+
 	uint32_t primitveId = 0u;
 	wgpuQueueWriteBuffer(wgpContext.queue, m_computeBuffer.getBuffer(), 2 * sizeof(Matrix4f) + 2 * sizeof(float), &primitveId, sizeof(uint32_t));
 }
 
-void PrimitivePicking::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
+void StencilMask::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
 	if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {
 		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, false, event.x, event.y);
 		Mouse::instance().attach(Application::GetWindow(), false, true);
 	}
 
-	if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT) 
-		Mouse::instance().attach(Application::GetWindow(), false, false, true);	
+	if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT)
+		Mouse::instance().attach(Application::GetWindow(), false, false, true);
 }
 
-void PrimitivePicking::OnMouseWheel(const Event::MouseWheelEvent& event) {
+void StencilMask::OnMouseWheel(const Event::MouseWheelEvent& event) {
 
 }
 
-void PrimitivePicking::OnKeyDown(const Event::KeyboardEvent& event) {
+void StencilMask::OnKeyDown(const Event::KeyboardEvent& event) {
 #if DEVBUILD
 	if (event.keyCode == VK_LMENU) {
 		m_drawUi = !m_drawUi;
@@ -310,11 +286,11 @@ void PrimitivePicking::OnKeyDown(const Event::KeyboardEvent& event) {
 	}
 }
 
-void PrimitivePicking::OnKeyUp(const Event::KeyboardEvent& event) {
+void StencilMask::OnKeyUp(const Event::KeyboardEvent& event) {
 
 }
 
-void PrimitivePicking::resize(int deltaW, int deltaH) {
+void StencilMask::resize(int deltaW, int deltaH) {
 	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 2000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 	m_indexTexture.resize(Application::Width, Application::Height);
@@ -328,7 +304,7 @@ void PrimitivePicking::resize(int deltaW, int deltaH) {
 	m_debugBindGroup = createDebugBindGroup();
 }
 
-void PrimitivePicking::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
+void StencilMask::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 	ImGui_ImplWGPU_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
@@ -372,7 +348,7 @@ void PrimitivePicking::renderUi(const WGPURenderPassEncoder& renderPassEncoder) 
 	ImGui_ImplWGPU_RenderDrawData(ImGui::GetDrawData(), renderPassEncoder);
 }
 
-std::vector<WGPUBindGroupLayout> PrimitivePicking::OnBindGroupLayoutsPick() {
+std::vector<WGPUBindGroupLayout> StencilMask::OnBindGroupLayoutsPick() {
 	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
 
 	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(2);
@@ -395,7 +371,7 @@ std::vector<WGPUBindGroupLayout> PrimitivePicking::OnBindGroupLayoutsPick() {
 	return bindingLayouts;
 }
 
-std::vector<WGPUBindGroupLayout> PrimitivePicking::OnBindGroupLayoutsCompute() {
+std::vector<WGPUBindGroupLayout> StencilMask::OnBindGroupLayoutsCompute() {
 	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
 
 	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(2);
@@ -419,7 +395,7 @@ std::vector<WGPUBindGroupLayout> PrimitivePicking::OnBindGroupLayoutsCompute() {
 	return bindingLayouts;
 }
 
-std::vector<WGPUBindGroupLayout> PrimitivePicking::OnBindGroupLayoutsDebug() {
+std::vector<WGPUBindGroupLayout> StencilMask::OnBindGroupLayoutsDebug() {
 	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
 
 	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(1);
@@ -437,7 +413,7 @@ std::vector<WGPUBindGroupLayout> PrimitivePicking::OnBindGroupLayoutsDebug() {
 	return bindingLayouts;
 }
 
-std::vector<WGPUBindGroup> PrimitivePicking::OnBindGroupsPick() {
+std::vector<WGPUBindGroup> StencilMask::OnBindGroupsPick() {
 	std::vector<WGPUBindGroup> bindGroups(1);
 
 	std::vector<WGPUBindGroupEntry> bindings(2);
@@ -461,7 +437,7 @@ std::vector<WGPUBindGroup> PrimitivePicking::OnBindGroupsPick() {
 	return bindGroups;
 }
 
-WGPUBindGroup PrimitivePicking::createComputeBindGroup() {
+WGPUBindGroup StencilMask::createComputeBindGroup() {
 	std::vector<WGPUBindGroupEntry> entries(2);
 
 	entries[0].binding = 0u;
@@ -479,7 +455,7 @@ WGPUBindGroup PrimitivePicking::createComputeBindGroup() {
 	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
 }
 
-WGPUBindGroup PrimitivePicking::createDebugBindGroup() {
+WGPUBindGroup StencilMask::createDebugBindGroup() {
 	std::vector<WGPUBindGroupEntry> bindGroupEntries(1);
 
 	bindGroupEntries[0].binding = 0u;
@@ -491,72 +467,4 @@ WGPUBindGroup PrimitivePicking::createDebugBindGroup() {
 	bindGroupDesc.entries = bindGroupEntries.data();
 
 	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
-}
-
-void PrimitivePicking::readBuffer() {
-	m_stagingBuffer.createBuffer(2 * sizeof(Matrix4f) + 4 * sizeof(float), WGPUBufferUsage_MapRead | WGPUBufferUsage_CopyDst);
-
-	Matrix4f matrices[2] = { m_camera.getPerspectiveMatrix() * m_camera.getViewMatrix() , Matrix4f::IDENTITY };
-	float pickData[2] = { static_cast<float>(550),  static_cast<float>(600) };
-	uint32_t id = 100;
-	wgpuQueueWriteBuffer(wgpContext.queue, m_computeBuffer.getBuffer(), 0u, matrices, 2 * sizeof(Matrix4f));
-	wgpuQueueWriteBuffer(wgpContext.queue, m_computeBuffer.getBuffer(), 2 * sizeof(Matrix4f), pickData, 2 * sizeof(float));
-	wgpuQueueWriteBuffer(wgpContext.queue, m_computeBuffer.getBuffer(), 2 * sizeof(Matrix4f) + 2 * sizeof(float), &id, 2 * sizeof(float));
-
-	bool readyQueue = false;
-	WGPUQueueWorkDoneCallbackInfo queueWorkDoneCallbackInfo = {};
-	queueWorkDoneCallbackInfo.callback = OnQueueWorkDone;
-	queueWorkDoneCallbackInfo.mode = WGPUCallbackMode_WaitAnyOnly;
-	queueWorkDoneCallbackInfo.userdata1 = &readyQueue;
-
-	WGPUFuture futureQueue = wgpuQueueOnSubmittedWorkDone(wgpContext.queue, queueWorkDoneCallbackInfo);
-
-
-	WGPUCommandEncoder commandEncoder = wgpuDeviceCreateCommandEncoder(wgpContext.device, NULL);
-	wgpuCommandEncoderCopyBufferToBuffer(commandEncoder, m_computeBuffer.getBuffer(), 0u, m_stagingBuffer.getBuffer(), 0u, 2 * sizeof(Matrix4f) + 4 * sizeof(float));
-
-	WGPUCommandBuffer commandBuffer = wgpuCommandEncoderFinish(commandEncoder, NULL);
-
-	wgpuQueueSubmit(wgpContext.queue, 1, &commandBuffer);
-
-	wgpuCommandEncoderRelease(commandEncoder);
-	wgpuCommandBufferRelease(commandBuffer);
-
-	WGPUFutureWaitInfo waitQueue = {};
-	waitQueue.future = futureQueue;
-	WGPUWaitStatus statusQueue = wgpuInstanceWaitAny(wgpContext.instance, 1, &waitQueue, 0);
-
-	while(!readyQueue)
-		wgpuDeviceTick(wgpContext.device);
-
-	if (statusQueue == WGPUWaitStatus_Success) {
-
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-		bool readyBuffer = false;
-		WGPUBufferMapCallbackInfo bufferMapCallbackInfo = {};
-		bufferMapCallbackInfo.callback = OnMapBuffer;
-		bufferMapCallbackInfo.mode = WGPUCallbackMode_WaitAnyOnly;
-		bufferMapCallbackInfo.userdata1 = &readyBuffer;
-
-
-
-		WGPUFuture futureBuffer = wgpuBufferMapAsync(m_stagingBuffer.getBuffer(), WGPUMapMode_Read, 0u, 2 * sizeof(Matrix4f) + 4 * sizeof(float), bufferMapCallbackInfo);
-		WGPUFutureWaitInfo waitBuffer = {};
-		waitBuffer.future = futureBuffer;
-		WGPUWaitStatus statusBuffer = wgpuInstanceWaitAny(wgpContext.instance, 1, &waitBuffer, 0);
-
-		while (!readyBuffer)
-			wgpuDeviceTick(wgpContext.device);
-
-
-		if (statusBuffer == WGPUWaitStatus_Success) {
-			uint8_t* bufferData = (uint8_t*)wgpuBufferGetConstMappedRange(m_stagingBuffer.getBuffer(), 0, 2 * sizeof(Matrix4f) + 4 * sizeof(float));
-			std::cout << "X: " << Utils::bytesToFloatLE(bufferData[128], bufferData[129], bufferData[130], bufferData[131]) << std::endl;
-			std::cout << "Y: " << Utils::bytesToFloatLE(bufferData[132], bufferData[133], bufferData[134], bufferData[135]) << std::endl;
-			std::cout << "ID: " << Utils::bytesToUIntLE(bufferData[136], bufferData[137], bufferData[138], bufferData[139]) << std::endl;
-		}
-	}
-	wgpuBufferUnmap(m_stagingBuffer.getBuffer());
-	m_stagingBuffer.markForDelete();
 }

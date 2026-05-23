@@ -5,6 +5,8 @@
 #include "TorusKnot.h"
 #include "Spiral.h"
 #include "Quad.h"
+#include "Cylinder.h"
+#include "Capsule.h"
 
 Shape::Shape() : m_stride(0u) {
 
@@ -85,6 +87,16 @@ void Shape::buildQuadXY(const  std::array<float, 3>& position, const std::array<
 }
 void Shape::buildQuadXZ(const  std::array<float, 3>& position, const std::array<float, 2>& size, unsigned int uResolution, unsigned int vResolution, bool generateTexels, bool generateNormals, bool generateTangents) {
 	Quad::BuildMeshXZ(position, size, uResolution, vResolution, generateTexels, generateNormals, generateTangents, m_vertexBuffer, m_indexBuffer);
+	m_stride = 3u + 2u * generateTexels + 3u * generateNormals + 6u * generateTangents;
+}
+
+void Shape::buildCylinder(const std::array<float, 3>& position, float baseRadius, float topRadius, float length, bool top, bool bottom, unsigned int uResolution, unsigned int vResolution, bool generateTexels, bool generateNormals, bool generateTangents) {
+	Cylinder::BuildMesh(position, baseRadius, topRadius, length, top, bottom, uResolution, vResolution, generateTexels, generateNormals, generateTangents, m_vertexBuffer, m_indexBuffer);
+	m_stride = 3u + 2u * generateTexels + 3u * generateNormals + 6u * generateTangents;
+}
+
+void Shape::buildCapsule(const std::array<float, 3>& position, float radius, float length, unsigned int uResolution, unsigned int vResolution, bool generateTexels, bool generateNormals, bool generateTangents) {
+	Capsule::BuildMesh(position, radius, length, uResolution, vResolution, generateTexels, generateNormals, generateTangents, m_vertexBuffer, m_indexBuffer);
 	m_stride = 3u + 2u * generateTexels + 3u * generateNormals + 6u * generateTangents;
 }
 
