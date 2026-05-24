@@ -12,7 +12,7 @@ public:
 	Cylinder(const std::array<float, 3>& position, float baseRadius, float topRadius, float length, bool top, bool bottom, bool generateTexels, bool generateNormals, bool generateTangents, unsigned int uResolution = 49u, unsigned int vResolution = 49u);
 	~Cylinder();
 
-	static void BuildMesh(const std::array<float, 3>& position, float baseRadius, float topRadius, float length, bool top, bool bottom, unsigned int uResolution, unsigned int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer);
+	static void BuildMesh(const std::array<float, 3>& position, float baseRadius, float topRadius, float length, bool bottom, bool top,  unsigned int uResolution, unsigned int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer);
 
 private:
 

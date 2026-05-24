@@ -49,8 +49,10 @@ private:
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsPick();
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsCompute();
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsDebug();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsColor();
 
 	std::vector<WGPUBindGroup> OnBindGroupsPick();
+	std::vector<WGPUBindGroup> OnBindGroupsColor();
 	WGPUBindGroup createComputeBindGroup();
 	WGPUBindGroup createDebugBindGroup();
 
@@ -64,8 +66,9 @@ private:
 	ObjModel m_teapot;
 	Uniforms m_uniforms;
 	TrackBall m_trackball;
+	Shape m_quad, m_sphere, m_jem, m_cylinder, m_cone, m_torus, m_dice;
 
-	WgpModel m_wgpTeapot;
+	WgpModel m_wgpTeapot, m_wgpSphere, m_wgpQuad, m_wgpJem, m_wgpCylinder, m_wgpCone, m_wgpTorus, m_wgpDice;
 	WgpBuffer m_uniformBuffer, m_computeBuffer, m_stagingBuffer;
 
 	WGPUBindGroup m_computeBindGroup, m_debugBindGroup;

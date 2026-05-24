@@ -30,7 +30,7 @@ Cylinder::~Cylinder() {
 
 }
 
-void Cylinder::BuildMesh(const std::array<float, 3>& position, float baseRadius, float topRadius, float length, bool top, bool bottom, unsigned int uResolution, unsigned int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer) {
+void Cylinder::BuildMesh(const std::array<float, 3>& position, float baseRadius, float topRadius, float length, bool bottom, bool top, unsigned int uResolution, unsigned int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer) {
 	float x, y, z;
 	float radius;
 
@@ -51,15 +51,17 @@ void Cylinder::BuildMesh(const std::array<float, 3>& position, float baseRadius,
 		for (int j = 0, k = 0; j <= vResolution; ++j, k += 3) {
 			sectorAngle = j * sectorStep;
 			x = cosf(sectorAngle);
-			z = sinf(sectorAngle);			
+			z = sinf(sectorAngle);
 			vertexBuffer.push_back(x * radius + position[0]); vertexBuffer.push_back(y + position[1]); vertexBuffer.push_back(z * radius + position[2]);
 
-			if (generateTexels)
+			if (generateTexels) {
 				vertexBuffer.push_back(1.0f - (float)j / vResolution); vertexBuffer.push_back(1.0f - t);
+			}
 
-			if (generateNormals) 
+			if (generateNormals) {
 				vertexBuffer.push_back(x * x0); vertexBuffer.push_back(y0); vertexBuffer.push_back(z * x0);
-			
+			}
+
 			if (generateTangents) {
 				vertexBuffer.push_back(-z); vertexBuffer.push_back(0.0f); vertexBuffer.push_back(x);
 				std::array<float, 3> bitangent = Cross({ -z , 0.0f, x }, { x * x0 , y0, z * x0 });
@@ -77,11 +79,13 @@ void Cylinder::BuildMesh(const std::array<float, 3>& position, float baseRadius,
 
 		vertexBuffer.push_back(position[0]); vertexBuffer.push_back(y + position[1]); vertexBuffer.push_back(position[2]);
 
-		if (generateTexels)
+		if (generateTexels) {
 			vertexBuffer.push_back(0.5f); vertexBuffer.push_back(0.5f);
+		}
 
-		if (generateNormals)
+		if (generateNormals) {
 			vertexBuffer.push_back(0.0f); vertexBuffer.push_back(-1.0f); vertexBuffer.push_back(0.0f);
+		}
 
 		if (generateTangents) {
 			vertexBuffer.push_back(0.0f); vertexBuffer.push_back(0.0f); vertexBuffer.push_back(-1.0f);
@@ -98,11 +102,13 @@ void Cylinder::BuildMesh(const std::array<float, 3>& position, float baseRadius,
 
 			vertexBuffer.push_back(x * baseRadius + position[0]); vertexBuffer.push_back(y + position[1]); vertexBuffer.push_back(z * baseRadius + position[2]);
 
-			if (generateTexels)
+			if (generateTexels) {
 				vertexBuffer.push_back(-x * 0.5f + 0.5f); vertexBuffer.push_back(z * 0.5f + 0.5f);
+			}
 
-			if (generateNormals)
+			if (generateNormals) {
 				vertexBuffer.push_back(0.0f); vertexBuffer.push_back(-1.0f); vertexBuffer.push_back(0.0f);
+			}
 
 			if (generateTangents) {
 				vertexBuffer.push_back(0.0f); vertexBuffer.push_back(0.0f); vertexBuffer.push_back(-1.0f);
@@ -119,11 +125,14 @@ void Cylinder::BuildMesh(const std::array<float, 3>& position, float baseRadius,
 		y = length * 0.5f;
 
 		vertexBuffer.push_back(position[0]); vertexBuffer.push_back(y + position[1]); vertexBuffer.push_back(position[2]);
-		if (generateTexels)
-			vertexBuffer.push_back(0.5f); vertexBuffer.push_back(0.5f);
 
-		if (generateNormals)
+		if (generateTexels) {
+			vertexBuffer.push_back(0.5f); vertexBuffer.push_back(0.5f);
+		}
+
+		if (generateNormals) {
 			vertexBuffer.push_back(0.0f); vertexBuffer.push_back(1.0f); vertexBuffer.push_back(0.0f);
+		}
 
 		if (generateTangents) {
 			vertexBuffer.push_back(0.0f); vertexBuffer.push_back(0.0f); vertexBuffer.push_back(-1.0f);
@@ -139,12 +148,14 @@ void Cylinder::BuildMesh(const std::array<float, 3>& position, float baseRadius,
 			z = sin(sectorAngle);
 
 			vertexBuffer.push_back(x * topRadius + position[0]); vertexBuffer.push_back(y + position[1]); vertexBuffer.push_back(z * topRadius + position[2]);
-			
-			if (generateTexels)
-				vertexBuffer.push_back(x * 0.5f + 0.5f); vertexBuffer.push_back(-z * 0.5f + 0.5f);
 
-			if (generateNormals)
+			if (generateTexels) {
+				vertexBuffer.push_back(x * 0.5f + 0.5f); vertexBuffer.push_back(-z * 0.5f + 0.5f);
+			}
+
+			if (generateNormals) {
 				vertexBuffer.push_back(0.0f); vertexBuffer.push_back(1.0f); vertexBuffer.push_back(0.0f);
+			}
 
 			if (generateTangents) {
 				vertexBuffer.push_back(0.0f); vertexBuffer.push_back(0.0f); vertexBuffer.push_back(-1.0f);
@@ -186,8 +197,7 @@ void Cylinder::BuildMesh(const std::array<float, 3>& position, float baseRadius,
 		for (int i = 0, k = topVertexIndex + 1; i < vResolution; ++i, ++k) {
 			if (i < (vResolution - 1)) {
 				indexBuffer.push_back(topVertexIndex); indexBuffer.push_back(k + 1); indexBuffer.push_back(k);
-			}
-			else {
+			}else {
 				indexBuffer.push_back(topVertexIndex); indexBuffer.push_back(topVertexIndex + 1); indexBuffer.push_back(k);
 			}
 		}

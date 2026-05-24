@@ -90,8 +90,8 @@ void Shape::buildQuadXZ(const  std::array<float, 3>& position, const std::array<
 	m_stride = 3u + 2u * generateTexels + 3u * generateNormals + 6u * generateTangents;
 }
 
-void Shape::buildCylinder(const std::array<float, 3>& position, float baseRadius, float topRadius, float length, bool top, bool bottom, unsigned int uResolution, unsigned int vResolution, bool generateTexels, bool generateNormals, bool generateTangents) {
-	Cylinder::BuildMesh(position, baseRadius, topRadius, length, top, bottom, uResolution, vResolution, generateTexels, generateNormals, generateTangents, m_vertexBuffer, m_indexBuffer);
+void Shape::buildCylinder(const std::array<float, 3>& position, float baseRadius, float topRadius, float length, bool bottom, bool top, unsigned int uResolution, unsigned int vResolution, bool generateTexels, bool generateNormals, bool generateTangents) {
+	Cylinder::BuildMesh(position, baseRadius, topRadius, length, bottom, top, uResolution, vResolution, generateTexels, generateNormals, generateTangents, m_vertexBuffer, m_indexBuffer);
 	m_stride = 3u + 2u * generateTexels + 3u * generateNormals + 6u * generateTangents;
 }
 

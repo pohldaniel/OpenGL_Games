@@ -68,7 +68,7 @@ void MeshCylinder::BuildMesh(float baseRadius, float topRadius, float length, co
 		float sectorStep = 2 * PI / vResolution;
 		float sectorAngle;  // radian
 
-		for (int j = 0, k = 0; j <= vResolution; ++j, k += 3) {
+		for (int j = 0; j <= vResolution; ++j) {
 			sectorAngle = j * sectorStep;
 			x = cos(sectorAngle);
 			z = sin(sectorAngle);

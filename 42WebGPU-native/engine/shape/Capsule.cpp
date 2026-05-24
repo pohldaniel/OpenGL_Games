@@ -54,11 +54,13 @@ void Capsule::BuildHemisphere(const std::array<float, 3>& position, float radius
 	
 			vertexBuffer.push_back(radius * x + position[0]); vertexBuffer.push_back(north ? radius * y + position[1] : -radius * y + position[1]); vertexBuffer.push_back(radius * z + position[2]);
 
-			if (generateTexels)
+			if (generateTexels) {
 				vertexBuffer.push_back(1.0f - (float)j / uResolution); vertexBuffer.push_back(north ? (float)i / vResolution : 1.0f - (float)i / vResolution);
+			}
 
-			if (generateNormals)
+			if (generateNormals) {
 				vertexBuffer.push_back(x); vertexBuffer.push_back(north ? y : -y); vertexBuffer.push_back(z);
+			}
 
 			if (generateTangents) {
 				vertexBuffer.push_back(sinUSegment); vertexBuffer.push_back(0.0f); vertexBuffer.push_back(cosUSegment);
@@ -139,11 +141,13 @@ void Capsule::BuildCylinder(const std::array<float, 3>& position, float radius, 
 
 			vertexBuffer.push_back(x * radius + position[0]); vertexBuffer.push_back(y + position[1]); vertexBuffer.push_back(z * radius + position[2]);
 
-			if (generateTexels)
+			if (generateTexels) {
 				vertexBuffer.push_back(1.0f - (float)j / vResolution); vertexBuffer.push_back(1.0f - t);
+			}
 
-			if (generateNormals) 
+			if (generateNormals) {
 				vertexBuffer.push_back(x); vertexBuffer.push_back(0.0f); vertexBuffer.push_back(z);
+			}
 			
 			if (generateTangents) {
 				vertexBuffer.push_back(-z); vertexBuffer.push_back(0.0f); vertexBuffer.push_back(x);
