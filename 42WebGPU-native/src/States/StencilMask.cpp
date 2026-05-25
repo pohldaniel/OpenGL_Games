@@ -365,14 +365,9 @@ void StencilMask::InitScene(Scene& scene, uint32_t numInstances, float hue, uint
 	scene.numObjects = numInstances;
 	scene.sharedUniformBuffer = sharedUniformBuffer.getBuffer();
 	scene.objects.resize(scene.numObjects);
-	for (uint32_t i = 0; i < numInstances; i++) {
-		
-		
+	for (uint32_t i = 0; i < numInstances; i++) {	
 		float rgba[4];
 		hsl_to_rgba(hue + randf(0.0f, 0.2f), randf(0.7f, 1.0f), randf(0.5f, 0.8f), rgba);
-
-
-
 		scene.objects[i].uniformValues[0]  = 1.0f; scene.objects[i].uniformValues[1]  = 0.0f; scene.objects[i].uniformValues[2]  = 0.0f; scene.objects[i].uniformValues[3]  = 0.0f;
 		scene.objects[i].uniformValues[4]  = 0.0f; scene.objects[i].uniformValues[5]  = 1.0f; scene.objects[i].uniformValues[6]  = 0.0f; scene.objects[i].uniformValues[7]  = 0.0f;
 		scene.objects[i].uniformValues[8]  = 0.0f; scene.objects[i].uniformValues[9]  = 0.0f; scene.objects[i].uniformValues[10] = 1.0f; scene.objects[i].uniformValues[11] = 0.0f;
@@ -407,15 +402,14 @@ void StencilMask::InitScene(Scene& scene, uint32_t numInstances, float hue, uint
 }
 
 void StencilMask::updateScene0(float time, Scene& scene) {
-	for (uint32_t i = 0; i < scene.numObjects; i++) {
-		Matrix4f rotX = Matrix4f::Rotate((time * 0.53f + i) * _180_ON_PI, 0.0f, 0.0f);
-		Matrix4f trans1 = Matrix4f::Translate(0.0f, 0.0f, sinf(i * 9.721f + time * 0.1f) * 10.0f);
-		Matrix4f rotY = Matrix4f::Rotate(0.0f, (i * 2.967f) * _180_ON_PI, 0.0f);
-		Matrix4f rot = Matrix4f::Rotate((i * 4.567f) * _180_ON_PI, 0.0f, 0.0f);
-		Matrix4f trans2 = Matrix4f::Translate(0.0f, 0.0f, sinf(i * 3.721f + time * 0.1f) * 10.0f);
-		Matrix4f world = trans2 * rot * rotY * trans1 * rotX;
-		wgpuQueueWriteBuffer(wgpContext.queue, scene.objects[i].uniformBuffer.getBuffer(), 0u, &world, sizeof(Matrix4f));
-
+	for (uint32_t i = 0; i < scene.numObjects; i++) {		
+		Transform transform;
+		transform.rotate((time * 0.53f + i) * _180_ON_PI, 0.0f, 0.0f, false);
+		transform.translate(0.0f, 0.0f, sinf(i * 9.721f + time * 0.1f) * 10.0f);
+		transform.rotate(0.0f, (i * 2.967f) * _180_ON_PI, 0.0f, false);
+		transform.rotate((i * 4.567f) * _180_ON_PI, 0.0f, 0.0f, false);
+		transform.translate(0.0f, 0.0f, sinf(i * 3.721f + time * 0.1f) * 10.0f);
+		wgpuQueueWriteBuffer(wgpContext.queue, scene.objects[i].uniformBuffer.getBuffer(), 0u, &transform.getTransformationMatrix(), sizeof(Matrix4f));
 	}
 }
 

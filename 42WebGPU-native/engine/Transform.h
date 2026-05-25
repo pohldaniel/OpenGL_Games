@@ -26,9 +26,9 @@ public:
 	void translate(float dx, float dy, float dz);
 	void translate(const Vector3f& trans);
 
-	void rotate(const Vector3f& axis, float degrees);
-	void rotate(const Quaternion& quat);
-	void rotate(float pitch, float yaw, float roll);
+	void rotate(const Vector3f& axis, float degrees, bool inPlace = true);
+	void rotate(const Quaternion& quat, bool inPlace = true);
+	void rotate(float pitch, float yaw, float roll, bool inPlace = true);
 
 	void rotate(const Vector3f& axis, float degrees, const Vector3f& centerOfRotation);
 	void rotate(const Quaternion& quat, const Vector3f& centerOfRotation);
