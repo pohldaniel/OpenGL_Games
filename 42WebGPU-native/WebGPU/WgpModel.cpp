@@ -54,6 +54,11 @@ void WgpModel::create(const Shape& shape) {
 	markForDelete();
 }
 
+void WgpModel::create(const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer) {
+	m_meshes.push_back(WgpMesh(vertexBuffer, indexBuffer));
+	markForDelete();
+}
+
 void WgpModel::create(const WgpBuffer& vertexBuffer, const WgpBuffer& indexBuffer) {
 	m_meshes.push_back(WgpMesh(vertexBuffer, indexBuffer));
 }

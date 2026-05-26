@@ -32,6 +32,7 @@ public:
 	const std::vector<unsigned int>& getIndexBuffer() const;
 	const unsigned int getStride() const;
 	void rewind();
+	void flatShading();
 
 private:
 
@@ -40,4 +41,7 @@ private:
 	std::vector<unsigned int> m_indexBuffer;
 	std::vector<float> m_vertexBuffer;
 	unsigned int m_stride;
+
+	static std::array<float, 3> Normalize(const std::array<float, 3>& v);
+	static std::array<float, 3> Cross(const std::array<float, 3>& p, const std::array<float, 3>& q);
 };

@@ -952,14 +952,20 @@ void WgpContext::createRenderPipeline(std::string shaderModuleName,
 	WGPUDepthStencilState depthStencilState = {};
 	setDefault(depthStencilState);
 
-	if(configuration.stencilMode == StencilMode::SET)
+	if (configuration.stencilMode == StencilMode::SET) {
 		depthStencilState.stencilFront.passOp = WGPUStencilOperation_Replace;
+	}
+	
+	if (configuration.stencilMode == StencilMode::MASK) {
+		depthStencilState.stencilFront.compare = WGPUCompareFunction_Equal;
+		depthStencilState.stencilBack.compare = WGPUCompareFunction_Equal;
+	}
 
 	depthStencilState.depthCompare = depthCompareFunction;
 	depthStencilState.depthWriteEnabled = (configuration.flags & WRITE_DEPTH) ? WGPUOptionalBool::WGPUOptionalBool_True : WGPUOptionalBool::WGPUOptionalBool_False;
 	depthStencilState.format = depthTextureFormat == WGPUTextureFormat_Undefined ? depthformat : depthTextureFormat;
-	depthStencilState.stencilReadMask = 255u;
-	depthStencilState.stencilWriteMask = 255u;
+	depthStencilState.stencilReadMask = (configuration.stencilMode == StencilMode::SET || configuration.stencilMode == StencilMode::MASK) ? 255u : 0u;
+	depthStencilState.stencilWriteMask = (configuration.stencilMode == StencilMode::SET || configuration.stencilMode == StencilMode::MASK) ? 255u : 0u;
 
 	WGPURenderPipelineDescriptor renderPipelineDescriptor = {};
 	renderPipelineDescriptor.layout = onBindGroupLayouts ? pipelineLayouts.at(pipelineLayoutName) : NULL;

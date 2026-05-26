@@ -439,3 +439,6 @@ void Transform::fromMatrix(const Matrix4f& m) {
 	
 }
 
+void Transform::apply(const Matrix4f& m) {
+	T = m * T;
+}

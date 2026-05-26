@@ -49,6 +49,7 @@ public:
 	void getOrientation(Matrix4f& orientation);
 	void getOrientation(Quaternion& orientation);
 	void getScale(Vector3f& scale);
+	void apply(const Matrix4f& m);
 
 private:
 
