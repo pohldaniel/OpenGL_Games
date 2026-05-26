@@ -19,7 +19,7 @@ StencilMask::StencilMask(StateMachine& machine) : State(machine, States::STENCIL
 
 	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm, Application::OnSurfaceChange);
 
-	m_camera.perspective(30.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 2000.0f);
+	m_camera.perspective(30.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 100.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 	m_camera.lookAt(Vector3f(0.0f, 0.0f, 35.0f), Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setMovingSpeed(20.0f);
@@ -44,57 +44,71 @@ StencilMask::StencilMask(StateMachine& machine) : State(machine, States::STENCIL
 
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
 
-	
-
-
 	wgpContext.addSahderModule("COLOR_PTN", "res/shader/color_PTN.wgsl");
 	wgpContext.createRenderPipeline("COLOR_PTN", "RP_COLOR_PTN", VL_PTN, std::bind(&StencilMask::OnBindGroupLayoutsColor, this));
 
 	wgpContext.addSahderModule("STENCIL", "res/shader/stencil.wgsl");
-	wgpContext.createRenderPipeline("STENCIL", "RP_STENCIL", VL_PTN, std::bind(&StencilMask::OnBindGroupLayoutsStencil, this));
+	wgpContext.createRenderPipeline("STENCIL", "RP_STENCIL_MASK", VL_PTN, std::bind(&StencilMask::OnBindGroupLayoutsStencil, this));
+	wgpContext.createRenderPipeline("STENCIL", "RP_STENCIL_SET", VL_PTN, std::bind(&StencilMask::OnBindGroupLayoutsStencil, this),
+		1u,
+		WGPUPrimitiveTopology_TriangleList,
+		WGPUTextureFormat_Undefined,
+		WGPUTextureFormat_Undefined,
+		WGPUCompareFunction_Less,
+		{ WRITE_DEPTH | DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_Undefined , WGPUCullMode_Undefined, SET }
+	);
 
 	wgpContext.OnDraw = std::bind(&StencilMask::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
 
-	m_quad.buildQuadXZ({ -0.5f, 0.5f, -0.5f }, { 1.0f, 1.0f }, 1u, 1u);
+	m_quad.buildQuadXY({ -0.5f, -0.5f, 0.0f }, { 1.0f, 1.0f }, 1u, 1u);
 	m_sphere.buildSphere({ 0.0f, 0.0f, 0.0f }, 1.0f, 24u, 12u);
+	m_cube.buildCube({ -0.5f, 0.5f, -0.5f }, { 1.0f, 1.0f, 1.0f }, 1u, 1u);
 	m_jem.buildSphere({ 0.0f, 0.0f, 0.0f }, 1.0f, 6u, 5u);
 	m_cylinder.buildCylinder({ 0.0f, 0.0f, 0.0f }, 1.0f, 1.0f, 1.0f, true, true, 1u, 24u);
 	m_cone.buildCylinder({ 0.0f, 0.0f, 0.0f }, 1.0f, 0.0f, 1.0f, true, false, 1u, 24u);
 	m_torus.buildTorus({ 0.0f, 0.0f, 0.0f }, 1.0f, 0.5f, 12u, 24u);
 	m_dice.buildTorus({ 0.0f, 0.0f, 0.0f }, 1.0f, 0.5f, 8u, 8u);
 
-	m_geometries.resize(7u);
-
-	m_wgpSphere.create(m_sphere);
-	m_wgpSphere.setBindGroups("BG", std::bind(&StencilMask::OnBindGroupsColor, this));
-	m_geometries[1].create(m_sphere);
+	m_wgpModels.resize(8u);
 
 	m_wgpQuad.create(m_quad);
 	m_wgpQuad.setBindGroups("BG", std::bind(&StencilMask::OnBindGroupsColor, this));
-	m_geometries[0].create(m_quad);
+	m_wgpModels[0].create(m_quad);
 
-	m_wgpJem.create(m_jem);
-	m_wgpJem.setBindGroups("BG", std::bind(&StencilMask::OnBindGroupsColor, this));
-	m_geometries[2].create(m_jem);
+	m_wgpSphere.create(m_sphere);
+	m_wgpSphere.setBindGroups("BG", std::bind(&StencilMask::OnBindGroupsColor, this));
+	m_wgpModels[1].create(m_sphere);
 
-	m_wgpCylinder.create(m_cylinder);
-	m_wgpCylinder.setBindGroups("BG", std::bind(&StencilMask::OnBindGroupsColor, this));
-	m_geometries[3].create(m_cylinder);
-
-	m_wgpCone.create(m_cone);
-	m_wgpCone.setBindGroups("BG", std::bind(&StencilMask::OnBindGroupsColor, this));
-	m_geometries[4].create(m_cone);
+	m_wgpCube.create(m_cube);
+	m_wgpCube.setBindGroups("BG", std::bind(&StencilMask::OnBindGroupsColor, this));
+	m_wgpModels[2].create(m_cube);
 
 	m_wgpTorus.create(m_torus);
 	m_wgpTorus.setBindGroups("BG", std::bind(&StencilMask::OnBindGroupsColor, this));
-	m_geometries[5].create(m_torus);
+	m_wgpModels[3].create(m_torus);
+
+	m_wgpJem.create(m_jem);
+	m_wgpJem.setBindGroups("BG", std::bind(&StencilMask::OnBindGroupsColor, this));
+	m_wgpModels[4].create(m_jem);
+
+	m_wgpCylinder.create(m_cylinder);
+	m_wgpCylinder.setBindGroups("BG", std::bind(&StencilMask::OnBindGroupsColor, this));
+	m_wgpModels[5].create(m_cylinder);
+
+	m_wgpCone.create(m_cone);
+	m_wgpCone.setBindGroups("BG", std::bind(&StencilMask::OnBindGroupsColor, this));
+	m_wgpModels[6].create(m_cone);
 
 	m_wgpDice.create(m_dice);
 	m_wgpDice.setBindGroups("BG", std::bind(&StencilMask::OnBindGroupsColor, this));
-	m_geometries[6].create(m_dice);
+	m_wgpModels[7].create(m_dice);
 
 	m_scenes.resize(7u);
-	InitScene(m_scenes[0], 100u, 0.0f / 7.0f, 1u, 1u, m_uniformBuffer);
+	InitScene(m_scenes[0], 100u, 0.0f / 7.0f, 1u, 1u);
+	InitScene(m_scenes[1], 100u, 1.0f / 7.0f, 2u, 1u);
+
+	m_maskScenes.resize(6u);
+	InitScene(m_maskScenes[0], 1u, 0.5f, 0u, 1u);
 }
 
 StencilMask::~StencilMask() {
@@ -179,7 +193,19 @@ void StencilMask::update() {
 	
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0u, &m_uniforms, sizeof(Uniforms));
 
+	float rotations[6][3] = {
+   {0.0f, 0.0f, 0.0f},  /* front */
+   {1.0f, 0.0f, 0.0f},  /* back */
+   {0.0f, 0.0f, 0.5f},  /* left */
+   {0.0f, 0.0f, -0.5f}, /* right */
+   {-0.5f, 0.0f, 0.0f}, /* top */
+   {0.5f, 0.0f, 0.0f},  /* bottom */
+	};
+
+	updateSceneMask(Globals::clock.getElapsedTimeSec(), m_maskScenes[0], rotations[0]);
+
 	updateScene0(Globals::clock.getElapsedTimeSec(), m_scenes[0]);
+	updateScene1(Globals::clock.getElapsedTimeSec(), m_scenes[1]);
 }
 
 void StencilMask::render() {
@@ -187,17 +213,34 @@ void StencilMask::render() {
 }
 
 void StencilMask::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor) {
-	draw(commandEncoder, renderPassDescriptor, m_scenes[0], 0u);	
+	
+	
+	
+	WGPURenderPassDepthStencilAttachment depthStencilAttachment = wgpCopyDepthStencilAttachment(renderPassDescriptor.depthStencilAttachment);
+	WGPURenderPassDescriptor rndrPssDscrptor = renderPassDescriptor;
+	
+
+	depthStencilAttachment.stencilReadOnly = WGPUOptionalBool_False;
+	depthStencilAttachment.stencilLoadOp = WGPULoadOp_Clear;
+	depthStencilAttachment.stencilStoreOp = WGPUStoreOp_Store;
+	rndrPssDscrptor.depthStencilAttachment = &depthStencilAttachment;
+	draw(commandEncoder, rndrPssDscrptor, m_maskScenes[0], 1u, wgpContext.renderPipelines.at("RP_STENCIL_SET"));
+
+	depthStencilAttachment.stencilReadOnly = WGPUOptionalBool_False;
+	depthStencilAttachment.stencilLoadOp = WGPULoadOp_Load;
+	depthStencilAttachment.stencilStoreOp = WGPUStoreOp_Store;
+	rndrPssDscrptor.depthStencilAttachment = &depthStencilAttachment;
+	draw(commandEncoder, rndrPssDscrptor, m_scenes[1], 1u, wgpContext.renderPipelines.at("RP_STENCIL_MASK"));
 }
 
-void StencilMask::draw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor, const Scene& scene, uint32_t stencilRef) {
+void StencilMask::draw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor, const Scene& scene, uint32_t stencilRef, const WGPURenderPipeline& renderPipeline) {
 	WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDescriptor);
 	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
-	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_STENCIL"));
+	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, renderPipeline);
 	wgpuRenderPassEncoderSetStencilReference(renderPassEncoder, stencilRef);
 
 	for (uint32_t i = 0; i < scene.numObjects; i++) {
-		const WgpModel& model = m_geometries[scene.objects[i].geometryIndex];
+		const WgpModel& model = m_wgpModels[scene.objects[i].geometryIndex];
 		
 		wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0, scene.objects[i].bindGroup, 0, NULL);
 		model.draw(renderPassEncoder);
@@ -361,10 +404,27 @@ std::vector<WGPUBindGroup> StencilMask::OnBindGroupsColor() {
 	return bindGroups;
 }
 
-void StencilMask::InitScene(Scene& scene, uint32_t numInstances, float hue, uint32_t geometryIndex, uint32_t geometryIndexCount, const WgpBuffer& sharedUniformBuffer) {
+void StencilMask::InitScene(Scene& scene, uint32_t numInstances, float hue, uint32_t geometryIndex, uint32_t geometryIndexCount) {
 	scene.numObjects = numInstances;
-	scene.sharedUniformBuffer = sharedUniformBuffer.getBuffer();
 	scene.objects.resize(scene.numObjects);
+
+	scene.sharedUniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
+
+	Uniforms uniforms;
+	uniforms.projection = Matrix4f::Perspective(30.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 100.0f);
+	uniforms.view = Matrix4f::LookAt(Vector3f(0.0f, 0.0f, 35.0f), Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	uniforms.env = Matrix4f::GetRotationMatrix(uniforms.view);
+	uniforms.model = Matrix4f::IDENTITY;
+	uniforms.normal = Matrix4f::GetNormalMatrix(uniforms.view * uniforms.model);
+	uniforms.color = { 0.0f, 1.0f, 0.4f, 1.0f };
+	uniforms.camPosition = Vector3f(0.0f, 0.0f, 35.0f);
+	uniforms.lightVP = Matrix4f::IDENTITY;
+	uniforms.shadow = Matrix4f::IDENTITY;
+	uniforms.lightPosition = Vector3f(1.0f, 8.0f, 10.0f);
+	Vector3f::Normalize(uniforms.lightPosition);
+
+	wgpuQueueWriteBuffer(wgpContext.queue, scene.sharedUniformBuffer.getBuffer(), 0, &uniforms, sizeof(Uniforms));
+
 	for (uint32_t i = 0; i < numInstances; i++) {	
 		float rgba[4];
 		hsl_to_rgba(hue + randf(0.0f, 0.2f), randf(0.7f, 1.0f), randf(0.5f, 0.8f), rgba);
@@ -387,12 +447,12 @@ void StencilMask::InitScene(Scene& scene, uint32_t numInstances, float hue, uint
 		bindings[0].size = wgpuBufferGetSize(scene.objects[i].uniformBuffer.getBuffer());
 
 		bindings[1].binding = 1u;
-		bindings[1].buffer = sharedUniformBuffer.getBuffer();
+		bindings[1].buffer = scene.sharedUniformBuffer.getBuffer();
 		bindings[1].offset = 0u;
-		bindings[1].size = wgpuBufferGetSize(sharedUniformBuffer.getBuffer());
+		bindings[1].size = wgpuBufferGetSize(scene.sharedUniformBuffer.getBuffer());
 
 		WGPUBindGroupDescriptor bindGroupDesc = {};
-		bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_STENCIL"), 0u);
+		bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_STENCIL_MASK"), 0u);
 		bindGroupDesc.entryCount = (uint32_t)bindings.size();
 		bindGroupDesc.entries = bindings.data();
 		scene.objects[i].bindGroup = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
@@ -409,6 +469,43 @@ void StencilMask::updateScene0(float time, Scene& scene) {
 		transform.rotate(0.0f, (i * 2.967f) * _180_ON_PI, 0.0f, false);
 		transform.rotate((i * 4.567f) * _180_ON_PI, 0.0f, 0.0f, false);
 		transform.translate(0.0f, 0.0f, sinf(i * 3.721f + time * 0.1f) * 10.0f);
+		wgpuQueueWriteBuffer(wgpContext.queue, scene.objects[i].uniformBuffer.getBuffer(), 0u, &transform.getTransformationMatrix(), sizeof(Matrix4f));
+	}
+}
+
+void StencilMask::updateScene1(float time, Scene& scene) {
+	float radius = 35.0f;
+	float t = time * 0.5f;
+	Matrix4f view = Matrix4f::LookAt(Vector3f(cosf(t) * radius, 4.0f, sinf(t) * radius), Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	wgpuQueueWriteBuffer(wgpContext.queue, scene.sharedUniformBuffer.getBuffer(), offsetof(Uniforms, view), &view, sizeof(Matrix4f));
+
+	for (uint32_t i = 0; i < scene.numObjects; i++) {
+		Transform transform;
+		transform.rotate((time * 0.53f + i) * _180_ON_PI, 0.0f, 0.0f, false);
+		transform.translate(0.0f, 0.0f, sinf(i * 9.721f + time * 0.1f) * 10.0f);
+		transform.rotate(0.0f, (i * 2.967f) * _180_ON_PI, 0.0f, false);
+		transform.rotate((i * 4.567f) * _180_ON_PI, 0.0f, 0.0f, false);
+		transform.translate(0.0f, 0.0f, sinf(i * 3.721f + time * 0.1f) * 10.0f);
+		wgpuQueueWriteBuffer(wgpContext.queue, scene.objects[i].uniformBuffer.getBuffer(), 0u, &transform.getTransformationMatrix(), sizeof(Matrix4f));
+	}
+}
+
+void StencilMask::updateSceneMask(float time, Scene& scene, float rotation[3]) {
+	Matrix4f view = Matrix4f::LookAt(Vector3f(0.0f, 0.0f, 45.0f), Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	wgpuQueueWriteBuffer(wgpContext.queue, scene.sharedUniformBuffer.getBuffer(), offsetof(Uniforms, view), &view, sizeof(Matrix4f));
+
+	float worldX = ((static_cast<float>(Mouse::instance().xPos()) / static_cast<float>(Application::Width) * 2.0f) - 1.0f)  * 10.0f;
+	float worldY = ((static_cast<float>(Application::Height - Mouse::instance().yPos()) / static_cast<float>(Application::Height) * 2.0f) - 1.0f) * 10.0f;
+
+	for (uint32_t i = 0; i < scene.numObjects; i++) {
+		Transform transform;
+		transform.scale(10.0f, 10.0f, 1.0f);
+		transform.translate(worldX, worldY, 0.0f);
+		//transform.rotate((time * 0.53f + i) * _180_ON_PI, 0.0f, 0.0f, false);
+		//transform.translate(0.0f, 0.0f, sinf(i * 9.721f + time * 0.1f) * 10.0f);
+		//transform.rotate(0.0f, (i * 2.967f) * _180_ON_PI, 0.0f, false);
+		//transform.rotate((i * 4.567f) * _180_ON_PI, 0.0f, 0.0f, false);
+		//transform.translate(0.0f, 0.0f, sinf(i * 3.721f + time * 0.1f) * 10.0f);
 		wgpuQueueWriteBuffer(wgpContext.queue, scene.objects[i].uniformBuffer.getBuffer(), 0u, &transform.getTransformationMatrix(), sizeof(Matrix4f));
 	}
 }

@@ -29,7 +29,7 @@ class StencilMask : public State, public MouseEventListener, public KeyboardEven
 
 	struct Scene {
 		uint32_t numObjects;
-		WGPUBuffer sharedUniformBuffer;
+		WgpBuffer sharedUniformBuffer;
 		float sharedUniformValues[16 + 4];
 		std::vector<Object> objects;		
 	};
@@ -60,7 +60,7 @@ private:
 	
 
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
-	void draw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor, const Scene& scene, uint32_t stencilRef);
+	void draw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor, const Scene& scene, uint32_t stencilRef, const WGPURenderPipeline& renderPipeline);
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
@@ -69,15 +69,20 @@ private:
 	Camera m_camera;
 	Uniforms m_uniforms;
 	TrackBall m_trackball;
-	Shape m_quad, m_sphere, m_jem, m_cylinder, m_cone, m_torus, m_dice;
+	Shape m_quad, m_sphere, m_cube, m_jem, m_cylinder, m_cone, m_torus, m_dice;
 
-	WgpModel m_wgpSphere, m_wgpQuad, m_wgpJem, m_wgpCylinder, m_wgpCone, m_wgpTorus, m_wgpDice;
+	WgpModel m_wgpQuad, m_wgpSphere, m_wgpCube, m_wgpJem, m_wgpCylinder, m_wgpCone, m_wgpTorus, m_wgpDice;
 	WgpBuffer m_uniformBuffer;
-	std::vector<Scene> m_scenes;
-	std::vector<WgpModel> m_geometries;
 
-	static void InitScene(Scene& scene, uint32_t numInstances, float hue, uint32_t geometryIndex, uint32_t geometryIndexCount, const WgpBuffer& sharedUniformBuffer);	
+	std::vector<Scene> m_maskScenes;
+	std::vector<Scene> m_scenes;
+	std::vector<WgpModel> m_wgpModels;
+
+	static void InitScene(Scene& scene, uint32_t numInstances, float hue, uint32_t geometryIndex, uint32_t geometryIndexCount);	
 	static void updateScene0(float time, Scene& scene);
+	static void updateScene1(float time, Scene& scene);
+	static void updateSceneMask(float time, Scene& scene, float rotation[3]);
+
 	static void hsl_to_rgba(float h, float s, float l, float* rgba);
 	static float randf(float min_val, float max_val);
 	static uint32_t rand_elem(uint32_t count);

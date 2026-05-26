@@ -1937,6 +1937,13 @@ Matrix4f &Matrix4f::GetNormalMatrix(Matrix4f &mtx, const Matrix4f &modelViewMatr
 	return mtx;
 }
 
+Matrix4f Matrix4f::GetRotationMatrix(const Matrix4f& viewMatrix) {
+	return Matrix4f(viewMatrix[0][0], viewMatrix[0][1], viewMatrix[0][2], 0.0f,
+                    viewMatrix[1][0], viewMatrix[1][1], viewMatrix[1][2], 0.0f,
+                    viewMatrix[2][0], viewMatrix[2][1], viewMatrix[2][2], 0.0f,
+                    0.0f, 0.0f, 0.0f, 1.0);
+}
+
 Matrix4f Matrix4f::GetViewPortMatrix(float width, float height) {
 	float halfWidth = width * 0.5f;
 	float halfHeight = height * 0.5f;

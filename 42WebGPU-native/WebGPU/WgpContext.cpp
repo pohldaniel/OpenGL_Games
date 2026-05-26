@@ -727,6 +727,24 @@ void wgpSetMSAASampleCount(const uint32_t count, const std::function<void()>& on
 	}
 }
 
+WGPURenderPassDepthStencilAttachment wgpCopyDepthStencilAttachment(const WGPURenderPassDepthStencilAttachment* src) {
+	WGPURenderPassDepthStencilAttachment dest;
+	dest.depthClearValue = src->depthClearValue;
+	dest.depthLoadOp = src->depthLoadOp;
+	dest.depthReadOnly = src->depthReadOnly;
+	dest.depthStoreOp = src->depthStoreOp;
+
+	dest.stencilClearValue = src->stencilClearValue;
+	dest.stencilLoadOp = src->stencilLoadOp;
+	dest.stencilReadOnly = src->stencilReadOnly;
+	dest.stencilStoreOp = src->stencilStoreOp;
+
+	dest.nextInChain = src->nextInChain;
+	dest.view = src->view;
+
+	return dest;
+}
+
 void wgpDraw() {
 	WGPUSurfaceTexture surfaceTexture;
 	wgpuSurfaceGetCurrentTexture(wgpContext.surface, &surfaceTexture);
@@ -933,11 +951,15 @@ void WgpContext::createRenderPipeline(std::string shaderModuleName,
 
 	WGPUDepthStencilState depthStencilState = {};
 	setDefault(depthStencilState);
+
+	if(configuration.stencilMode == StencilMode::SET)
+		depthStencilState.stencilFront.passOp = WGPUStencilOperation_Replace;
+
 	depthStencilState.depthCompare = depthCompareFunction;
 	depthStencilState.depthWriteEnabled = (configuration.flags & WRITE_DEPTH) ? WGPUOptionalBool::WGPUOptionalBool_True : WGPUOptionalBool::WGPUOptionalBool_False;
 	depthStencilState.format = depthTextureFormat == WGPUTextureFormat_Undefined ? depthformat : depthTextureFormat;
-	depthStencilState.stencilReadMask = 0u;
-	depthStencilState.stencilWriteMask = 0u;
+	depthStencilState.stencilReadMask = 255u;
+	depthStencilState.stencilWriteMask = 255u;
 
 	WGPURenderPipelineDescriptor renderPipelineDescriptor = {};
 	renderPipelineDescriptor.layout = onBindGroupLayouts ? pipelineLayouts.at(pipelineLayoutName) : NULL;
