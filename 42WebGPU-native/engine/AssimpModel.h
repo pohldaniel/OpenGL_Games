@@ -12,7 +12,6 @@
 #include "Model.h"
 #include "Mesh.h"
 #include "Camera.h"
-#include "Transform.h"
 #include "Material.h"
 
 //#define ASSIMP_LOAD_FLAGS (aiProcess_JoinIdenticalVertices | aiProcess_RemoveRedundantMaterials | aiProcess_PreTransformVertices | aiProcess_Triangulate)
@@ -36,20 +35,10 @@ public:
 	void loadModel(const char* filename, const Vector3f& axis, float degrees, const Vector3f& translate = Vector3f(0.0f, 0.0f, 0.0f), float scale = 1.0f, bool isStacked = false, bool generateNormals = false, bool generateTangents = false, bool flipYZ = false, bool flipWinding = false);
 	void loadModelCpu(const char* filename, bool isStacked = false, bool generateNormals = false, bool generateTangents = false, bool flipYZ = false, bool flipWinding = false);
 	void loadModelCpu(const char* filename, const Vector3f& axis, float degrees, const Vector3f& translate = Vector3f(0.0f, 0.0f, 0.0f), float scale = 1.0f, bool isStacked = false, bool generateNormals = false, bool generateTangents = false, bool flipYZ = false, bool flipWinding = false);
-	
-	void rotate(const Vector3f& axis, float degrees);
-	void rotate(float pitch, float yaw, float roll);
-	void translate(float dx, float dy, float dz);
-	void scale(float sx, float sy, float sz);
-	void setPosition(float x, float y, float z);
-
+		
 	const Vector3f& getCenter() const;
-	const Matrix4f& getTransformationMatrix() const;
-	const Matrix4f& getInvTransformationMatrix();
-
 	const unsigned int getStride() const override;
 	const std::string& getModelDirectory();
-	const Transform& getTransform() const;
 	const Mesh* getMesh(unsigned short index = 0u) const;
 	const std::vector<Mesh*>& getMeshes() const;
 	const std::vector<float>& getVertexBuffer() const;
@@ -72,7 +61,6 @@ private:
 
 	std::string m_modelDirectory;
 	Vector3f m_center;
-	Transform m_transform;
 	unsigned int m_drawCount;
 
 	std::vector<float> m_vertexBuffer;

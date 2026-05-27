@@ -30,7 +30,4 @@ private:
 
 	std::vector<unsigned int> m_indexBuffer;
 	std::vector<float> m_vertexBuffer;
-
-	std::array<float, 3> m_min;
-	std::array<float, 3> m_max;
 };

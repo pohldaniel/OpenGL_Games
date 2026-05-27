@@ -152,10 +152,6 @@ void Shape::flatShading() {
 		float* v1 = &vertexBuffer[(i + 1) * m_stride];
 		float* v2 = &vertexBuffer[(i + 2) * m_stride];
 
-		std::array<float, 3> p0 = { v0[0], v0[1], v0[2] };
-		std::array<float, 3> p1 = { v1[0], v1[1], v1[2] };
-		std::array<float, 3> p2 = { v2[0], v2[1], v2[2] };
-
 		std::array<float, 3> e0 = Normalize({ v0[0] - v1[0], v0[1] - v1[1], v0[2] - v1[2] });
 		std::array<float, 3> e1 = Normalize({ v0[0] - v2[0], v0[1] - v2[1], v0[2] - v2[2] });
 		std::array<float, 3> n = Cross(e0, e1);

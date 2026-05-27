@@ -6,11 +6,11 @@
 #include <WebGPU/WgpContext.h>
 #include <WebGPU/WgpRenderer.h>
 
-#include "StencilMask.h"
+#include "DefferedRendering.h"
 #include "Application.h"
 #include "Globals.h"
 
-StencilMask::StencilMask(StateMachine& machine) : State(machine, States::STENCIL_MASK) {
+DefferedRendering::DefferedRendering(StateMachine& machine) : State(machine, States::DEFFERED_RENDERING) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -40,7 +40,7 @@ StencilMask::StencilMask(StateMachine& machine) : State(machine, States::STENCIL
 
 	wgpContext.setClearColor({ 0.2f, 0.2f, 0.2f, 1.0f });
 	wgpContext.addSahderModule("STENCIL", "res/shader/stencil.wgsl");
-	wgpContext.createRenderPipeline("STENCIL", "RP_STENCIL_MASK", VL_PTN, std::bind(&StencilMask::OnBindGroupLayoutsStencil, this),
+	wgpContext.createRenderPipeline("STENCIL", "RP_STENCIL_MASK", VL_PTN, std::bind(&DefferedRendering::OnBindGroupLayoutsStencil, this),
 		1u,
 		WGPUPrimitiveTopology_TriangleList,
 		WGPUTextureFormat_Undefined,
@@ -49,7 +49,7 @@ StencilMask::StencilMask(StateMachine& machine) : State(machine, States::STENCIL
 		{ WRITE_DEPTH | DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_Undefined , WGPUCullMode_Undefined, MASK }
 	);
 
-	wgpContext.createRenderPipeline("STENCIL", "RP_STENCIL_SET", VL_PTN, std::bind(&StencilMask::OnBindGroupLayoutsStencil, this),
+	wgpContext.createRenderPipeline("STENCIL", "RP_STENCIL_SET", VL_PTN, std::bind(&DefferedRendering::OnBindGroupLayoutsStencil, this),
 		1u,
 		WGPUPrimitiveTopology_TriangleList,
 		WGPUTextureFormat_Undefined,
@@ -68,7 +68,7 @@ StencilMask::StencilMask(StateMachine& machine) : State(machine, States::STENCIL
 	m_wgpModels[6].create(m_cone);
 	m_wgpModels[7].create(m_dice);
 
-	wgpContext.OnDraw = std::bind(&StencilMask::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
+	wgpContext.OnDraw = std::bind(&DefferedRendering::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
 
 	m_scenes.resize(7u);
 	InitScene(m_scenes[0], 100u, 0.0f / 7.0f, 1u, 1u);
@@ -86,7 +86,7 @@ StencilMask::StencilMask(StateMachine& machine) : State(machine, States::STENCIL
 	}
 }
 
-StencilMask::~StencilMask() {
+DefferedRendering::~DefferedRendering() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 
@@ -105,11 +105,11 @@ StencilMask::~StencilMask() {
 	}
 }
 
-void StencilMask::fixedUpdate() {
+void DefferedRendering::fixedUpdate() {
 
 }
 
-void StencilMask::update() {
+void DefferedRendering::update() {
 	Keyboard& keyboard = Keyboard::instance();
 	Vector3f direction = Vector3f();
 
@@ -190,11 +190,11 @@ void StencilMask::update() {
 	UpdateScene0(Globals::clock.getElapsedTimeSec(), m_scenes[6]);
 }
 
-void StencilMask::render() {
+void DefferedRendering::render() {
 	wgpDraw();
 }
 
-void StencilMask::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor) {
+void DefferedRendering::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor) {
 	WGPURenderPassDepthStencilAttachment depthStencilAttachment = wgpCopyDepthStencilAttachment(renderPassDescriptor.depthStencilAttachment);
 	WGPURenderPassColorAttachment renderPassColorAttachment = renderPassDescriptor.colorAttachments[0];
 
@@ -240,7 +240,7 @@ void StencilMask::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURen
 	}
 }
 
-void StencilMask::draw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor, const Scene& scene, uint32_t stencilRef, const WGPURenderPipeline& renderPipeline) {
+void DefferedRendering::draw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor, const Scene& scene, uint32_t stencilRef, const WGPURenderPipeline& renderPipeline) {
 	WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDescriptor);
 	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
 	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, renderPipeline);
@@ -257,11 +257,11 @@ void StencilMask::draw(const WGPUCommandEncoder& commandEncoder, const WGPURende
 	wgpuRenderPassEncoderRelease(renderPassEncoder);
 }
 
-void StencilMask::OnMouseMotion(const Event::MouseMoveEvent& event) {
+void DefferedRendering::OnMouseMotion(const Event::MouseMoveEvent& event) {
 	m_trackball.motion(event.x, event.y);
 }
 
-void StencilMask::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
+void DefferedRendering::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
 	if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {
 		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, true, event.x, event.y);
 		Mouse::instance().detach();
@@ -272,7 +272,7 @@ void StencilMask::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
 
 }
 
-void StencilMask::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
+void DefferedRendering::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
 	if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {
 		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, false, event.x, event.y);
 		Mouse::instance().attach(Application::GetWindow(), false, true);
@@ -282,11 +282,11 @@ void StencilMask::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
 		Mouse::instance().attach(Application::GetWindow(), false, false, true);
 }
 
-void StencilMask::OnMouseWheel(const Event::MouseWheelEvent& event) {
+void DefferedRendering::OnMouseWheel(const Event::MouseWheelEvent& event) {
 
 }
 
-void StencilMask::OnKeyDown(const Event::KeyboardEvent& event) {
+void DefferedRendering::OnKeyDown(const Event::KeyboardEvent& event) {
 #if DEVBUILD
 	if (event.keyCode == VK_LMENU) {
 		m_drawUi = !m_drawUi;
@@ -298,16 +298,16 @@ void StencilMask::OnKeyDown(const Event::KeyboardEvent& event) {
 	}
 }
 
-void StencilMask::OnKeyUp(const Event::KeyboardEvent& event) {
+void DefferedRendering::OnKeyUp(const Event::KeyboardEvent& event) {
 
 }
 
-void StencilMask::resize(int deltaW, int deltaH) {
+void DefferedRendering::resize(int deltaW, int deltaH) {
 	m_camera.perspective(30.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 100.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 }
 
-void StencilMask::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
+void DefferedRendering::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 	ImGui_ImplWGPU_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
@@ -348,7 +348,7 @@ void StencilMask::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 	ImGui_ImplWGPU_RenderDrawData(ImGui::GetDrawData(), renderPassEncoder);
 }
 
-void StencilMask::updateSceneMask(float time, Scene& scene, size_t index, float rotation[3]) {
+void DefferedRendering::updateSceneMask(float time, Scene& scene, size_t index, float rotation[3]) {
 	Matrix4f view = Matrix4f::LookAt(Vector3f(0.0f, 0.0f, 45.0f), Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	wgpuQueueWriteBuffer(wgpContext.queue, scene.sharedUniformBuffer.getBuffer(), offsetof(Uniforms, view), &view, sizeof(Matrix4f));
 
@@ -366,7 +366,7 @@ void StencilMask::updateSceneMask(float time, Scene& scene, size_t index, float 
 	}
 }
 
-std::vector<WGPUBindGroupLayout> StencilMask::OnBindGroupLayoutsStencil() {
+std::vector<WGPUBindGroupLayout> DefferedRendering::OnBindGroupLayoutsStencil() {
 	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
 
 	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(2);
@@ -389,7 +389,7 @@ std::vector<WGPUBindGroupLayout> StencilMask::OnBindGroupLayoutsStencil() {
 	return bindingLayouts;
 }
 
-void StencilMask::InitScene(Scene& scene, uint32_t numInstances, float hue, uint32_t geometryIndex, uint32_t geometryIndexCount) {
+void DefferedRendering::InitScene(Scene& scene, uint32_t numInstances, float hue, uint32_t geometryIndex, uint32_t geometryIndexCount) {
 	scene.numObjects = numInstances;
 	scene.objects.resize(scene.numObjects);
 
@@ -446,7 +446,7 @@ void StencilMask::InitScene(Scene& scene, uint32_t numInstances, float hue, uint
 	}	
 }
 
-void StencilMask::UpdateScene0(float time, Scene& scene) {
+void DefferedRendering::UpdateScene0(float time, Scene& scene) {
 	for (uint32_t i = 0; i < scene.numObjects; i++) {		
 		Transform transform;
 		transform.rotate((time * 0.53f + i) * _180_ON_PI, 0.0f, 0.0f, false);
@@ -458,7 +458,7 @@ void StencilMask::UpdateScene0(float time, Scene& scene) {
 	}
 }
 
-void StencilMask::UpdateScene1(float time, Scene& scene) {
+void DefferedRendering::UpdateScene1(float time, Scene& scene) {
 	float radius = 35.0f;
 	float t = time * 0.5f;
 	Matrix4f view = Matrix4f::LookAt(Vector3f(cosf(t) * radius, 4.0f, sinf(t) * radius), Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
@@ -475,9 +475,7 @@ void StencilMask::UpdateScene1(float time, Scene& scene) {
 	}
 }
 
-//Convert HSL to RGBA
-void StencilMask::HslToTgba(float h, float s, float l, float* rgba){
-	//Normalize hue to 0-1 range
+void DefferedRendering::HslToTgba(float h, float s, float l, float* rgba){
 	h = fmodf(h, 1.0f);
 	if (h < 0.0f)
 		h += 1.0f;
@@ -524,10 +522,10 @@ void StencilMask::HslToTgba(float h, float s, float l, float* rgba){
 	rgba[3] = 1.0f;
 }
 
-float StencilMask::Randf(float min_val, float max_val){
+float DefferedRendering::Randf(float min_val, float max_val){
 	return min_val + ((float)rand() / (float)RAND_MAX) * (max_val - min_val);
 }
 
-uint32_t StencilMask::RandElem(uint32_t count){
+uint32_t DefferedRendering::RandElem(uint32_t count){
 	return (uint32_t)(Randf(0.0f, (float)count));
 }

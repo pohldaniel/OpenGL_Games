@@ -12,8 +12,6 @@ ObjModel::ObjModel()  {
 	m_numberOfTriangles = 0u;
 	m_stride = 0u;
 	m_drawCount = 0u;
-
-	m_transform.reset();
 }
 
 ObjModel::ObjModel(ObjModel const& rhs) {
@@ -29,7 +27,6 @@ ObjModel::ObjModel(ObjModel const& rhs) {
 	m_modelDirectory = rhs.m_modelDirectory;
 	m_mltPath = rhs.m_mltPath;
 	m_center = rhs.m_center;
-	m_transform = rhs.m_transform;
 	m_drawCount = rhs.m_drawCount;
 }
 
@@ -46,7 +43,6 @@ ObjModel::ObjModel(ObjModel&& rhs) noexcept {
 	m_modelDirectory = rhs.m_modelDirectory;
 	m_mltPath = rhs.m_mltPath;
 	m_center = rhs.m_center;
-	m_transform = rhs.m_transform;
 	m_drawCount = rhs.m_drawCount;
 }
 
@@ -63,7 +59,6 @@ ObjModel& ObjModel::operator=(const ObjModel& rhs) {
 	m_modelDirectory = rhs.m_modelDirectory;
 	m_mltPath = rhs.m_mltPath;
 	m_center = rhs.m_center;
-	m_transform = rhs.m_transform;
 	m_drawCount = rhs.m_drawCount;
 	return *this;
 }
@@ -81,7 +76,6 @@ ObjModel& ObjModel::operator=(ObjModel&& rhs) noexcept {
 	m_modelDirectory = rhs.m_modelDirectory;
 	m_mltPath = rhs.m_mltPath;
 	m_center = rhs.m_center;
-	m_transform = rhs.m_transform;
 	m_drawCount = rhs.m_drawCount;
 	return *this;
 }
@@ -101,34 +95,6 @@ void ObjModel::cleanup() {
 	}
 	m_meshes.clear();
 	m_meshes.shrink_to_fit();
-}
-
-void ObjModel::setPosition(float x, float y, float z) {
-	m_transform.setPosition(x, y, z);
-}
-
-void ObjModel::rotate(const Vector3f &axis, float degrees) {
-	m_transform.rotate(axis, degrees);
-}
-
-void ObjModel::rotate(float pitch, float yaw, float roll) {
-	m_transform.rotate(pitch, yaw, roll);
-}
-
-void ObjModel::translate(float dx, float dy, float dz) {
-	m_transform.translate(dx, dy, dz);
-}
-
-void ObjModel::scale(float sx, float sy, float sz) {
-	m_transform.scale(sx, sy, sz);
-}
-
-const Matrix4f &ObjModel::getTransformationMatrix() const {
-	return m_transform.getTransformationMatrix();
-}
-
-const Matrix4f &ObjModel::getInvTransformationMatrix() {
-	return m_transform.getInvTransformationMatrix();
 }
 
 const Vector3f &ObjModel::getCenter() const {
@@ -635,10 +601,6 @@ void ObjModel::loadModelCpu(const char* _filename, const Vector3f& axis, float d
 	indexBufferCreator.bitangentCoordsIn.shrink_to_fit();
 
 	return;
-}
-
-const Transform& ObjModel::getTransform() const {
-	return m_transform;
 }
 
 const Mesh* ObjModel::getMesh(unsigned short index) const {

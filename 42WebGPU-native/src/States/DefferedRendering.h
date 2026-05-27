@@ -13,7 +13,7 @@
 #include <WebGPU/WgpModel.h>
 #include <WebGPU/WgpData.h>
 
-class StencilMask : public State, public MouseEventListener, public KeyboardEventListener {
+class DefferedRendering : public State, public MouseEventListener, public KeyboardEventListener {
 	
 	struct Object {
 		float uniformValues[16 + 4];
@@ -31,8 +31,8 @@ class StencilMask : public State, public MouseEventListener, public KeyboardEven
 
 public:
 
-	StencilMask(StateMachine& machine);
-	~StencilMask();
+	DefferedRendering(StateMachine& machine);
+	~DefferedRendering();
 
 	void fixedUpdate() override;
 	void update() override;

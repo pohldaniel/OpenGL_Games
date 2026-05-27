@@ -2,14 +2,10 @@
 #include <vector>
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
-#include <engine/animation/AnimatedModel.h>
-#include <engine/animation/Animation.h>
 #include <engine/shape/Shape.h>
-#include <engine/AssimpModel.h>
 #include <engine/ObjModel.h>
 #include <engine/TrackBall.h>
 #include <engine/Camera.h>
-#include <Utils/Fade.h>
 
 #include <States/StateMachine.h>
 

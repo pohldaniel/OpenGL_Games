@@ -261,6 +261,9 @@
     <ClCompile Include="engine\shape\Segment.cpp">
       <Filter>engine\shape</Filter>
     </ClCompile>
+    <ClCompile Include="src\States\DefferedRendering.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\input\ApplicationEventListener.h">
@@ -502,6 +505,9 @@
     </ClInclude>
     <ClInclude Include="engine\shape\Segment.h">
       <Filter>engine\shape</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\DefferedRendering.h">
+      <Filter>Source Files\States</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

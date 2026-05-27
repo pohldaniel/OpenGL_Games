@@ -177,10 +177,6 @@ void Cylinder::BuildMesh(const std::array<float, 3>& position, float baseRadius,
 	}
 
 	if (bottom) {
-		// remember where the base indices start
-		unsigned int baseIndex = (unsigned int)indexBuffer.size();
-
-		// put indices for base
 		for (int i = 0, k = baseVertexIndex + 1; i < vResolution; ++i, ++k) {
 			if (i < (vResolution - 1)) {
 				indexBuffer.push_back(baseVertexIndex);	indexBuffer.push_back(k); indexBuffer.push_back(k + 1);
@@ -191,9 +187,6 @@ void Cylinder::BuildMesh(const std::array<float, 3>& position, float baseRadius,
 	}
 
 	if (top) {
-		// remember where the base indices start
-		unsigned int topIndex = (unsigned int)indexBuffer.size();
-
 		for (int i = 0, k = topVertexIndex + 1; i < vResolution; ++i, ++k) {
 			if (i < (vResolution - 1)) {
 				indexBuffer.push_back(topVertexIndex); indexBuffer.push_back(k + 1); indexBuffer.push_back(k);

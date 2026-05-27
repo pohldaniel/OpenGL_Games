@@ -30,7 +30,6 @@ public:
 	void buildSegmentXY(const std::array<float, 3>& position = { 0.0f, 0.0f, 0.0f }, float radius = 1.0f, float startAngle = 0.0f, float endAngle = 360.0f, unsigned int uResolution = 0u, unsigned int vResolution = 10u, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false);
 	void buildSegmentXZ(const std::array<float, 3>& position = { 0.0f, 0.0f, 0.0f }, float radius = 1.0f, float startAngle = 0.0f, float endAngle = 360.0f, unsigned int uResolution = 0u, unsigned int vResolution = 10u, bool generateTexels = true, bool generateNormals = true, bool generateTangents = false);
 
-
 	const std::vector<float>& getVertexBuffer() const;
 	const std::vector<unsigned int>& getIndexBuffer() const;
 	const unsigned int getStride() const;

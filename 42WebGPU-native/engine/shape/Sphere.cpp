@@ -18,10 +18,6 @@ Sphere::Sphere(const std::array<float, 3>& position, float radius, bool generate
 	m_vResolution = vResolution;
 
 	m_stride = 3u + 2u * generateTexels + 3u * generateNormals + 6u * generateTangents;
-
-	m_min = { FLT_MAX, FLT_MAX, FLT_MAX };
-	m_max = { FLT_MIN, FLT_MIN, FLT_MIN };
-
 	BuildMesh(m_position, m_radius, m_uResolution, m_vResolution, m_generateTexels, m_generateNormals, m_generateTangents, m_vertexBuffer, m_indexBuffer);
 }
 

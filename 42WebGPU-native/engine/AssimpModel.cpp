@@ -16,7 +16,6 @@ AssimpModel::AssimpModel() {
 	m_stride = 0u;
 
 	m_drawCount = 0u;
-	m_transform.reset();
 }
 
 AssimpModel::AssimpModel(AssimpModel const& rhs) {
@@ -31,7 +30,6 @@ AssimpModel::AssimpModel(AssimpModel const& rhs) {
 	m_meshes = rhs.m_meshes;
 	m_modelDirectory = rhs.m_modelDirectory;
 	m_center = rhs.m_center;
-	m_transform = rhs.m_transform;
 	m_drawCount = rhs.m_drawCount;
 }
 
@@ -47,7 +45,6 @@ AssimpModel::AssimpModel(AssimpModel&& rhs) noexcept {
 	m_meshes = rhs.m_meshes;
 	m_modelDirectory = rhs.m_modelDirectory;
 	m_center = rhs.m_center;
-	m_transform = rhs.m_transform;
 	m_drawCount = rhs.m_drawCount;
 }
 
@@ -63,7 +60,6 @@ AssimpModel& AssimpModel::operator=(const AssimpModel& rhs) {
 	m_meshes = rhs.m_meshes;
 	m_modelDirectory = rhs.m_modelDirectory;
 	m_center = rhs.m_center;
-	m_transform = rhs.m_transform;
 	m_drawCount = rhs.m_drawCount;
 	return *this;
 }
@@ -80,7 +76,6 @@ AssimpModel& AssimpModel::operator=(AssimpModel&& rhs) noexcept {
 	m_meshes = rhs.m_meshes;
 	m_modelDirectory = rhs.m_modelDirectory;
 	m_center = rhs.m_center;
-	m_transform = rhs.m_transform;
 	m_drawCount = rhs.m_drawCount;
 	return *this;
 }
@@ -103,34 +98,6 @@ void AssimpModel::cleanup() {
 	m_meshes.shrink_to_fit();
 }
 
-void AssimpModel::setPosition(float x, float y, float z) {
-	m_transform.setPosition(x, y, z);
-}
-
-void AssimpModel::rotate(const Vector3f &axis, float degrees) {
-	m_transform.rotate(axis, degrees);
-}
-
-void AssimpModel::rotate(float pitch, float yaw, float roll) {
-	m_transform.rotate(pitch, yaw, roll);
-}
-
-void AssimpModel::translate(float dx, float dy, float dz) {
-	m_transform.translate(dx, dy, dz);
-}
-
-void AssimpModel::scale(float sx, float sy, float sz) {
-	m_transform.scale(sx, sy, sz);
-}
-
-const Matrix4f &AssimpModel::getTransformationMatrix() const {
-	return m_transform.getTransformationMatrix();
-}
-
-const Matrix4f &AssimpModel::getInvTransformationMatrix() {
-	return m_transform.getInvTransformationMatrix();
-}
-
 const Vector3f &AssimpModel::getCenter() const {
 	return m_center;
 }
@@ -141,10 +108,6 @@ const unsigned int AssimpModel::getStride() const {
 
 const std::string& AssimpModel::getModelDirectory() {
 	return m_modelDirectory;
-}
-
-const Transform& AssimpModel::getTransform() const {
-	return m_transform;
 }
 
 const Mesh* AssimpModel::getMesh(unsigned short index) const {
