@@ -7,6 +7,7 @@
 #include "Quad.h"
 #include "Cylinder.h"
 #include "Capsule.h"
+#include "Segment.h"
 
 Shape::Shape() : m_stride(0u) {
 
@@ -97,6 +98,16 @@ void Shape::buildCylinder(const std::array<float, 3>& position, float baseRadius
 
 void Shape::buildCapsule(const std::array<float, 3>& position, float radius, float length, unsigned int uResolution, unsigned int vResolution, bool generateTexels, bool generateNormals, bool generateTangents) {
 	Capsule::BuildMesh(position, radius, length, uResolution, vResolution, generateTexels, generateNormals, generateTangents, m_vertexBuffer, m_indexBuffer);
+	m_stride = 3u + 2u * generateTexels + 3u * generateNormals + 6u * generateTangents;
+}
+
+void Shape::buildSegmentXY(const std::array<float, 3>& position, float radius, float startAngle, float endAngle, unsigned int uResolution, unsigned int vResolution, bool generateTexels, bool generateNormals, bool generateTangents) {
+	Segment::BuildMeshXY(position, radius, startAngle, endAngle, uResolution, vResolution, generateTexels, generateNormals, generateTangents, m_vertexBuffer, m_indexBuffer);
+	m_stride = 3u + 2u * generateTexels + 3u * generateNormals + 6u * generateTangents;
+}
+
+void Shape::buildSegmentXZ(const std::array<float, 3>& position, float radius, float startAngle, float endAngle, unsigned int uResolution, unsigned int vResolution, bool generateTexels, bool generateNormals, bool generateTangents) {
+	Segment::BuildMeshXZ(position, radius, startAngle, endAngle, uResolution, vResolution, generateTexels, generateNormals, generateTangents, m_vertexBuffer, m_indexBuffer);
 	m_stride = 3u + 2u * generateTexels + 3u * generateNormals + 6u * generateTangents;
 }
 

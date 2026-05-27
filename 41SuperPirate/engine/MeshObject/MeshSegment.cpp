@@ -19,7 +19,7 @@ MeshSegment::MeshSegment(float radius, const Vector3f &position, bool generateTe
 
 	m_numBuffers = 1 + generateTexels + generateNormals + 2 * generateTangents;
 
-	BuildMeshXZ(m_radius, 0.0f, PI, m_position, m_uResolution, m_vResolution, m_generateTexels, m_generateNormals, m_generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
+	BuildMeshXZ(m_radius, 0.0f, 180.0f, m_position, m_uResolution, m_vResolution, m_generateTexels, m_generateNormals, m_generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
 	createBuffer();
 }
 

@@ -80,8 +80,6 @@ StencilMask::StencilMask(StateMachine& machine) : State(machine, States::STENCIL
 	InitScene(m_scenes[6], 100u, 6.0f / 7.0f, 7u, 1u);
 
 	m_maskScenes.resize(6u);
-	InitScene(m_maskScenes[0], 1u, 0.5f, 0u, 1u);
-
 	for (size_t i = 0; i < m_maskScenes.size(); i++) {
 		float hue = (float)i / 6.0f + 0.5f;
 		InitScene(m_maskScenes[i], 1u, hue, 0u, 1u);

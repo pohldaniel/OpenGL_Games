@@ -258,6 +258,9 @@
     <ClCompile Include="src\States\StencilMask.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
+    <ClCompile Include="engine\shape\Segment.cpp">
+      <Filter>engine\shape</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\input\ApplicationEventListener.h">
@@ -496,6 +499,9 @@
     </ClInclude>
     <ClInclude Include="src\States\StencilMask.h">
       <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\shape\Segment.h">
+      <Filter>engine\shape</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
