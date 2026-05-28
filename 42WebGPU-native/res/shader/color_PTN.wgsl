@@ -18,7 +18,10 @@ struct Uniforms {
     model: mat4x4<f32>,    
 	normal: mat4x4<f32>,
 	color: vec4<f32>,
-	camPos: vec3<f32>
+	camPos: vec3<f32>,
+	lightVP:mat4x4<f32>,
+	shadow: mat4x4<f32>,
+	lightPos: vec3<f32>
 };
 
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
@@ -35,5 +38,5 @@ fn vs_main(in: VertexInput) -> VertexOutput {
 
 @fragment
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
-	return in.color;
+	return vec4f(in.texcoord, 0.0f, 1.0);
 }

@@ -12,6 +12,12 @@ enum ModelColor {
 	MC_POSITION
 };
 
+enum ProjectedPlane {
+	XY,
+	XZ,
+	YZ
+};
+
 class Mesh;
 class Model {
 
@@ -22,7 +28,8 @@ public:
 
 protected:
 
-	void static GenerateColors(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, unsigned int& stride, unsigned int startIndex, unsigned int endIndex, ModelColor modelColor);
+	void static GenerateColors(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, unsigned int& stride, ModelColor modelColor);
+	void static GenerateUVs(std::vector<float>& vertexBuffer, unsigned int& stride, ProjectedPlane projectedPlane = XY);
 	void static PackBuffer(std::vector<float>& vertexBuffer, unsigned int stride);
 	void static Rewind(const std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, unsigned int stride);
 

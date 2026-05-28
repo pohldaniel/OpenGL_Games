@@ -3,7 +3,7 @@
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
 #include <engine/shape/Shape.h>
-#include <engine/ObjModel.h>
+#include <engine/AssimpModel.h>
 #include <engine/TrackBall.h>
 #include <engine/Camera.h>
 
@@ -37,13 +37,21 @@ public:
 
 private:
 	
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsColor();
+	std::vector<WGPUBindGroup> OnBindGroupsColor();
+
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsDeffered();
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsGBuffer();
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
-	
+
 	bool m_initUi = true;
 	bool m_drawUi = true;
 
 	Camera m_camera;
 	TrackBall m_trackball;
+	AssimpModel m_dragon;
+	Uniforms m_uniforms;
+
+	WgpBuffer m_uniformBuffer;
+	WgpModel m_wgpDragon;
 };

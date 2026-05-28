@@ -4,7 +4,7 @@
 #include "Mesh.h"
 #include "Model.h"
 
-void Model::GenerateColors(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, unsigned int& stride, unsigned int startIndex, unsigned int endIndex, ModelColor modelColor) {
+void Model::GenerateColors(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, unsigned int& stride, ModelColor modelColor) {
 	if (stride < 8)
 		return;
 
@@ -57,6 +57,48 @@ void Model::GenerateColors(std::vector<float>& vertexBuffer, std::vector<unsigne
 	copy(tmpVertex.begin(), tmpVertex.end(), back_inserter(vertexBuffer));
 	tmpVertex.clear();
 	stride += 4;
+}
+#include <iostream>
+void Model::GenerateUVs(std::vector<float>& vertexBuffer, unsigned int& stride, ProjectedPlane projectedPlane) {
+	uint32_t idxs[2] = { 0u, 0u };
+	projectedPlane == YZ ? idxs[0] = 1u : idxs[0] = 0u;
+	projectedPlane == XY ? idxs[1] = 1u : idxs[1] = 2u;
+
+	float extent_min[2] = { FLT_MAX, FLT_MAX };
+	float extent_max[2] = { FLT_MIN, FLT_MIN };
+	std::vector<float> vertexBufferNew;
+	float* pos = 0;
+
+	for (size_t i = 0; i < vertexBuffer.size() / stride; ++i) {
+		vertexBufferNew.push_back(vertexBuffer[i * stride]);
+		vertexBufferNew.push_back(vertexBuffer[i * stride + 1]);
+		vertexBufferNew.push_back(vertexBuffer[i * stride + 2]);
+		vertexBufferNew.push_back(0.0);
+		vertexBufferNew.push_back(0.0);
+		for (unsigned int k = 0u; k < stride - 3u; k++) {
+			vertexBufferNew.push_back(vertexBuffer[i * stride + 3 + k]);			
+		}
+	}
+
+	stride = stride + 2u;
+	for (size_t i = 0; i < vertexBufferNew.size() / stride; ++i) {
+		pos = &vertexBufferNew[i * stride];
+		vertexBufferNew[i * stride + 3] = pos[idxs[0]];
+		vertexBufferNew[i * stride + 4] = pos[idxs[1]];
+		extent_min[0] = std::min(pos[idxs[0]], extent_min[0]);
+		extent_min[1] = std::min(pos[idxs[1]], extent_min[1]);
+		extent_max[0] = std::max(pos[idxs[0]], extent_max[0]);
+		extent_max[1] = std::max(pos[idxs[1]], extent_max[1]);
+	}
+
+	for (uint64_t i = 0; i < vertexBufferNew.size() / stride; ++i) {
+		vertexBufferNew[i * stride + 3] = (vertexBufferNew[i * stride + 3] - extent_min[0]) / (extent_max[0] - extent_min[0]);
+		vertexBufferNew[i * stride + 4] = (vertexBufferNew[i * stride + 4] - extent_min[1]) / (extent_max[1] - extent_min[1]);
+	}
+
+	vertexBuffer.clear();
+	vertexBuffer.shrink_to_fit();
+	copy(vertexBufferNew.begin(), vertexBufferNew.end(), back_inserter(vertexBuffer));
 }
 
 void Model::PackBuffer(std::vector<float>& vertexBuffer, unsigned int stride) {

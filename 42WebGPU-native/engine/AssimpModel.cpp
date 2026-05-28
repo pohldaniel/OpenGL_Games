@@ -152,10 +152,20 @@ void AssimpModel::rewind() {
 
 void AssimpModel::generateColors(ModelColor modelColor) {
 	if (m_isStacked) {
-		Model::GenerateColors(m_vertexBuffer, m_indexBuffer, m_stride, 0, m_meshes.size(), modelColor);
+		Model::GenerateColors(m_vertexBuffer, m_indexBuffer, m_stride, modelColor);
 	}else {
 		for (int j = 0; j < m_meshes.size(); j++) {
-			Model::GenerateColors(m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_indexBuffer, m_meshes[j]->m_stride, j, j + 1, modelColor);
+			Model::GenerateColors(m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_indexBuffer, m_meshes[j]->m_stride, modelColor);
+		}
+	}
+}
+
+void AssimpModel::generateUVs(ProjectedPlane projectedPlane) {
+	if (m_isStacked) {
+		Model::GenerateUVs(m_vertexBuffer, m_stride, projectedPlane);
+	}else {
+		for (int j = 0; j < m_meshes.size(); j++) {
+			Model::GenerateUVs(m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_stride, projectedPlane);
 		}
 	}
 }
