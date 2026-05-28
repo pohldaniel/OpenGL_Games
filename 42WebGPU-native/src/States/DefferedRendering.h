@@ -13,22 +13,10 @@
 #include <WebGPU/WgpModel.h>
 #include <WebGPU/WgpData.h>
 
+#define MAX_NUM_LIGHTS 1024u
+
 class DefferedRendering : public State, public MouseEventListener, public KeyboardEventListener {
 	
-	struct Object {
-		float uniformValues[16 + 4];
-		WgpBuffer uniformBuffer;
-		WGPUBindGroup bindGroup;
-		uint32_t geometryIndex;
-	};
-
-	struct Scene {
-		uint32_t numObjects;
-		WgpBuffer sharedUniformBuffer;
-		float sharedUniformValues[16 + 4];
-		std::vector<Object> objects;		
-	};
-
 public:
 
 	DefferedRendering(StateMachine& machine);
@@ -49,27 +37,13 @@ public:
 
 private:
 	
-	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsStencil();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsDeffered();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsGBuffer();
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
-	void updateSceneMask(float time, Scene& scene, size_t index, float rotation[3]);
-	void draw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor, const Scene& scene, uint32_t stencilRef, const WGPURenderPipeline& renderPipeline);
-
+	
 	bool m_initUi = true;
-	bool m_drawUi = false;
+	bool m_drawUi = true;
 
 	Camera m_camera;
 	TrackBall m_trackball;
-	Shape m_quad, m_sphere, m_cube, m_jem, m_cylinder, m_cone, m_torus, m_dice;
-
-	std::vector<Scene> m_maskScenes;
-	std::vector<Scene> m_scenes;
-	std::vector<WgpModel> m_wgpModels;
-
-	static void InitScene(Scene& scene, uint32_t numInstances, float hue, uint32_t geometryIndex, uint32_t geometryIndexCount);	
-	static void UpdateScene0(float time, Scene& scene);
-	static void UpdateScene1(float time, Scene& scene);
-	
-	static void HslToTgba(float h, float s, float l, float* rgba);
-	static float Randf(float min_val, float max_val);
-	static uint32_t RandElem(uint32_t count);
 };
