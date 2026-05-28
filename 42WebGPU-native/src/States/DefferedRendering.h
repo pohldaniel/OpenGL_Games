@@ -37,31 +37,30 @@ public:
 
 private:
 	
-	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsColor();
-	std::vector<WGPUBindGroup> OnBindGroupsColor();
-
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsGBuffer();
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsCompute();
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsDeffered();
-	
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsDefferedDebug();
+
 	std::vector<WGPUBindGroup> OnBindGroupsGBuffer();
 	WGPUBindGroup createDefferedBindGroup();
 	WGPUBindGroup createLightBindGroup();
 	WGPUBindGroup createComputeBindGroup();
 
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
+	float randomFloat(float min, float max);
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
 	bool m_debug = false;
+	int m_numLights = 128;
 
 	Camera m_camera;
 	TrackBall m_trackball;
 	AssimpModel m_dragon;
-	Uniforms m_uniforms;
 	Shape m_quad;
 
-	WgpBuffer m_uniformBuffer, _uniformBuffer, m_cameraBuffer, m_lightBuffer, m_configBuffer, m_extentBuffer;
+	WgpBuffer m_uniformBuffer, m_cameraBuffer, m_lightBuffer, m_configBuffer, m_extentBuffer;
 	WgpModel m_wgpDragon, m_wgpQuad;
 	WgpTexture m_normalTexture, m_albedoTexture, m_depthTexture;
 	WGPUBindGroup m_defferedBindGroup, m_lightBindGroup, m_computeBindGroup;

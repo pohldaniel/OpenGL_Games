@@ -15,18 +15,19 @@ fn vs_main(@builtin(vertex_index) VertexIndex : u32) -> @builtin(position) vec4<
 override canvasSizeWidth: f32;
 override canvasSizeHeight: f32;
 
+fn getDepth(z : f32, near : f32 , far : f32) -> f32{
+	let z_ndc = z * 2.0 - 1.0;
+	return (2.0 * near * far) / (far + near + z_ndc * (near - far));
+}
+
 @fragment
 fn fs_main(@builtin(position) coord : vec4<f32>) -> @location(0) vec4<f32> {
   var result : vec4<f32>;
   let c = coord.xy / vec2<f32>(canvasSizeWidth, canvasSizeHeight);
   if (c.x < 0.33333) {
-    let rawDepth = textureLoad(
-      gBufferDepth,
-      vec2<i32>(floor(coord.xy)),
-      0
-    );
+    let rawDepth = textureLoad(gBufferDepth, vec2<i32>(floor(coord.xy)), 0);
     // remap depth into something a bit more visible
-    let depth = (1.0 - rawDepth) * 50.0;
+    let depth = (1.0 - rawDepth * 0.993) * 50.0;
     result = vec4(depth);
   } else if (c.x < 0.66667) {
     result = textureLoad(

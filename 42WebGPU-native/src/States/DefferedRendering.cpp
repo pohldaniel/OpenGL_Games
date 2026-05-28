@@ -10,12 +10,6 @@
 #include "Application.h"
 #include "Globals.h"
 
-float random_float_min_max(float min, float max)
-{
-	/* [min, max] */
-	return ((max - min) * ((float)rand() / (float)RAND_MAX)) + min;
-}
-
 DefferedRendering::DefferedRendering(StateMachine& machine) : State(machine, States::DEFFERED_RENDERING) {
 
 	Application::SetCursorIcon(IDC_ARROW);
@@ -26,7 +20,7 @@ DefferedRendering::DefferedRendering(StateMachine& machine) : State(machine, Sta
 	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm, Application::OnSurfaceChange);
 	wgpSetSurfaceDepthFormat(WGPUTextureFormat::WGPUTextureFormat_Depth24Plus, Application::OnSurfaceChange);
 
-	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 2000.0f);
+	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 1.0f, 2000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 	m_camera.lookAt(Vector3f(0.0f, 50.0f, -100.0f), Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setMovingSpeed(20.0f);
@@ -42,36 +36,21 @@ DefferedRendering::DefferedRendering(StateMachine& machine) : State(machine, Sta
 
 	wgpContext.setClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
 
-	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
-	m_uniforms.projection = m_camera.getPerspectiveMatrix();
-	m_uniforms.view = m_camera.getViewMatrix();
-	m_uniforms.env = m_camera.getRotationMatrix();
-	m_uniforms.model = Matrix4f::IDENTITY;
-	m_uniforms.normal = Matrix4f::GetNormalMatrix(m_uniforms.view * m_uniforms.model);
-	m_uniforms.color = { 0.0f, 1.0f, 0.4f, 1.0f };
-	m_uniforms.camPosition = m_camera.getPosition();
-	m_uniforms.lightVP = Matrix4f::IDENTITY;
-	m_uniforms.shadow = Matrix4f::IDENTITY;
-	m_uniforms.lightPosition = Vector3f(0.0f, 0.0f, 0.0f);
-
-	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0u, &m_uniforms, sizeof(Uniforms));
-
-	_uniformBuffer.createBuffer(2u * sizeof(Matrix4f), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
-	wgpuQueueWriteBuffer(wgpContext.queue, _uniformBuffer.getBuffer(), 0u, &Matrix4f::IDENTITY, sizeof(Matrix4f));
-	wgpuQueueWriteBuffer(wgpContext.queue, _uniformBuffer.getBuffer(), 16u * sizeof(float), &Matrix4f::IDENTITY, sizeof(Matrix4f));
+	m_uniformBuffer.createBuffer(2u * sizeof(Matrix4f), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0u, &Matrix4f::IDENTITY, sizeof(Matrix4f));
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 16u * sizeof(float), &Matrix4f::IDENTITY, sizeof(Matrix4f));
 
 	m_cameraBuffer.createBuffer(2u * sizeof(Matrix4f), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	wgpuQueueWriteBuffer(wgpContext.queue, m_cameraBuffer.getBuffer(), 0u, &(m_camera.getPerspectiveMatrix() * m_camera.getViewMatrix()), sizeof(Matrix4f));
 	wgpuQueueWriteBuffer(wgpContext.queue, m_cameraBuffer.getBuffer(), 64u, &(m_camera.getInvViewMatrix() * m_camera.getInvPerspectiveMatrix()), sizeof(Matrix4f));
 
-	uint32_t numLights = 128u;
 	m_configBuffer.createBuffer(sizeof(uint32_t), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
-	wgpuQueueWriteBuffer(wgpContext.queue, m_configBuffer.getBuffer(), 0u, &numLights, sizeof(uint32_t));
+	wgpuQueueWriteBuffer(wgpContext.queue, m_configBuffer.getBuffer(), 0u, &m_numLights, sizeof(uint32_t));
 
 	m_lightBuffer.createBuffer(sizeof(float) * 8u * MAX_NUM_LIGHTS, WGPUBufferUsage_Storage, true);
 
 	Vector3f  light_extent_min = { -50.f, -30.f, -50.f };
-	Vector3f  light_extent_max = { 50.f, 30.f, 50.f };
+	Vector3f  light_extent_max = { 50.f, 100.f, 50.f };
 	Vector3f extent = light_extent_max - light_extent_min;
 
 	float* light_data = (float*)wgpuBufferGetMappedRange(m_lightBuffer.getBuffer(), 0u, sizeof(float) * 8u * MAX_NUM_LIGHTS);
@@ -81,14 +60,14 @@ DefferedRendering::DefferedRendering(StateMachine& machine) : State(machine, Sta
 		offset = 8u * i;
 		// position
 		for (uint8_t j = 0; j < 3; j++) {
-			tmp_vec4[j] = random_float_min_max(0.0f, 1.0f) * extent[j] + light_extent_min[j];
+			tmp_vec4[j] = randomFloat(0.0f, 1.0f) * extent[j] + light_extent_min[j];
 		}
 		tmp_vec4[3] = 1.0f;
 		memcpy(&light_data[offset], &tmp_vec4[0], sizeof(Vector4f));
 		// color
-		tmp_vec4[0] = random_float_min_max(0.0f, 1.0f) * 2.0f;
-		tmp_vec4[1] = random_float_min_max(0.0f, 1.0f) * 2.0f;
-		tmp_vec4[2] = random_float_min_max(0.0f, 1.0f) * 2.0f;
+		tmp_vec4[0] = randomFloat(0.0f, 1.0f) * 2.0f;
+		tmp_vec4[1] = randomFloat(0.0f, 1.0f) * 2.0f;
+		tmp_vec4[2] = randomFloat(0.0f, 1.0f) * 2.0f;
 		// radius
 		tmp_vec4[3] = 20.0f;
 		memcpy(&light_data[offset + 4], &tmp_vec4[0], sizeof(Vector4f));
@@ -101,15 +80,11 @@ DefferedRendering::DefferedRendering(StateMachine& machine) : State(machine, Sta
 	memcpy(&light_extent_data[4], &light_extent_max, sizeof(Vector3f));
 	wgpuQueueWriteBuffer(wgpContext.queue, m_extentBuffer.getBuffer(), 0u, &light_extent_data, 32u);
 
-
-	wgpContext.addSahderModule("COLOR", "res/shader/color_PTN.wgsl");
-	wgpContext.createRenderPipeline("COLOR", "RP_COLOR", VL_PTN, std::bind(&DefferedRendering::OnBindGroupLayoutsColor, this));
-
 	wgpContext.addSahderModule("DEFFERED", "res/shader/deffered.wgsl");
 	wgpContext.createRenderPipeline("DEFFERED", "RP_DEFFERED", VL_NONE, std::bind(&DefferedRendering::OnBindGroupLayoutsDeffered, this));
 
 	wgpContext.addSahderModule("DEFFERED_DEBUG", "res/shader/deffered_debug.wgsl");
-	wgpContext.createRenderPipeline("DEFFERED_DEBUG", "RP_DEFFERED_DEBUG", VL_NONE, std::bind(&DefferedRendering::OnBindGroupLayoutsDeffered, this),
+	wgpContext.createRenderPipeline("DEFFERED_DEBUG", "RP_DEFFERED_DEBUG", VL_NONE, std::bind(&DefferedRendering::OnBindGroupLayoutsDefferedDebug, this),
 		1u,
 		WGPUPrimitiveTopology_TriangleList,
 		WGPUTextureFormat_Undefined,
@@ -185,6 +160,20 @@ DefferedRendering::DefferedRendering(StateMachine& machine) : State(machine, Sta
 DefferedRendering::~DefferedRendering() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
+
+	m_uniformBuffer.markForDelete(); 
+	m_cameraBuffer.markForDelete(); 
+	m_lightBuffer.markForDelete(); 
+	m_configBuffer.markForDelete(); 
+	m_extentBuffer.markForDelete();
+
+	m_normalTexture.markForDelete();
+	m_albedoTexture.markForDelete();
+	m_depthTexture.markForDelete();
+
+	wgpuBindGroupRelease(m_defferedBindGroup);
+	wgpuBindGroupRelease(m_lightBindGroup);
+	wgpuBindGroupRelease(m_computeBindGroup);
 }
 
 void DefferedRendering::fixedUpdate() {
@@ -253,20 +242,8 @@ void DefferedRendering::update() {
 	Vector3f::RotateY(position, m_dt * 90.0f);
 	m_camera.setPosition(position, true);
 
-	m_uniforms.projection = m_camera.getPerspectiveMatrix();
-	m_uniforms.view = m_camera.getViewMatrix();
-	m_uniforms.env = m_camera.getRotationMatrix();
-	m_uniforms.model = m_trackball.getTransform();
-	m_uniforms.normal = Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_uniforms.model);
-	//m_uniforms.color = { 1.0f, 1.0f, 1.0f, 1.0f };
-	m_uniforms.camPosition = position;
-	m_uniforms.lightVP = Matrix4f::IDENTITY;
-	m_uniforms.shadow = Matrix4f::IDENTITY;
-	m_uniforms.lightPosition = Vector3f(0.0f, 0.0f, 0.0f);
-
-	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
-	wgpuQueueWriteBuffer(wgpContext.queue, _uniformBuffer.getBuffer(), 0, &m_trackball.getTransform(), sizeof(Matrix4f));
-	wgpuQueueWriteBuffer(wgpContext.queue, _uniformBuffer.getBuffer(), 64u, &Matrix4f::IDENTITY, sizeof(Matrix4f));
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_trackball.getTransform(), sizeof(Matrix4f));
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 64u, &Matrix4f::IDENTITY, sizeof(Matrix4f));
 	wgpuQueueWriteBuffer(wgpContext.queue, m_cameraBuffer.getBuffer(), 0, &(m_camera.getPerspectiveMatrix() * m_camera.getViewMatrix()), sizeof(Matrix4f));
 	wgpuQueueWriteBuffer(wgpContext.queue, m_cameraBuffer.getBuffer(), 64u, &(m_camera.getInvViewMatrix() * m_camera.getInvPerspectiveMatrix()), sizeof(Matrix4f));
 }
@@ -302,10 +279,18 @@ void DefferedRendering::OnDraw(const WGPUCommandEncoder& commandEncoder, const W
 		wgpuComputePassEncoderEnd(computePassEncoder);
 		wgpuComputePassEncoderRelease(computePassEncoder);
 	}
-	if (m_debug) {
 
+	if (m_debug) {		
+		WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDescriptor);
+		wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
+		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_DEFFERED_DEBUG"));
+		wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_defferedBindGroup, 0u, 0u);
+
+		wgpuRenderPassEncoderDraw(renderPassEncoder, 6u, 1u, 0u, 0u);
+		wgpuRenderPassEncoderEnd(renderPassEncoder);
+
+		wgpuRenderPassEncoderRelease(renderPassEncoder);
 	}else {
-		// Deferred rendering
 		WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDescriptor);
 		wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
 		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_DEFFERED"));
@@ -380,7 +365,7 @@ void DefferedRendering::OnKeyUp(const Event::KeyboardEvent& event) {
 }
 
 void DefferedRendering::resize(int deltaW, int deltaH) {
-	m_camera.perspective(30.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 100.0f);
+	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 1.0f, 2000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 }
 
@@ -422,47 +407,15 @@ void DefferedRendering::renderUi(const WGPURenderPassEncoder& renderPassEncoder)
 	if (ImGui::Button("Toggle Debug")) {
 		m_debug = !m_debug;
 	}
+	if (ImGui::SliderInt("Num Lights", &m_numLights, 0, MAX_NUM_LIGHTS)) {
+		wgpuQueueWriteBuffer(wgpContext.queue, m_configBuffer.getBuffer(), 0u, &m_numLights, sizeof(uint32_t));
+	}
+
+		
 	ImGui::End();
 
 	ImGui::Render();
 	ImGui_ImplWGPU_RenderDrawData(ImGui::GetDrawData(), renderPassEncoder);
-}
-
-std::vector<WGPUBindGroupLayout> DefferedRendering::OnBindGroupLayoutsColor() {
-	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
-
-	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(1);
-
-	bindingLayoutEntries[0].binding = 0u;
-	bindingLayoutEntries[0].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
-	bindingLayoutEntries[0].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
-	bindingLayoutEntries[0].buffer.minBindingSize = sizeof(Uniforms);
-
-	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
-	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
-	bindGroupLayoutDescriptor.entries = bindingLayoutEntries.data();
-
-	bindingLayouts[0] = wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor);
-	return bindingLayouts;
-}
-
-std::vector<WGPUBindGroup> DefferedRendering::OnBindGroupsColor() {
-	std::vector<WGPUBindGroup> bindGroups(1);
-
-	std::vector<WGPUBindGroupEntry> bindGroupEntries(1);
-	bindGroupEntries[0].binding = 0u;
-	bindGroupEntries[0].buffer = m_uniformBuffer.getBuffer();
-	bindGroupEntries[0].offset = 0u;
-	bindGroupEntries[0].size = sizeof(Uniforms);
-
-	WGPUBindGroupDescriptor bindGroupDesc = {};
-	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_COLOR"), 0u);
-	bindGroupDesc.entryCount = (uint32_t)bindGroupEntries.size();
-	bindGroupDesc.entries = bindGroupEntries.data();
-
-	bindGroups[0] = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
-
-	return bindGroups;
 }
 
 std::vector<WGPUBindGroupLayout> DefferedRendering::OnBindGroupLayoutsGBuffer() {
@@ -567,12 +520,40 @@ std::vector<WGPUBindGroupLayout> DefferedRendering::OnBindGroupLayoutsDeffered()
 	return bindingLayouts;
 }
 
+std::vector<WGPUBindGroupLayout> DefferedRendering::OnBindGroupLayoutsDefferedDebug() {
+	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
+
+	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(3);
+	bindingLayoutEntries[0].binding = 0u;
+	bindingLayoutEntries[0].visibility = WGPUShaderStage_Fragment;
+	bindingLayoutEntries[0].texture.viewDimension = WGPUTextureViewDimension_2D;
+	bindingLayoutEntries[0].texture.sampleType = WGPUTextureSampleType_UnfilterableFloat;
+
+	bindingLayoutEntries[1].binding = 1u;
+	bindingLayoutEntries[1].visibility = WGPUShaderStage_Fragment;
+	bindingLayoutEntries[1].texture.viewDimension = WGPUTextureViewDimension_2D;
+	bindingLayoutEntries[1].texture.sampleType = WGPUTextureSampleType_UnfilterableFloat;
+
+	bindingLayoutEntries[2].binding = 2u;
+	bindingLayoutEntries[2].visibility = WGPUShaderStage_Fragment;
+	bindingLayoutEntries[2].texture.viewDimension = WGPUTextureViewDimension_2D;
+	bindingLayoutEntries[2].texture.sampleType = WGPUTextureSampleType_Depth;
+
+	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
+	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
+	bindGroupLayoutDescriptor.entries = bindingLayoutEntries.data();
+
+	bindingLayouts[0] = wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor);
+
+	return bindingLayouts;
+}
+
 std::vector<WGPUBindGroup> DefferedRendering::OnBindGroupsGBuffer() {
 	std::vector<WGPUBindGroup> bindGroups(1);
 
 	std::vector<WGPUBindGroupEntry> bindGroupEntries(2);
 	bindGroupEntries[0].binding = 0u;
-	bindGroupEntries[0].buffer = _uniformBuffer.getBuffer();
+	bindGroupEntries[0].buffer = m_uniformBuffer.getBuffer();
 	bindGroupEntries[0].offset = 0u;
 	bindGroupEntries[0].size = 2u * sizeof(Matrix4f);
 
@@ -655,4 +636,8 @@ WGPUBindGroup DefferedRendering::createComputeBindGroup() {
 	bindGroupDesc.entries = bindGroupEntries.data();
 
 	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
+}
+
+float DefferedRendering::randomFloat(float min, float max) {
+	return ((max - min) * ((float)rand() / (float)RAND_MAX)) + min;
 }
