@@ -259,7 +259,7 @@ WGPUBuffer wgpCreateBuffer(const void* data, uint32_t size, WGPUBufferUsage buff
 	return buffer;
 }
 
-WGPUBuffer wgpCreateEmptyBuffer(uint32_t size, WGPUBufferUsage bufferUsage) {
+WGPUBuffer wgpCreateEmptyBuffer(uint32_t size, WGPUBufferUsage bufferUsage, bool mappedAtCreation) {
 	const WGPUDevice& device = wgpContext.device;
 	WGPUBufferDescriptor bufferDesc = {};
 	bufferDesc.label = WGPU_STR("buf");
@@ -278,7 +278,7 @@ WGPUBuffer wgpCreateEmptyBuffer(uint32_t size, WGPUBufferUsage bufferUsage) {
 
 	bufferDesc.size = size;
 	bufferDesc.usage = bufferUsage;
-	bufferDesc.mappedAtCreation = false;
+	bufferDesc.mappedAtCreation = mappedAtCreation;
 	return wgpuDeviceCreateBuffer(device, &bufferDesc);
 }
 

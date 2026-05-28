@@ -14,7 +14,7 @@ public:
 	~WgpBuffer();
 
 	void createBuffer(const void* data, uint32_t size, WGPUBufferUsage bufferUsage);
-	void createBuffer(uint32_t size, WGPUBufferUsage bufferUsage);
+	void createBuffer(uint32_t size, WGPUBufferUsage bufferUsage, bool mappedAtCreation = false);
 	void cleanup();
 	void markForDelete();
 	const WGPUBuffer& getBuffer() const;

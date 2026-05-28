@@ -40,8 +40,15 @@ private:
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsColor();
 	std::vector<WGPUBindGroup> OnBindGroupsColor();
 
-	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsDeffered();
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsGBuffer();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsCompute();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsDeffered();
+	
+	std::vector<WGPUBindGroup> OnBindGroupsGBuffer();
+	WGPUBindGroup createDefferedBindGroup();
+	WGPUBindGroup createLightBindGroup();
+	WGPUBindGroup createComputeBindGroup();
+
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 
 	bool m_initUi = true;
@@ -51,7 +58,13 @@ private:
 	TrackBall m_trackball;
 	AssimpModel m_dragon;
 	Uniforms m_uniforms;
+	Shape m_quad;
 
-	WgpBuffer m_uniformBuffer;
-	WgpModel m_wgpDragon;
+	WgpBuffer m_uniformBuffer, _uniformBuffer, m_cameraBuffer, m_lightBuffer, m_configBuffer, m_extentBuffer;
+	WgpModel m_wgpDragon, m_wgpQuad;
+	WgpTexture m_normalTexture, m_albedoTexture, m_depthTexture;
+	WGPUBindGroup m_defferedBindGroup, m_lightBindGroup, m_computeBindGroup;
+
+	std::vector<WGPURenderPassColorAttachment> renderPassColorAttachments;
+	WGPURenderPassDepthStencilAttachment renderPassDepthStencilAttachment;
 };

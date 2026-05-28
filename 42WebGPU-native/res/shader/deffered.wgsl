@@ -48,7 +48,7 @@ fn world_from_screen_coord(coord : vec2<f32>, depth_sample: f32) -> vec3<f32> {
 fn fs_main(@builtin(position) coord : vec4<f32>) -> @location(0) vec4<f32> {
   var result : vec3<f32>;
 
-  let depth = textureLoad(gBufferDepth, vec2<i32>(floor(coord.xy)), 0);
+  let depth = textureLoad(gBufferDepth, vec2<i32>(floor(coord.xy)),0);
 
   // Don't light the sky.
   if (depth >= 1.0) {
