@@ -108,6 +108,21 @@ DefferedRendering::DefferedRendering(StateMachine& machine) : State(machine, Sta
 	wgpContext.addSahderModule("DEFFERED", "res/shader/deffered.wgsl");
 	wgpContext.createRenderPipeline("DEFFERED", "RP_DEFFERED", VL_NONE, std::bind(&DefferedRendering::OnBindGroupLayoutsDeffered, this));
 
+	wgpContext.addSahderModule("DEFFERED_DEBUG", "res/shader/deffered_debug.wgsl");
+	wgpContext.createRenderPipeline("DEFFERED_DEBUG", "RP_DEFFERED_DEBUG", VL_NONE, std::bind(&DefferedRendering::OnBindGroupLayoutsDeffered, this),
+		1u,
+		WGPUPrimitiveTopology_TriangleList,
+		WGPUTextureFormat_Undefined,
+		WGPUTextureFormat_Undefined,
+		WGPUCompareFunction_Less,
+		{ WRITE_DEPTH | DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_Undefined , WGPUCullMode_Undefined,  DEFAULT ,  
+		  { 
+			{ NULL, STRVIEW("canvasSizeWidth"), static_cast<double>(Application::Width)   },
+		    { NULL, STRVIEW("canvasSizeHeight"), static_cast<double>(Application::Height) } 
+		  } 
+		}
+	);
+
 	wgpContext.addSahderModule("GBUFFER", "res/shader/deffered_gbuffer.wgsl");
 	wgpContext.createRenderPipeline("GBUFFER", "RP_GBUFFER", VL_PTN, std::bind(&DefferedRendering::OnBindGroupLayoutsGBuffer, this),
 		1u,
@@ -268,13 +283,13 @@ void DefferedRendering::OnDraw(const WGPUCommandEncoder& commandEncoder, const W
 		rndrPssDscrptor.colorAttachmentCount = renderPassColorAttachments.size();
 		rndrPssDscrptor.depthStencilAttachment = &renderPassDepthStencilAttachment;
 
-
 		WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &rndrPssDscrptor);
 		wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
-
 		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_GBUFFER"));
+
 		m_wgpDragon.draw(renderPassEncoder);
 		m_wgpQuad.draw(renderPassEncoder);
+
 		wgpuRenderPassEncoderEnd(renderPassEncoder);
 		wgpuRenderPassEncoderRelease(renderPassEncoder);
 	}
@@ -287,13 +302,13 @@ void DefferedRendering::OnDraw(const WGPUCommandEncoder& commandEncoder, const W
 		wgpuComputePassEncoderEnd(computePassEncoder);
 		wgpuComputePassEncoderRelease(computePassEncoder);
 	}
+	if (m_debug) {
 
-	{
+	}else {
 		// Deferred rendering
-		WGPURenderPassDescriptor rndrPssDscrptor = renderPassDescriptor;
-		WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &rndrPssDscrptor);
+		WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDescriptor);
+		wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
 		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_DEFFERED"));
-
 		wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_defferedBindGroup, 0u, NULL);
 		wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 1u, m_lightBindGroup, 0u, NULL);
 
@@ -404,6 +419,9 @@ void DefferedRendering::renderUi(const WGPURenderPassEncoder& renderPassEncoder)
 	}
 
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+	if (ImGui::Button("Toggle Debug")) {
+		m_debug = !m_debug;
+	}
 	ImGui::End();
 
 	ImGui::Render();

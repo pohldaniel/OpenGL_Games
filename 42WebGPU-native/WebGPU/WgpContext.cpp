@@ -966,12 +966,12 @@ void WgpContext::createRenderPipeline(std::string shaderModuleName,
 	colorTargetStates.push_back({ NULL, colorTextureFormat == WGPUTextureFormat_Undefined ? colorformat : colorTextureFormat,
 									   (configuration.flags & BLEND_STATE) ? &blendState : NULL,
 										WGPUColorWriteMask_All });
-
+	
 	WGPUFragmentState fragmentState = {};
 	fragmentState.module = shaderModules.at(shaderModuleName);
 	fragmentState.entryPoint = WGPU_STR("fs_main");
-	fragmentState.constantCount = 0u;
-	fragmentState.constants = NULL;
+	fragmentState.constantCount = configuration.constantEntries.size();
+	fragmentState.constants = configuration.constantEntries.empty() ? NULL : configuration.constantEntries.data();
 	fragmentState.targetCount = colorTargetStates.size();
 	fragmentState.targets = colorTargetStates.data();
 

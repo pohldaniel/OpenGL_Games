@@ -53,6 +53,7 @@ private:
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
+	bool m_debug = false;
 
 	Camera m_camera;
 	TrackBall m_trackball;

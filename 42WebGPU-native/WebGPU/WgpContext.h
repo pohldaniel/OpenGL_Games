@@ -10,6 +10,7 @@
 #endif
 
 #define WGPU_STR(str) { str, sizeof(str) - 1 }
+#define STRVIEW(str) WGPUStringView{ str, sizeof(str) - 1 }
 
 enum VertexLayoutSlot {
 	VL_NONE,
@@ -100,6 +101,7 @@ struct WgpContext {
 		WGPUTextureFormat colorTextureFormat;
 		WGPUCullMode cullMode;
 		StencilMode stencilMode;
+		std::vector<WGPUConstantEntry> constantEntries;
 	};
 
 	friend bool wgpCreateDevice(void* window);
@@ -123,7 +125,7 @@ struct WgpContext {
 		WGPUTextureFormat colorTextureFormat = WGPUTextureFormat::WGPUTextureFormat_Undefined,
 		WGPUTextureFormat depthTextureFormat = WGPUTextureFormat::WGPUTextureFormat_Undefined,
 		WGPUCompareFunction depthCompareFunction = WGPUCompareFunction::WGPUCompareFunction_Less,	
-		const PipelineConfiguration configuration = { WRITE_DEPTH | DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_Undefined, WGPUCullMode_Undefined, StencilMode::DEFAULT });
+		const PipelineConfiguration configuration = { WRITE_DEPTH | DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_Undefined, WGPUCullMode_Undefined, StencilMode::DEFAULT, {} });
 
 	void createVertexBufferLayout(VertexLayoutSlot slot = VL_PTN);
 	void addSampler(const WGPUSampler& sampler, SamplerSlot samplerSlot);
