@@ -23,7 +23,9 @@ fn getDepth(z : f32, near : f32 , far : f32) -> f32{
 @fragment
 fn fs_main(@builtin(position) coord : vec4<f32>) -> @location(0) vec4<f32> {
   var result : vec4<f32>;
-  let c = coord.xy / vec2<f32>(canvasSizeWidth, canvasSizeHeight);
+  let dimensions : vec2<u32> = textureDimensions(gBufferAlbedo);
+  
+  let c = coord.xy / vec2<f32>(dimensions);
   if (c.x < 0.33333) {
     let rawDepth = textureLoad(gBufferDepth, vec2<i32>(floor(coord.xy)), 0);
     // remap depth into something a bit more visible

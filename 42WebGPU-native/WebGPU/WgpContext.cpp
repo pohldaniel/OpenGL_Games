@@ -231,6 +231,29 @@ void wgpConfigureSurface() {
 	wgpuSurfaceConfigure(wgpContext.surface, &wgpContext.config);
 }
 
+WGPUBuffer wgpCreateEmptyBuffer(uint32_t size, WGPUBufferUsage bufferUsage, bool mappedAtCreation) {
+	const WGPUDevice& device = wgpContext.device;
+	WGPUBufferDescriptor bufferDesc = {};
+	bufferDesc.label = WGPU_STR("buf");
+
+	if (bufferUsage & WGPUBufferUsage_Uniform)
+		bufferDesc.label = WGPU_STR("uniform_buf");
+
+	if (bufferUsage & WGPUBufferUsage_Vertex)
+		bufferDesc.label = WGPU_STR("vertex_buf");
+
+	if (bufferUsage & WGPUBufferUsage_Index)
+		bufferDesc.label = WGPU_STR("index_buf");
+
+	if (bufferUsage & WGPUBufferUsage_Storage)
+		bufferDesc.label = WGPU_STR("storage_buf");
+
+	bufferDesc.size = size;
+	bufferDesc.usage = bufferUsage;
+	bufferDesc.mappedAtCreation = mappedAtCreation;
+	return wgpuDeviceCreateBuffer(device, &bufferDesc);
+}
+
 WGPUBuffer wgpCreateBuffer(const void* data, uint32_t size, WGPUBufferUsage bufferUsage) {
 	const WGPUDevice& device = wgpContext.device;
 	WGPUBufferDescriptor bufferDesc = {};
@@ -257,29 +280,6 @@ WGPUBuffer wgpCreateBuffer(const void* data, uint32_t size, WGPUBufferUsage buff
 	memcpy(mapping, data, size);
 	wgpuBufferUnmap(buffer);
 	return buffer;
-}
-
-WGPUBuffer wgpCreateEmptyBuffer(uint32_t size, WGPUBufferUsage bufferUsage, bool mappedAtCreation) {
-	const WGPUDevice& device = wgpContext.device;
-	WGPUBufferDescriptor bufferDesc = {};
-	bufferDesc.label = WGPU_STR("buf");
-
-	if (bufferUsage & WGPUBufferUsage_Uniform)
-		bufferDesc.label = WGPU_STR("uniform_buf");
-
-	if (bufferUsage & WGPUBufferUsage_Vertex)
-		bufferDesc.label = WGPU_STR("vertex_buf");
-
-	if (bufferUsage & WGPUBufferUsage_Index)
-		bufferDesc.label = WGPU_STR("index_buf");
-
-	if (bufferUsage & WGPUBufferUsage_Storage)
-		bufferDesc.label = WGPU_STR("storage_buf");
-
-	bufferDesc.size = size;
-	bufferDesc.usage = bufferUsage;
-	bufferDesc.mappedAtCreation = mappedAtCreation;
-	return wgpuDeviceCreateBuffer(device, &bufferDesc);
 }
 
 WGPUTexture wgpCreateTexture(uint32_t width, uint32_t height, uint32_t depth, WGPUTextureUsage textureUsage, WGPUTextureFormat textureFormat, uint32_t mipLevelCount, uint32_t sampleCount, WGPUTextureFormat viewFormat) {

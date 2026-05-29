@@ -275,7 +275,7 @@ void DefferedRendering::OnDraw(const WGPUCommandEncoder& commandEncoder, const W
 		WGPUComputePassEncoder computePassEncoder = wgpuCommandEncoderBeginComputePass(commandEncoder, NULL);
 		wgpuComputePassEncoderSetPipeline(computePassEncoder, wgpContext.computePipelines.at("CP_DEFFERED"));
 		wgpuComputePassEncoderSetBindGroup(computePassEncoder, 0, m_computeBindGroup, 0, NULL);
-		wgpuComputePassEncoderDispatchWorkgroups(computePassEncoder, (uint32_t)ceilf(128u / 64.f), 1u, 1u);
+		wgpuComputePassEncoderDispatchWorkgroups(computePassEncoder, (uint32_t)ceilf(m_numLights / 64.f), 1u, 1u);
 		wgpuComputePassEncoderEnd(computePassEncoder);
 		wgpuComputePassEncoderRelease(computePassEncoder);
 	}
@@ -367,6 +367,18 @@ void DefferedRendering::OnKeyUp(const Event::KeyboardEvent& event) {
 void DefferedRendering::resize(int deltaW, int deltaH) {
 	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 1.0f, 2000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
+	m_trackball.reshape(Application::Width, Application::Height);
+
+	m_normalTexture.resize(Application::Width, Application::Height);
+	m_albedoTexture.resize(Application::Width, Application::Height);
+	m_depthTexture.resize(Application::Width, Application::Height);
+
+	wgpuBindGroupRelease(m_defferedBindGroup);
+	m_defferedBindGroup = createDefferedBindGroup();
+
+	renderPassColorAttachments[0].view = m_normalTexture.getTextureView();
+	renderPassColorAttachments[1].view = m_albedoTexture.getTextureView();
+	renderPassDepthStencilAttachment.view = m_depthTexture.getTextureView();
 }
 
 void DefferedRendering::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
@@ -409,9 +421,7 @@ void DefferedRendering::renderUi(const WGPURenderPassEncoder& renderPassEncoder)
 	}
 	if (ImGui::SliderInt("Num Lights", &m_numLights, 0, MAX_NUM_LIGHTS)) {
 		wgpuQueueWriteBuffer(wgpContext.queue, m_configBuffer.getBuffer(), 0u, &m_numLights, sizeof(uint32_t));
-	}
-
-		
+	}	
 	ImGui::End();
 
 	ImGui::Render();

@@ -58,7 +58,7 @@ void Model::GenerateColors(std::vector<float>& vertexBuffer, std::vector<unsigne
 	tmpVertex.clear();
 	stride += 4;
 }
-#include <iostream>
+
 void Model::GenerateUVs(std::vector<float>& vertexBuffer, unsigned int& stride, ProjectedPlane projectedPlane) {
 	uint32_t idxs[2] = { 0u, 0u };
 	projectedPlane == YZ ? idxs[0] = 1u : idxs[0] = 0u;
