@@ -298,6 +298,59 @@ void WgpTexture::loadFromFile(const std::string& fileName, const bool flipVertic
     m_textureView = wgpCreateTextureView(m_texture, WGPUTextureAspect::WGPUTextureAspect_All);
 }
 
+void WgpTexture::loadFromFile(const std::string& fileName, uint32_t width, uint32_t height, uint32_t depth) {
+
+    unsigned char* imageData = (unsigned char*)malloc(width * height * depth);
+
+    std::ifstream file(fileName, std::ios::binary);
+    file.read(reinterpret_cast<char*>(imageData), width * height * depth * sizeof(unsigned char));
+    file.close();
+
+    WGPUTextureFormat viewFormat = WGPUTextureFormat::WGPUTextureFormat_R8Unorm;
+    WGPUTextureDescriptor textureDescriptor = {};
+    textureDescriptor.label = WGPU_STR("texture");
+    textureDescriptor.dimension = WGPUTextureDimension::WGPUTextureDimension_3D;
+    textureDescriptor.size = { width, height, depth };
+    textureDescriptor.format = WGPUTextureFormat_R8Unorm;
+    textureDescriptor.usage = WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst;
+    textureDescriptor.mipLevelCount = 1u;
+    textureDescriptor.sampleCount = 1u;
+    textureDescriptor.nextInChain = NULL;
+    if (viewFormat != WGPUTextureFormat_Undefined) {
+        textureDescriptor.viewFormatCount = 1u;
+        textureDescriptor.viewFormats = &viewFormat;
+    }
+    m_texture = wgpuDeviceCreateTexture(wgpContext.device, &textureDescriptor);
+
+    WGPUTexelCopyTextureInfo destination = {};
+    destination.texture = m_texture;
+    destination.mipLevel = 0u;
+    destination.origin = { 0u, 0u, 0u };
+    destination.aspect = WGPUTextureAspect_All;
+
+    WGPUTexelCopyBufferLayout source = {};
+    source.offset = 0u;
+    source.bytesPerRow = width;
+    source.rowsPerImage = height;
+    WGPUExtent3D extent3D = { width , height , depth };
+
+    wgpuQueueWriteTexture(wgpContext.queue, &destination, imageData, width * height * depth, &source, &extent3D);
+
+    WGPUTextureViewDescriptor textureViewDescriptor = {};
+    textureViewDescriptor.label = WGPU_STR("texture_view");
+    textureViewDescriptor.aspect = WGPUTextureAspect::WGPUTextureAspect_All;
+    textureViewDescriptor.baseArrayLayer = 0u;
+    textureViewDescriptor.arrayLayerCount = 1u;
+    textureViewDescriptor.baseMipLevel = 0u;
+    textureViewDescriptor.mipLevelCount = wgpuTextureGetMipLevelCount(m_texture);
+    textureViewDescriptor.dimension = WGPUTextureViewDimension::WGPUTextureViewDimension_3D;
+    textureViewDescriptor.format = wgpuTextureGetFormat(m_texture);
+    textureViewDescriptor.nextInChain = NULL;
+    m_textureView = wgpuTextureCreateView(m_texture, &textureViewDescriptor);
+
+    free(imageData);
+}
+
 void WgpTexture::loadFromMemory(unsigned char* data, uint32_t size, const bool flipVertical, const short alphaChannel) {
     FreeImage_Initialise();
     FIMEMORY* hmem = FreeImage_OpenMemory(data, size);

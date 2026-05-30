@@ -15,6 +15,7 @@ public:
 	~WgpTexture();
 
 	void loadFromFile(const std::string& fileName, const bool flipVertical = false, const short alphaChannel = -1);
+	void loadFromFile(const std::string& fileName, uint32_t width, uint32_t height, uint32_t depth);
 	void loadFromMemory(unsigned char* data, uint32_t size, const bool flipVertical = false, const short alphaChannel = -1);
 	void loadHDRICubeFromFile(const std::string& fileName, const bool flipVertical = false, const bool halfBPP = false);
 	void loadHDRIFromFile(const std::string& fileName, const bool flipVertical = false, const bool halfBPP = false);

@@ -21,6 +21,7 @@
 #include <States/PrimitivePicking.h>
 #include <States/StencilMask.h>
 #include <States/DefferedRendering.h>
+#include <States/VolumeRendering.h>
 
 #include "Application.h"
 #include "Globals.h"
@@ -324,7 +325,8 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new ComputeParticleLogo(*Machine));	
 	//Machine->addStateAtTop(new PrimitivePicking(*Machine));
 	//Machine->addStateAtTop(new StencilMask(*Machine));
-	Machine->addStateAtTop(new DefferedRendering(*Machine));
+	//Machine->addStateAtTop(new DefferedRendering(*Machine));
+	Machine->addStateAtTop(new VolumeRendering(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
