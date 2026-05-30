@@ -21,8 +21,6 @@ VolumeRendering::VolumeRendering(StateMachine& machine) : State(machine, States:
 	wgpSetSurfaceDepthFormat(WGPUTextureFormat::WGPUTextureFormat_Depth24Plus, Application::OnSurfaceChange);
 	wgpSetMSAASampleCount(4u, Application::OnSurfaceChange);
 
-	wgpContext.addSampler(wgpCreateSampler(WGPUFilterMode_Linear, WGPUAddressMode_ClampToEdge, 16u, WGPUMipmapFilterMode_Linear), SS_0);
-
 	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), m_near, m_far);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 	m_camera.lookAt(4.0f, 0.0f, 0.0f);
@@ -32,6 +30,7 @@ VolumeRendering::VolumeRendering(StateMachine& machine) : State(machine, States:
 	m_trackball.reshape(Application::Width, Application::Height);
 
 	wgpContext.setClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
+	wgpContext.addSampler(wgpCreateSampler(WGPUFilterMode_Linear, WGPUAddressMode_ClampToEdge, 16u, WGPUMipmapFilterMode_Linear), SS_0);
 
 	m_uniformBuffer.createBuffer(sizeof(Matrix4f), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0u, &Matrix4f::IDENTITY, sizeof(Matrix4f));
