@@ -13,8 +13,6 @@
 #include <WebGPU/WgpModel.h>
 #include <WebGPU/WgpData.h>
 
-#define MAX_NUM_LIGHTS 1024u
-
 class VolumeRendering : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
@@ -37,34 +35,22 @@ public:
 
 private:
 
-	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsGBuffer();
-	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsCompute();
-	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsDeffered();
-	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsDefferedDebug();
-
-	std::vector<WGPUBindGroup> OnBindGroupsGBuffer();
-	WGPUBindGroup createDefferedBindGroup();
-	WGPUBindGroup createLightBindGroup();
-	WGPUBindGroup createComputeBindGroup();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsVolume();
+	WGPUBindGroup createVolumeBindGroup();
 
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
-	float randomFloat(float min, float max);
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
-	bool m_debug = false;
-	int m_numLights = 128;
+	float m_rotation = 0.0f;
+	bool m_rotate = true;
+	float m_near = 4.3f;
+	float m_far = 4.4f;
 
 	Camera m_camera;
 	TrackBall m_trackball;
-	AssimpModel m_dragon;
-	Shape m_quad;
 
-	WgpBuffer m_uniformBuffer, m_cameraBuffer, m_lightBuffer, m_configBuffer, m_extentBuffer;
-	WgpModel m_wgpDragon, m_wgpQuad;
-	WgpTexture m_normalTexture, m_albedoTexture, m_depthTexture, m_volumeTexture;
-	WGPUBindGroup m_defferedBindGroup, m_lightBindGroup, m_computeBindGroup;
-
-	std::vector<WGPURenderPassColorAttachment> renderPassColorAttachments;
-	WGPURenderPassDepthStencilAttachment renderPassDepthStencilAttachment;
+	WgpBuffer m_uniformBuffer;
+	WgpTexture m_volumeTexture;
+	WGPUBindGroup m_volumeBindGroup;
 };
