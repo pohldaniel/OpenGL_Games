@@ -15,6 +15,11 @@
 
 class OcclusionQuery : public State, public MouseEventListener, public KeyboardEventListener {
 
+	struct Scene {
+		WgpBuffer uniformBuffer;
+		WgpModel model;
+	};
+
 public:
 
 	OcclusionQuery(StateMachine& machine);
@@ -35,28 +40,25 @@ public:
 
 private:
 
-	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsVolume();
-	WGPUBindGroup createVolumeBindGroup();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayouts();
 	WGPUQuerySet createQuerySet();
 
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
-	float m_rotation = 0.0f;
-	bool m_rotate = true;
-	float m_near = 4.3f;
-	float m_far = 4.4f;
 
 	Camera m_camera;
 	TrackBall m_trackball;
+	Uniforms m_uniforms;
 	Shape m_cube;
 
-	WgpModel m_wgpCube;
 	WgpBuffer m_uniformBuffer;
-	WgpTexture m_volumeTexture;
-	WGPUBindGroup m_volumeBindGroup;
-
 	WgpBuffer m_resolveBuffer, m_resultBuffer;
 	WGPUQuerySet m_querySet;
+	std::vector<Scene> m_scenes;
+
+	static float PingPongSine(float t);
+	static void InitScene(Scene& scene, Shape& shape, const WgpBuffer& uniformBuffer, std::array<float, 4> color);
+	static void UpdateScene(Scene& scene, const Vector3f& position);
 };

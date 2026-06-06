@@ -62,5 +62,4 @@ private:
 
 	static void OnMapColorToBuffer(WGPUMapAsyncStatus status, WGPUStringView message, void* userdata1, void* userdata2);
 	static void OnMapIndexBuffer(WGPUMapAsyncStatus status, WGPUStringView message, void* userdata1, void* userdata2);
-	static unsigned int getMaxIndex();
 };

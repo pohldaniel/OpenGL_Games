@@ -19,11 +19,11 @@ OcclusionQuery::OcclusionQuery(StateMachine& machine) : State(machine, States::O
 
 	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm, Application::OnSurfaceChange);
 	wgpSetSurfaceDepthFormat(WGPUTextureFormat::WGPUTextureFormat_Depth24Plus, Application::OnSurfaceChange);
-	wgpSetMSAASampleCount(4u, Application::OnSurfaceChange);
 
-	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), m_near, m_far);
+	m_camera.perspective(30.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.5f, 100.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-	m_camera.lookAt(4.0f, 0.0f, 0.0f);
+	m_camera.lookAt(Vector3f(0.0f, 0.0f, 5.0f), Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
+
 	m_camera.setMovingSpeed(20.0f);
 	m_camera.setRotationSpeed(1.0f);
 
@@ -31,25 +31,41 @@ OcclusionQuery::OcclusionQuery(StateMachine& machine) : State(machine, States::O
 
 	m_cube.buildCube({ -1.0f, -1.0f, -1.0f }, { 2.0f, 2.0f, 2.0f }, 1u, 1u, false, true);
 
-	m_wgpCube.create(m_cube);
-	m_wgpCube.addColor({ 0.5f , 0.0f, 0.5f, 1.0f });
 
-	wgpContext.setClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
+	wgpContext.setClearColor({ 0.5f, 0.5f, 0.5f, 1.0f });
 	wgpContext.addSampler(wgpCreateSampler(WGPUFilterMode_Linear, WGPUAddressMode_ClampToEdge, 16u, WGPUMipmapFilterMode_Linear), SS_0);
 
-	m_uniformBuffer.createBuffer(sizeof(Matrix4f), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
-	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0u, &Matrix4f::IDENTITY, sizeof(Matrix4f));
+	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
+
+	m_uniforms.projection = m_camera.getPerspectiveMatrix();
+	m_uniforms.view = m_camera.getViewMatrix();
+	m_uniforms.env = m_camera.getRotationMatrix();
+	m_uniforms.model = Matrix4f::IDENTITY;
+	m_uniforms.normal = Matrix4f::GetNormalMatrix(m_uniforms.view * m_uniforms.model);
+	m_uniforms.color = { 0.0f, 1.0f, 0.4f, 1.0f };
+	m_uniforms.camPosition = m_camera.getPosition();
+	m_uniforms.lightVP = Matrix4f::IDENTITY;
+	m_uniforms.shadow = Matrix4f::IDENTITY;
+	m_uniforms.lightPosition = Vector3f(0.0f, 0.0f, 0.0f);
+
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
 
 	m_resolveBuffer.createBuffer(6u * sizeof(uint64_t), WGPUBufferUsage_QueryResolve | WGPUBufferUsage_CopySrc);
 	m_resultBuffer.createBuffer(6u * sizeof(uint64_t), WGPUBufferUsage_CopyDst | WGPUBufferUsage_MapRead);
 
-	m_volumeTexture.loadFromFile("res/textures/t1_icbm_normal_1mm_pn0_rf0_180x216x180_uint8_1x1.bin", 180u, 216u, 180u);
-
-	wgpContext.addSahderModule("VOLUME", "res/shader/volume.wgsl");
-	wgpContext.createRenderPipeline("VOLUME", "RP_VOLUME", VL_NONE, std::bind(&OcclusionQuery::OnBindGroupLayoutsVolume, this), 4u);
+	wgpContext.addSahderModule("OCCLUSION", "res/shader/occlusion.wgsl");
+	wgpContext.createRenderPipeline("OCCLUSION", "RP_OCCLUSION", VL_PNC, std::bind(&OcclusionQuery::OnBindGroupLayouts, this));
 
 	wgpContext.OnDraw = std::bind(&OcclusionQuery::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
-	m_volumeBindGroup = createVolumeBindGroup();
+
+	m_scenes.resize(6);
+
+	InitScene(m_scenes[0], m_cube, m_uniformBuffer, { 1.0f, 0.0f, 0.0f, 1.0f });
+	InitScene(m_scenes[1], m_cube, m_uniformBuffer, { 1.0f, 1.0f, 0.0f, 1.0f });
+	InitScene(m_scenes[2], m_cube, m_uniformBuffer, { 0.0f, 0.5f, 0.0f, 1.0f });
+	InitScene(m_scenes[3], m_cube, m_uniformBuffer, { 1.0f, 0.6f, 0.0f, 1.0f });
+	InitScene(m_scenes[4], m_cube, m_uniformBuffer, { 0.0f, 0.0f, 1.0f, 1.0f });
+	InitScene(m_scenes[5], m_cube, m_uniformBuffer, { 0.5f, 0.0f, 0.5f, 1.0f });
 }
 
 OcclusionQuery::~OcclusionQuery() {
@@ -57,9 +73,6 @@ OcclusionQuery::~OcclusionQuery() {
 	EventDispatcher::RemoveMouseListener(this);
 
 	m_uniformBuffer.markForDelete();
-	m_volumeTexture.markForDelete();
-
-	wgpuBindGroupRelease(m_volumeBindGroup);
 }
 
 void OcclusionQuery::fixedUpdate() {
@@ -113,7 +126,6 @@ void OcclusionQuery::update() {
 
 	if (move || dx != 0.0f || dy != 0.0f) {
 		if (dx || dy) {
-
 			m_camera.rotate(dx, dy);
 		}
 
@@ -123,12 +135,30 @@ void OcclusionQuery::update() {
 	}
 	m_trackball.idle();
 
-	if (m_rotate) {
-		m_rotation += m_dt;
-		m_camera.lookAt(4.0f, sinf(m_rotation) * _180_ON_PI, cosf(m_rotation) * _180_ON_PI);
-	}
+	float time = Globals::clock.getElapsedTimeSec();
 
-	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0u, &(m_camera.getInvViewMatrix() * m_camera.getInvPerspectiveMatrix()), sizeof(Matrix4f));
+	Vector3f pos = Math::Lerp(Vector3f(0.0f, 0.0f, 5.0f), Vector3f(0.0f, 0.0f, 40.0f), PingPongSine(time * 0.2f));
+	m_camera.setPosition(pos);
+	
+	m_uniforms.projection = m_camera.getPerspectiveMatrix();
+	m_uniforms.view = m_camera.getViewMatrix();
+	m_uniforms.env = m_camera.getRotationMatrix();
+	m_uniforms.model = m_trackball.getTransform();
+	m_uniforms.normal = Matrix4f::GetNormalMatrix(m_uniforms.view * m_uniforms.model);
+	m_uniforms.color = { 0.0f, 1.0f, 0.4f, 1.0f };
+	m_uniforms.camPosition = m_camera.getPosition();
+	m_uniforms.lightVP = Matrix4f::IDENTITY;
+	m_uniforms.shadow = Matrix4f::IDENTITY;
+	m_uniforms.lightPosition = Vector3f(0.0f, 0.0f, 0.0f);
+
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0u, &m_uniforms, sizeof(Uniforms));
+
+	UpdateScene(m_scenes[0], Vector3f(-1.0f,  0.0f,  0.0f) * 10.0f);
+	UpdateScene(m_scenes[1], Vector3f( 1.0f,  0.0f,  0.0f) * 10.0f);
+	UpdateScene(m_scenes[2], Vector3f( 0.0f, -1.0f,  0.0f) * 10.0f);
+	UpdateScene(m_scenes[3], Vector3f( 0.0f,  1.0f,  0.0f) * 10.0f);
+	UpdateScene(m_scenes[4], Vector3f( 0.0f,  0.0f, -1.0f) * 10.0f);
+	UpdateScene(m_scenes[5], Vector3f( 0.0f,  0.0f,  1.0f) * 10.0f);
 }
 
 void OcclusionQuery::render() {
@@ -138,9 +168,10 @@ void OcclusionQuery::render() {
 void OcclusionQuery::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor) {
 	{
 		WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDescriptor);
-		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_VOLUME"));
-		wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_volumeBindGroup, 0u, 0u);
-		wgpuRenderPassEncoderDraw(renderPassEncoder, 3u, 1u, 0u, 0u);
+		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_OCCLUSION"));
+		for (const Scene& scene : m_scenes) {
+			scene.model.draw(renderPassEncoder);
+		}
 		wgpuRenderPassEncoderEnd(renderPassEncoder);
 		wgpuRenderPassEncoderRelease(renderPassEncoder);
 	}
@@ -207,7 +238,7 @@ void OcclusionQuery::OnKeyUp(const Event::KeyboardEvent& event) {
 }
 
 void OcclusionQuery::resize(int deltaW, int deltaH) {
-	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), m_near, m_far);
+	m_camera.perspective(30.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.5f, 100.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 	m_trackball.reshape(Application::Width, Application::Height);
 }
@@ -247,36 +278,26 @@ void OcclusionQuery::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 	}
 
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-	ImGui::Checkbox("Rotate Camera", &m_rotate);
-	if (ImGui::SliderFloat("Near", &m_near, 2.0f, 7.0f, "%.1f")) {
-		m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), m_near, m_far);
-	}
-	if (ImGui::SliderFloat("Far", &m_far, 2.0f, 7.0f, "%.1f")) {
-		m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), m_near, m_far);
-	}
+	
 	ImGui::End();
 
 	ImGui::Render();
 	ImGui_ImplWGPU_RenderDrawData(ImGui::GetDrawData(), renderPassEncoder);
 }
 
-std::vector<WGPUBindGroupLayout> OcclusionQuery::OnBindGroupLayoutsVolume() {
+std::vector<WGPUBindGroupLayout> OcclusionQuery::OnBindGroupLayouts() {
 	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
 
-	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(3);
+	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(2);
 	bindingLayoutEntries[0].binding = 0u;
 	bindingLayoutEntries[0].visibility = WGPUShaderStage_Vertex;
 	bindingLayoutEntries[0].buffer.type = WGPUBufferBindingType_Uniform;
-	bindingLayoutEntries[0].buffer.minBindingSize = sizeof(Matrix4f);
+	bindingLayoutEntries[0].buffer.minBindingSize = sizeof(Uniforms);
 
 	bindingLayoutEntries[1].binding = 1u;
-	bindingLayoutEntries[1].visibility = WGPUShaderStage_Fragment;
-	bindingLayoutEntries[1].sampler.type = WGPUSamplerBindingType_Filtering;
-
-	bindingLayoutEntries[2].binding = 2u;
-	bindingLayoutEntries[2].visibility = WGPUShaderStage_Fragment;
-	bindingLayoutEntries[2].texture.viewDimension = WGPUTextureViewDimension_3D;
-	bindingLayoutEntries[2].texture.sampleType = WGPUTextureSampleType_Float;
+	bindingLayoutEntries[1].visibility = WGPUShaderStage_Vertex;
+	bindingLayoutEntries[1].buffer.type = WGPUBufferBindingType_Uniform;
+	bindingLayoutEntries[1].buffer.minBindingSize = sizeof(Matrix4f);
 
 	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
 	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
@@ -287,27 +308,6 @@ std::vector<WGPUBindGroupLayout> OcclusionQuery::OnBindGroupLayoutsVolume() {
 	return bindingLayouts;
 }
 
-WGPUBindGroup OcclusionQuery::createVolumeBindGroup() {
-	std::vector<WGPUBindGroupEntry> bindGroupEntries(3);
-
-	bindGroupEntries[0].binding = 0u;
-	bindGroupEntries[0].buffer = m_uniformBuffer.getBuffer();
-	bindGroupEntries[0].size = wgpuBufferGetSize(m_uniformBuffer.getBuffer());
-
-	bindGroupEntries[1].binding = 1u;
-	bindGroupEntries[1].sampler = wgpContext.getSampler(SS_0);
-
-	bindGroupEntries[2].binding = 2u;
-	bindGroupEntries[2].textureView = m_volumeTexture.getTextureView();
-
-	WGPUBindGroupDescriptor bindGroupDesc = {};
-	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_VOLUME"), 0u);
-	bindGroupDesc.entryCount = (uint32_t)bindGroupEntries.size();
-	bindGroupDesc.entries = bindGroupEntries.data();
-
-	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
-}
-
 WGPUQuerySet OcclusionQuery::createQuerySet() {
 	WGPUQuerySetDescriptor querySetDescriptor = {};
 	querySetDescriptor.label = WGPU_STR("query_set");
@@ -315,4 +315,38 @@ WGPUQuerySet OcclusionQuery::createQuerySet() {
 	querySetDescriptor.type = WGPUQueryType_Occlusion;
 
 	return wgpuDeviceCreateQuerySet(wgpContext.device, &querySetDescriptor);
+}
+
+float OcclusionQuery::PingPongSine(float t) {
+	return sinf(t * TWO_PI) * 0.5f + 0.5f;
+}
+
+void OcclusionQuery::InitScene(Scene& scene, Shape& shape, const WgpBuffer& uniformBuffer, std::array<float, 4> color) {
+	scene.model.create(shape);
+	scene.model.addColor(color);
+	scene.uniformBuffer.createBuffer(sizeof(Matrix4f), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
+	wgpuQueueWriteBuffer(wgpContext.queue, scene.uniformBuffer.getBuffer(), 0, &Matrix4f::IDENTITY, sizeof(Matrix4f));
+
+	std::vector<WGPUBindGroupEntry> bindGroupEntries(2);
+
+	bindGroupEntries[0].binding = 0u;
+	bindGroupEntries[0].buffer = uniformBuffer.getBuffer();
+	bindGroupEntries[0].size = wgpuBufferGetSize(uniformBuffer.getBuffer());
+
+	bindGroupEntries[1].binding = 1u;
+	bindGroupEntries[1].buffer = scene.uniformBuffer.getBuffer();
+	bindGroupEntries[1].size = wgpuBufferGetSize(scene.uniformBuffer.getBuffer());
+
+	WGPUBindGroupDescriptor bindGroupDesc = {};
+	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_OCCLUSION"), 0u);
+	bindGroupDesc.entryCount = (uint32_t)bindGroupEntries.size();
+	bindGroupDesc.entries = bindGroupEntries.data();
+
+	scene.model.addBindGroup("BG", wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc));
+}
+
+void OcclusionQuery::UpdateScene(Scene& scene, const Vector3f& position) {
+	Matrix4f trans;
+	trans.translate(position);
+	wgpuQueueWriteBuffer(wgpContext.queue, scene.uniformBuffer.getBuffer(), 0, &trans, sizeof(Matrix4f));
 }

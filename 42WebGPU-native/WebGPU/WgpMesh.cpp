@@ -141,12 +141,12 @@ void WgpMesh::addColor(std::array<float, 4> color) {
 	{
 		WgpBuffer stagingBuffer;
 		stagingBuffer.createBuffer(wgpuBufferGetSize(m_indexBuffer.getBuffer()), WGPUBufferUsage_MapRead | WGPUBufferUsage_CopyDst);
-		std::tuple<bool, WgpBuffer, unsigned int&> userdataIndex = { false, stagingBuffer, maxIndex };
+		std::tuple<bool, WgpBuffer, unsigned int&> userdata = { false, stagingBuffer, maxIndex };
 
 		WGPUBufferMapCallbackInfo bufferMapCallbackInfo = {};
 		bufferMapCallbackInfo.callback = OnMapIndexBuffer;
 		bufferMapCallbackInfo.mode = WGPUCallbackMode_AllowProcessEvents;
-		bufferMapCallbackInfo.userdata1 = &userdataIndex;
+		bufferMapCallbackInfo.userdata1 = &userdata;
 
 		WGPUCommandEncoder commandEncoder = wgpuDeviceCreateCommandEncoder(wgpContext.device, NULL);
 		wgpuCommandEncoderCopyBufferToBuffer(commandEncoder, m_indexBuffer.getBuffer(), 0u, stagingBuffer.getBuffer(), 0u, wgpuBufferGetSize(m_indexBuffer.getBuffer()));
@@ -160,9 +160,10 @@ void WgpMesh::addColor(std::array<float, 4> color) {
 
 		wgpuBufferMapAsync(stagingBuffer.getBuffer(), WGPUMapMode_Read, 0, wgpuBufferGetSize(m_indexBuffer.getBuffer()), bufferMapCallbackInfo);
 
-		while (!std::get<0>(userdataIndex)) {
+		while (!std::get<0>(userdata)) {
 			wgpuInstanceProcessEvents(wgpContext.instance);
 		}
+		stagingBuffer.markForDelete();
 	}
 
 	size_t stride = wgpuBufferGetSize(m_vertexBuffer.getBuffer()) / ((maxIndex + 1u) * sizeof(float));
@@ -170,12 +171,12 @@ void WgpMesh::addColor(std::array<float, 4> color) {
 	{
 		WgpBuffer stagingBuffer;
 		stagingBuffer.createBuffer(wgpuBufferGetSize(m_vertexBuffer.getBuffer()), WGPUBufferUsage_MapRead | WGPUBufferUsage_CopyDst);
-		std::tuple<bool, WgpBuffer, WgpBuffer&, size_t> userdataVertex = { false, stagingBuffer , m_vertexBuffer, stride };
+		std::tuple<bool, WgpBuffer, WgpBuffer&, size_t> userdata = { false, stagingBuffer , m_vertexBuffer, stride };
 
 		WGPUBufferMapCallbackInfo bufferMapCallbackInfo = {};
 		bufferMapCallbackInfo.callback = OnMapColorToBuffer;
 		bufferMapCallbackInfo.mode = WGPUCallbackMode_AllowProcessEvents;
-		bufferMapCallbackInfo.userdata1 = &userdataVertex;
+		bufferMapCallbackInfo.userdata1 = &userdata;
 		bufferMapCallbackInfo.userdata2 = &color;
 
 		WGPUCommandEncoder commandEncoder = wgpuDeviceCreateCommandEncoder(wgpContext.device, NULL);
@@ -191,9 +192,10 @@ void WgpMesh::addColor(std::array<float, 4> color) {
 
 		wgpuBufferMapAsync(stagingBuffer.getBuffer(), WGPUMapMode_Read, 0, wgpuBufferGetSize(m_vertexBuffer.getBuffer()), bufferMapCallbackInfo);
 
-		while (!std::get<0>(userdataVertex)) {
+		while (!std::get<0>(userdata)) {
 			wgpuInstanceProcessEvents(wgpContext.instance);
 		}
+		stagingBuffer.markForDelete();
 	}
 }
 
