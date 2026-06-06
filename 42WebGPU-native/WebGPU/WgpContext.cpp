@@ -853,14 +853,19 @@ void wgpDraw() {
 	wgpuQueueSubmit(wgpContext.queue, 1, &commandBuffer);
 
 	wgpuSurfacePresent(wgpContext.surface);
-#ifdef WEBGPU_DAWN
-	wgpuDeviceTick(wgpContext.device);
-#endif
-	wgpuInstanceProcessEvents(wgpContext.instance);
 
 	wgpuCommandBufferRelease(commandBuffer);
 	wgpuCommandEncoderRelease(wgpContext.commandEncoder);
 	wgpuTextureRelease(surfaceTexture.texture);
+
+
+	if (wgpContext.OnPostDraw)
+		wgpContext.OnPostDraw();
+
+#ifdef WEBGPU_DAWN
+	wgpuDeviceTick(wgpContext.device);
+#endif
+	wgpuInstanceProcessEvents(wgpContext.instance);
 }
 
 void wgpSubmitQueue() {

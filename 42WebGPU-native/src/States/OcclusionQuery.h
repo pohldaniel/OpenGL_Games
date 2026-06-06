@@ -18,6 +18,8 @@ class OcclusionQuery : public State, public MouseEventListener, public KeyboardE
 	struct Scene {
 		WgpBuffer uniformBuffer;
 		WgpModel model;
+		bool isVisible;
+		std::array<float, 4> color;
 	};
 
 public:
@@ -29,6 +31,7 @@ public:
 	void update() override;
 	void render() override;
 	void OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor);
+	void OnPostDraw();
 
 	void resize(int deltaW, int deltaH) override;
 	void OnMouseMotion(const Event::MouseMoveEvent& event) override;
@@ -47,6 +50,8 @@ private:
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
+	bool m_animate = true;
+	float m_time = 0.0f;
 
 	Camera m_camera;
 	TrackBall m_trackball;
@@ -60,5 +65,6 @@ private:
 
 	static float PingPongSine(float t);
 	static void InitScene(Scene& scene, Shape& shape, const WgpBuffer& uniformBuffer, std::array<float, 4> color);
-	static void UpdateScene(Scene& scene, const Vector3f& position);
+	static void UpdateScene(Scene& scene, const Vector3f& position, float time);
+	static void OnMapBuffer(WGPUMapAsyncStatus status, WGPUStringView message, void* userdata1, void* userdata2);
 };
