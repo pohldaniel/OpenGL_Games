@@ -58,5 +58,9 @@ private:
 
 	uint32_t m_drawCount;
 	std::string m_bindGroupsSlot;
-	bool m_markForDelete;	
+	bool m_markForDelete;
+
+	static void OnMapColorToBuffer(WGPUMapAsyncStatus status, WGPUStringView message, void* userdata1, void* userdata2);
+	static void OnMapIndexBuffer(WGPUMapAsyncStatus status, WGPUStringView message, void* userdata1, void* userdata2);
+	static unsigned int getMaxIndex();
 };
