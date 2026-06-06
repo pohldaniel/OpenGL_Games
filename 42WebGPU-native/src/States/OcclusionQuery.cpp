@@ -29,11 +29,19 @@ OcclusionQuery::OcclusionQuery(StateMachine& machine) : State(machine, States::O
 
 	m_trackball.reshape(Application::Width, Application::Height);
 
+	m_cube.buildCube({ -1.0f, -1.0f, -1.0f }, { 2.0f, 2.0f, 2.0f }, 1u, 1u, false, true);
+
+	m_wgpCube.create(m_cube);
+	m_wgpCube.addColor({ 0.5f , 0.0f, 0.5f, 1.0f });
+
 	wgpContext.setClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
 	wgpContext.addSampler(wgpCreateSampler(WGPUFilterMode_Linear, WGPUAddressMode_ClampToEdge, 16u, WGPUMipmapFilterMode_Linear), SS_0);
 
 	m_uniformBuffer.createBuffer(sizeof(Matrix4f), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0u, &Matrix4f::IDENTITY, sizeof(Matrix4f));
+
+	m_resolveBuffer.createBuffer(6u * sizeof(uint64_t), WGPUBufferUsage_QueryResolve | WGPUBufferUsage_CopySrc);
+	m_resultBuffer.createBuffer(6u * sizeof(uint64_t), WGPUBufferUsage_CopyDst | WGPUBufferUsage_MapRead);
 
 	m_volumeTexture.loadFromFile("res/textures/t1_icbm_normal_1mm_pn0_rf0_180x216x180_uint8_1x1.bin", 180u, 216u, 180u);
 
@@ -298,4 +306,13 @@ WGPUBindGroup OcclusionQuery::createVolumeBindGroup() {
 	bindGroupDesc.entries = bindGroupEntries.data();
 
 	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
+}
+
+WGPUQuerySet OcclusionQuery::createQuerySet() {
+	WGPUQuerySetDescriptor querySetDescriptor = {};
+	querySetDescriptor.label = WGPU_STR("query_set");
+	querySetDescriptor.count = 6u;
+	querySetDescriptor.type = WGPUQueryType_Occlusion;
+
+	return wgpuDeviceCreateQuerySet(wgpContext.device, &querySetDescriptor);
 }

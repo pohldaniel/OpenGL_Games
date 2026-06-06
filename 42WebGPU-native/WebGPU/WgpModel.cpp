@@ -87,6 +87,12 @@ void WgpModel::addBindGroups(std::string bindGroupsName, const std::function <st
 	}
 }
 
+void WgpModel::addColor(std::array<float, 4> color) {
+	for (WgpMesh& mesh : m_meshes) {
+		mesh.addColor(color);
+	}
+}
+
 const std::list<WgpMesh>& WgpModel::getMeshes() const{
 	return m_meshes;
 }

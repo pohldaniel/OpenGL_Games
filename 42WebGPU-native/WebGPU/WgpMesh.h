@@ -39,6 +39,7 @@ public:
 	void setBindGroups(std::string bindGroupsName, const std::function<std::vector<WGPUBindGroup>()>& onBindGroups);
 	void addBindGroups(std::string bindGroupsName, const std::function<std::vector<WGPUBindGroup>()>& onBindGroups);
 	void addBindGroup(std::string bindGroupsName, WGPUBindGroup bindGroup) const;
+	void addColor(std::array<float, 4> color);
 
 	std::vector<WGPUBindGroup>& getBindGroups(std::string bindGroupsName) const;
 	std::vector<WGPUBindGroup>& getBindGroups() const;

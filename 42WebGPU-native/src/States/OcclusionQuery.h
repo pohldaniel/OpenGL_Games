@@ -37,6 +37,7 @@ private:
 
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsVolume();
 	WGPUBindGroup createVolumeBindGroup();
+	WGPUQuerySet createQuerySet();
 
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 
@@ -49,8 +50,13 @@ private:
 
 	Camera m_camera;
 	TrackBall m_trackball;
+	Shape m_cube;
 
+	WgpModel m_wgpCube;
 	WgpBuffer m_uniformBuffer;
 	WgpTexture m_volumeTexture;
 	WGPUBindGroup m_volumeBindGroup;
+
+	WgpBuffer m_resolveBuffer, m_resultBuffer;
+	WGPUQuerySet m_querySet;
 };

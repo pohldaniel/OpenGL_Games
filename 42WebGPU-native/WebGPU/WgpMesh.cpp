@@ -6,7 +6,7 @@ WgpMesh::WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsig
 	m_bindGroupsSlot("BG"),
 	m_markForDelete(false){
 
-	m_vertexBuffer.createBuffer(reinterpret_cast<const void*>(vertexBuffer.data()), sizeof(float) * vertexBuffer.size(), WGPUBufferUsage_Vertex | WGPUBufferUsage_Storage);
+	m_vertexBuffer.createBuffer(reinterpret_cast<const void*>(vertexBuffer.data()), sizeof(float) * vertexBuffer.size(), WGPUBufferUsage_Vertex | WGPUBufferUsage_Storage | WGPUBufferUsage_CopySrc);
 	m_indexBuffer.createBuffer(reinterpret_cast<const void*>(indexBuffer.data()), sizeof(unsigned int) * indexBuffer.size(), WGPUBufferUsage_Index | WGPUBufferUsage_Storage);
 }
 
@@ -24,7 +24,7 @@ WgpMesh::WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsig
 									  {weights[i][0], weights[i][1], weights[i][2], weights[i][3]},
 									  {joints[i][0], joints[i][1], joints[i][2], joints[i][3]} });
 		}
-		m_vertexBuffer.createBuffer(reinterpret_cast<const void*>(_vertexBuffer.data()), sizeof(VertexAnimated) * _vertexBuffer.size(), WGPUBufferUsage_Vertex | WGPUBufferUsage_Storage);
+		m_vertexBuffer.createBuffer(reinterpret_cast<const void*>(_vertexBuffer.data()), sizeof(VertexAnimated) * _vertexBuffer.size(), WGPUBufferUsage_Vertex | WGPUBufferUsage_Storage | WGPUBufferUsage_CopySrc);
 	}
 	m_indexBuffer.createBuffer(reinterpret_cast<const void*>(indexBuffer.data()), sizeof(unsigned int) * indexBuffer.size(), WGPUBufferUsage_Index | WGPUBufferUsage_Storage);
 }
@@ -34,7 +34,7 @@ WgpMesh::WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsig
 	m_bindGroupsSlot("BG"),
 	m_markForDelete(false) {
 
-	m_vertexBuffer.createBuffer(reinterpret_cast<const void*>(vertexBuffer.data()), sizeof(float) * vertexBuffer.size(), WGPUBufferUsage_Vertex | WGPUBufferUsage_Storage);
+	m_vertexBuffer.createBuffer(reinterpret_cast<const void*>(vertexBuffer.data()), sizeof(float) * vertexBuffer.size(), WGPUBufferUsage_Vertex | WGPUBufferUsage_Storage | WGPUBufferUsage_CopySrc);
 	m_indexBuffer.createBuffer(reinterpret_cast<const void*>(indexBuffer.data()), sizeof(unsigned int) * indexBuffer.size(), WGPUBufferUsage_Index | WGPUBufferUsage_Storage);
 	m_texture.loadFromFile(texturePath);
 }
@@ -53,7 +53,7 @@ WgpMesh::WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsig
 									  {weights[i][0], weights[i][1], weights[i][2], weights[i][3]},
 									  {joints[i][0], joints[i][1], joints[i][2], joints[i][3]} });
 		}
-		m_vertexBuffer.createBuffer(reinterpret_cast<const void*>(_vertexBuffer.data()), sizeof(VertexAnimated) * _vertexBuffer.size(), WGPUBufferUsage_Vertex | WGPUBufferUsage_Storage);
+		m_vertexBuffer.createBuffer(reinterpret_cast<const void*>(_vertexBuffer.data()), sizeof(VertexAnimated) * _vertexBuffer.size(), WGPUBufferUsage_Vertex | WGPUBufferUsage_Storage | WGPUBufferUsage_CopySrc);
 	}
 	m_indexBuffer.createBuffer(reinterpret_cast<const void*>(indexBuffer.data()), sizeof(unsigned int) * indexBuffer.size(), WGPUBufferUsage_Index | WGPUBufferUsage_Storage);
 	m_texture.loadFromFile(texturePath);
@@ -64,7 +64,7 @@ WgpMesh::WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsig
 	m_bindGroupsSlot("BG"),
 	m_markForDelete(false) {
 
-	m_vertexBuffer.createBuffer(reinterpret_cast<const void*>(vertexBuffer.data()), sizeof(float) * vertexBuffer.size(), WGPUBufferUsage_Vertex | WGPUBufferUsage_Storage);
+	m_vertexBuffer.createBuffer(reinterpret_cast<const void*>(vertexBuffer.data()), sizeof(float) * vertexBuffer.size(), WGPUBufferUsage_Vertex | WGPUBufferUsage_Storage | WGPUBufferUsage_CopySrc);
 	m_indexBuffer.createBuffer(reinterpret_cast<const void*>(indexBuffer.data()), sizeof(unsigned int) * indexBuffer.size(), WGPUBufferUsage_Index | WGPUBufferUsage_Storage);
 	m_texture.loadFromMemory(texture.first, texture.second);
 }
@@ -134,6 +134,61 @@ void WgpMesh::addBindGroups(std::string bindGroupsName, const std::function<std:
 
 void WgpMesh::addBindGroup(std::string bindGroupsName, WGPUBindGroup bindGroup) const {
 	m_bindGroups[bindGroupsName].push_back(bindGroup);
+}
+#include <iostream>
+void OnMapColor(WGPUMapAsyncStatus status, WGPUStringView message, void* userdata1, void* userdata2) {
+	if (status == WGPUMapAsyncStatus_Success) {
+		std::cout << "Success Buffer" << std::endl;
+	
+
+		std::pair<WgpBuffer, bool>* userdata = static_cast<std::pair<WgpBuffer, bool>*>(userdata1);
+		float* bufferData = (float*)wgpuBufferGetConstMappedRange(userdata->first.getBuffer(), 0u, wgpuBufferGetSize(userdata->first.getBuffer()));
+		//std::cout << "POINTER: " << bufferData << std::endl;
+		//std::cout << "DATA: " << bufferData[0] << std::endl;
+		for (int i = 0; i < 100; i++) {
+			std::cout << "DATA: " << bufferData[i] << std::endl;
+		}
+
+		userdata->second = true;
+		wgpuBufferUnmap(userdata->first.getBuffer());
+
+	}else {
+		std::cout << "Buffer message: " << message.data << std::endl;
+	}
+
+	
+}
+void WgpMesh::addColor(std::array<float, 4> color) {
+	
+	WgpBuffer stagingBuffer;
+	stagingBuffer.createBuffer(wgpuBufferGetSize(m_vertexBuffer.getBuffer()), WGPUBufferUsage_MapRead | WGPUBufferUsage_CopyDst);
+	bool readyBuffer = false;
+
+	std::pair<WgpBuffer, bool> userdata = { stagingBuffer , readyBuffer };
+
+	WGPUBufferMapCallbackInfo bufferMapCallbackInfo = {};
+	bufferMapCallbackInfo.callback = OnMapColor;
+	bufferMapCallbackInfo.mode = WGPUCallbackMode_AllowProcessEvents;
+	bufferMapCallbackInfo.userdata1 = &userdata;
+
+	WGPUCommandEncoder commandEncoder = wgpuDeviceCreateCommandEncoder(wgpContext.device, NULL);
+	wgpuCommandEncoderCopyBufferToBuffer(commandEncoder, m_vertexBuffer.getBuffer(), 0u, stagingBuffer.getBuffer(), 0u, wgpuBufferGetSize(m_vertexBuffer.getBuffer()));
+	
+
+	WGPUCommandBuffer commandBuffer = wgpuCommandEncoderFinish(commandEncoder, NULL);
+
+	wgpuQueueSubmit(wgpContext.queue, 1, &commandBuffer);
+	
+	wgpuCommandBufferRelease(commandBuffer);
+	wgpuCommandEncoderRelease(commandEncoder);
+
+	wgpuBufferMapAsync(stagingBuffer.getBuffer(), WGPUMapMode_Read, 0, wgpuBufferGetSize(m_vertexBuffer.getBuffer()), bufferMapCallbackInfo);
+
+	//
+	while (!userdata.second) {
+		wgpuDeviceTick(wgpContext.device);
+		wgpuInstanceProcessEvents(wgpContext.instance);
+	}
 }
 
 std::vector<WGPUBindGroup>& WgpMesh::getBindGroups(std::string bindGroupsName) const {
