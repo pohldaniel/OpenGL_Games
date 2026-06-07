@@ -270,6 +270,9 @@
     <ClCompile Include="src\States\OcclusionQuery.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
+    <ClCompile Include="src\States\RenderBundles.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\input\ApplicationEventListener.h">
@@ -519,6 +522,9 @@
       <Filter>Source Files\States</Filter>
     </ClInclude>
     <ClInclude Include="src\States\OcclusionQuery.h">
+      <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\RenderBundles.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
   </ItemGroup>
