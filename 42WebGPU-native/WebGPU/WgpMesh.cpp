@@ -158,7 +158,7 @@ void WgpMesh::addColor(std::array<float, 4> color) {
 		wgpuCommandBufferRelease(commandBuffer);
 		wgpuCommandEncoderRelease(commandEncoder);
 
-		wgpuBufferMapAsync(stagingBuffer.getBuffer(), WGPUMapMode_Read, 0, wgpuBufferGetSize(m_indexBuffer.getBuffer()), bufferMapCallbackInfo);
+		wgpuBufferMapAsync(stagingBuffer.getBuffer(), WGPUMapMode_Read, 0, wgpuBufferGetSize(stagingBuffer.getBuffer()), bufferMapCallbackInfo);
 
 		while (!std::get<0>(userdata)) {
 			wgpuInstanceProcessEvents(wgpContext.instance);
@@ -175,7 +175,7 @@ void WgpMesh::addColor(std::array<float, 4> color) {
 
 		WGPUBufferMapCallbackInfo bufferMapCallbackInfo = {};
 		bufferMapCallbackInfo.callback = OnMapColorToBuffer;
-		bufferMapCallbackInfo.mode = WGPUCallbackMode_AllowProcessEvents;
+		bufferMapCallbackInfo.mode = WGPUCallbackMode_WaitAnyOnly;
 		bufferMapCallbackInfo.userdata1 = &userdata;
 		bufferMapCallbackInfo.userdata2 = &color;
 
@@ -190,11 +190,12 @@ void WgpMesh::addColor(std::array<float, 4> color) {
 		wgpuCommandBufferRelease(commandBuffer);
 		wgpuCommandEncoderRelease(commandEncoder);
 
-		wgpuBufferMapAsync(stagingBuffer.getBuffer(), WGPUMapMode_Read, 0, wgpuBufferGetSize(m_vertexBuffer.getBuffer()), bufferMapCallbackInfo);
-
-		while (!std::get<0>(userdata)) {
-			wgpuInstanceProcessEvents(wgpContext.instance);
-		}
+		WGPUFuture future = wgpuBufferMapAsync(stagingBuffer.getBuffer(), WGPUMapMode_Read, 0u, wgpuBufferGetSize(stagingBuffer.getBuffer()), bufferMapCallbackInfo);			
+		WGPUFutureWaitInfo futureWaitInfo = {};
+		futureWaitInfo.future = future;
+		futureWaitInfo.completed = false;
+		WGPUWaitStatus status = wgpuInstanceWaitAny(wgpContext.instance, 1u, &futureWaitInfo, UINT64_MAX);
+	
 		stagingBuffer.markForDelete();
 	}
 }

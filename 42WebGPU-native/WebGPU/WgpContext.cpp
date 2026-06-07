@@ -858,7 +858,6 @@ void wgpDraw() {
 	wgpuCommandEncoderRelease(wgpContext.commandEncoder);
 	wgpuTextureRelease(surfaceTexture.texture);
 
-
 	if (wgpContext.OnPostDraw)
 		wgpContext.OnPostDraw();
 
@@ -875,10 +874,6 @@ void wgpSubmitQueue() {
 	wgpuCommandEncoderRelease(wgpContext.commandEncoder);
 
 	wgpContext.commandEncoder = wgpuDeviceCreateCommandEncoder(wgpContext.device, NULL);
-}
-
-void WgpContext::createVertexBufferLayout(VertexLayoutSlot slot) {
-	wgpCreateVertexBufferLayout(slot);
 }
 
 void WgpContext::addSampler(const WGPUSampler& sampler, SamplerSlot samplerSlot) {

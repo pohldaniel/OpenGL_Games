@@ -104,7 +104,6 @@ PrimitivePicking::PrimitivePicking(StateMachine& machine) : State(machine, State
 	m_wgpTeapot.setBindGroups("BG", std::bind(&PrimitivePicking::OnBindGroupsPick, this));
 
 	wgpContext.OnDraw = std::bind(&PrimitivePicking::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
-	//readBuffer();
 }
 
 PrimitivePicking::~PrimitivePicking() {
@@ -498,72 +497,4 @@ WGPUBindGroup PrimitivePicking::createDebugBindGroup() {
 	bindGroupDesc.entries = bindGroupEntries.data();
 
 	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
-}
-
-void PrimitivePicking::readBuffer() {
-	m_stagingBuffer.createBuffer(2 * sizeof(Matrix4f) + 4 * sizeof(float), WGPUBufferUsage_MapRead | WGPUBufferUsage_CopyDst);
-
-	Matrix4f matrices[2] = { m_camera.getPerspectiveMatrix() * m_camera.getViewMatrix() , Matrix4f::IDENTITY };
-	float pickData[2] = { static_cast<float>(550),  static_cast<float>(600) };
-	uint32_t id = 100;
-	wgpuQueueWriteBuffer(wgpContext.queue, m_computeBuffer.getBuffer(), 0u, matrices, 2 * sizeof(Matrix4f));
-	wgpuQueueWriteBuffer(wgpContext.queue, m_computeBuffer.getBuffer(), 2 * sizeof(Matrix4f), pickData, 2 * sizeof(float));
-	wgpuQueueWriteBuffer(wgpContext.queue, m_computeBuffer.getBuffer(), 2 * sizeof(Matrix4f) + 2 * sizeof(float), &id, 2 * sizeof(float));
-
-	bool readyQueue = false;
-	WGPUQueueWorkDoneCallbackInfo queueWorkDoneCallbackInfo = {};
-	queueWorkDoneCallbackInfo.callback = OnQueueWorkDone;
-	queueWorkDoneCallbackInfo.mode = WGPUCallbackMode_WaitAnyOnly;
-	queueWorkDoneCallbackInfo.userdata1 = &readyQueue;
-
-	WGPUFuture futureQueue = wgpuQueueOnSubmittedWorkDone(wgpContext.queue, queueWorkDoneCallbackInfo);
-
-
-	WGPUCommandEncoder commandEncoder = wgpuDeviceCreateCommandEncoder(wgpContext.device, NULL);
-	wgpuCommandEncoderCopyBufferToBuffer(commandEncoder, m_computeBuffer.getBuffer(), 0u, m_stagingBuffer.getBuffer(), 0u, 2 * sizeof(Matrix4f) + 4 * sizeof(float));
-
-	WGPUCommandBuffer commandBuffer = wgpuCommandEncoderFinish(commandEncoder, NULL);
-
-	wgpuQueueSubmit(wgpContext.queue, 1, &commandBuffer);
-
-	wgpuCommandEncoderRelease(commandEncoder);
-	wgpuCommandBufferRelease(commandBuffer);
-
-	WGPUFutureWaitInfo waitQueue = {};
-	waitQueue.future = futureQueue;
-	WGPUWaitStatus statusQueue = wgpuInstanceWaitAny(wgpContext.instance, 1, &waitQueue, 0);
-
-	while(!readyQueue)
-		wgpuDeviceTick(wgpContext.device);
-
-	if (statusQueue == WGPUWaitStatus_Success) {
-
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-		bool readyBuffer = false;
-		WGPUBufferMapCallbackInfo bufferMapCallbackInfo = {};
-		bufferMapCallbackInfo.callback = OnMapBuffer;
-		bufferMapCallbackInfo.mode = WGPUCallbackMode_WaitAnyOnly;
-		bufferMapCallbackInfo.userdata1 = &readyBuffer;
-
-
-
-		WGPUFuture futureBuffer = wgpuBufferMapAsync(m_stagingBuffer.getBuffer(), WGPUMapMode_Read, 0u, 2 * sizeof(Matrix4f) + 4 * sizeof(float), bufferMapCallbackInfo);
-		WGPUFutureWaitInfo waitBuffer = {};
-		waitBuffer.future = futureBuffer;
-		WGPUWaitStatus statusBuffer = wgpuInstanceWaitAny(wgpContext.instance, 1, &waitBuffer, 0);
-
-		while (!readyBuffer)
-			wgpuDeviceTick(wgpContext.device);
-
-
-		if (statusBuffer == WGPUWaitStatus_Success) {
-			uint8_t* bufferData = (uint8_t*)wgpuBufferGetConstMappedRange(m_stagingBuffer.getBuffer(), 0, 2 * sizeof(Matrix4f) + 4 * sizeof(float));
-			std::cout << "X: " << Utils::bytesToFloatLE(bufferData[128], bufferData[129], bufferData[130], bufferData[131]) << std::endl;
-			std::cout << "Y: " << Utils::bytesToFloatLE(bufferData[132], bufferData[133], bufferData[134], bufferData[135]) << std::endl;
-			std::cout << "ID: " << Utils::bytesToUIntLE(bufferData[136], bufferData[137], bufferData[138], bufferData[139]) << std::endl;
-		}
-	}
-	wgpuBufferUnmap(m_stagingBuffer.getBuffer());
-	m_stagingBuffer.markForDelete();
 }

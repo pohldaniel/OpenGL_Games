@@ -51,7 +51,6 @@ private:
 	WGPUBindGroup createDebugBindGroup();
 
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
-	void readBuffer();
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
