@@ -410,6 +410,6 @@ void OcclusionQuery::OnMapBuffer(WGPUMapAsyncStatus status, WGPUStringView messa
 
 		wgpuBufferUnmap(buffer->getBuffer());
 	}else {
-		std::cout << "Buffer message: " << message.data << std::endl;
+		std::cout << "Buffer error: " << message.data << std::endl;
 	}
 }

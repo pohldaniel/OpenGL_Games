@@ -12,26 +12,6 @@
 #include "Application.h"
 #include "Globals.h"
 
-void OnMapBuffer(WGPUMapAsyncStatus status, WGPUStringView message, void* userdata1, void* userdata2) {
-	if (status == WGPUMapAsyncStatus_Success) {
-		std::cout << "Success Buffer" << std::endl;		
-		bool* ready = (bool*)userdata1;
-		*ready = true;
-	}else {
-		std::cout << "Buffer message: " << message.data << std::endl;
-	}
-}
-
-void OnQueueWorkDone(WGPUQueueWorkDoneStatus status, WGPUStringView message, void* userdata1, void* userdata2) {
-	if (status == WGPUQueueWorkDoneStatus_Success) {
-		std::cout << "Success Queue" << std::endl;
-		bool* ready = (bool*)userdata1;
-		*ready = true;
-	}else {
-		std::cout << "Queue message: " << message.data << std::endl;
-	}
-}
-
 PrimitivePicking::PrimitivePicking(StateMachine& machine) : State(machine, States::PRIMITIVE_PICKING) {
 
 	Application::SetCursorIcon(IDC_ARROW);
