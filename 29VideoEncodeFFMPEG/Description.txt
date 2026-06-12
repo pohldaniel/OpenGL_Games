@@ -3,16 +3,15 @@ https://www.youtube.com/watch?v=OIYGjzmJ2GI&t=2484s
 Made with Visual Studio 2022 -> -std=c++11 and -std=c11 support (Visual Studio 2015, Visual Studio 2019 should work es well but Visual Studio 2017 not)
 and cygwin with the following packges git diffutils nasm yasm pkgconf make. Important use host msys for x264
 
-
-cd /cygdrive/c
-cd /cygdrive/c/tmp/sources/x264
-
 mv /usr/bin/link.exe /usr/bin/link.exe.bak
+cd /cygdrive/c
 git clone https://code.videolan.org/videolan/x264.git
+cd /cygdrive/c/x264
 curl "http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess;hb=HEAD" > config.guess
+find . -type f -print0 | xargs -0 dos2unix
 
-CC=cl ../../sources/x264/configure --prefix=../../installed --enable-static --host=msys --enable-debug --host=msys --extra-cflags="-MD -O2 -Z7"
-CC=cl ../../sources/x264/configure --prefix=../../installed --enable-static --host=msys --extra-cflags="-MD -O2 -Z7"
+CC=cl ./configure --prefix=installed --enable-static --host=msys --enable-debug --host=msys --extra-cflags="-MD -O2 -Z7"
+CC=cl ./configure --prefix=installed --enable-static --host=msys --extra-cflags="-MD -O2 -Z7"
 
 make
 make install
