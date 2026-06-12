@@ -9,6 +9,7 @@ extern "C" {
 #include <libswresample/swresample.h>
 #include <libswscale/swscale.h>
 #include <libavutil/avutil.h>
+#include <libavutil/imgutils.h>
 #include <inttypes.h>
 }
 
@@ -18,12 +19,12 @@ struct VideoReaderState {
     AVRational time_base;
 
     // Private internal state
-    AVFormatContext* av_format_ctx;
-    AVCodecContext* av_codec_ctx;
-    int video_stream_index;
-    AVFrame* av_frame;
-    AVPacket* av_packet;
-    SwsContext* sws_scaler_ctx;
+    AVFormatContext* av_format_ctx = nullptr;
+    AVCodecContext* av_codec_ctx = nullptr;
+    int video_stream_index = 0;
+    AVFrame* av_frame = nullptr;
+    AVPacket* av_packet = nullptr;
+    SwsContext* sws_scaler_ctx = nullptr;
 };
 
 bool video_reader_open(VideoReaderState* state, const char* filename);

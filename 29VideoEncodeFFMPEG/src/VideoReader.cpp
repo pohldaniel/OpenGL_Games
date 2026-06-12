@@ -155,6 +155,7 @@ bool video_reader_read_frame(VideoReaderState* state, uint8_t* frame_buffer, int
 
     uint8_t* dest[4] = { frame_buffer, NULL, NULL, NULL };
     int dest_linesize[4] = { width * 4, 0, 0, 0 };
+
     sws_scale(sws_scaler_ctx, av_frame->data, av_frame->linesize, 0, av_frame->height, dest, dest_linesize);
 
     return true;

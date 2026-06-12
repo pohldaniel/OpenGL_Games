@@ -330,6 +330,9 @@ enum AVCodecID {
     AV_CODEC_ID_RV60,
     AV_CODEC_ID_JPEGXL_ANIM,
     AV_CODEC_ID_APV,
+    AV_CODEC_ID_PRORES_RAW,
+    AV_CODEC_ID_JPEGXS,
+    AV_CODEC_ID_WEBP_ANIM,
 
     /* various PCM "codecs" */
     AV_CODEC_ID_FIRST_AUDIO = 0x10000,     ///< A dummy id pointing at the start of audio codecs
@@ -425,6 +428,15 @@ enum AVCodecID {
     AV_CODEC_ID_ADPCM_IMA_ACORN,
     AV_CODEC_ID_ADPCM_XMD,
     AV_CODEC_ID_ADPCM_IMA_XBOX,
+    AV_CODEC_ID_ADPCM_SANYO,
+    AV_CODEC_ID_ADPCM_IMA_HVQM4,
+    AV_CODEC_ID_ADPCM_IMA_PDA,
+    AV_CODEC_ID_ADPCM_N64,
+    AV_CODEC_ID_ADPCM_IMA_HVQM2,
+    AV_CODEC_ID_ADPCM_IMA_MAGIX,
+    AV_CODEC_ID_ADPCM_PSXC,
+    AV_CODEC_ID_ADPCM_CIRCUS,
+    AV_CODEC_ID_ADPCM_IMA_ESCAPE,
 
     /* AMR */
     AV_CODEC_ID_AMR_NB = 0x12000,
@@ -553,6 +565,9 @@ enum AVCodecID {
     AV_CODEC_ID_OSQ,
     AV_CODEC_ID_QOA,
     AV_CODEC_ID_LC3,
+    AV_CODEC_ID_G728,
+    AV_CODEC_ID_AHX,
+    AV_CODEC_ID_APPLE_APAC,
 
     /* subtitle codecs */
     AV_CODEC_ID_FIRST_SUBTITLE = 0x17000,          ///< A dummy ID pointing at the start of subtitle codecs.
@@ -600,6 +615,7 @@ enum AVCodecID {
     AV_CODEC_ID_BIN_DATA,
     AV_CODEC_ID_SMPTE_2038,
     AV_CODEC_ID_LCEVC,
+    AV_CODEC_ID_SMPTE_436M_ANC,
 
 
     AV_CODEC_ID_PROBE = 0x19000, ///< codec_id is not known (like AV_CODEC_ID_NONE) but lavf should attempt to identify it
