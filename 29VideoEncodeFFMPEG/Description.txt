@@ -22,7 +22,7 @@ cd ffmpeg
 cp ../x264/installed installed
 
 CC=cl PKG_CONFIG_PATH="installed/lib/pkgconfig" ./configure --prefix=installed --toolchain=msvc --target-os=win64 --arch=x86_64 --enable-asm --disable-shared --enable-static --enable-libx264 --enable-gpl --enable-nonfree --disable-doc --enable-debug --disable-optimizations --extra-ldflags="-LIBPATH:installed/lib  -LTCG:INCREMENTAL" --extra-cxxflags="-Iinstalled/include/ -MD -O1 -Z7" --extra-cflags="-Iinstalled/include/ -MD -O1 -Z7"
-CC=cl PKG_CONFIG_PATH="installed/lib/pkgconfig" ./configure --prefix=installed --toolchain=msvc --target-os=win64 --arch=x86_64 --enable-asm --disable-shared --enable-static --enable-libx264 --enable-gpl --enable-nonfree --disable-doc --disable-debug --disable-stripping --disable-optimizations --extra-ldflags="-LIBPATH:installed/lib  -LTCG:INCREMENTAL" --extra-cxxflags="-Iinstalled/include/ -MD -O1 -Z7" --extra-cflags="-Iinstalled/include/ -MD -O1 -Z7"
+CC=cl PKG_CONFIG_PATH="installed/lib/pkgconfig" ./configure --prefix=installed --toolchain=msvc --target-os=win64 --arch=x86_64 --enable-asm --disable-shared --enable-static --enable-libx264 --enable-gpl --enable-nonfree --disable-doc --disable-debug --disable-optimizations --extra-ldflags="-LIBPATH:installed/lib  -LTCG:INCREMENTAL" --extra-cxxflags="-Iinstalled/include/ -MD -O1 -Z7" --extra-cflags="-Iinstalled/include/ -MD -O1 -Z7"
 
 
 make
@@ -34,7 +34,7 @@ CC=cl ./configure --prefix=installed --enable-shared --host=msys --enable-debug 
 CC=cl ./configure --prefix=installed --enable-shared --host=msys --extra-cflags="-MD -O2 -Z7"
 
 CC=cl PKG_CONFIG_PATH="installed/lib/pkgconfig" .configure --prefix=installed --toolchain=msvc --target-os=win64 --arch=x86_64 --enable-asm --disable-static --enable-shared --enable-libx264 --enable-gpl --enable-nonfree --disable-doc --enable-debug --disable-optimizations --extra-ldflags="-LIBPATH:installed/lib" --extra-cxxflags="-Iinstalled/include/ -MD -O1 -Z7" --extra-cflags="-Iinstalled/include/ -MD -O1 -Z7"
-CC=cl PKG_CONFIG_PATH="installed/lib/pkgconfig" ./configure --prefix=installed --toolchain=msvc --target-os=win64 --arch=x86_64 --enable-asm --disable-static --enable-shared --enable-libx264 --enable-gpl --enable-nonfree --disable-doc --disable-debug --disable-stripping --disable-optimizations --extra-ldflags="-LIBPATH:installed/lib" --extra-cxxflags="-Iinstalled/include/ -MD -O1 -Z7" --extra-cflags="-Iinstalled/include/ -MD -O1 -Z7"
+CC=cl PKG_CONFIG_PATH="installed/lib/pkgconfig" ./configure --prefix=installed --toolchain=msvc --target-os=win64 --arch=x86_64 --enable-asm --disable-static --enable-shared --enable-libx264 --enable-gpl --enable-nonfree --disable-doc --disable-debug --disable-optimizations --extra-ldflags="-LIBPATH:installed/lib" --extra-cxxflags="-Iinstalled/include/ -MD -O1 -Z7" --extra-cflags="-Iinstalled/include/ -MD -O1 -Z7"
 
 
 libavcodec.lib
