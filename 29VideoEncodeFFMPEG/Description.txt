@@ -11,7 +11,7 @@ curl "http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.gue
 find . -type f -print0 | xargs -0 dos2unix
 
 CC=cl ./configure --prefix=installed --enable-static --host=msys --enable-debug --host=msys --extra-cflags="-MD -O2 -Z7"
-CC=cl ./configure --prefix=installed --enable-static --host=msys --extra-ldflags="/OPT:REF /OPT:ICF" --extra-cflags="-MD -O7" --extra-cxxflags="-MD -OZ"
+CC=cl ./configure --prefix=installed --enable-static --host=msys --extra-ldflags="/OPT:REF /OPT:ICF" --extra-cflags="-MD -OZ" --extra-cxxflags="-MD -OZ"
 
 make
 make install
