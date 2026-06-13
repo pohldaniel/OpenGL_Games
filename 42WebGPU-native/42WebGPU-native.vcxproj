@@ -88,7 +88,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;FREEIMAGE_LIB;WEBGPU_DAWN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;tinyobjloader\include;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libassimp\include;..\openal\include;..\sndfile\include;..\librecast\include;..\libdetour\include;..\libdetourtilecache\include;..\libdetourcrowd\include;..\liblz4;..\libtmxlite\include;..\rapidjson\include;..\Freeimage\libfreeimage\include;..\SDKs\wgpu-dawn\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;tinyobjloader\include;..\29VideoEncodeFFMPEG\libffmpeg\include;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libassimp\include;..\openal\include;..\sndfile\include;..\librecast\include;..\libdetour\include;..\libdetourtilecache\include;..\libdetourcrowd\include;..\liblz4;..\libtmxlite\include;..\rapidjson\include;..\Freeimage\libfreeimage\include;..\SDKs\wgpu-dawn\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -96,7 +96,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\libd\x86;..\SDKs\wgpu-dawn\libd\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libfreetype.lib;libimgui.lib;libassimp.lib;libzlib.lib;wgpu.lib;dxguid.lib;onecore.lib;libfreeimage.lib;libwebp.lib;libtiff4.lib;libpng.lib;libjxr.lib;libopenexr.lib;librawlite.lib;libopenjpeg.lib;libjpeg.lib;xinput.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libfreetype.lib;libimgui.lib;libassimp.lib;libzlib.lib;wgpu.lib;dxguid.lib;onecore.lib;libfreeimage.lib;libwebp.lib;libtiff4.lib;libpng.lib;libjxr.lib;libopenexr.lib;librawlite.lib;libopenjpeg.lib;libjpeg.lib;xinput.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;libavutil.lib;libavcodec.lib;libswresample.lib;libavformat.lib;libswscale.lib;libx264.lib;strmiids.lib;mfuuid.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y "$(ProjectDir)..\SDKs\Vulkan\Bin\x64\vulkan-1.dll" "$(ProjectDir)\..\Debug\vulkan-1.dll"
@@ -110,7 +110,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;FREEIMAGE_LIB;WEBGPU_DAWN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;tinyobjloader\include;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libassimp\include;..\openal\include;..\sndfile\include;..\librecast\include;..\libdetour\include;..\libdetourtilecache\include;..\libdetourcrowd\include;..\liblz4;..\libtmxlite\include;..\rapidjson\include;..\Freeimage\libfreeimage\include;..\SDKs\wgpu-dawn\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;tinyobjloader\include;..\29VideoEncodeFFMPEG\libffmpeg\include;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libassimp\include;..\openal\include;..\sndfile\include;..\librecast\include;..\libdetour\include;..\libdetourtilecache\include;..\libdetourcrowd\include;..\liblz4;..\libtmxlite\include;..\rapidjson\include;..\Freeimage\libfreeimage\include;..\SDKs\wgpu-dawn\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -118,7 +118,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\libd\x64;..\SDKs\wgpu-dawn\libd\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libfreetype.lib;libimgui.lib;libassimp.lib;libzlib.lib;wgpu.lib;dxguid.lib;onecore.lib;libfreeimage.lib;libwebp.lib;libtiff4.lib;libpng.lib;libjxr.lib;libopenexr.lib;librawlite.lib;libopenjpeg.lib;libjpeg.lib;xinput.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libfreetype.lib;libimgui.lib;libassimp.lib;libzlib.lib;wgpu.lib;dxguid.lib;onecore.lib;libfreeimage.lib;libwebp.lib;libtiff4.lib;libpng.lib;libjxr.lib;libopenexr.lib;librawlite.lib;libopenjpeg.lib;libjpeg.lib;xinput.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;libavutil.lib;libavcodec.lib;libswresample.lib;libavformat.lib;libswscale.lib;libx264.lib;strmiids.lib;mfuuid.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y "$(ProjectDir)..\SDKs\Vulkan\Bin\x64\vulkan-1.dll" "$(ProjectDir)..\x64\debug\vulkan-1.dll"
@@ -134,7 +134,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;FREEIMAGE_LIB;WEBGPU_DAWN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;tinyobjloader\include;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libassimp\include;..\openal\include;..\sndfile\include;..\librecast\include;..\libdetour\include;..\libdetourtilecache\include;..\libdetourcrowd\include;..\liblz4;..\libtmxlite\include;..\rapidjson\include;..\Freeimage\libfreeimage\include;..\SDKs\wgpu-dawn\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;tinyobjloader\include;..\29VideoEncodeFFMPEG\libffmpeg\include;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libassimp\include;..\openal\include;..\sndfile\include;..\librecast\include;..\libdetour\include;..\libdetourtilecache\include;..\libdetourcrowd\include;..\liblz4;..\libtmxlite\include;..\rapidjson\include;..\Freeimage\libfreeimage\include;..\SDKs\wgpu-dawn\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -145,7 +145,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>..\lib\x86;..\SDKs\wgpu-dawn\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libfreetype.lib;libimgui.lib;libassimp.lib;libzlib.lib;wgpu.lib;dxguid.lib;onecore.lib;libfreeimage.lib;libwebp.lib;libtiff4.lib;libpng.lib;libjxr.lib;libopenexr.lib;librawlite.lib;libopenjpeg.lib;libjpeg.lib;xinput.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libfreetype.lib;libimgui.lib;libassimp.lib;libzlib.lib;wgpu.lib;dxguid.lib;onecore.lib;libfreeimage.lib;libwebp.lib;libtiff4.lib;libpng.lib;libjxr.lib;libopenexr.lib;librawlite.lib;libopenjpeg.lib;libjpeg.lib;xinput.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;libavutil.lib;libavcodec.lib;libswresample.lib;libavformat.lib;libswscale.lib;libx264.lib;strmiids.lib;mfuuid.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y "$(ProjectDir)..\SDKs\Vulkan\Bin\x64\vulkan-1.dll" "$(ProjectDir)..\Release\vulkan-1.dll"
@@ -161,7 +161,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;FREEIMAGE_LIB;WEBGPU_DAWN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;tinyobjloader\include;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libassimp\include;..\openal\include;..\sndfile\include;..\librecast\include;..\libdetour\include;..\libdetourtilecache\include;..\libdetourcrowd\include;..\liblz4;..\libtmxlite\include;..\rapidjson\include;..\Freeimage\libfreeimage\include;..\SDKs\wgpu-dawn\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;tinyobjloader\include;..\29VideoEncodeFFMPEG\libffmpeg\include;..\libglew;..\libsoil2;..\libimgui;..\libfreetype\include;..\libbullet;..\libassimp\include;..\openal\include;..\sndfile\include;..\librecast\include;..\libdetour\include;..\libdetourtilecache\include;..\libdetourcrowd\include;..\liblz4;..\libtmxlite\include;..\rapidjson\include;..\Freeimage\libfreeimage\include;..\SDKs\wgpu-dawn\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -171,8 +171,8 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\lib\x64;..\SDKs\wgpu-dawn\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libfreetype.lib;libimgui.lib;libassimp.lib;libzlib.lib;wgpu.lib;dxguid.lib;onecore.lib;libfreeimage.lib;libwebp.lib;libtiff4.lib;libpng.lib;libjxr.lib;libopenexr.lib;librawlite.lib;libopenjpeg.lib;libjpeg.lib;xinput.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\lib\x64;..\29VideoEncodeFFMPEG\libffmpeg\lib;..\SDKs\wgpu-dawn\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libfreetype.lib;libimgui.lib;libassimp.lib;libzlib.lib;wgpu.lib;dxguid.lib;onecore.lib;libfreeimage.lib;libwebp.lib;libtiff4.lib;libpng.lib;libjxr.lib;libopenexr.lib;librawlite.lib;libopenjpeg.lib;libjpeg.lib;xinput.lib;libopenal.lib;libsndfile.lib;libmpg.lib;liblame.lib;libflac.lib;libavutil.lib;libavcodec.lib;libswresample.lib;libavformat.lib;libswscale.lib;libx264.lib;strmiids.lib;mfuuid.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y "$(ProjectDir)..\SDKs\Vulkan\Bin\x64\vulkan-1.dll" "$(ProjectDir)..\x64\release\vulkan-1.dll"
@@ -224,12 +224,12 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClCompile Include="src\States\NormalMap.cpp" />
     <ClCompile Include="src\States\OcclusionQuery.cpp" />
     <ClCompile Include="src\States\PrimitivePicking.cpp" />
-    <ClCompile Include="src\States\RenderBundles.cpp" />
     <ClCompile Include="src\States\ShadowMapping.cpp" />
     <ClCompile Include="src\States\SkinnedMesh.cpp" />
     <ClCompile Include="src\States\Specularity.cpp" />
     <ClCompile Include="src\States\StateMachine.cpp" />
     <ClCompile Include="src\States\StencilMask.cpp" />
+    <ClCompile Include="src\States\VideoDecode.cpp" />
     <ClCompile Include="src\States\VolumeRendering.cpp" />
     <ClCompile Include="src\States\Wireframe.cpp" />
     <ClCompile Include="src\Utils\Fade.cpp" />
@@ -247,6 +247,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClCompile Include="engine\Vector.cpp" />
     <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\VideoReader.cpp" />
     <ClCompile Include="WebGPU\WgpBatchRenderer.cpp" />
     <ClCompile Include="WebGPU\WgpBuffer.cpp" />
     <ClCompile Include="WebGPU\WgpContext.cpp" />
@@ -323,15 +324,16 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClInclude Include="src\States\NormalMap.h" />
     <ClInclude Include="src\States\OcclusionQuery.h" />
     <ClInclude Include="src\States\PrimitivePicking.h" />
-    <ClInclude Include="src\States\RenderBundles.h" />
     <ClInclude Include="src\States\ShadowMapping.h" />
     <ClInclude Include="src\States\SkinnedMesh.h" />
     <ClInclude Include="src\States\Specularity.h" />
     <ClInclude Include="src\States\StateMachine.h" />
     <ClInclude Include="src\States\StencilMask.h" />
+    <ClInclude Include="src\States\VideoDecode.h" />
     <ClInclude Include="src\States\VolumeRendering.h" />
     <ClInclude Include="src\States\Wireframe.h" />
     <ClInclude Include="src\Utils\Fade.h" />
+    <ClInclude Include="src\VideoReader.h" />
     <ClInclude Include="WebGPU\WgpBatchRenderer.h" />
     <ClInclude Include="WebGPU\WgpBuffer.h" />
     <ClInclude Include="WebGPU\WgpContext.h" />

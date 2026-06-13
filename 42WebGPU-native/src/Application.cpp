@@ -23,7 +23,7 @@
 #include <States/DefferedRendering.h>
 #include <States/VolumeRendering.h>
 #include <States/OcclusionQuery.h>
-#include <States/RenderBundles.h>
+#include <States/VideoDecode.h>
 
 #include "Application.h"
 #include "Globals.h"
@@ -330,7 +330,7 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new DefferedRendering(*Machine));
 	//Machine->addStateAtTop(new VolumeRendering(*Machine));
 	//Machine->addStateAtTop(new OcclusionQuery(*Machine));
-	Machine->addStateAtTop(new RenderBundles(*Machine));
+	Machine->addStateAtTop(new VideoDecode(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
