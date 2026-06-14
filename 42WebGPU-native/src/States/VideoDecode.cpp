@@ -38,7 +38,7 @@ VideoDecode::VideoDecode(StateMachine& machine) : State(machine, States::VIDEO_D
 	
 	wgpContext.setClearColor({ 0.5f, 0.5f, 0.5f, 1.0f });
 	wgpContext.addSahderModule("VIDEO_2D", "res/shader/video_2d.wgsl");
-	wgpContext.createRenderPipeline("VIDEO_2D", "RP_VIDEO_2D", VL_NONE, std::bind(&VideoDecode::OnBindGroupLayoutsNew, this));
+	wgpContext.createRenderPipeline("VIDEO_2D", "RP_VIDEO_2D", VL_NONE, std::bind(&VideoDecode::OnBindGroupLayouts, this));
 
 	m_texture.createEmpty(1280u, 720u, 1u, WGPUTextureUsage_CopyDst | WGPUTextureUsage_TextureBinding, WGPUTextureFormat_RGBA8Unorm);
 	m_bindGroup = createBindGroup();
@@ -54,25 +54,11 @@ VideoDecode::~VideoDecode() {
 }
 
 void VideoDecode::fixedUpdate() {
-	int64_t pts;
-	video_reader_read_frame(&vr_state, frame_data, &pts);
-
-	WGPUTexelCopyTextureInfo destination = {};
-	destination.texture = m_texture.getTexture();
-	destination.mipLevel = 0u;
-	destination.origin = { 0u, 0u, 0u };
-	destination.aspect = WGPUTextureAspect_All;
-
-	WGPUTexelCopyBufferLayout source = {};
-	source.offset = 0u;
-	source.bytesPerRow = frame_width * 4u * sizeof(uint8_t);
-	source.rowsPerImage = frame_height;
-
-	WGPUExtent3D size = { frame_width , frame_height , 1u};
-	wgpuQueueWriteTexture(wgpContext.queue, &destination, frame_data, frame_width * frame_height * 4u * sizeof(uint8_t), &source, &size);	
+	upload();
 }
 
 void VideoDecode::update() {
+	
 	Keyboard& keyboard = Keyboard::instance();
 	Vector3f direction = Vector3f();
 
@@ -127,6 +113,7 @@ void VideoDecode::update() {
 		}
 	}
 	m_trackball.idle();
+	
 }
 
 void VideoDecode::render() {
@@ -240,7 +227,7 @@ void VideoDecode::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 	ImGui_ImplWGPU_RenderDrawData(ImGui::GetDrawData(), renderPassEncoder);
 }
 
-std::vector<WGPUBindGroupLayout> VideoDecode::OnBindGroupLayoutsNew() {
+std::vector<WGPUBindGroupLayout> VideoDecode::OnBindGroupLayouts() {
 	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
 
 	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(2);
@@ -276,4 +263,23 @@ WGPUBindGroup VideoDecode::createBindGroup() {
 	bindGroupDesc.entryCount = (uint32_t)entries.size();
 	bindGroupDesc.entries = (WGPUBindGroupEntry*)entries.data();
 	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
+}
+
+void VideoDecode::upload() {
+	int64_t pts;
+	video_reader_read_frame(&vr_state, frame_data, &pts);
+
+	WGPUTexelCopyTextureInfo destination = {};
+	destination.texture = m_texture.getTexture();
+	destination.mipLevel = 0u;
+	destination.origin = { 0u, 0u, 0u };
+	destination.aspect = WGPUTextureAspect_All;
+
+	WGPUTexelCopyBufferLayout source = {};
+	source.offset = 0u;
+	source.bytesPerRow = frame_width * 4u * sizeof(uint8_t);
+	source.rowsPerImage = frame_height;
+
+	WGPUExtent3D size = { frame_width , frame_height , 1u };
+	wgpuQueueWriteTexture(wgpContext.queue, &destination, frame_data, frame_width * frame_height * 4u * sizeof(uint8_t), &source, &size);
 }

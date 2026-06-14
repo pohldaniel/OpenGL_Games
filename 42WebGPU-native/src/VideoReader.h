@@ -16,7 +16,7 @@ struct VideoReaderState {
     // Public things for other parts of the program to read from
     int width, height;
     AVRational time_base;
-
+    int frameRate = 24;
     // Private internal state
     AVFormatContext* av_format_ctx = nullptr;
     AVCodecContext* av_codec_ctx = nullptr;

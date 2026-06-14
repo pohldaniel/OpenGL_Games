@@ -110,6 +110,7 @@ bool video_reader_read_frame(VideoReaderState* state, uint8_t* frame_buffer, int
     // Decode one frame
     int response;
     while ((response = av_read_frame(av_format_ctx, av_packet)) >= 0) {
+        //av_packet_rescale_ts(av_packet, av_codec_ctx->time_base, av_codec_ctx->time_base);
 
         if (av_packet->stream_index != video_stream_index) {
             av_packet_unref(av_packet);

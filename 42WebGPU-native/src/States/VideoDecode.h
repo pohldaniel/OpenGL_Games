@@ -37,9 +37,10 @@ public:
 
 private:
 
-	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsNew();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayouts();
 	WGPUBindGroup createBindGroup();
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
+	void upload();
 
 	bool m_initUi = true;
 	bool m_drawUi = false;
