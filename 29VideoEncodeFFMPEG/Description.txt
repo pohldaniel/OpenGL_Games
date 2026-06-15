@@ -13,6 +13,9 @@ find . -type f -print0 | xargs -0 dos2unix
 CC=cl ./configure --prefix=installed --enable-static --host=msys --enable-debug --host=msys --extra-cflags="-MD -O1 -Z7"
 CC=cl ./configure --prefix=installed --enable-static --host=msys --extra-ldflags="/OPT:REF /OPT:ICF" --extra-cflags="-MD -Os"
 
+CC=cl ./configure --prefix=installed --enable-shared --host=msys --enable-debug --host=msys --extra-cflags="-MD -O1 -Z7"
+CC=cl ./configure --prefix=installed --enable-shared --host=msys --extra-ldflags="/OPT:REF /OPT:ICF" --extra-cflags="-MD -Os"
+
 make
 make install
 
