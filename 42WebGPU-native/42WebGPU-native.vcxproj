@@ -224,6 +224,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClCompile Include="src\States\NormalMap.cpp" />
     <ClCompile Include="src\States\OcclusionQuery.cpp" />
     <ClCompile Include="src\States\PrimitivePicking.cpp" />
+    <ClCompile Include="src\States\RenderBundles.cpp" />
     <ClCompile Include="src\States\ShadowMapping.cpp" />
     <ClCompile Include="src\States\SkinnedMesh.cpp" />
     <ClCompile Include="src\States\Specularity.cpp" />
@@ -324,6 +325,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClInclude Include="src\States\NormalMap.h" />
     <ClInclude Include="src\States\OcclusionQuery.h" />
     <ClInclude Include="src\States\PrimitivePicking.h" />
+    <ClInclude Include="src\States\RenderBundles.h" />
     <ClInclude Include="src\States\ShadowMapping.h" />
     <ClInclude Include="src\States\SkinnedMesh.h" />
     <ClInclude Include="src\States\Specularity.h" />
