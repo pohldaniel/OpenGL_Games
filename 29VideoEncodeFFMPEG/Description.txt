@@ -10,11 +10,10 @@ cd /cygdrive/c/x264
 curl "http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess;hb=HEAD" > config.guess
 find . -type f -print0 | xargs -0 dos2unix
 
-CC=cl ./configure --prefix=installed --enable-static --host=msys --enable-debug --host=msys --extra-cflags="-MD -O1 -Z7"
+CC=cl ./configure --prefix=installed --enable-static --host=msys --enable-debug --host=msys --extra-cflags="-MD -O2 -Z7"
 CC=cl ./configure --prefix=installed --enable-strip --enable-static --host=msys --extra-ldflags="/OPT:REF /OPT:ICF" --extra-cflags="-MD -Os"
 
-CC=cl ./configure --prefix=installed --enable-shared --host=msys --enable-debug --host=msys --extra-cflags="-MD -O1 -Z7"
-CC=cl ./configure --prefix=installed --enable-strip --enable-shared --host=msys --extra-ldflags="/OPT:REF /OPT:ICF" --extra-cflags="-MD -Os"
+
 
 make
 make install
@@ -30,8 +29,10 @@ CC=cl PKG_CONFIG_PATH="installed/lib/pkgconfig" ./configure --prefix=installed -
 make
 make install
 
-CC=cl ./configure --prefix=installed --enable-shared --host=msys --enable-debug --extra-cflags="-MD -O2 -Z7"
-CC=cl ./configure --prefix=installed --enable-shared --host=msys --extra-cflags="-MD -O2 -Z7"
+CC=cl ./configure --prefix=installed --enable-shared --host=msys --enable-debug --host=msys --extra-cflags="-MD -O2 -Z7"
+CC=cl ./configure --prefix=installed --enable-strip --enable-shared --host=msys --extra-ldflags="/OPT:REF /OPT:ICF" --extra-cflags="-MD -Os"
+
+#IMPORTANT: for the shared build the x264 library has to be renamed to libx264.lib
 
 CC=cl PKG_CONFIG_PATH="installed/lib/pkgconfig" .configure --prefix=installed --toolchain=msvc --target-os=win64 --arch=x86_64 --enable-asm --disable-static --enable-shared --enable-libx264 --enable-gpl --enable-nonfree --disable-doc --enable-debug --disable-optimizations --extra-ldflags="-LIBPATH:installed/lib" --extra-cxxflags="-Iinstalled/include/ -MD -O1 -Z7" --extra-cflags="-Iinstalled/include/ -MD -O1 -Z7"
 CC=cl PKG_CONFIG_PATH="installed/lib/pkgconfig" ./configure --prefix=installed --toolchain=msvc --target-os=win64 --arch=x86_64 --disable-static --disable-doc --disable-debug --enable-asm --enable-libx264 --enable-gpl --enable-nonfree --enable-stripping --enable-optimizations --enable-shared --extra-ldflags="-LIBPATH:installed/lib /OPT:REF /OPT:ICF" --extra-cxxflags="-Iinstalled/include/ -MD -Os" --extra-cflags="-Iinstalled/include/ -MD -Os"
