@@ -54,3 +54,4 @@ mfplat.lib
 strmiids.lib
 crypt32.lib
 ncrypt.lib
+--enable-libmp3lame
