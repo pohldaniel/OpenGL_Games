@@ -10,8 +10,6 @@
 #include "Application.h"
 #include "Globals.h"
 
-#define posix_memalign(p, a, s) (((*(p)) = _aligned_malloc((s), (a))), *(p) ?0 :errno)
-
 RenderBundles::RenderBundles(StateMachine& machine) : State(machine, States::RENDER_BUNDLES) {
 
 	Application::SetCursorIcon(IDC_ARROW);
@@ -22,12 +20,6 @@ RenderBundles::RenderBundles(StateMachine& machine) : State(machine, States::REN
 	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm, Application::OnSurfaceChange);
 	wgpSetSurfaceDepthFormat(WGPUTextureFormat::WGPUTextureFormat_Depth24Plus, Application::OnSurfaceChange);
 
-	video_reader_open(&vr_state, "res/videos/sample.avi");
-	constexpr int ALIGNMENT = 128;
-	frame_width = vr_state.width;
-	frame_height = vr_state.height;
-	posix_memalign((void**)&frame_data, ALIGNMENT, frame_width * frame_height * 4u);
-
 	m_camera.perspective(30.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.5f, 100.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 	m_camera.lookAt(Vector3f(0.0f, 0.0f, 5.0f), Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
@@ -35,13 +27,32 @@ RenderBundles::RenderBundles(StateMachine& machine) : State(machine, States::REN
 	m_camera.setRotationSpeed(0.1f);
 
 	m_trackball.reshape(Application::Width, Application::Height);
+	m_sphere.buildSphere({ 0.0f, 0.0f, 0.0f }, 1.0f, 32u, 16u, true, true);
+
+	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);	
+	m_uniforms.projection = m_camera.getPerspectiveMatrix();
+	m_uniforms.view = m_camera.getViewMatrix();
+	m_uniforms.env = m_camera.getRotationMatrix();
+	m_uniforms.model = Matrix4f::Translate(0.0f, -45.0f, 0.0f);
+	m_uniforms.normal = Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_uniforms.model);
+	m_uniforms.color = { 1.0f, 1.0f, 1.0f, 1.0f };
+	m_uniforms.camPosition = m_camera.getPosition();
+	m_uniforms.lightVP = Matrix4f::IDENTITY;
+	m_uniforms.shadow = Matrix4f::BIAS * m_uniforms.lightVP;
+	m_uniforms.lightPosition = Vector3f(0.0f, 0.0f, 0.0f);
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0u, &m_uniforms, sizeof(Uniforms));
+
+	m_modelBuffer.createBuffer(sizeof(Matrix4f), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
+	wgpuQueueWriteBuffer(wgpContext.queue, m_modelBuffer.getBuffer(), 0u, &Matrix4f::IDENTITY, sizeof(Matrix4f));
 
 	wgpContext.setClearColor({ 0.5f, 0.5f, 0.5f, 1.0f });
-	wgpContext.addSahderModule("VIDEO_2D", "res/shader/video_2d.wgsl");
-	wgpContext.createRenderPipeline("VIDEO_2D", "RP_VIDEO_2D", VL_NONE, std::bind(&RenderBundles::OnBindGroupLayouts, this));
+	wgpContext.addSahderModule("RENDER_BUNDLES", "res/shader/render_bundles.wgsl");
+	wgpContext.createRenderPipeline("RENDER_BUNDLES", "RP_RENDER_BUNDLES", VL_PTN, std::bind(&RenderBundles::OnBindGroupLayouts, this));
 
-	m_texture.createEmpty(1280u, 720u, 1u, WGPUTextureUsage_CopyDst | WGPUTextureUsage_TextureBinding, WGPUTextureFormat_RGBA8Unorm);
-	m_bindGroup = createBindGroup();
+	m_saturnTexture.loadFromFile("res/textures/saturn.jpg", true);
+	m_moonTexture.loadFromFile("res/textures/moon.jpg");
+	m_wgpSphere.create(m_sphere);
+	m_wgpSphere.setBindGroups("BG", std::bind(&RenderBundles::OnBindGroups, this));
 
 	wgpContext.OnDraw = std::bind(&RenderBundles::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
 }
@@ -49,12 +60,15 @@ RenderBundles::RenderBundles(StateMachine& machine) : State(machine, States::REN
 RenderBundles::~RenderBundles() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
-	m_texture.markForDelete();
-	wgpuBindGroupRelease(m_bindGroup);
+
+	m_uniformBuffer.markForDelete();
+	m_modelBuffer.markForDelete();
+	m_saturnTexture.markForDelete();
+	m_moonTexture.markForDelete();
 }
 
 void RenderBundles::fixedUpdate() {
-	upload();
+
 }
 
 void RenderBundles::update() {
@@ -114,6 +128,14 @@ void RenderBundles::update() {
 	}
 	m_trackball.idle();
 
+	m_uniforms.projection = m_camera.getPerspectiveMatrix();
+	m_uniforms.view = m_camera.getViewMatrix();
+	m_uniforms.env = m_camera.getRotationMatrix();
+	m_uniforms.model = m_trackball.getTransform();
+	m_uniforms.normal = Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_uniforms.model);
+	m_uniforms.camPosition = m_camera.getPosition();
+	m_uniforms.lightVP = Matrix4f::IDENTITY;
+	m_uniforms.shadow = Matrix4f::BIAS * m_uniforms.lightVP;
 }
 
 void RenderBundles::render() {
@@ -121,12 +143,12 @@ void RenderBundles::render() {
 }
 
 void RenderBundles::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor) {
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0u, &m_uniforms, sizeof(Uniforms));
 
 	WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDescriptor);
 	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
-	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_VIDEO_2D"));
-	wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_bindGroup, 0u, NULL);
-	wgpuRenderPassEncoderDraw(renderPassEncoder, 3u, 1u, 0u, 0u);
+	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_RENDER_BUNDLES"));
+	m_wgpSphere.draw(renderPassEncoder);
 
 	if (m_drawUi)
 		renderUi(renderPassEncoder);
@@ -228,58 +250,81 @@ void RenderBundles::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 }
 
 std::vector<WGPUBindGroupLayout> RenderBundles::OnBindGroupLayouts() {
-	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
+	std::vector<WGPUBindGroupLayout> bindingLayouts(2);
 
-	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(2);
-	bindingLayoutEntries[0].binding = 0u;
-	bindingLayoutEntries[0].visibility = WGPUShaderStage_Fragment;
-	bindingLayoutEntries[0].sampler.type = WGPUSamplerBindingType_Filtering;
+	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries0(1);
 
-	bindingLayoutEntries[1].binding = 1u;
-	bindingLayoutEntries[1].visibility = WGPUShaderStage_Fragment;
-	bindingLayoutEntries[1].texture.viewDimension = WGPUTextureViewDimension_2D;
-	bindingLayoutEntries[1].texture.sampleType = WGPUTextureSampleType_Float;
+	bindingLayoutEntries0[0].binding = 0u;
+	bindingLayoutEntries0[0].visibility = WGPUShaderStage_Vertex;
+	bindingLayoutEntries0[0].buffer.type = WGPUBufferBindingType_Uniform;
+	bindingLayoutEntries0[0].buffer.minBindingSize = sizeof(Uniforms);
 
-	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
-	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
-	bindGroupLayoutDescriptor.entries = bindingLayoutEntries.data();
+	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor0 = {};
+	bindGroupLayoutDescriptor0.entryCount = (uint32_t)bindingLayoutEntries0.size();
+	bindGroupLayoutDescriptor0.entries = bindingLayoutEntries0.data();
 
-	bindingLayouts[0] = wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor);
+	bindingLayouts[0] = wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor0);
+
+	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries1(3);
+
+	bindingLayoutEntries1[0].binding = 0u;
+	bindingLayoutEntries1[0].visibility = WGPUShaderStage_Vertex;
+	bindingLayoutEntries1[0].buffer.type = WGPUBufferBindingType_Uniform;
+	bindingLayoutEntries1[0].buffer.minBindingSize = sizeof(Matrix4f);
+
+	bindingLayoutEntries1[1].binding = 1u;
+	bindingLayoutEntries1[1].visibility = WGPUShaderStage_Fragment;
+	bindingLayoutEntries1[1].sampler.type = WGPUSamplerBindingType_Filtering;
+
+	bindingLayoutEntries1[2].binding = 2u;
+	bindingLayoutEntries1[2].visibility = WGPUShaderStage_Fragment;
+	bindingLayoutEntries1[2].texture.viewDimension = WGPUTextureViewDimension_2D;
+	bindingLayoutEntries1[2].texture.sampleType = WGPUTextureSampleType_Float;
+
+	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor1 = {};
+	bindGroupLayoutDescriptor1.entryCount = (uint32_t)bindingLayoutEntries1.size();
+	bindGroupLayoutDescriptor1.entries = bindingLayoutEntries1.data();
+
+	bindingLayouts[1] = wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor1);
 
 	return bindingLayouts;
 }
 
-WGPUBindGroup RenderBundles::createBindGroup() {
-	std::vector<WGPUBindGroupEntry> entries(2);
+std::vector<WGPUBindGroup> RenderBundles::OnBindGroups() {
+	std::vector<WGPUBindGroup> bindGroups(2);
 
-	entries[0].binding = 0u;
-	entries[0].sampler = wgpContext.getSampler(SS_LINEAR_CLAMP);
+	std::vector<WGPUBindGroupEntry> bindGroupEntries0(1);
+	bindGroupEntries0[0].binding = 0u;
+	bindGroupEntries0[0].buffer = m_uniformBuffer.getBuffer();
+	bindGroupEntries0[0].offset = 0u;
+	bindGroupEntries0[0].size = sizeof(Uniforms);
 
-	entries[1].binding = 1u;
-	entries[1].textureView = m_texture.getTextureView();
+	WGPUBindGroupDescriptor bindGroupDesc0 = {};
+	bindGroupDesc0.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_RENDER_BUNDLES"), 0u);
+	bindGroupDesc0.entryCount = (uint32_t)bindGroupEntries0.size();
+	bindGroupDesc0.entries = bindGroupEntries0.data();
 
-	WGPUBindGroupDescriptor bindGroupDesc = {};
-	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_VIDEO_2D"), 0u);
-	bindGroupDesc.entryCount = (uint32_t)entries.size();
-	bindGroupDesc.entries = (WGPUBindGroupEntry*)entries.data();
-	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
-}
+	bindGroups[0] = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc0);
 
-void RenderBundles::upload() {
-	int64_t pts;
-	video_reader_read_frame(&vr_state, frame_data, &pts);
+	std::vector<WGPUBindGroupEntry> bindGroupEntries1(3);
+	bindGroupEntries1[0].binding = 0u;
+	bindGroupEntries1[0].buffer = m_modelBuffer.getBuffer();
+	bindGroupEntries1[0].offset = 0u;
+	bindGroupEntries1[0].size = sizeof(Matrix4f);
 
-	WGPUTexelCopyTextureInfo destination = {};
-	destination.texture = m_texture.getTexture();
-	destination.mipLevel = 0u;
-	destination.origin = { 0u, 0u, 0u };
-	destination.aspect = WGPUTextureAspect_All;
 
-	WGPUTexelCopyBufferLayout source = {};
-	source.offset = 0u;
-	source.bytesPerRow = frame_width * 4u * sizeof(uint8_t);
-	source.rowsPerImage = frame_height;
+	bindGroupEntries1[1].binding = 1u;
+	bindGroupEntries1[1].sampler = wgpContext.getSampler(SS_LINEAR_CLAMP);
 
-	WGPUExtent3D size = { frame_width , frame_height , 1u };
-	wgpuQueueWriteTexture(wgpContext.queue, &destination, frame_data, frame_width * frame_height * 4u * sizeof(uint8_t), &source, &size);
+	bindGroupEntries1[2].binding = 2u;
+	bindGroupEntries1[2].textureView = m_saturnTexture.getTextureView();
+
+	WGPUBindGroupDescriptor bindGroupDesc1 = {};
+	bindGroupDesc1.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_RENDER_BUNDLES"), 1u);
+	bindGroupDesc1.entryCount = (uint32_t)bindGroupEntries1.size();
+	bindGroupDesc1.entries = bindGroupEntries1.data();
+
+	bindGroups[1] = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc1);
+
+	return bindGroups;
 }

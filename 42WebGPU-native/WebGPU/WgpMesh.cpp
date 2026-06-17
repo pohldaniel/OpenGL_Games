@@ -124,7 +124,7 @@ void WgpMesh::setBindGroupsSlot(const std::string& bindGroupsSlot) {
 }
 
 void WgpMesh::setBindGroups(std::string bindGroupsName, const std::function<std::vector<WGPUBindGroup>()>& onBindGroups) {
-	m_bindGroups[bindGroupsName] = onBindGroups();
+	addBindGroups(bindGroupsName, onBindGroups);
 	m_bindGroupsSlot = bindGroupsName;
 }
 

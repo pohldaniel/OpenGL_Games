@@ -13,8 +13,6 @@
 #include <WebGPU/WgpModel.h>
 #include <WebGPU/WgpData.h>
 
-#include "VideoReader.h"
-
 class RenderBundles : public State, public MouseEventListener, public KeyboardEventListener {
 
 public:
@@ -37,21 +35,19 @@ public:
 
 private:
 
+	std::vector<WGPUBindGroup> OnBindGroups();
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayouts();
-	WGPUBindGroup createBindGroup();
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
-	void upload();
 
 	bool m_initUi = true;
 	bool m_drawUi = false;
 
 	Camera m_camera;
 	TrackBall m_trackball;
-	int frame_width;
-	int frame_height;
-	VideoReaderState vr_state;
-	uint8_t* frame_data;
-
-	WgpTexture m_texture;
-	WGPUBindGroup m_bindGroup;
+	Uniforms m_uniforms;
+	Shape m_sphere;
+	
+	WgpModel m_wgpSphere;
+	WgpBuffer m_uniformBuffer, m_modelBuffer;
+	WgpTexture m_saturnTexture, m_moonTexture;
 };
