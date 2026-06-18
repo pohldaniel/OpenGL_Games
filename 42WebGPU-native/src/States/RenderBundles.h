@@ -38,6 +38,7 @@ private:
 	std::vector<WGPUBindGroup> OnBindGroups();
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayouts();
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
+	std::vector<Shape> m_asteroids;
 
 	bool m_initUi = true;
 	bool m_drawUi = false;

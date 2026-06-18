@@ -27,7 +27,14 @@ RenderBundles::RenderBundles(StateMachine& machine) : State(machine, States::REN
 	m_camera.setRotationSpeed(0.1f);
 
 	m_trackball.reshape(Application::Width, Application::Height);
-	m_sphere.buildSphere({ 0.0f, 0.0f, 0.0f }, 1.0f, 32u, 16u, true, true);
+	m_sphere.buildSphere({ 0.0f, 0.0f, 0.0f }, 1.0f, 0.0f, 32u, 16u, true, true);
+
+	m_asteroids.resize(5);
+	m_asteroids[0].buildSphere({ 0.0f, 0.0f, 0.0f }, 1.0f, 0.15f, 8u, 6u, true, true);
+	m_asteroids[1].buildSphere({ 0.0f, 0.0f, 0.0f }, 1.0f, 0.15f, 8u, 6u, true, true);
+	m_asteroids[2].buildSphere({ 0.0f, 0.0f, 0.0f }, 1.0f, 0.15f, 8u, 6u, true, true);
+	m_asteroids[3].buildSphere({ 0.0f, 0.0f, 0.0f }, 1.0f, 0.15f, 8u, 6u, true, true);
+	m_asteroids[4].buildSphere({ 0.0f, 0.0f, 0.0f }, 1.0f, 0.15f, 16u, 8u, true, true);
 
 	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);	
 	m_uniforms.projection = m_camera.getPerspectiveMatrix();

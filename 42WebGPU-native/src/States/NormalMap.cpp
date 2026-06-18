@@ -55,7 +55,7 @@ NormalMap::NormalMap(StateMachine& machine) : State(machine, States::NORMAL_MAP)
 	m_wgpCube.create(m_cube);
 	m_wgpCube.setBindGroups("BG", std::bind(&NormalMap::OnBindGroups, this));
 
-	m_sphere.buildSphere({ 0.0f, 0.0f, 0.0f }, 1.0f, 49u, 49u, true, true, true);
+	m_sphere.buildSphere({ 0.0f, 0.0f, 0.0f }, 1.0f, 0.0f, 49u, 49u, true, true, true);
 	m_wgpSphere.create(m_sphere);
 	m_wgpSphere.setBindGroups("BG", std::bind(&NormalMap::OnBindGroups, this));
 

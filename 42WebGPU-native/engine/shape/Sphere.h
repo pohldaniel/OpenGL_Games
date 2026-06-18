@@ -12,7 +12,7 @@ public:
 	Sphere(const std::array<float, 3>& position, float radius, bool generateTexels, bool generateNormals, bool generateTangents, unsigned int uResolution = 49u, unsigned int vResolution = 49u);
 	~Sphere();
 
-	static void BuildMesh(const std::array<float, 3>& position, float radius , int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer);
+	static void BuildMesh(const std::array<float, 3>& position, float radius, float randomness, int uResolution, int vResolution, bool generateTexels, bool generateNormals, bool generateTangents, std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer);
 
 private:
 

@@ -28,9 +28,9 @@ StencilMask::StencilMask(StateMachine& machine) : State(machine, States::STENCIL
 	m_trackball.reshape(Application::Width, Application::Height);
 
 	m_quad.buildQuadXZ({ -0.5f, 0.5f, -0.5f }, { 1.0f, 1.0f }, 1u, 1u);
-	m_sphere.buildSphere({ 0.0f, 0.0f, 0.0f }, 1.0f, 24u, 12u);
+	m_sphere.buildSphere({ 0.0f, 0.0f, 0.0f }, 1.0f, 0.0f, 24u, 12u);
 	m_cube.buildCube({ -0.5f, 0.5f, -0.5f }, { 1.0f, 1.0f, 1.0f }, 1u, 1u);
-	m_jem.buildSphere({ 0.0f, 0.0f, 0.0f }, 1.0f, 6u, 5u);
+	m_jem.buildSphere({ 0.0f, 0.0f, 0.0f }, 1.0f, 0.0f, 6u, 5u);
 	m_jem.flatShading();
 	m_cylinder.buildCylinder({ 0.0f, 0.0f, 0.0f }, 1.0f, 1.0f, 1.0f, true, true, 1u, 24u);
 	m_cone.buildCylinder({ 0.0f, 0.0f, 0.0f }, 1.0f, 0.0f, 1.0f, true, false, 1u, 24u);

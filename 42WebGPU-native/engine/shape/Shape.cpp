@@ -62,8 +62,8 @@ void Shape::buildCube(const std::array<float, 3>& position, const std::array<flo
 	m_stride = 3u + 2u * generateTexels + 3u * generateNormals + 6u * generateTangents;
 }
 
-void Shape::buildSphere(const std::array<float, 3>& position, float radius, unsigned int uResolution, unsigned int vResolution, bool generateTexels, bool generateNormals, bool generateTangents) {
-	Sphere::BuildMesh(position, radius, uResolution, vResolution, generateTexels, generateNormals, generateTangents, m_vertexBuffer, m_indexBuffer);
+void Shape::buildSphere(const std::array<float, 3>& position, float radius, float randomness, unsigned int uResolution, unsigned int vResolution, bool generateTexels, bool generateNormals, bool generateTangents) {
+	Sphere::BuildMesh(position, radius, randomness, uResolution, vResolution, generateTexels, generateNormals, generateTangents, m_vertexBuffer, m_indexBuffer);
 	m_stride = 3u + 2u * generateTexels + 3u * generateNormals + 6u * generateTangents;
 }
 
@@ -144,7 +144,7 @@ void Shape::flatShading() {
 		for (uint32_t j = 0; j < m_stride; ++j) {
 			vertexBuffer[dst_off + j] = m_vertexBuffer[src_off + j];
 		}
-		indexBuffer[i] = i;
+		indexBuffer[i] = static_cast<unsigned int>(i);
 	}
 
 	for (size_t i = 0; i < vertexBuffer.size() / m_stride; i = i + 3) {
