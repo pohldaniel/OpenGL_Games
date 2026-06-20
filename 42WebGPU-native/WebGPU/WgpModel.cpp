@@ -108,3 +108,9 @@ void WgpModel::draw(const WGPURenderPassEncoder& renderPassEncoder, uint32_t ins
 		(*it).draw(renderPassEncoder, instanceCount);
 	}
 }
+
+void WgpModel::draw(const WGPURenderBundleEncoder& renderBundleEncoder, uint32_t instanceCount) const {
+	for (std::list<WgpMesh>::const_iterator it = m_meshes.begin(); it != m_meshes.end(); ++it) {
+		(*it).draw(renderBundleEncoder, instanceCount);
+	}
+}

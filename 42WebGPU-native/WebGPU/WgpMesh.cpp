@@ -237,6 +237,19 @@ void WgpMesh::draw(const WGPURenderPassEncoder& renderPassEncoder, uint32_t inst
 	wgpuRenderPassEncoderDrawIndexed(renderPassEncoder, m_drawCount, instanceCount, 0u, 0u, 0u);
 }
 
+void WgpMesh::draw(const WGPURenderBundleEncoder& renderBundleEncoder, uint32_t instanceCount) const {
+	if (m_bindGroups.size()) {
+		const std::vector<WGPUBindGroup>& bindGroups = m_bindGroups.at(m_bindGroupsSlot);
+		for (uint32_t i = 0u; i < bindGroups.size(); i++) {
+			wgpuRenderBundleEncoderSetBindGroup(renderBundleEncoder, i, bindGroups[i], 0u, NULL);
+		}
+	}
+
+	wgpuRenderBundleEncoderSetVertexBuffer(renderBundleEncoder, 0u, m_vertexBuffer.m_buffer, 0u, wgpuBufferGetSize(m_vertexBuffer.m_buffer));
+	wgpuRenderBundleEncoderSetIndexBuffer(renderBundleEncoder, m_indexBuffer.m_buffer, WGPUIndexFormat_Uint32, 0u, wgpuBufferGetSize(m_indexBuffer.m_buffer));
+	wgpuRenderBundleEncoderDrawIndexed(renderBundleEncoder, m_drawCount, instanceCount, 0u, 0u, 0u);
+}
+
 void WgpMesh::OnMapColorToBuffer(WGPUMapAsyncStatus status, WGPUStringView message, void* userdata1, void* userdata2) {
 	if (status == WGPUMapAsyncStatus_Success) {	
 		std::tuple<bool, WgpBuffer, WgpBuffer&, size_t>* userdata = static_cast<std::tuple<bool, WgpBuffer, WgpBuffer&, size_t>*>(userdata1);

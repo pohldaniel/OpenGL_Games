@@ -69,8 +69,9 @@ RenderBundles::RenderBundles(StateMachine& machine) : State(machine, States::REN
 	m_wgpAsteroids[4].create(m_asteroids[4]);
 
 	wgpContext.OnDraw = std::bind(&RenderBundles::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
-
+	wgpContext.OnPostDraw = std::bind(&RenderBundles::OnPostDraw, this);
 	placeAsteroids();
+	updateRenderBundle();
 }
 
 RenderBundles::~RenderBundles() {
@@ -85,7 +86,8 @@ RenderBundles::~RenderBundles() {
 	for (const Renderable& renderable : m_renderables) {
 		renderable.uniformBuffer.markForDelete();
 		wgpuBindGroupRelease(renderable.bindGroup);
-	}	
+	}
+	wgpuRenderBundleRelease(m_renderBundle);
 }
 
 void RenderBundles::fixedUpdate() {
@@ -172,13 +174,18 @@ void RenderBundles::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPUR
 
 	WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDescriptor);
 	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
-	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_RENDER_BUNDLES"));
-	m_wgpSphere.draw(renderPassEncoder);
+	
+	if (m_useRendeBundle) {
+		wgpuRenderPassEncoderExecuteBundles(renderPassEncoder, 1u, &m_renderBundle);
+	}else {
+		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_RENDER_BUNDLES"));
+		m_wgpSphere.draw(renderPassEncoder);
 
-	for (uint32_t index = 0u; index < m_countAsteroids; index++) {
-		const Renderable& renderable = m_renderables[index];
-		wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 1u, renderable.bindGroup, 0u, NULL);
-		m_wgpAsteroids[renderable.geometryIndex].draw(renderPassEncoder);
+		for (uint32_t index = 0u; index < m_countAsteroids; index++) {
+			const Renderable& renderable = m_renderables[index];
+			wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 1u, renderable.bindGroup, 0u, NULL);
+			m_wgpAsteroids[renderable.geometryIndex].draw(renderPassEncoder);
+		}
 	}
 
 	if (m_drawUi)
@@ -186,6 +193,15 @@ void RenderBundles::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPUR
 
 	wgpuRenderPassEncoderEnd(renderPassEncoder);
 	wgpuRenderPassEncoderRelease(renderPassEncoder);
+}
+
+void RenderBundles::OnPostDraw() {
+	if (m_replace) {
+		placeAsteroids();
+		wgpuRenderBundleRelease(m_renderBundle);
+		updateRenderBundle();
+		m_replace = false;
+	}
 }
 
 void RenderBundles::OnMouseMotion(const Event::MouseMoveEvent& event) {
@@ -274,9 +290,9 @@ void RenderBundles::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 	}
 
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+	ImGui::Checkbox("Use Render Bundle", &m_useRendeBundle);
 	if (ImGui::SliderInt("Asteroid Count", &m_countAsteroids, 1000, MAX_ASTEROID_COUNT)) {
-
-		placeAsteroids();
+		m_replace = true;
 	}
 	ImGui::End();
 
@@ -424,4 +440,29 @@ void RenderBundles::placeAsteroids() {
 
 		createAsteroid(m_renderables[index], index % m_wgpAsteroids.size(), tranform.getTransformationMatrix());
 	}
+}
+
+void RenderBundles::updateRenderBundle() {
+
+	WGPURenderBundleEncoderDescriptor renderBundleEncoderDescriptor = {};
+	renderBundleEncoderDescriptor.label = STRVIEW("render_bundle_encoder");
+	renderBundleEncoderDescriptor.colorFormatCount = 1u;
+	renderBundleEncoderDescriptor.colorFormats = &wgpContext.colorformat;
+	renderBundleEncoderDescriptor.depthStencilFormat = wgpContext.depthformat;
+	renderBundleEncoderDescriptor.sampleCount = wgpContext.msaaSampleCount;
+
+	renderBundleEncoderDescriptor.depthReadOnly = WGPUOptionalBool::WGPUOptionalBool_False;
+	renderBundleEncoderDescriptor.stencilReadOnly = WGPUOptionalBool::WGPUOptionalBool_True;
+
+	WGPURenderBundleEncoder renderBundleEncoder = wgpuDeviceCreateRenderBundleEncoder(wgpContext.device, &renderBundleEncoderDescriptor);			
+	wgpuRenderBundleEncoderSetPipeline(renderBundleEncoder, wgpContext.renderPipelines.at("RP_RENDER_BUNDLES"));
+	m_wgpSphere.draw(renderBundleEncoder);
+
+	for (uint32_t index = 0u; index < m_countAsteroids; index++) {
+		const Renderable& renderable = m_renderables[index];
+		wgpuRenderBundleEncoderSetBindGroup(renderBundleEncoder, 1u, renderable.bindGroup, 0u, NULL);
+		m_wgpAsteroids[renderable.geometryIndex].draw(renderBundleEncoder);
+	}
+
+	m_renderBundle = wgpuRenderBundleEncoderFinish(renderBundleEncoder, NULL);
 }
