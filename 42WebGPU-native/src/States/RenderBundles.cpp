@@ -290,6 +290,7 @@ void RenderBundles::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 	}
 
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+	ImGui::Text("Application average FPS %.1f", static_cast<double>(ImGui::GetIO().Framerate));
 	ImGui::Checkbox("Use Render Bundle", &m_useRendeBundle);
 	if (ImGui::SliderInt("Asteroid Count", &m_countAsteroids, 1000, MAX_ASTEROID_COUNT)) {
 		m_replace = true;
