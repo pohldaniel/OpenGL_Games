@@ -29,6 +29,7 @@ public:
 	void moveX(float dx);
 	void moveY(float dy);
 	void moveZ(float dx);
+	void rotateY(float degrees);
 
 	virtual void rotate(float yaw, float pitch);
 	void rotate(float yaw, float pitch, const Vector3f &target);

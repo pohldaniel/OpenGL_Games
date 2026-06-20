@@ -434,6 +434,20 @@ void Camera::moveZ(float dz) {
 	m_invViewMatrix[3][2] = m_eye[2] - m_viewDir[2] * m_distance;
 }
 
+void Camera::rotateY(float degrees) {
+	Matrix4f rotMtx;
+	rotMtx.rotate(WORLD_YAXIS, degrees);
+
+	m_accumYawDegrees += degrees;
+	m_xAxis = rotMtx * m_xAxis;
+	m_yAxis = rotMtx * m_yAxis;
+	m_zAxis = rotMtx * m_zAxis;
+	fillRotationPart();
+	
+	m_eye = rotMtx * m_eye;
+	fillTranslationPart();
+}
+
 void Camera::rotate(float yaw, float pitch) {
 	rotateFirstPerson(yaw * m_rotationSpeed, pitch * m_rotationSpeed);
 	orthogonalize();

@@ -26,7 +26,7 @@ void WgpBuffer::cleanup() {
 	m_buffer = NULL;
 }
 
-void WgpBuffer::markForDelete() {
+void WgpBuffer::markForDelete() const {
 	m_markForDelete = true;
 }
 

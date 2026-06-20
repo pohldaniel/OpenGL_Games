@@ -16,11 +16,11 @@ public:
 	void createBuffer(const void* data, uint32_t size, WGPUBufferUsage bufferUsage);
 	void createBuffer(uint32_t size, WGPUBufferUsage bufferUsage, bool mappedAtCreation = false);
 	void cleanup();
-	void markForDelete();
+	void markForDelete() const;
 	const WGPUBuffer& getBuffer() const;
 
 private:
 
 	WGPUBuffer m_buffer;
-	bool m_markForDelete;
+	mutable bool m_markForDelete;
 };

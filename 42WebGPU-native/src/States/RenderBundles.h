@@ -13,7 +13,15 @@
 #include <WebGPU/WgpModel.h>
 #include <WebGPU/WgpData.h>
 
+#define MAX_ASTEROID_COUNT (10000u)
+
 class RenderBundles : public State, public MouseEventListener, public KeyboardEventListener {
+
+	struct Renderable {
+		uint32_t geometryIndex;
+		WgpBuffer uniformBuffer;
+		WGPUBindGroup bindGroup;
+	};
 
 public:
 
@@ -39,16 +47,22 @@ private:
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayouts();
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 	std::vector<Shape> m_asteroids;
+	std::vector<WgpModel> m_wgpAsteroids;
 
 	bool m_initUi = true;
-	bool m_drawUi = false;
+	bool m_drawUi = true;
 
 	Camera m_camera;
 	TrackBall m_trackball;
 	Uniforms m_uniforms;
 	Shape m_sphere;
-	
+	int m_countAsteroids;
+
 	WgpModel m_wgpSphere;
 	WgpBuffer m_uniformBuffer, m_modelBuffer;
 	WgpTexture m_saturnTexture, m_moonTexture;
+	std::vector<Renderable> m_renderables;
+
+	void createAsteroid(Renderable& renderable, uint32_t geometryIndex, const Matrix4f& model);
+	void placeAsteroids();
 };

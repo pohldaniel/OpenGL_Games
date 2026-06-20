@@ -10,7 +10,7 @@
 #include "Application.h"
 #include "Globals.h"
 
-RenderBundles::RenderBundles(StateMachine& machine) : State(machine, States::RENDER_BUNDLES) {
+RenderBundles::RenderBundles(StateMachine& machine) : State(machine, States::RENDER_BUNDLES), m_countAsteroids(5000u) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -20,21 +20,21 @@ RenderBundles::RenderBundles(StateMachine& machine) : State(machine, States::REN
 	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm, Application::OnSurfaceChange);
 	wgpSetSurfaceDepthFormat(WGPUTextureFormat::WGPUTextureFormat_Depth24Plus, Application::OnSurfaceChange);
 
-	m_camera.perspective(30.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.5f, 100.0f);
+	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.5f, 100.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-	m_camera.lookAt(Vector3f(0.0f, 0.0f, 5.0f), Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
-	m_camera.setMovingSpeed(20.0f);
+	m_camera.lookAt(4.0f, 0.1f * 180.0f, 0.0f, 0.1f * 180.0f);
+	m_camera.setMovingSpeed(5.0f);
 	m_camera.setRotationSpeed(0.1f);
 
 	m_trackball.reshape(Application::Width, Application::Height);
 	m_sphere.buildSphere({ 0.0f, 0.0f, 0.0f }, 1.0f, 0.0f, 32u, 16u, true, true);
 
 	m_asteroids.resize(5);
-	m_asteroids[0].buildSphere({ 0.0f, 0.0f, 0.0f }, 1.0f, 0.15f, 8u, 6u, true, true);
-	m_asteroids[1].buildSphere({ 0.0f, 0.0f, 0.0f }, 1.0f, 0.15f, 8u, 6u, true, true);
-	m_asteroids[2].buildSphere({ 0.0f, 0.0f, 0.0f }, 1.0f, 0.15f, 8u, 6u, true, true);
-	m_asteroids[3].buildSphere({ 0.0f, 0.0f, 0.0f }, 1.0f, 0.15f, 8u, 6u, true, true);
-	m_asteroids[4].buildSphere({ 0.0f, 0.0f, 0.0f }, 1.0f, 0.15f, 16u, 8u, true, true);
+	m_asteroids[0].buildSphere({ 0.0f, 0.0f, 0.0f }, 0.01f , 0.15f, 8u, 6u, true, true);
+	m_asteroids[1].buildSphere({ 0.0f, 0.0f, 0.0f }, 0.013f, 0.15f, 8u, 6u, true, true);
+	m_asteroids[2].buildSphere({ 0.0f, 0.0f, 0.0f }, 0.017f, 0.15f, 8u, 6u, true, true);
+	m_asteroids[3].buildSphere({ 0.0f, 0.0f, 0.0f }, 0.02f , 0.15f, 8u, 6u, true, true);
+	m_asteroids[4].buildSphere({ 0.0f, 0.0f, 0.0f }, 0.03f , 0.15f, 16u, 8u, true, true);
 
 	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);	
 	m_uniforms.projection = m_camera.getPerspectiveMatrix();
@@ -52,7 +52,7 @@ RenderBundles::RenderBundles(StateMachine& machine) : State(machine, States::REN
 	m_modelBuffer.createBuffer(sizeof(Matrix4f), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	wgpuQueueWriteBuffer(wgpContext.queue, m_modelBuffer.getBuffer(), 0u, &Matrix4f::IDENTITY, sizeof(Matrix4f));
 
-	wgpContext.setClearColor({ 0.5f, 0.5f, 0.5f, 1.0f });
+	wgpContext.setClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
 	wgpContext.addSahderModule("RENDER_BUNDLES", "res/shader/render_bundles.wgsl");
 	wgpContext.createRenderPipeline("RENDER_BUNDLES", "RP_RENDER_BUNDLES", VL_PTN, std::bind(&RenderBundles::OnBindGroupLayouts, this));
 
@@ -61,7 +61,16 @@ RenderBundles::RenderBundles(StateMachine& machine) : State(machine, States::REN
 	m_wgpSphere.create(m_sphere);
 	m_wgpSphere.setBindGroups("BG", std::bind(&RenderBundles::OnBindGroups, this));
 
+	m_wgpAsteroids.resize(5);
+	m_wgpAsteroids[0].create(m_asteroids[0]);
+	m_wgpAsteroids[1].create(m_asteroids[1]);
+	m_wgpAsteroids[2].create(m_asteroids[2]);
+	m_wgpAsteroids[3].create(m_asteroids[3]);
+	m_wgpAsteroids[4].create(m_asteroids[4]);
+
 	wgpContext.OnDraw = std::bind(&RenderBundles::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
+
+	placeAsteroids();
 }
 
 RenderBundles::~RenderBundles() {
@@ -72,6 +81,11 @@ RenderBundles::~RenderBundles() {
 	m_modelBuffer.markForDelete();
 	m_saturnTexture.markForDelete();
 	m_moonTexture.markForDelete();
+
+	for (const Renderable& renderable : m_renderables) {
+		renderable.uniformBuffer.markForDelete();
+		wgpuBindGroupRelease(renderable.bindGroup);
+	}	
 }
 
 void RenderBundles::fixedUpdate() {
@@ -135,6 +149,8 @@ void RenderBundles::update() {
 	}
 	m_trackball.idle();
 
+	m_camera.rotateY(m_dt * 2.0f);
+
 	m_uniforms.projection = m_camera.getPerspectiveMatrix();
 	m_uniforms.view = m_camera.getViewMatrix();
 	m_uniforms.env = m_camera.getRotationMatrix();
@@ -143,6 +159,8 @@ void RenderBundles::update() {
 	m_uniforms.camPosition = m_camera.getPosition();
 	m_uniforms.lightVP = Matrix4f::IDENTITY;
 	m_uniforms.shadow = Matrix4f::BIAS * m_uniforms.lightVP;
+
+	wgpuQueueWriteBuffer(wgpContext.queue, m_modelBuffer.getBuffer(), 0u, &m_uniforms.model, sizeof(Matrix4f));
 }
 
 void RenderBundles::render() {
@@ -156,6 +174,12 @@ void RenderBundles::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPUR
 	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
 	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_RENDER_BUNDLES"));
 	m_wgpSphere.draw(renderPassEncoder);
+
+	for (uint32_t index = 0u; index < m_countAsteroids; index++) {
+		const Renderable& renderable = m_renderables[index];
+		wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 1u, renderable.bindGroup, 0u, NULL);
+		m_wgpAsteroids[renderable.geometryIndex].draw(renderPassEncoder);
+	}
 
 	if (m_drawUi)
 		renderUi(renderPassEncoder);
@@ -250,6 +274,10 @@ void RenderBundles::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 	}
 
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+	if (ImGui::SliderInt("Asteroid Count", &m_countAsteroids, 1000, MAX_ASTEROID_COUNT)) {
+
+		placeAsteroids();
+	}
 	ImGui::End();
 
 	ImGui::Render();
@@ -334,4 +362,66 @@ std::vector<WGPUBindGroup> RenderBundles::OnBindGroups() {
 	bindGroups[1] = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc1);
 
 	return bindGroups;
+}
+
+void RenderBundles::createAsteroid(Renderable& renderable, uint32_t geometryIndex, const Matrix4f& model) {
+	renderable.geometryIndex = geometryIndex;
+
+	renderable.uniformBuffer.createBuffer(sizeof(Matrix4f), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
+	wgpuQueueWriteBuffer(wgpContext.queue, renderable.uniformBuffer.getBuffer(), 0u, &model, sizeof(Matrix4f));
+
+	std::vector<WGPUBindGroupEntry> bindGroupEntries(3);
+	bindGroupEntries[0].binding = 0u;
+	bindGroupEntries[0].buffer = renderable.uniformBuffer.getBuffer();
+	bindGroupEntries[0].offset = 0u;
+	bindGroupEntries[0].size = sizeof(Matrix4f);
+
+	bindGroupEntries[1].binding = 1u;
+	bindGroupEntries[1].sampler = wgpContext.getSampler(SS_LINEAR_CLAMP);
+
+	bindGroupEntries[2].binding = 2u;
+	bindGroupEntries[2].textureView = m_moonTexture.getTextureView();
+
+	WGPUBindGroupDescriptor bindGroupDesc = {};
+	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_RENDER_BUNDLES"), 1u);
+	bindGroupDesc.entryCount = (uint32_t)bindGroupEntries.size();
+	bindGroupDesc.entries = bindGroupEntries.data();
+
+	renderable.bindGroup = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
+}
+
+float random_float_min_max(float min, float max){
+	return ((max - min) * ((float)rand() / (float)RAND_MAX)) + min;
+}
+
+float random_float(void){
+	return random_float_min_max(0.0f, 1.0f); /* [0, 1.0] */
+}
+
+void RenderBundles::placeAsteroids() {
+	for (const Renderable& renderable : m_renderables) {
+		renderable.uniformBuffer.markForDelete();
+		wgpuBindGroupRelease(renderable.bindGroup);
+	}
+	m_renderables.clear();
+	m_renderables.shrink_to_fit();
+
+	m_renderables.resize(m_countAsteroids);
+
+	float radius = 0.0f, radians = 0.0f, x = 0.0f, y = 0.0f, z = 0.0f;
+	Transform tranform;
+	for (uint32_t index = 0u; index < m_countAsteroids; index++) {
+		radius = random_float() * 1.7f + 1.25f;
+		radians = random_float() * PI * 2.0f;
+		x = sinf(radians) * radius;
+		y = (random_float() - 0.5f) * 0.015f;
+		z = cosf(radians) * radius;
+
+		tranform.reset();
+		tranform.rotate(0.0f, random_float() * 180.0f, 0.0f);
+		tranform.rotate(random_float() * 180.0f, 0.0f, 0.0f);
+		tranform.translate(x, y, z);
+
+		createAsteroid(m_renderables[index], index % m_wgpAsteroids.size(), tranform.getTransformationMatrix());
+	}
 }

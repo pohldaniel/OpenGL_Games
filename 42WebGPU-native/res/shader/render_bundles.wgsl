@@ -30,8 +30,8 @@ struct VertexOutput {
 @vertex
 fn vs_main(in: VertexInput) -> VertexOutput {
   var out : VertexOutput;
-  out.position = uniforms.projection * uniforms.view * uniforms.model * vec4(in.position, 1.0);
-  out.normal = normalize((uniforms.model * vec4(in.normal, 0)).xyz);
+  out.position = uniforms.projection * uniforms.view * model * vec4(in.position, 1.0);
+  out.normal = normalize((model * vec4(in.normal, 0)).xyz);
   out.uv = in.uv;
   return out;
 }
