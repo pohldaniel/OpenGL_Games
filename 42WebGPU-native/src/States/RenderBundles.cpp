@@ -20,7 +20,7 @@ RenderBundles::RenderBundles(StateMachine& machine) : State(machine, States::REN
 	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm, Application::OnSurfaceChange);
 	wgpSetSurfaceDepthFormat(WGPUTextureFormat::WGPUTextureFormat_Depth24Plus, Application::OnSurfaceChange);
 
-	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.5f, 100.0f);
+	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 100.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 	m_camera.lookAt(4.0f, 0.1f * 180.0f, 0.0f, 0.1f * 180.0f);
 	m_camera.setMovingSpeed(5.0f);
@@ -40,7 +40,7 @@ RenderBundles::RenderBundles(StateMachine& machine) : State(machine, States::REN
 	m_uniforms.projection = m_camera.getPerspectiveMatrix();
 	m_uniforms.view = m_camera.getViewMatrix();
 	m_uniforms.env = m_camera.getRotationMatrix();
-	m_uniforms.model = Matrix4f::Translate(0.0f, -45.0f, 0.0f);
+	m_uniforms.model = Matrix4f::IDENTITY;
 	m_uniforms.normal = Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_uniforms.model);
 	m_uniforms.color = { 1.0f, 1.0f, 1.0f, 1.0f };
 	m_uniforms.camPosition = m_camera.getPosition();
@@ -57,7 +57,7 @@ RenderBundles::RenderBundles(StateMachine& machine) : State(machine, States::REN
 	wgpContext.createRenderPipeline("RENDER_BUNDLES", "RP_RENDER_BUNDLES", VL_PTN, std::bind(&RenderBundles::OnBindGroupLayouts, this));
 
 	m_saturnTexture.loadFromFile("res/textures/saturn.jpg", true);
-	m_moonTexture.loadFromFile("res/textures/moon.jpg");
+	m_moonTexture.loadFromFile("res/textures/moon.jpg", true);
 	m_wgpSphere.create(m_sphere);
 	m_wgpSphere.setBindGroups("BG", std::bind(&RenderBundles::OnBindGroups, this));
 
@@ -163,6 +163,7 @@ void RenderBundles::update() {
 	m_uniforms.shadow = Matrix4f::BIAS * m_uniforms.lightVP;
 
 	wgpuQueueWriteBuffer(wgpContext.queue, m_modelBuffer.getBuffer(), 0u, &m_uniforms.model, sizeof(Matrix4f));
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0u, &m_uniforms, sizeof(Uniforms));
 }
 
 void RenderBundles::render() {
@@ -170,7 +171,6 @@ void RenderBundles::render() {
 }
 
 void RenderBundles::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor) {
-	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0u, &m_uniforms, sizeof(Uniforms));
 
 	WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDescriptor);
 	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
@@ -250,7 +250,7 @@ void RenderBundles::OnKeyUp(const Event::KeyboardEvent& event) {
 }
 
 void RenderBundles::resize(int deltaW, int deltaH) {
-	m_camera.perspective(30.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.5f, 100.0f);
+	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 100.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 	m_trackball.reshape(Application::Width, Application::Height);
 }

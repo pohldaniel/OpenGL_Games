@@ -7,7 +7,7 @@ Sphere::Sphere(unsigned int uResolution, unsigned int vResolution) : Sphere({ 0.
 
 Sphere::Sphere(bool generateTexels, bool generateNormals, bool generateTangents, unsigned int uResolution, unsigned int vResolution) : Sphere({ 0.0f, 0.0f, 0.0f }, 1.0f, generateTexels, generateNormals, generateTangents, uResolution, vResolution) {}
 
-Sphere::Sphere(const std::array<float, 3>& position, float radius, bool generateTexels, bool generateNormals, bool generateTangents, unsigned int uResolution, unsigned int vResolution) {
+Sphere::Sphere(const std::array<float, 3>& position, float radius, float randomness, bool generateTexels, bool generateNormals, bool generateTangents, unsigned int uResolution, unsigned int vResolution) {
 
 	m_radius = radius;
 	m_position = position;
@@ -19,7 +19,7 @@ Sphere::Sphere(const std::array<float, 3>& position, float radius, bool generate
 	m_vResolution = vResolution;
 
 	m_stride = 3u + 2u * generateTexels + 3u * generateNormals + 6u * generateTangents;
-	BuildMesh(m_position, m_radius, 0.0f, m_uResolution, m_vResolution, m_generateTexels, m_generateNormals, m_generateTangents, m_vertexBuffer, m_indexBuffer);
+	BuildMesh(m_position, m_radius, randomness, m_uResolution, m_vResolution, m_generateTexels, m_generateNormals, m_generateTangents, m_vertexBuffer, m_indexBuffer);
 }
 
 Sphere::~Sphere() {
