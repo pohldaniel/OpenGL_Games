@@ -1,6 +1,5 @@
 #include <imgui.h>
 #include "StateMachine.h"
-#include "Application.h"
 
 bool StateMachine::WireframeEnabled = false;
 bool StateMachine::WireframeToggled = false;

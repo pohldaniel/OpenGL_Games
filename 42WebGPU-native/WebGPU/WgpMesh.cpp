@@ -94,7 +94,7 @@ WgpMesh::WgpMesh(WgpMesh&& rhs) noexcept :
 	m_texture(std::move(rhs.m_texture)),
 	m_bindGroups(std::move(rhs.m_bindGroups)),
 	m_drawCount(rhs.m_drawCount),
-	m_bindGroupsSlot(rhs.m_bindGroupsSlot),
+	m_bindGroupsSlot(std::move(rhs.m_bindGroupsSlot)),
 	m_markForDelete(false) {
 }
 
@@ -123,16 +123,16 @@ void WgpMesh::setBindGroupsSlot(const std::string& bindGroupsSlot) {
 	m_bindGroupsSlot = bindGroupsSlot;
 }
 
-void WgpMesh::setBindGroups(std::string bindGroupsName, const std::function<std::vector<WGPUBindGroup>()>& onBindGroups) {
+void WgpMesh::setBindGroups(const std::string& bindGroupsName, const std::function<std::vector<WGPUBindGroup>()>& onBindGroups) {
 	addBindGroups(bindGroupsName, onBindGroups);
 	m_bindGroupsSlot = bindGroupsName;
 }
 
-void WgpMesh::addBindGroups(std::string bindGroupsName, const std::function<std::vector<WGPUBindGroup>()>& onBindGroups) {
+void WgpMesh::addBindGroups(const std::string& bindGroupsName, const std::function<std::vector<WGPUBindGroup>()>& onBindGroups) {
 	m_bindGroups[bindGroupsName] = onBindGroups();
 }
 
-void WgpMesh::addBindGroup(std::string bindGroupsName, WGPUBindGroup bindGroup) const {
+void WgpMesh::addBindGroup(const std::string& bindGroupsName, WGPUBindGroup bindGroup) const {
 	m_bindGroups[bindGroupsName].push_back(bindGroup);
 }
 

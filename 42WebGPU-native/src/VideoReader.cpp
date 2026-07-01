@@ -106,11 +106,18 @@ bool video_reader_read_frame(VideoReaderState* state, uint8_t* frame_buffer, int
     auto& av_frame = state->av_frame;
     auto& av_packet = state->av_packet;
     auto& sws_scaler_ctx = state->sws_scaler_ctx;
-
+    auto& time_base = state->time_base;
     // Decode one frame
     int response;
     while ((response = av_read_frame(av_format_ctx, av_packet)) >= 0) {
         //av_packet_rescale_ts(av_packet, av_codec_ctx->time_base, av_codec_ctx->time_base);
+
+        double pts_time = av_q2d(time_base);
+        //double currentTime = std::chrone::duration<double>(clock::now() - play_back_start).count;
+
+        //if (currentTime < pts_time) {
+        //    return true;
+        //}
 
         if (av_packet->stream_index != video_stream_index) {
             av_packet_unref(av_packet);

@@ -30,9 +30,9 @@ public:
 	void markForDelete();
 
 	void setBindGroupsSlot(const std::string& bindGroupsSlot);
-	void setBindGroups(std::string bindGroupsName, const std::function <std::vector<WGPUBindGroup>()>& onBindGroups);
-	void addBindGroups(std::string bindGroupsName, const std::function <std::vector<WGPUBindGroup>()>& onBindGroups);
-	void addBindGroup(std::string bindGroupsName, WGPUBindGroup bindGroup) const;
+	void setBindGroups(const std::string& bindGroupsName, const std::function <std::vector<WGPUBindGroup>()>& onBindGroups);
+	void addBindGroups(const std::string& bindGroupsName, const std::function <std::vector<WGPUBindGroup>()>& onBindGroups);
+	void addBindGroup(const std::string& bindGroupsName, WGPUBindGroup bindGroup) const;
 	void addColor(std::array<float, 4> color);
 
 	const std::list<WgpMesh>& getMeshes() const;

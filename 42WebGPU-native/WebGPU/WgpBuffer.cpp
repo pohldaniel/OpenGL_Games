@@ -1,4 +1,3 @@
-#include <utility>
 #include "WgpContext.h"
 #include "WgpBuffer.h"
 
@@ -10,7 +9,7 @@ WgpBuffer::WgpBuffer(WgpBuffer const& rhs) : m_buffer(rhs.m_buffer), m_markForDe
 
 }
 
-WgpBuffer::WgpBuffer(WgpBuffer&& rhs) noexcept : m_buffer(std::move(rhs.m_buffer)), m_markForDelete(false) {
+WgpBuffer::WgpBuffer(WgpBuffer&& rhs) noexcept : m_buffer(rhs.m_buffer), m_markForDelete(false) {
 
 }
 

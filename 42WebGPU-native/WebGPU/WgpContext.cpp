@@ -124,22 +124,12 @@ bool wgpCreateDevice(void* window) {
 #else	
 	std::vector<WGPUInstanceFeatureName> instancefeatures;
 	instancefeatures.push_back(WGPUInstanceFeatureName::WGPUInstanceFeatureName_TimedWaitAny);
-	WGPUInstanceDescriptor cinstanceDesc = {};
-	cinstanceDesc.requiredFeatureCount = instancefeatures.size();
-	cinstanceDesc.requiredFeatures = instancefeatures.data();
-	wgpContext.instance = wgpuCreateInstance(&cinstanceDesc);
+	WGPUInstanceDescriptor instanceDescriptor = {};
+	instanceDescriptor.requiredFeatureCount = instancefeatures.size();
+	instanceDescriptor.requiredFeatures = instancefeatures.data();
+	wgpContext.instance = wgpuCreateInstance(&instanceDescriptor);
 #endif
 	
-	
-	WGPUSurfaceSourceWindowsHWND surfaceSourceWindowsHWND = {};
-	surfaceSourceWindowsHWND.chain.sType = WGPUSType_SurfaceSourceWindowsHWND;
-	surfaceSourceWindowsHWND.chain.next = NULL;
-	surfaceSourceWindowsHWND.hinstance = GetModuleHandle(NULL);
-	surfaceSourceWindowsHWND.hwnd = (HWND)window;
-	
-	WGPUSurfaceDescriptor surfaceDescriptor = {};
-	surfaceDescriptor.nextInChain = &surfaceSourceWindowsHWND.chain;
-
 	WGPURequestAdapterOptions requestAdapterOptions = {};
 	requestAdapterOptions.compatibleSurface = wgpContext.surface;
 	requestAdapterOptions.forceFallbackAdapter = false;
@@ -155,7 +145,7 @@ bool wgpCreateDevice(void* window) {
 #ifndef WEBGPU_NATIVE
 	WGPUFutureWaitInfo waitAdapter = {};
 	waitAdapter.future = futureAdapter;
-	WGPUWaitStatus statusAdapter = wgpuInstanceWaitAny(wgpContext.instance, 1, &waitAdapter, 0);
+	WGPUWaitStatus statusAdapter = wgpuInstanceWaitAny(wgpContext.instance, 1u, &waitAdapter, 0u);
 #endif
 
 	WGPURequestDeviceCallbackInfo  deviceCallbackInfo = {};
@@ -165,10 +155,10 @@ bool wgpCreateDevice(void* window) {
 
 	WGPULimits requiredLimits = {};
 	setDefault(requiredLimits);
-	requiredLimits.maxTextureDimension1D = 2048;
-	requiredLimits.maxTextureDimension2D = 2048;
-	requiredLimits.maxTextureDimension3D = 2048;
-	requiredLimits.maxSamplersPerShaderStage = 1;
+	requiredLimits.maxTextureDimension1D = 2048u;
+	requiredLimits.maxTextureDimension2D = 2048u;
+	requiredLimits.maxTextureDimension3D = 2048u;
+	requiredLimits.maxSamplersPerShaderStage = 1u;
 
 	WGPUUncapturedErrorCallbackInfo errorCallbackInfo = {};
 	errorCallbackInfo.callback = OnErrorDevice;
@@ -187,8 +177,17 @@ bool wgpCreateDevice(void* window) {
 #ifndef WEBGPU_NATIVE
 	WGPUFutureWaitInfo waitDevice = {};
 	waitDevice.future = futureDevice;
-	WGPUWaitStatus statusDevice = wgpuInstanceWaitAny(wgpContext.instance, 1, &waitDevice, 0);
+	WGPUWaitStatus statusDevice = wgpuInstanceWaitAny(wgpContext.instance, 1u, &waitDevice, 0u);
 #endif
+
+	WGPUSurfaceSourceWindowsHWND surfaceSourceWindowsHWND = {};
+	surfaceSourceWindowsHWND.chain.sType = WGPUSType_SurfaceSourceWindowsHWND;
+	surfaceSourceWindowsHWND.chain.next = NULL;
+	surfaceSourceWindowsHWND.hinstance = GetModuleHandle(NULL);
+	surfaceSourceWindowsHWND.hwnd = (HWND)window;
+
+	WGPUSurfaceDescriptor surfaceDescriptor = {};
+	surfaceDescriptor.nextInChain = &surfaceSourceWindowsHWND.chain;
 
 	wgpContext.surface = wgpuInstanceCreateSurface(wgpContext.instance, &surfaceDescriptor);
 	wgpContext.surfaceCapabilities = { 0 };
@@ -224,7 +223,7 @@ void wgpConfigureSurface() {
 	wgpContext.config.width = Application::Width;
 	wgpContext.config.height = Application::Height;
 	wgpContext.config.usage = WGPUTextureUsage_RenderAttachment;
-	wgpContext.config.viewFormatCount = 0;
+	wgpContext.config.viewFormatCount = 0u;
 	wgpContext.config.viewFormats = NULL;
 	wgpContext.config.device = wgpContext.device;
 	wgpContext.config.presentMode = WGPUPresentMode_Fifo;
@@ -597,18 +596,32 @@ void wgpPipelineLayoutsRelease() {
 }
 
 void wgpPipelinesRelease() {
+	WGPUBindGroupLayout prevBindGroupLayout = NULL;
+	uint32_t index = 0u;
+
 	for (auto& it : wgpContext.renderPipelines) {
-		WGPUBindGroupLayout bindGroupLayout = wgpuRenderPipelineGetBindGroupLayout(it.second, 0);
-		wgpuBindGroupLayoutRelease(bindGroupLayout);
+		WGPUBindGroupLayout bindGroupLayout = wgpuRenderPipelineGetBindGroupLayout(it.second, index);
+		while (bindGroupLayout != prevBindGroupLayout) {
+			prevBindGroupLayout = bindGroupLayout;
+			wgpuBindGroupLayoutRelease(bindGroupLayout);
+			index++;
+		}
 		wgpuRenderPipelineRelease(it.second);
 	}
 
 	wgpContext.renderPipelines.clear();
 	wgpContext.renderPipelines.rehash(0u);
 
+	prevBindGroupLayout = NULL;
+	index = 0u;
+
 	for (auto& it : wgpContext.computePipelines) {
-		WGPUBindGroupLayout bindGroupLayout = wgpuComputePipelineGetBindGroupLayout(it.second, 0);
-		wgpuBindGroupLayoutRelease(bindGroupLayout);
+		WGPUBindGroupLayout bindGroupLayout = wgpuComputePipelineGetBindGroupLayout(it.second, index);
+		while (bindGroupLayout != prevBindGroupLayout) {
+			prevBindGroupLayout = bindGroupLayout;
+			wgpuBindGroupLayoutRelease(bindGroupLayout);
+			index++;
+		}
 		wgpuComputePipelineRelease(it.second);
 	}
 
@@ -850,7 +863,7 @@ void wgpDraw() {
 	commandBufferDescriptor.label = WGPU_STR("command_buffer");
 	WGPUCommandBuffer commandBuffer = wgpuCommandEncoderFinish(wgpContext.commandEncoder, &commandBufferDescriptor);
 
-	wgpuQueueSubmit(wgpContext.queue, 1, &commandBuffer);
+	wgpuQueueSubmit(wgpContext.queue, 1u, &commandBuffer);
 
 	wgpuSurfacePresent(wgpContext.surface);
 
