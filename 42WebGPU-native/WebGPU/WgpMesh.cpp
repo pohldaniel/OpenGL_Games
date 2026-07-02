@@ -104,7 +104,7 @@ WgpMesh::~WgpMesh() {
 	}
 }
 
-void WgpMesh::cleanup() {		
+void WgpMesh::cleanup() {	
 	for (auto& it : m_bindGroups) {
 		for (auto& bindgroup : it.second) {
 			wgpuBindGroupRelease(bindgroup);

@@ -195,7 +195,7 @@ bool wgpCreateDevice(void* window) {
 	//wgpContext.colorformat = wgpContext.surfaceCapabilities.formats[0];
 
 	wgpContext.queue = wgpuDeviceGetQueue(wgpContext.device);
-	wgpContext.depthTexture = wgpCreateTexture(static_cast<uint32_t>(Application::Width), static_cast<uint32_t>(Application::Height), 1u, WGPUTextureUsage_RenderAttachment, wgpContext.depthformat, 1u, wgpContext.msaaSampleCount, wgpContext.depthformat);
+	wgpContext.depthTexture = wgpCreateTexture(static_cast<uint32_t>(Application::Width), static_cast<uint32_t>(Application::Height), 1u, WGPUTextureUsage_RenderAttachment, wgpContext.depthFormat, 1u, wgpContext.msaaSampleCount, wgpContext.depthFormat);
 	wgpContext.depthTextureView = wgpCreateTextureView(wgpContext.depthTexture, WGPUTextureAspect::WGPUTextureAspect_All);
 
 	wgpCreateVertexBufferLayout(VL_P);
@@ -219,7 +219,7 @@ bool wgpCreateDevice(void* window) {
 void wgpConfigureSurface() {
 	wgpContext.config = {};
 	wgpContext.config.nextInChain = NULL;
-	wgpContext.config.format = wgpContext.colorformat;
+	wgpContext.config.format = wgpContext.colorFormat;
 	wgpContext.config.width = Application::Width;
 	wgpContext.config.height = Application::Height;
 	wgpContext.config.usage = WGPUTextureUsage_RenderAttachment;
@@ -586,6 +586,15 @@ std::vector<WGPUVertexBufferLayout>& wgpVertexBufferLayout(VertexLayoutSlot vert
 	return wgpVertexBufferLayouts[vertexLayoutSlot];
 }
 
+void wgpSamplersRelease() {
+	for (auto& it : wgpContext.samplers) {
+		wgpuSamplerRelease(it.second);
+	}
+
+	wgpContext.samplers.clear();
+	wgpContext.samplers.rehash(0u);
+}
+
 void wgpPipelineLayoutsRelease() {
 	for (auto& it : wgpContext.pipelineLayouts) {
 		wgpuPipelineLayoutRelease(it.second);
@@ -601,7 +610,7 @@ void wgpPipelinesRelease() {
 
 	for (auto& it : wgpContext.renderPipelines) {
 		WGPUBindGroupLayout bindGroupLayout = wgpuRenderPipelineGetBindGroupLayout(it.second, index);
-		while (bindGroupLayout != prevBindGroupLayout) {
+		while (bindGroupLayout && bindGroupLayout != prevBindGroupLayout) {
 			prevBindGroupLayout = bindGroupLayout;
 			wgpuBindGroupLayoutRelease(bindGroupLayout);
 			index++;
@@ -617,7 +626,7 @@ void wgpPipelinesRelease() {
 
 	for (auto& it : wgpContext.computePipelines) {
 		WGPUBindGroupLayout bindGroupLayout = wgpuComputePipelineGetBindGroupLayout(it.second, index);
-		while (bindGroupLayout != prevBindGroupLayout) {
+		while (bindGroupLayout && bindGroupLayout != prevBindGroupLayout) {
 			prevBindGroupLayout = bindGroupLayout;
 			wgpuBindGroupLayoutRelease(bindGroupLayout);
 			index++;
@@ -629,15 +638,6 @@ void wgpPipelinesRelease() {
 	wgpContext.computePipelines.rehash(0u);
 }
 
-void wgpSamplersRelease() {
-	for (auto& it : wgpContext.samplers) {
-		wgpuSamplerRelease(it.second);
-	}
-
-	wgpContext.samplers.clear();
-	wgpContext.samplers.rehash(0u);
-}
-
 void wgpShaderModulesRelease() {
 	for (auto& it : wgpContext.shaderModules) {
 		wgpuShaderModuleRelease(it.second);
@@ -647,11 +647,35 @@ void wgpShaderModulesRelease() {
 	wgpContext.shaderModules.rehash(0u);
 }
 
+void wgpCleanState() {
+	wgpPipelineLayoutsRelease();
+	wgpPipelinesRelease();
+	wgpShaderModulesRelease();
+
+	if (wgpContext.samplers.count(SS_0)) {
+		wgpuSamplerRelease(wgpContext.samplers.at(SS_0));
+		wgpContext.samplers.erase(SS_0);
+	}
+
+	if (wgpContext.samplers.count(SS_1)) {
+		wgpuSamplerRelease(wgpContext.samplers.at(SS_1));
+		wgpContext.samplers.erase(SS_1);
+	}
+
+	if (wgpContext.samplers.count(SS_2)) {
+		wgpuSamplerRelease(wgpContext.samplers.at(SS_2));
+		wgpContext.samplers.erase(SS_2);
+	}
+
+	wgpContext.clearColor = { 0.2f, 0.2f, 0.2f, 1.0f };
+	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8UnormSrgb, Application::OnSurfaceChange);
+}
+
 void wgpShutDown() {
 	wgpPipelineLayoutsRelease();
 	wgpPipelinesRelease();
-	wgpSamplersRelease();
 	wgpShaderModulesRelease();
+	wgpSamplersRelease();
 
 	wgpuTextureViewRelease(wgpContext.depthTextureView);
 	wgpContext.depthTextureView = NULL;
@@ -694,7 +718,7 @@ void wgpResize(uint32_t width, uint32_t height) {
 		wgpuTextureDestroy(wgpContext.depthTexture);
 		wgpuTextureRelease(wgpContext.depthTexture);
 
-		wgpContext.depthTexture = wgpCreateTexture(width, height, 1u, WGPUTextureUsage_RenderAttachment, wgpContext.depthformat, 1u, wgpContext.msaaSampleCount, wgpContext.depthformat);
+		wgpContext.depthTexture = wgpCreateTexture(width, height, 1u, WGPUTextureUsage_RenderAttachment, wgpContext.depthFormat, 1u, wgpContext.msaaSampleCount, wgpContext.depthFormat);
 		wgpContext.depthTextureView = wgpCreateTextureView(wgpContext.depthTexture, WGPUTextureAspect::WGPUTextureAspect_All);
 
 		if (wgpContext.msaaSampleCount > 1u) {
@@ -702,7 +726,7 @@ void wgpResize(uint32_t width, uint32_t height) {
 			wgpuTextureDestroy(wgpContext.msaaTexture);
 			wgpuTextureRelease(wgpContext.msaaTexture);
 
-			wgpContext.msaaTexture = wgpCreateTexture(width, height, 1u, WGPUTextureUsage_RenderAttachment, wgpContext.colorformat, 1u, wgpContext.msaaSampleCount, wgpContext.colorformat);
+			wgpContext.msaaTexture = wgpCreateTexture(width, height, 1u, WGPUTextureUsage_RenderAttachment, wgpContext.colorFormat, 1u, wgpContext.msaaSampleCount, wgpContext.colorFormat);
 			wgpContext.msaaTextureView = wgpCreateTextureView(wgpContext.msaaTexture, WGPUTextureAspect::WGPUTextureAspect_All);
 		}
 
@@ -721,8 +745,8 @@ void wgpToggleVerticalSync() {
 
 void wgpSetSurfaceColorFormat(WGPUTextureFormat textureFormat, const std::function<void()>& onSurfaceChange) {
 	if (wgpContext.surface) {
-		wgpContext.colorformat = textureFormat;
-		wgpContext.config.format = wgpContext.colorformat;
+		wgpContext.colorFormat = textureFormat;
+		wgpContext.config.format = wgpContext.colorFormat;
 		wgpuSurfaceConfigure(wgpContext.surface, &wgpContext.config);
 
 		if (wgpContext.msaaSampleCount > 1u) {
@@ -733,7 +757,7 @@ void wgpSetSurfaceColorFormat(WGPUTextureFormat textureFormat, const std::functi
 			wgpuTextureDestroy(wgpContext.msaaTexture);
 			wgpuTextureRelease(wgpContext.msaaTexture);
 
-			wgpContext.msaaTexture = wgpCreateTexture(width, height, 1u, WGPUTextureUsage_RenderAttachment, wgpContext.colorformat, 1u, wgpContext.msaaSampleCount, wgpContext.colorformat);
+			wgpContext.msaaTexture = wgpCreateTexture(width, height, 1u, WGPUTextureUsage_RenderAttachment, wgpContext.colorFormat, 1u, wgpContext.msaaSampleCount, wgpContext.colorFormat);
 			wgpContext.msaaTextureView = wgpCreateTextureView(wgpContext.msaaTexture, WGPUTextureAspect::WGPUTextureAspect_All);
 		}
 		if (onSurfaceChange)
@@ -743,7 +767,7 @@ void wgpSetSurfaceColorFormat(WGPUTextureFormat textureFormat, const std::functi
 
 void wgpSetSurfaceDepthFormat(WGPUTextureFormat textureFormat, const std::function<void()>& onSurfaceChange) {
 	if (wgpContext.surface) {
-		wgpContext.depthformat = textureFormat;
+		wgpContext.depthFormat = textureFormat;
 
 		uint32_t width = wgpuTextureGetWidth(wgpContext.depthTexture);
 		uint32_t height = wgpuTextureGetHeight(wgpContext.depthTexture);
@@ -752,7 +776,7 @@ void wgpSetSurfaceDepthFormat(WGPUTextureFormat textureFormat, const std::functi
 		wgpuTextureDestroy(wgpContext.depthTexture);
 		wgpuTextureRelease(wgpContext.depthTexture);
 
-		wgpContext.depthTexture = wgpCreateTexture(width, height, 1u, WGPUTextureUsage_RenderAttachment, wgpContext.depthformat, 1u, wgpContext.msaaSampleCount, wgpContext.depthformat);
+		wgpContext.depthTexture = wgpCreateTexture(width, height, 1u, WGPUTextureUsage_RenderAttachment, wgpContext.depthFormat, 1u, wgpContext.msaaSampleCount, wgpContext.depthFormat);
 		wgpContext.depthTextureView = wgpCreateTextureView(wgpContext.depthTexture, WGPUTextureAspect::WGPUTextureAspect_All);
 
 		if (onSurfaceChange)
@@ -774,14 +798,14 @@ void wgpSetMSAASampleCount(const uint32_t count, const std::function<void()>& on
 			wgpuTextureRelease(wgpContext.msaaTexture);
 		}
 
-		wgpContext.msaaTexture = count == 1u ? NULL : wgpCreateTexture(width, height, 1u, WGPUTextureUsage_RenderAttachment, wgpContext.colorformat, 1u, wgpContext.msaaSampleCount, wgpContext.colorformat);
+		wgpContext.msaaTexture = count == 1u ? NULL : wgpCreateTexture(width, height, 1u, WGPUTextureUsage_RenderAttachment, wgpContext.colorFormat, 1u, wgpContext.msaaSampleCount, wgpContext.colorFormat);
 		wgpContext.msaaTextureView = count == 1u ? NULL : wgpCreateTextureView(wgpContext.msaaTexture, WGPUTextureAspect::WGPUTextureAspect_All);
 
 		wgpuTextureViewRelease(wgpContext.depthTextureView);
 		wgpuTextureDestroy(wgpContext.depthTexture);
 		wgpuTextureRelease(wgpContext.depthTexture);
 
-		wgpContext.depthTexture = wgpCreateTexture(width, height, 1u, WGPUTextureUsage_RenderAttachment, wgpContext.depthformat, 1u, wgpContext.msaaSampleCount, wgpContext.depthformat);
+		wgpContext.depthTexture = wgpCreateTexture(width, height, 1u, WGPUTextureUsage_RenderAttachment, wgpContext.depthFormat, 1u, wgpContext.msaaSampleCount, wgpContext.depthFormat);
 		wgpContext.depthTextureView = wgpCreateTextureView(wgpContext.depthTexture, WGPUTextureAspect::WGPUTextureAspect_All);
 
 		if (onSurfaceChange)
@@ -999,7 +1023,7 @@ void WgpContext::createRenderPipeline(std::string shaderModuleName,
 											WGPUColorWriteMask_All });
 	}
 
-	colorTargetStates.push_back({ NULL, colorTextureFormat == WGPUTextureFormat_Undefined ? colorformat : colorTextureFormat,
+	colorTargetStates.push_back({ NULL, colorTextureFormat == WGPUTextureFormat_Undefined ? colorFormat : colorTextureFormat,
 									   (configuration.flags & BLEND_STATE) ? &blendState : NULL,
 										WGPUColorWriteMask_All });
 	
@@ -1025,7 +1049,7 @@ void WgpContext::createRenderPipeline(std::string shaderModuleName,
 
 	depthStencilState.depthCompare = depthCompareFunction;
 	depthStencilState.depthWriteEnabled = (configuration.flags & WRITE_DEPTH) ? WGPUOptionalBool::WGPUOptionalBool_True : WGPUOptionalBool::WGPUOptionalBool_False;
-	depthStencilState.format = depthTextureFormat == WGPUTextureFormat_Undefined ? depthformat : depthTextureFormat;
+	depthStencilState.format = depthTextureFormat == WGPUTextureFormat_Undefined ? depthFormat : depthTextureFormat;
 	depthStencilState.stencilReadMask = (configuration.stencilMode == StencilMode::SET || configuration.stencilMode == StencilMode::MASK) ? 255u : 0u;
 	depthStencilState.stencilWriteMask = (configuration.stencilMode == StencilMode::SET || configuration.stencilMode == StencilMode::MASK) ? 255u : 0u;
 

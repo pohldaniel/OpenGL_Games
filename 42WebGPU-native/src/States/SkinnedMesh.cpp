@@ -7,13 +7,13 @@
 #include <WebGPU/WgpRenderer.h>
 
 #include <engine/utils/BinaryIO.h>
+#include <States/Wireframe.h>
 
 #include "SkinnedMesh.h"
 #include "Application.h"
 #include "Globals.h"
 
 SkinnedMesh::SkinnedMesh(StateMachine& machine) : State(machine, States::SKINNED_MESH), m_fade(m_fadeValue) {
-
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
@@ -166,6 +166,14 @@ void SkinnedMesh::update() {
 	if (keyboard.keyDown(Keyboard::KEY_E)) {
 		direction += Vector3f(0.0f, 1.0f, 0.0f);
 		move |= true;
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_T)) {
+		wgpPipelineLayoutsRelease();
+		wgpPipelinesRelease();
+		wgpShaderModulesRelease();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Wireframe(m_machine));
 	}
 
 	Mouse& mouse = Mouse::instance();

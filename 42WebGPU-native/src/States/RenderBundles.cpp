@@ -448,8 +448,8 @@ void RenderBundles::updateRenderBundle() {
 	WGPURenderBundleEncoderDescriptor renderBundleEncoderDescriptor = {};
 	renderBundleEncoderDescriptor.label = STRVIEW("render_bundle_encoder");
 	renderBundleEncoderDescriptor.colorFormatCount = 1u;
-	renderBundleEncoderDescriptor.colorFormats = &wgpContext.colorformat;
-	renderBundleEncoderDescriptor.depthStencilFormat = wgpContext.depthformat;
+	renderBundleEncoderDescriptor.colorFormats = &wgpContext.colorFormat;
+	renderBundleEncoderDescriptor.depthStencilFormat = wgpContext.depthFormat;
 	renderBundleEncoderDescriptor.sampleCount = wgpContext.msaaSampleCount;
 
 	renderBundleEncoderDescriptor.depthReadOnly = WGPUOptionalBool::WGPUOptionalBool_False;

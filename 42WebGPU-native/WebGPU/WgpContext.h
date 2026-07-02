@@ -49,8 +49,9 @@ extern "C" {
 
 	void wgpCreateVertexBufferLayout(VertexLayoutSlot slot = VL_PTN);
 	void wgpShutDown();
-	void wgpPipelinesRelease();
+	void wgpCleanState();
 	void wgpSamplersRelease();
+	void wgpPipelinesRelease();
 	void wgpShaderModulesRelease();
 	void wgpPipelineLayoutsRelease();
 	
@@ -106,11 +107,11 @@ struct WgpContext {
 	};
 
 	friend bool wgpCreateDevice(void* window);
-	friend void wgpPipelinesRelease();
+	friend void wgpCleanState();
 	friend void wgpSamplersRelease();
+	friend void wgpPipelinesRelease();	
 	friend void wgpShaderModulesRelease();
 	friend void wgpPipelineLayoutsRelease();
-	friend void wgpDraw();
 
 	void createComputePipeline(std::string shaderModuleName,
 		                       std::string entrypoint,
@@ -152,8 +153,8 @@ struct WgpContext {
 
 	WGPUSurfaceConfiguration config = {};
 	WGPUSurfaceCapabilities surfaceCapabilities;
-	WGPUTextureFormat depthformat = WGPUTextureFormat::WGPUTextureFormat_Depth24PlusStencil8;
-	WGPUTextureFormat colorformat = WGPUTextureFormat::WGPUTextureFormat_BGRA8UnormSrgb;
+	WGPUTextureFormat depthFormat = WGPUTextureFormat::WGPUTextureFormat_Depth24PlusStencil8;
+	WGPUTextureFormat colorFormat = WGPUTextureFormat::WGPUTextureFormat_BGRA8UnormSrgb;
 
 	std::unordered_map<std::string, WGPUComputePipeline> computePipelines;
 	std::unordered_map<std::string, WGPURenderPipeline> renderPipelines;
@@ -163,6 +164,6 @@ struct WgpContext {
 private:
 
 	std::unordered_map<std::string, WGPUPipelineLayout> pipelineLayouts;
-	std::unordered_map<SamplerSlot, WGPUSampler> samplers;
 	std::unordered_map<std::string, WGPUShaderModule> shaderModules;
+	std::unordered_map<SamplerSlot, WGPUSampler> samplers;
 };

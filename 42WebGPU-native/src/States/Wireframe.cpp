@@ -4,13 +4,13 @@
 #include <imgui_internal.h>
 
 #include <WebGPU/WgpContext.h>
+#include <States/SkinnedMesh.h>
 
 #include "Wireframe.h"
 #include "Application.h"
 #include "Globals.h"
 
 Wireframe::Wireframe(StateMachine& machine) : State(machine, States::WIREFRAME) {
-
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
@@ -111,6 +111,14 @@ void Wireframe::update() {
 	if (keyboard.keyDown(Keyboard::KEY_E)) {
 		direction += Vector3f(0.0f, 1.0f, 0.0f);
 		move |= true;
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_T)) {
+		wgpPipelineLayoutsRelease();
+		wgpPipelinesRelease();
+		wgpShaderModulesRelease();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new SkinnedMesh(m_machine));
 	}
 
 	Mouse &mouse = Mouse::instance();
