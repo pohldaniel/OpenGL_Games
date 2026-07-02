@@ -261,9 +261,6 @@
     <ClCompile Include="engine\shape\Segment.cpp">
       <Filter>engine\shape</Filter>
     </ClCompile>
-    <ClCompile Include="src\States\DefferedRendering.cpp">
-      <Filter>Source Files\States</Filter>
-    </ClCompile>
     <ClCompile Include="src\States\VolumeRendering.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
@@ -277,6 +274,9 @@
       <Filter>Source Files\States</Filter>
     </ClCompile>
     <ClCompile Include="src\States\RenderBundles.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="src\States\DeferredRendering.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
   </ItemGroup>
@@ -521,9 +521,6 @@
     <ClInclude Include="engine\shape\Segment.h">
       <Filter>engine\shape</Filter>
     </ClInclude>
-    <ClInclude Include="src\States\DefferedRendering.h">
-      <Filter>Source Files\States</Filter>
-    </ClInclude>
     <ClInclude Include="src\States\VolumeRendering.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
@@ -537,6 +534,9 @@
       <Filter>Source Files\States</Filter>
     </ClInclude>
     <ClInclude Include="src\States\RenderBundles.h">
+      <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\DeferredRendering.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
   </ItemGroup>

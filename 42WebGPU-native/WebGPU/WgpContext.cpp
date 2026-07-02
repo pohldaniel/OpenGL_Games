@@ -667,6 +667,30 @@ void wgpCleanState() {
 		wgpContext.samplers.erase(SS_2);
 	}
 
+	if (wgpVertexAttributes.count(VL_0)) {
+		wgpVertexAttributes.erase(VL_0);
+	}
+
+	if (wgpVertexAttributes.count(VL_1)) {
+		wgpVertexAttributes.erase(VL_1);
+	}
+
+	if (wgpVertexAttributes.count(VL_2)) {
+		wgpVertexAttributes.erase(VL_2);
+	}
+
+	if (wgpVertexBufferLayouts.count(VL_0)) {
+		wgpVertexBufferLayouts.erase(VL_0);
+	}
+
+	if (wgpVertexBufferLayouts.count(VL_1)) {
+		wgpVertexBufferLayouts.erase(VL_1);
+	}
+
+	if (wgpVertexBufferLayouts.count(VL_2)) {
+		wgpVertexBufferLayouts.erase(VL_2);
+	}
+
 	wgpContext.clearColor = { 0.2f, 0.2f, 0.2f, 1.0f };
 	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8UnormSrgb, Application::OnSurfaceChange);
 }

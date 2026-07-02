@@ -15,12 +15,12 @@
 
 #define MAX_NUM_LIGHTS 1024u
 
-class DefferedRendering : public State, public MouseEventListener, public KeyboardEventListener {
+class DeferredRendering : public State, public MouseEventListener, public KeyboardEventListener {
 	
 public:
 
-	DefferedRendering(StateMachine& machine);
-	~DefferedRendering();
+	DeferredRendering(StateMachine& machine);
+	~DeferredRendering();
 
 	void fixedUpdate() override;
 	void update() override;
@@ -39,11 +39,11 @@ private:
 	
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsGBuffer();
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsCompute();
-	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsDeffered();
-	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsDefferedDebug();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsDeferred();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsDeferredDebug();
 
 	std::vector<WGPUBindGroup> OnBindGroupsGBuffer();
-	WGPUBindGroup createDefferedBindGroup();
+	WGPUBindGroup createDeferredBindGroup();
 	WGPUBindGroup createLightBindGroup();
 	WGPUBindGroup createComputeBindGroup();
 
@@ -63,7 +63,7 @@ private:
 	WgpBuffer m_uniformBuffer, m_cameraBuffer, m_lightBuffer, m_configBuffer, m_extentBuffer;
 	WgpModel m_wgpDragon, m_wgpQuad;
 	WgpTexture m_normalTexture, m_albedoTexture, m_depthTexture;
-	WGPUBindGroup m_defferedBindGroup, m_lightBindGroup, m_computeBindGroup;
+	WGPUBindGroup m_deferredBindGroup, m_lightBindGroup, m_computeBindGroup;
 
 	std::vector<WGPURenderPassColorAttachment> renderPassColorAttachments;
 	WGPURenderPassDepthStencilAttachment renderPassDepthStencilAttachment;

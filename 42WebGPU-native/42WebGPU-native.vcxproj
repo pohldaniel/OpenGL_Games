@@ -217,7 +217,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClCompile Include="src\LoadingManager.cpp" />
     <ClCompile Include="src\States\Compute.cpp" />
     <ClCompile Include="src\States\ComputeParticleLogo.cpp" />
-    <ClCompile Include="src\States\DefferedRendering.cpp" />
+    <ClCompile Include="src\States\DeferredRendering.cpp" />
     <ClCompile Include="src\States\ImageBasedLighting.cpp" />
     <ClCompile Include="src\States\InstancedCube.cpp" />
     <ClCompile Include="src\States\MSDFFont.cpp" />
@@ -318,7 +318,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClInclude Include="src\LoadingManager.h" />
     <ClInclude Include="src\States\Compute.h" />
     <ClInclude Include="src\States\ComputeParticleLogo.h" />
-    <ClInclude Include="src\States\DefferedRendering.h" />
+    <ClInclude Include="src\States\DeferredRendering.h" />
     <ClInclude Include="src\States\ImageBasedLighting.h" />
     <ClInclude Include="src\States\InstancedCube.h" />
     <ClInclude Include="src\States\MSDFFont.h" />
