@@ -731,7 +731,7 @@ void ObjModel::GenerateFlatNormals(std::vector<float>& vertexCoords, std::vector
 }
 
 
-std::string ObjModel::GetTexturePath(std::string texPath, std::string modelDirectory) {
+std::string ObjModel::GetTexturePath(const std::string& texPath, const std::string& modelDirectory) {
 	int foundSlash = texPath.find_last_of("/\\");
 	int foundDot = texPath.find_last_of(".");
 	foundDot = (foundDot < 0 ? texPath.length() : foundDot);
@@ -739,7 +739,7 @@ std::string ObjModel::GetTexturePath(std::string texPath, std::string modelDirec
 	return foundSlash < 0 ? modelDirectory + texPath.substr(foundSlash + 1) : texPath;
 }
 
-void ObjModel::ReadMaterialFromFile(std::string path, std::string mltLib, std::string mltName, short& index) {
+void ObjModel::ReadMaterialFromFile(const std::string& path, const std::string& mltLib, const std::string& mltName, short& index) {
 	std::vector<Material>::iterator it = std::find_if(Material::GetMaterials().begin(), Material::GetMaterials().end(), std::bind([](Material const& s1, std::string const& s2) -> bool { return s1.m_name == s2;}, std::placeholders::_1, mltName));
 	if (it == Material::GetMaterials().end()) {
 
@@ -826,7 +826,7 @@ void ObjModel::ReadMaterialFromFile(std::string path, std::string mltLib, std::s
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-ObjMesh::ObjMesh(ObjModel* model, const std::string mltName) : Mesh(){
+ObjMesh::ObjMesh(ObjModel* model, const std::string& mltName) : Mesh(){
 	m_mltName = mltName;
 	m_model = model;
 

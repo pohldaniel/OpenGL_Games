@@ -92,8 +92,8 @@ private:
 	unsigned int m_drawCount;
 
 	void static GenerateFlatNormals(std::vector<float>& vertexCoords, std::vector<std::array<int, 10>>& face, std::vector<float>& normalCoords);
-	void static ReadMaterialFromFile(std::string path, std::string mltLib, std::string mltName, short& index);
-	std::string static GetTexturePath(std::string texPath, std::string modelDirectory);
+	void static ReadMaterialFromFile(const std::string& path, const std::string& mltLib, const std::string& mltName, short& index);
+	std::string static GetTexturePath(const std::string& texPath, const std::string& modelDirectory);
 };
 
 class ObjMesh : public Mesh {
@@ -102,7 +102,7 @@ class ObjMesh : public Mesh {
 
 public:
 
-	ObjMesh(ObjModel* model, const std::string mltName);
+	ObjMesh(ObjModel* model, const std::string& mltName);
 	ObjMesh(ObjModel* model);
 	ObjMesh(ObjMesh const& rhs);
 	ObjMesh(ObjMesh&& rhs) noexcept;

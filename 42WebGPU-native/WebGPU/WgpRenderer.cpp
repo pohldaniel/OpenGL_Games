@@ -3,7 +3,7 @@
 #include "WgpContext.h"
 #include "WgpRenderer.h"
 
-void WgpRenderer::DrawDepth(const WgpTexture& texture, std::function<void(const WGPURenderPassEncoder& renderPassEncoder)> OnDraw) {
+void WgpRenderer::DrawDepth(const WgpTexture& texture, const std::function<void(const WGPURenderPassEncoder& renderPassEncoder)>& OnDraw) {
 	float mipWidth = static_cast<float>(wgpuTextureGetWidth(texture.getTexture()));
 	float mipHeight = static_cast<float>(wgpuTextureGetHeight(texture.getTexture()));
 
@@ -34,7 +34,7 @@ void WgpRenderer::DrawDepth(const WgpTexture& texture, std::function<void(const 
 	wgpuRenderPassEncoderRelease(renderPassEncoder);
 }
 
-void WgpRenderer::Draw(const WgpTexture& texture, std::function<void(const WGPURenderPassEncoder& renderPassEncoder, uint32_t layer, uint32_t mip)> OnDraw) {
+void WgpRenderer::Draw(const WgpTexture& texture, const std::function<void(const WGPURenderPassEncoder& renderPassEncoder, uint32_t layer, uint32_t mip)>& OnDraw) {
 	uint32_t arrayLayerCount = wgpuTextureGetDepthOrArrayLayers(texture.getTexture());
 	uint32_t mipLevelCount = wgpuTextureGetMipLevelCount(texture.getTexture());
 	WGPUTextureFormat textureFormat = wgpuTextureGetFormat(texture.getTexture());

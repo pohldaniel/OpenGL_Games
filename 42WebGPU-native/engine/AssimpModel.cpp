@@ -330,7 +330,7 @@ void AssimpModel::loadModelCpu(const char* _filename, const Vector3f& axis, floa
 	m_center = Vector3f((xmax + xmin) * 0.5f, (ymax + ymin) * 0.5f, (zmax + zmin) * 0.5f);
 }
 
-std::string AssimpModel::GetTexturePath(std::string texPath, std::string modelDirectory) {
+std::string AssimpModel::GetTexturePath(const std::string& texPath, const std::string& modelDirectory) {
 	int foundSlash = texPath.find_last_of("/\\");
 	int foundDot = texPath.find_last_of(".");
 	foundDot = (foundDot < 0 ? texPath.length() : foundDot);
@@ -338,7 +338,7 @@ std::string AssimpModel::GetTexturePath(std::string texPath, std::string modelDi
 	return foundSlash < 0 ? modelDirectory + "/" + texPath.substr(foundSlash + 1) : texPath;
 }
 
-void AssimpModel::ReadAiMaterial(const aiMaterial* aiMaterial, short& index, std::string modelDirectory, std::string mltName) {
+void AssimpModel::ReadAiMaterial(const aiMaterial* aiMaterial, short& index, const std::string& modelDirectory, const std::string& mltName) {
 	//skip assimp default material
 	if(mltName == "DefaultMaterial" || mltName == "default")
 		return;

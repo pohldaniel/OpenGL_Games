@@ -331,7 +331,7 @@ WGPUSampler wgpCreateSampler(WGPUFilterMode filterMode, WGPUAddressMode addressM
 	return wgpuDeviceCreateSampler(device, &samplerDescriptor);
 }
 
-WGPUShaderModule wgpCreateShaderFromFile(std::string path) {
+WGPUShaderModule wgpCreateShaderFromFile(const std::string& path) {
 	std::ifstream file(path);
 	if (!file.is_open()) {
 		return NULL;
@@ -355,7 +355,7 @@ WGPUShaderModule wgpCreateShaderFromFile(std::string path) {
 	return wgpuDeviceCreateShaderModule(wgpContext.device, &shaderModuleDescriptor);
 }
 
-WGPUShaderModule wgpCreateShaderFromString(std::string strng) {
+WGPUShaderModule wgpCreateShaderFromString(const std::string& strng) {
 	WGPUShaderSourceWGSL shaderSourceWGSL = {};
 	shaderSourceWGSL.chain.next = NULL;
 	shaderSourceWGSL.chain.sType = WGPUSType_ShaderSourceWGSL;
@@ -693,6 +693,7 @@ void wgpCleanState() {
 
 	wgpContext.clearColor = { 0.2f, 0.2f, 0.2f, 1.0f };
 	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8UnormSrgb, Application::OnSurfaceChange);
+	wgpSetMSAASampleCount(1u, Application::OnSurfaceChange);
 }
 
 void wgpShutDown() {
@@ -950,11 +951,11 @@ void WgpContext::addSahderModule(const std::string& shaderModuleName, const std:
 	shaderModules[shaderModuleName] = fromString ? wgpCreateShaderFromString(stringPath) : wgpCreateShaderFromFile(stringPath);
 }
 
-const WGPUShaderModule& WgpContext::getShaderModule(std::string shaderModuleName) const {
+const WGPUShaderModule& WgpContext::getShaderModule(const std::string& shaderModuleName) const {
 	return shaderModules.at(shaderModuleName);
 }
 
-const WGPUPipelineLayout& WgpContext::getPipelineLayout(std::string pipelineLayoutName) const {
+const WGPUPipelineLayout& WgpContext::getPipelineLayout(const std::string& pipelineLayoutName) const {
 	return pipelineLayouts.at(pipelineLayoutName);
 }
 
@@ -966,9 +967,9 @@ bool WgpContext::isBlendAble(WGPUTextureFormat textureFormat) {
 	return textureFormat != WGPUTextureFormat_R32Uint && textureFormat != WGPUTextureFormat_R32Sint;
 }
 
-void WgpContext::createComputePipeline(std::string shaderModuleName, 
-	std::string entrypoint,
-	std::string pipelineLayoutName, 
+void WgpContext::createComputePipeline(const std::string& shaderModuleName,
+	const std::string& entrypoint,
+	const std::string& pipelineLayoutName,
 	const std::function<std::vector<WGPUBindGroupLayout>()>& onBindGroupLayouts) {
 
 	if (onBindGroupLayouts) {
@@ -989,8 +990,8 @@ void WgpContext::createComputePipeline(std::string shaderModuleName,
 	computePipelines[pipelineLayoutName] = wgpuDeviceCreateComputePipeline(device, &computePipelineDesc);
 }
 
-void WgpContext::createRenderPipeline(std::string shaderModuleName, 
-	std::string pipelineLayoutName, 
+void WgpContext::createRenderPipeline(const std::string& shaderModuleName,
+	const std::string& pipelineLayoutName,
 	const VertexLayoutSlot vertexLayoutSlot, 
 	const std::function<std::vector<WGPUBindGroupLayout>()>& onBindGroupLayouts, 
 	uint32_t msaaSampleCount, 

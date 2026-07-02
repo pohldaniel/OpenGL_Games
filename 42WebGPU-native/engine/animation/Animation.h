@@ -38,8 +38,8 @@ public:
 	Animation();
 	~Animation();
 
-	void loadAnimationAssimp(const std::string& filename, std::string sourceName, std::string destName);
-	void loadAnimation(std::string filename);
+	void loadAnimationAssimp(const std::string& filename, const std::string& sourceName, const std::string& destName);
+	void loadAnimation(const std::string& filename);
 
 	AnimationTrack* createTrack(const std::string& name);
 	AnimationTrack* findTrack(const std::string& name) const;

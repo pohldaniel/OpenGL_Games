@@ -67,8 +67,8 @@ private:
 	std::vector<float> m_vertexBuffer;
 	std::vector<unsigned int> m_indexBuffer;
 
-	void static ReadAiMaterial(const aiMaterial* aiMaterial, short& index, std::string modelDirectory, std::string mltName);
-	std::string static GetTexturePath(std::string texPath, std::string modelDirectory);
+	void static ReadAiMaterial(const aiMaterial* aiMaterial, short& index, const std::string& modelDirectory, const std::string& mltName);
+	std::string static GetTexturePath(const std::string& texPath, const std::string& modelDirectory);
 };
 
 class AssimpMesh : public Mesh {

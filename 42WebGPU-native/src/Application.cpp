@@ -328,11 +328,11 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new ComputeParticleLogo(*Machine));	
 	//Machine->addStateAtTop(new PrimitivePicking(*Machine));
 	//Machine->addStateAtTop(new StencilMask(*Machine));
-	Machine->addStateAtTop(new DeferredRendering(*Machine));
+	//Machine->addStateAtTop(new DeferredRendering(*Machine));
 	//Machine->addStateAtTop(new VolumeRendering(*Machine));
 	//Machine->addStateAtTop(new OcclusionQuery(*Machine));
 	//Machine->addStateAtTop(new VideoDecode(*Machine));
-	//Machine->addStateAtTop(new RenderBundles(*Machine));
+	Machine->addStateAtTop(new RenderBundles(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

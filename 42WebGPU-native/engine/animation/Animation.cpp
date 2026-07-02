@@ -28,12 +28,12 @@ Animation::~Animation() {
 
 }
 
-void Animation::loadAnimation(std::string filename) {
+void Animation::loadAnimation(const std::string& filename) {
 	Utils::MdlcIO mdlcIO;
 	mdlcIO.anicToBuffer(filename.c_str(), m_animationName, m_length, m_tracks);
 }
 
-void Animation::loadAnimationAssimp(const std::string& filename, std::string sourceName, std::string destName) {
+void Animation::loadAnimationAssimp(const std::string& filename, const std::string& sourceName, const std::string& destName) {
 	Assimp::Importer Importer;
 	const aiScene* aiScene = Importer.ReadFile(filename, NULL);
 
