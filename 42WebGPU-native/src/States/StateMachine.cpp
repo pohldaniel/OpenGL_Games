@@ -13,29 +13,30 @@ void StateMachine::fixedUpdate() {
 		m_states.top()->fixedUpdate();
 }
 
+void StateMachine::popState() {
+	if (!m_states.top()->isRunning()) {
+		States state = m_states.top()->getCurrentState();
+		delete m_states.top();
+		m_states.pop();
+		if (!m_states.empty())
+			m_states.top()->OnReEnter(state);
+	}
+}
+
 void StateMachine::update() {
 	if (!m_states.empty()) {
 		m_states.top()->update();
-		if (!m_states.top()->isRunning()) {
-			States state = m_states.top()->getCurrentState();
-			delete m_states.top();
-			m_states.pop();
-			ImGui::GetIO().WantCaptureMouse = false;
-			if (!m_states.empty())
-				m_states.top()->OnReEnter(state);
-		}
+		popState();
 	}else {
 		m_isRunning = false;
 	}
 }
 
 void StateMachine::render() {
-
 	if (!m_states.empty()) {
 		m_states.top()->render();
 	}
 }
-
 
 void StateMachine::resizeState(int deltaW, int deltaH, States state) {
 	if (m_states.empty()) return;
@@ -48,6 +49,13 @@ void StateMachine::resizeState(int deltaW, int deltaH, States state) {
 		resizeState(deltaW, deltaH, state);
 		m_states.push(temp);
 	}
+}
+
+States StateMachine::getCurrentState() {
+	if (!m_states.empty()) {
+		return m_states.top()->getCurrentState();
+	}
+	return static_cast<States>(0);
 }
 
 void StateMachine::ToggleWireframe() {
