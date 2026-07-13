@@ -30,6 +30,7 @@ const struct nk_draw_command* cmd = NULL;
 struct nk_buffer vbuf, ibuf;
 struct nk_font_atlas atlas;
 struct nk_font* default_font;
+struct nk_font* custom_font;
 
 NuklearGui::NuklearGui(StateMachine& machine) : State(machine, States::NUKLEAR_GUI) {
 
@@ -75,7 +76,12 @@ NuklearGui::NuklearGui(StateMachine& machine) : State(machine, States::NUKLEAR_G
 	nk_font_atlas_init_default(&atlas);
 	nk_font_atlas_begin(&atlas);
 
-	default_font = nk_font_atlas_add_default(&atlas, 13.0f, NULL);
+	//default_font = nk_font_atlas_add_default(&atlas, 16.0f, NULL);
+
+	struct nk_font_config config_font = nk_font_config(0.0f);
+	config_font.oversample_h = 3;
+	config_font.oversample_v = 3;
+	custom_font = nk_font_atlas_add_from_file(&atlas, "res/fonts/upheavtt.ttf", 16.0f, &config_font);
 
 	const void* image_pixels;
 	int atlas_width, atlas_height;
@@ -101,7 +107,7 @@ NuklearGui::NuklearGui(StateMachine& machine) : State(machine, States::NUKLEAR_G
 	font_handle.ptr = m_textureFont.getTextureView();
 
 	nk_font_atlas_end(&atlas, font_handle, &config.null);
-	nk_style_set_font(&ctx, &default_font->handle);
+	nk_style_set_font(&ctx, &custom_font->handle);
 	nk_style_default(&ctx);
 
 	memset(&config, 0, sizeof(config));
