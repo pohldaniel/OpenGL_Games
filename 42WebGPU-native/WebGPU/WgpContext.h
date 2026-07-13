@@ -23,6 +23,7 @@ enum VertexLayoutSlot {
 	VL_PTNTB,
 	VL_PTNWJ,
 	VL_BATCH,
+	VL_GUI,
 	VL_0,
 	VL_1,
 	VL_2

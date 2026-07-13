@@ -617,7 +617,7 @@ unsigned char* WgpTexture::LoadFromMemory(unsigned char* data, uint32_t size, ui
     return pixels;
 }
 
-void WgpTexture::Safe(const std::string& fileOut, unsigned char* bytes, uint32_t width, uint32_t height, uint32_t channels) {
+void WgpTexture::Safe(const std::string& fileOut, const unsigned char* bytes, uint32_t width, uint32_t height, uint32_t channels) {
     FreeImage_Initialise();    
     FIBITMAP* sourceBitmap = FreeImage_Allocate(width, height, channels * 8u, 0u, 0u, 0u);
     memcpy(FreeImage_GetBits(sourceBitmap), bytes, width * height * channels);
@@ -626,9 +626,9 @@ void WgpTexture::Safe(const std::string& fileOut, unsigned char* bytes, uint32_t
     FreeImage_DeInitialise();
 }
 
-void WgpTexture::Safe(const std::string& fileOut, unsigned char* bytes, uint32_t size) {
+void WgpTexture::Safe(const std::string& fileOut, const unsigned char* bytes, uint32_t size) {
     FreeImage_Initialise();
-    FIMEMORY* hmem = FreeImage_OpenMemory(bytes, size);
+    FIMEMORY* hmem = FreeImage_OpenMemory(const_cast<unsigned char*>(bytes), size);
     FREE_IMAGE_FORMAT fif = FreeImage_GetFileTypeFromMemory(hmem);
     FIBITMAP* sourceBitmap = FreeImage_LoadFromMemory(fif, hmem);
     FreeImage_Save(FIF_PNG, sourceBitmap, fileOut.c_str(), PNG_DEFAULT);
@@ -637,7 +637,7 @@ void WgpTexture::Safe(const std::string& fileOut, unsigned char* bytes, uint32_t
     FreeImage_DeInitialise();
 }
 
-void WgpTexture::SafeHDRI(const std::string& fileOut, unsigned char* bytes, uint32_t width, uint32_t height, uint32_t channels) {    
+void WgpTexture::SafeHDRI(const std::string& fileOut, const unsigned char* bytes, uint32_t width, uint32_t height, uint32_t channels) {
     FreeImage_Initialise();
     FIBITMAP* sourceBitmap = FreeImage_Allocate(width, height, 128u, 0u, 0u, 0u);
     memcpy(FreeImage_GetBits(sourceBitmap), bytes, width * height * 4u * sizeof(float));

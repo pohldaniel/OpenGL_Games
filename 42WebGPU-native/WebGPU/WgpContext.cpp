@@ -206,7 +206,8 @@ bool wgpCreateDevice(void* window) {
 	wgpCreateVertexBufferLayout(VL_PTNC);
 	wgpCreateVertexBufferLayout(VL_PTNTB);
 	wgpCreateVertexBufferLayout(VL_PTNWJ);	
-	wgpCreateVertexBufferLayout(VL_BATCH);	
+	wgpCreateVertexBufferLayout(VL_BATCH);
+	wgpCreateVertexBufferLayout(VL_GUI);
 
 	wgpContext.addSampler(wgpCreateSampler(WGPUFilterMode_Linear, WGPUAddressMode_ClampToEdge), SS_LINEAR_CLAMP);
 	wgpContext.addSampler(wgpCreateSampler(WGPUFilterMode_Linear, WGPUAddressMode_Repeat), SS_LINEAR_REPEAT);
@@ -575,6 +576,28 @@ void wgpCreateVertexBufferLayout(VertexLayoutSlot slot) {
 		wgpVertexBufferLayout.arrayStride = 9 * sizeof(float) + sizeof(unsigned int);
 		wgpVertexBufferLayout.stepMode = WGPUVertexStepMode::WGPUVertexStepMode_Vertex;
 		wgpVertexBufferLayouts[VL_BATCH].push_back(wgpVertexBufferLayout);
+	}else if (wgpVertexBufferLayouts.count(VL_GUI) == 0 && slot == VL_GUI) {
+		std::vector<WGPUVertexAttribute>& wgpVertexAttribute = wgpVertexAttributes[VL_GUI];
+		wgpVertexAttribute.resize(3);
+
+		wgpVertexAttribute[0].shaderLocation = 0u;
+		wgpVertexAttribute[0].format = WGPUVertexFormat::WGPUVertexFormat_Float32x2;
+		wgpVertexAttribute[0].offset = 0u;
+
+		wgpVertexAttribute[1].shaderLocation = 1u;
+		wgpVertexAttribute[1].format = WGPUVertexFormat::WGPUVertexFormat_Float32x2;
+		wgpVertexAttribute[1].offset = 2 * sizeof(float);
+
+		wgpVertexAttribute[2].shaderLocation = 2u;
+		wgpVertexAttribute[2].format = WGPUVertexFormat::WGPUVertexFormat_Unorm8x4;
+		wgpVertexAttribute[2].offset = 4 * sizeof(float);
+
+		WGPUVertexBufferLayout wgpVertexBufferLayout = {};
+		wgpVertexBufferLayout.attributeCount = (uint32_t)wgpVertexAttribute.size();
+		wgpVertexBufferLayout.attributes = wgpVertexAttribute.data();
+		wgpVertexBufferLayout.arrayStride = 20u;
+		wgpVertexBufferLayout.stepMode = WGPUVertexStepMode::WGPUVertexStepMode_Vertex;
+		wgpVertexBufferLayouts[VL_GUI].push_back(wgpVertexBufferLayout);
 	}
 }
 
@@ -605,15 +628,22 @@ void wgpPipelineLayoutsRelease() {
 }
 
 void wgpPipelinesRelease() {
-	WGPUBindGroupLayout prevBindGroupLayout = NULL;
-	uint32_t index = 0u;
+	WGPUBindGroupLayout prevBindGroupLayout;
+	uint32_t index;
 
 	for (auto& it : wgpContext.renderPipelines) {
-		WGPUBindGroupLayout bindGroupLayout = wgpuRenderPipelineGetBindGroupLayout(it.second, index);
-		while (bindGroupLayout && bindGroupLayout != prevBindGroupLayout) {
-			prevBindGroupLayout = bindGroupLayout;
-			wgpuBindGroupLayoutRelease(bindGroupLayout);
+		index = 0u;
+		prevBindGroupLayout = NULL;			
+		while (index < 4u) {
+			WGPUBindGroupLayout bindGroupLayout = wgpuRenderPipelineGetBindGroupLayout(it.second, index);
+						
+			if (prevBindGroupLayout != bindGroupLayout) {
+				wgpuBindGroupLayoutRelease(bindGroupLayout);
+			}
+			
 			index++;
+			prevBindGroupLayout = bindGroupLayout;
+					
 		}
 		wgpuRenderPipelineRelease(it.second);
 	}
@@ -621,15 +651,18 @@ void wgpPipelinesRelease() {
 	wgpContext.renderPipelines.clear();
 	wgpContext.renderPipelines.rehash(0u);
 
-	prevBindGroupLayout = NULL;
-	index = 0u;
-
 	for (auto& it : wgpContext.computePipelines) {
-		WGPUBindGroupLayout bindGroupLayout = wgpuComputePipelineGetBindGroupLayout(it.second, index);
-		while (bindGroupLayout && bindGroupLayout != prevBindGroupLayout) {
-			prevBindGroupLayout = bindGroupLayout;
-			wgpuBindGroupLayoutRelease(bindGroupLayout);
+		index = 0u;
+		prevBindGroupLayout = NULL;			
+		while (index < 4u) {
+			WGPUBindGroupLayout bindGroupLayout = wgpuComputePipelineGetBindGroupLayout(it.second, index);
+
+			if (prevBindGroupLayout != bindGroupLayout) {
+				wgpuBindGroupLayoutRelease(bindGroupLayout);
+			}
+
 			index++;
+			prevBindGroupLayout = bindGroupLayout;
 		}
 		wgpuComputePipelineRelease(it.second);
 	}
@@ -1027,26 +1060,26 @@ void WgpContext::createRenderPipeline(const std::string& shaderModuleName,
 
 	WGPUBlendState blendState = {};
 	if (configuration.blendMode == ALPHA_BLENDING) {
-		blendState.color.srcFactor = WGPUBlendFactor::WGPUBlendFactor_SrcAlpha;
-		blendState.color.dstFactor = WGPUBlendFactor::WGPUBlendFactor_OneMinusSrcAlpha;
 		blendState.color.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
-		blendState.alpha.srcFactor = WGPUBlendFactor::WGPUBlendFactor_Zero;
-		blendState.alpha.dstFactor = WGPUBlendFactor::WGPUBlendFactor_One;
+		blendState.color.srcFactor = WGPUBlendFactor::WGPUBlendFactor_SrcAlpha;
+		blendState.color.dstFactor = WGPUBlendFactor::WGPUBlendFactor_OneMinusSrcAlpha;		
 		blendState.alpha.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
+		blendState.alpha.srcFactor = WGPUBlendFactor::WGPUBlendFactor_One;
+		blendState.alpha.dstFactor = WGPUBlendFactor::WGPUBlendFactor_Zero;
 	}else if (configuration.blendMode == ADDITIVE_BLENDING_SRC) {
+		blendState.color.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
 		blendState.color.srcFactor = WGPUBlendFactor::WGPUBlendFactor_SrcAlpha;
 		blendState.color.dstFactor = WGPUBlendFactor::WGPUBlendFactor_One;
-		blendState.color.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
-		blendState.alpha.srcFactor = WGPUBlendFactor::WGPUBlendFactor_Zero;
-		blendState.alpha.dstFactor = WGPUBlendFactor::WGPUBlendFactor_One;
 		blendState.alpha.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
+		blendState.alpha.srcFactor = WGPUBlendFactor::WGPUBlendFactor_One;
+		blendState.alpha.dstFactor = WGPUBlendFactor::WGPUBlendFactor_Zero;		
 	}else if (configuration.blendMode == ADDITIVE_BLENDING_ONE) {
+		blendState.color.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
 		blendState.color.srcFactor = WGPUBlendFactor::WGPUBlendFactor_One;
 		blendState.color.dstFactor = WGPUBlendFactor::WGPUBlendFactor_One;
-		blendState.color.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
-		blendState.alpha.srcFactor = WGPUBlendFactor::WGPUBlendFactor_Zero;
-		blendState.alpha.dstFactor = WGPUBlendFactor::WGPUBlendFactor_One;
 		blendState.alpha.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
+		blendState.alpha.srcFactor = WGPUBlendFactor::WGPUBlendFactor_One;
+		blendState.alpha.dstFactor = WGPUBlendFactor::WGPUBlendFactor_Zero;
 	}
 
 	std::vector<WGPUColorTargetState> colorTargetStates;

@@ -284,6 +284,7 @@ void Mouse::smoothMouse(bool smooth){
 void Mouse::update(){
 
 	if (m_attached) {
+		
 		bool *pTempMouseStates = m_pPrevButtonStates;
 
 		m_pPrevButtonStates = m_pCurrButtonStates;
@@ -298,13 +299,16 @@ void Mouse::update(){
 		
 		POINT CursorPos;
 		GetCursorPos(&CursorPos);		
-		m_xDelta = static_cast< float >((CursorPos.x - m_centerX));
-		m_yDelta = static_cast< float >((CursorPos.y - m_centerY));
-
-		if (!m_cursorVisible)
+		
+		if (!m_cursorVisible) {
+			m_xDelta = static_cast<float>(CursorPos.x - m_centerX);
+			m_yDelta = static_cast<float>(CursorPos.y - m_centerY);
 			setCursorToMiddle();
-		else {
+		}else {
 			ScreenToClient(m_hWnd, &CursorPos);
+			m_xDelta = static_cast<float>(CursorPos.x - m_xPos);
+			m_yDelta = static_cast<float>(CursorPos.y - m_yPos);
+
 			m_xPos = CursorPos.x;
 			m_yPos = CursorPos.y;
 		}

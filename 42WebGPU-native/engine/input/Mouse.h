@@ -44,9 +44,17 @@ public:
 		return m_xPos;
 	}
 
-	int yPos() const
-	{
+	int yPos() const{
 		return m_yPos;
+	}
+
+	int xLasPost() const {
+		return m_xLastPos;
+	}
+
+	int yLastPos() const
+	{
+		return m_yLastPos;
 	}
 
 	float xDelta() const{

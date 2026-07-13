@@ -279,6 +279,9 @@
     <ClCompile Include="src\States\DeferredRendering.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
+    <ClCompile Include="src\States\NuklearGui.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\input\ApplicationEventListener.h">
@@ -537,6 +540,9 @@
       <Filter>Source Files\States</Filter>
     </ClInclude>
     <ClInclude Include="src\States\DeferredRendering.h">
+      <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\NuklearGui.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
   </ItemGroup>

@@ -407,11 +407,11 @@ void RenderBundles::createAsteroid(Renderable& renderable, uint32_t geometryInde
 	renderable.bindGroup = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
 }
 
-float random_float_min_max(float min, float max){
+float RenderBundles::random_float_min_max(float min, float max){
 	return ((max - min) * ((float)rand() / (float)RAND_MAX)) + min;
 }
 
-float random_float(void){
+float RenderBundles::random_float(void){
 	return random_float_min_max(0.0f, 1.0f); /* [0, 1.0] */
 }
 
