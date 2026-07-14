@@ -50,16 +50,21 @@ private:
 	bool m_initUi = true;
 	bool m_drawUi = false;
 	bool m_isHovered = false;
+	float m_uiScale = 1.0f;
+	float m_scrollDelta = 0.0f;
+	bool m_wasHovered1 = false;
+	bool m_wasHovered2 = false;
 
 	Camera m_camera;
 	TrackBall m_trackball;
 
 	WgpBuffer m_vertexBuffer, m_indexBuffer, m_uniformBuffer;
-	WgpTexture m_texture, m_textureFont;
+	WgpTexture m_texture, m_textureFont, m_textureIcon;
 
 	WGPURenderBundle m_renderBundle;
-	WGPUBindGroup m_bindgroup, m_bindgroupFont;
+	WGPUBindGroup m_bindgroup, m_bindgroupFont, m_bindgroupIcon;
 
 	WGPUBindGroup createBindGroup();
 	WGPUBindGroup createBindGroupFont();
+	WGPUBindGroup createBindGroupIcon();
 };

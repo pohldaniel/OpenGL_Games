@@ -5,6 +5,7 @@
 #define NK_INCLUDE_FONT_BAKING
 #define NK_INCLUDE_DEFAULT_FONT
 #define NK_IMPLEMENTATION
+#define  NK_INCLUDE_STANDARD_VARARGS
 
 #include <nuklear.h>
 
@@ -31,6 +32,12 @@ struct nk_buffer vbuf, ibuf;
 struct nk_font_atlas atlas;
 struct nk_font* default_font;
 struct nk_font* custom_font;
+struct nk_image playIcon;
+struct nk_vec2 current_pos;
+
+const float BASE_ROW_DYN = 30.0f;  // Basis-Höhe für den dynamischen Button
+const float BASE_ROW_STAT = 32.0f; // Basis-Größe für den statischen Button
+const float BASE_FONT_SIZE = 16.0f;
 
 NuklearGui::NuklearGui(StateMachine& machine) : State(machine, States::NUKLEAR_GUI) {
 
@@ -51,6 +58,7 @@ NuklearGui::NuklearGui(StateMachine& machine) : State(machine, States::NUKLEAR_G
 	m_vertexBuffer.createBuffer(MAX_VERTEX_MEMORY, WGPUBufferUsage_Vertex | WGPUBufferUsage_CopyDst);
 	m_indexBuffer.createBuffer(MAX_INDEX_MEMORY, WGPUBufferUsage_Index | WGPUBufferUsage_CopyDst);
 	m_texture.createEmpty(1u, 1u, 1u, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst, WGPUTextureFormat_RGBA8Unorm);
+	m_textureIcon.loadFromFile("res/textures/ui-icons-buttons-set-blue.png", true);
 
 	uint8_t white_pixel[4] = { 255, 255, 255, 255 };
 
@@ -68,6 +76,27 @@ NuklearGui::NuklearGui(StateMachine& machine) : State(machine, States::NUKLEAR_G
 	WGPUExtent3D size = { 1u , 1u , 1u };
 	wgpuQueueWriteTexture(wgpContext.queue, &destination, white_pixel, 4u, &source, &size);
 
+	memset(&config, 0, sizeof(config));
+	config.shape_AA = NK_ANTI_ALIASING_ON;
+	config.line_AA = NK_ANTI_ALIASING_ON;
+	config.circle_segment_count = 22;
+	config.curve_segment_count = 22;
+	config.arc_segment_count = 22;
+	config.global_alpha = 1.0f;
+	config.null.texture.ptr = m_texture.getTextureView();
+	config.null.uv = nk_vec2(0.5f, 0.5f);
+
+	static const struct nk_draw_vertex_layout_element vertex_layout[] = {
+		{NK_VERTEX_POSITION, NK_FORMAT_FLOAT, 0},
+		{NK_VERTEX_TEXCOORD, NK_FORMAT_FLOAT, 2 * sizeof(float)},
+		{NK_VERTEX_COLOR, NK_FORMAT_R8G8B8A8, 4 * sizeof(float)},
+		{NK_VERTEX_LAYOUT_END}
+	};
+
+	config.vertex_layout = vertex_layout;
+	config.vertex_size = 20;
+	config.vertex_alignment = 4;
+
 	nk_init_default(&ctx, NULL);
 	nk_buffer_init_default(&commands);
 	nk_buffer_init_fixed(&vbuf, cpu_vertex_linear_buffer, MAX_VERTEX_MEMORY);
@@ -76,12 +105,12 @@ NuklearGui::NuklearGui(StateMachine& machine) : State(machine, States::NUKLEAR_G
 	nk_font_atlas_init_default(&atlas);
 	nk_font_atlas_begin(&atlas);
 
-	//default_font = nk_font_atlas_add_default(&atlas, 16.0f, NULL);
+	//default_font = nk_font_atlas_add_default(&atlas, BASE_FONT_SIZE, NULL);
 
 	struct nk_font_config config_font = nk_font_config(0.0f);
 	config_font.oversample_h = 3;
 	config_font.oversample_v = 3;
-	custom_font = nk_font_atlas_add_from_file(&atlas, "res/fonts/upheavtt.ttf", 16.0f, &config_font);
+	custom_font = nk_font_atlas_add_from_file(&atlas, "res/fonts/upheavtt.ttf", BASE_FONT_SIZE, &config_font);
 
 	const void* image_pixels;
 	int atlas_width, atlas_height;
@@ -110,25 +139,7 @@ NuklearGui::NuklearGui(StateMachine& machine) : State(machine, States::NUKLEAR_G
 	nk_style_set_font(&ctx, &custom_font->handle);
 	nk_style_default(&ctx);
 
-	memset(&config, 0, sizeof(config));
-	config.shape_AA = NK_ANTI_ALIASING_ON;
-	config.line_AA = NK_ANTI_ALIASING_ON;
-	config.circle_segment_count = 22;
-	config.curve_segment_count = 22;
-	config.arc_segment_count = 22;
-	config.global_alpha = 1.0f;
-	config.null.texture.ptr = m_texture.getTextureView();
-	
-	static const struct nk_draw_vertex_layout_element vertex_layout[] = {
-		{NK_VERTEX_POSITION, NK_FORMAT_FLOAT, 0},
-		{NK_VERTEX_TEXCOORD, NK_FORMAT_FLOAT, 2 * sizeof(float)},
-		{NK_VERTEX_COLOR, NK_FORMAT_R8G8B8A8, 4 * sizeof(float)},
-		{NK_VERTEX_LAYOUT_END}
-	};
-
-	config.vertex_layout = vertex_layout;
-	config.vertex_size = 20;
-	config.vertex_alignment = 4;
+	playIcon = nk_subimage_ptr(m_textureIcon.getTextureView(), 960, 560, nk_rect(30.0f, 25.0f, 120.0f, 122.0f));
 
 	wgpContext.addSahderModule("NUKLEAR", "res/shader/nuklear.wgsl");
 	wgpContext.createRenderPipeline("NUKLEAR", "RP_NUKLEAR", VL_GUI, std::bind(&NuklearGui::OnBindGroupLayouts, this), 1u,
@@ -148,6 +159,7 @@ NuklearGui::NuklearGui(StateMachine& machine) : State(machine, States::NUKLEAR_G
 	wgpContext.OnDraw = std::bind(&NuklearGui::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
 	m_bindgroup = createBindGroup();
 	m_bindgroupFont = createBindGroupFont();
+	m_bindgroupIcon = createBindGroupIcon();
 }
 
 NuklearGui::~NuklearGui() {
@@ -219,7 +231,12 @@ void NuklearGui::update() {
 	nk_input_begin(&ctx);	
 	nk_input_motion(&ctx, mouse.xPos(), mouse.yPos());
 	nk_input_button(&ctx, NK_BUTTON_LEFT, mouse.xPos(), mouse.yPos(), mouse.buttonDown(Mouse::MouseButton::BUTTON_LEFT));
+	
+	if (m_wasHovered1)
+		nk_input_scroll(&ctx, nk_vec2(0.0f, m_scrollDelta));
 	nk_input_end(&ctx);	
+	
+	m_scrollDelta = 0.0f;
 	m_isHovered = nk_window_is_any_hovered(&ctx);
 }
 
@@ -231,18 +248,53 @@ void NuklearGui::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURend
 	{
 		wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0u, &m_camera.getOrthographicMatrix(), sizeof(Matrix4f));
 
-		if (nk_begin(&ctx, "Nuklear Window", nk_rect(static_cast<float>(Application::Width) * 0.25f, static_cast<float>(Application::Height) * 0.25f, static_cast<float>(Application::Width) * 0.5f, static_cast<float>(Application::Height) * 0.5f), NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_TITLE)) {
-			nk_layout_row_dynamic(&ctx, 30, 1);
+		custom_font->handle.height = BASE_FONT_SIZE * m_uiScale;
+		custom_font->scale = m_uiScale;
+
+		if(m_initUi)
+			current_pos = nk_vec2(static_cast<float>(Application::Width) * 0.25f, static_cast<float>(Application::Height) * 0.25f);
+
+		struct nk_rect scaled_bounds = nk_rect(
+			current_pos.x,
+			current_pos.y,
+			static_cast<float>(Application::Width) * 0.5f * m_uiScale,
+			static_cast<float>(Application::Height) * 0.5f * m_uiScale
+			
+		);
+		nk_window_set_bounds(&ctx, "Nuklear Window", scaled_bounds);
+
+		if (nk_begin(&ctx, "Nuklear Window", scaled_bounds, NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_TITLE)) {
+			nk_layout_row_dynamic(&ctx, BASE_ROW_DYN * m_uiScale, 1);
 			if (nk_button_label(&ctx, "Click Me!")) {
 				printf("Button was pressed!\n");
 			}
-		}
 
+			nk_layout_row_static(&ctx, BASE_ROW_STAT * m_uiScale, BASE_ROW_STAT * m_uiScale, 1);
+			if (nk_button_image(&ctx, playIcon)) {
+				printf("Play was pressed!\n");
+			}
+			m_wasHovered2 = nk_window_is_hovered(&ctx);
+			current_pos = nk_window_get_position(&ctx);
+		}
 		nk_end(&ctx);
+
+		custom_font->handle.height = BASE_FONT_SIZE;
+		custom_font->scale = 1.0f;
+
+		if (nk_begin(&ctx, "Scroll", nk_rect(50, 50, 300, 200), NK_WINDOW_BORDER | NK_WINDOW_MOVABLE)) {
+			nk_layout_row_dynamic(&ctx, 40, 1);
+			for (int i = 0; i < 20; i++) {
+				nk_labelf(&ctx, NK_TEXT_LEFT, "Element %d", i);
+			}
+			m_wasHovered1 = nk_window_is_hovered(&ctx);
+		}
+		nk_end(&ctx);
+
 		nk_buffer_clear(&vbuf);
 		nk_buffer_clear(&ibuf);
 
 		nk_convert(&ctx, &commands, &vbuf, &ibuf, &config);
+		m_initUi = false;
 
 		uint32_t vertex_count = vbuf.needed / sizeof(nk_webgpu_vertex);
 		nk_webgpu_vertex* vertices = (nk_webgpu_vertex*)cpu_vertex_linear_buffer;
@@ -262,8 +314,9 @@ void NuklearGui::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURend
 			WGPUTextureView active_view = (WGPUTextureView)cmd->texture.ptr;
 			if (active_view == m_textureFont.getTextureView()) {
 				wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_bindgroupFont, 0u, NULL);
-			}
-			else {
+			}else if (active_view == m_textureIcon.getTextureView()) {
+				wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_bindgroupIcon, 0u, NULL);
+			}else {
 				wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_bindgroup, 0u, NULL);
 			}
 
@@ -337,7 +390,16 @@ void NuklearGui::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
 }
 
 void NuklearGui::OnMouseWheel(const Event::MouseWheelEvent& event) {
+	if (event.direction == 1u && m_wasHovered2) {
+		m_uiScale = m_uiScale - 0.05f;
+		m_uiScale = Math::Clamp(m_uiScale, 0.0f, 5.0f);
+	}
 
+	if (event.direction == 0u && m_wasHovered2) {
+		m_uiScale = m_uiScale + 0.05f;
+		m_uiScale = Math::Clamp(m_uiScale, 0.0f, 5.0f);
+	}
+	m_scrollDelta = event.delta;
 }
 
 void NuklearGui::OnKeyDown(const Event::KeyboardEvent& event) {
@@ -466,6 +528,28 @@ WGPUBindGroup NuklearGui::createBindGroupFont() {
 
 	bindGroupEntries[2].binding = 2u;
 	bindGroupEntries[2].textureView = m_textureFont.getTextureView();
+
+
+	WGPUBindGroupDescriptor bindGroupDesc = {};
+	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_NUKLEAR"), 0u);
+	bindGroupDesc.entryCount = (uint32_t)bindGroupEntries.size();
+	bindGroupDesc.entries = bindGroupEntries.data();
+
+	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
+}
+
+WGPUBindGroup NuklearGui::createBindGroupIcon() {
+	std::vector<WGPUBindGroupEntry> bindGroupEntries(3);
+	bindGroupEntries[0].binding = 0u;
+	bindGroupEntries[0].buffer = m_uniformBuffer.getBuffer();
+	bindGroupEntries[0].offset = 0u;
+	bindGroupEntries[0].size = sizeof(Matrix4f);
+
+	bindGroupEntries[1].binding = 1u;
+	bindGroupEntries[1].sampler = wgpContext.getSampler(SS_LINEAR_CLAMP);
+
+	bindGroupEntries[2].binding = 2u;
+	bindGroupEntries[2].textureView = m_textureIcon.getTextureView();
 
 
 	WGPUBindGroupDescriptor bindGroupDesc = {};
