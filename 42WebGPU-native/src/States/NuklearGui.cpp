@@ -290,6 +290,86 @@ void NuklearGui::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURend
 		}
 		nk_end(&ctx);
 
+		struct nk_color old_background = ctx.style.window.background;
+		ctx.style.window.background = nk_rgba(0, 0, 0, 0);
+
+		struct nk_color old_border = ctx.style.window.border_color;
+		ctx.style.window.border_color = nk_rgba(0, 0, 0, 0);
+
+		nk_style_push_style_item(&ctx, &ctx.style.window.fixed_background, nk_style_item_color(nk_rgba(0, 0, 0, 0)));
+		nk_style_push_color(&ctx, &ctx.style.window.background, nk_rgba(0, 0, 0, 0));
+		nk_style_push_color(&ctx, &ctx.style.window.border_color, nk_rgba(0, 0, 0, 0));
+
+		nk_style_push_vec2(&ctx, &ctx.style.window.padding, nk_vec2(0, 0));
+		nk_style_push_vec2(&ctx, &ctx.style.window.group_padding, nk_vec2(0, 0));
+		nk_style_push_vec2(&ctx, &ctx.style.window.spacing, nk_vec2(0, 0));
+		nk_style_push_float(&ctx, &ctx.style.window.border, 0.0f);
+
+
+		if (nk_begin(&ctx, "HUD_Controls", nk_rect(20, static_cast<float>(Application::Height) - 200 * m_uiScale, 180 * m_uiScale, 180 * m_uiScale),
+			NK_WINDOW_NO_INPUT | NK_WINDOW_NO_SCROLLBAR)) // Keine Ränder, reines Overlay
+		{
+			// Quadratische Zeile passend zur UI-Skalierung
+			float joystick_size = 180.0f * m_uiScale;
+			nk_layout_row_static(&ctx, joystick_size, joystick_size, 1);
+
+			// Unser Custom Widget aufrufen
+			JoystickResult input_vector = nk_virtual_joystick(&ctx, joystick_size);
+
+			if (input_vector.is_active) {
+				// Werte direkt an deine Spiellogik übergeben!
+				//my_player.move(input_vector.x, input_vector.y);
+			}
+		}
+		nk_end(&ctx);
+
+		nk_style_pop_float(&ctx);
+		nk_style_pop_vec2(&ctx);
+		nk_style_pop_vec2(&ctx);
+		nk_style_pop_vec2(&ctx);
+
+		nk_style_pop_color(&ctx);
+		nk_style_pop_color(&ctx);
+		nk_style_pop_style_item(&ctx);
+		ctx.style.window.background = old_background;
+		ctx.style.window.border_color = old_border;
+
+		nk_style_push_vec2(&ctx, &ctx.style.window.padding, nk_vec2(0, 0));
+		nk_style_push_vec2(&ctx, &ctx.style.window.group_padding, nk_vec2(0, 0));
+		nk_style_push_vec2(&ctx, &ctx.style.window.spacing, nk_vec2(0, 0));
+		nk_style_push_float(&ctx, &ctx.style.window.border, 0.0f);
+
+		nk_style_push_style_item(&ctx, &ctx.style.window.fixed_background, nk_style_item_color(nk_rgba(0, 0, 0, 0)));
+		nk_style_push_color(&ctx, &ctx.style.window.background, nk_rgba(0, 0, 0, 0));
+		nk_style_push_color(&ctx, &ctx.style.window.border_color, nk_rgba(0, 0, 0, 0));
+
+		float btn_box_size = 140.0f * m_uiScale;
+		float margin = 40.0f * m_uiScale;
+
+		float btn_x = static_cast<float>(Application::Width) - btn_box_size - margin;
+		float btn_y = static_cast<float>(Application::Height) - btn_box_size - margin;
+
+		if (nk_begin(&ctx, "HUD_ActionButton", nk_rect(btn_x, btn_y, btn_box_size, btn_box_size), NK_WINDOW_NO_SCROLLBAR)) {
+
+			nk_layout_row_static(&ctx, btn_box_size, btn_box_size, 1);
+
+			// Button aufrufen
+			if (nk_circular_action_button(&ctx, "A", btn_box_size)) {
+				// ECHTES ACTION-EVENT AUSLÖSEN!
+				//my_player.jump_or_attack();
+			}
+		}
+		nk_end(&ctx);
+
+
+		nk_style_pop_color(&ctx);
+		nk_style_pop_color(&ctx);
+		nk_style_pop_style_item(&ctx);
+		nk_style_pop_float(&ctx);
+		nk_style_pop_vec2(&ctx);
+		nk_style_pop_vec2(&ctx);
+		nk_style_pop_vec2(&ctx);
+
 		nk_buffer_clear(&vbuf);
 		nk_buffer_clear(&ibuf);
 
@@ -298,7 +378,7 @@ void NuklearGui::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURend
 
 		uint32_t vertex_count = vbuf.needed / sizeof(nk_webgpu_vertex);
 		nk_webgpu_vertex* vertices = (nk_webgpu_vertex*)cpu_vertex_linear_buffer;
-
+		ibuf.needed = (ibuf.needed + 3) & ~3;
 		wgpuQueueWriteBuffer(wgpContext.queue, m_vertexBuffer.getBuffer(), 0, cpu_vertex_linear_buffer, vbuf.needed);
 		wgpuQueueWriteBuffer(wgpContext.queue, m_indexBuffer.getBuffer(), 0, cpu_index_linear_buffer, ibuf.needed);
 
@@ -558,4 +638,137 @@ WGPUBindGroup NuklearGui::createBindGroupIcon() {
 	bindGroupDesc.entries = bindGroupEntries.data();
 
 	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
+}
+
+NuklearGui::JoystickResult NuklearGui::nk_virtual_joystick(struct nk_context* ctx, float size_px) {
+	JoystickResult result;
+
+	// 1. Platz im aktuellen Nuklear-Layout reservieren (quadratisch)
+	struct nk_rect bounds;
+	nk_widget(&bounds, ctx);
+
+	// 2. Mathematische Zentren und Radien berechnen
+	float radius_base = bounds.w / 2.0f;
+	float radius_stick = radius_base * 0.4f; // Stick ist 40% der Basisgröße
+	struct nk_vec2 center = nk_vec2(bounds.x + radius_base, bounds.y + radius_base);
+
+	// 3. Touch/Maus-Input auswerten
+	const struct nk_input* input = &ctx->input;
+	// Android NDK mappt Screen-Touch meistens auf die primäre Maus-Taste
+	bool is_touched = input->mouse.buttons[NK_BUTTON_LEFT].down;
+	struct nk_vec2 touch_pos = input->mouse.pos;
+
+	struct nk_vec2 stick_pos = center;
+
+	if (is_touched) {
+		// Prüfen, ob der Touch innerhalb des Widgets gestartet ist oder gehalten wird
+		if (nk_input_is_mouse_hovering_rect(input, bounds) || ctx->active == ctx->current) {
+			result.is_active = true;
+
+			// Vektor vom Zentrum zum Touch-Punkt berechnen
+			float dx = touch_pos.x - center.x;
+			float dy = touch_pos.y - center.y;
+			float distance = std::sqrt(dx * dx + dy * dy);
+
+			// Maximaler physikalischer Bewegungsweg für den Stick
+			float max_distance = radius_base - radius_stick;
+
+			if (distance > 0.0f) {
+				// Normalisierter Richtungsvektor
+				float nx = dx / distance;
+				float ny = dy / distance;
+
+				// Wenn der Finger weiter zieht als die Basis groß ist, begrenzen (Clamp)
+				float clamped_dist = (distance > max_distance) ? max_distance : distance;
+
+				stick_pos.x = center.x + nx * clamped_dist;
+				stick_pos.y = center.y + ny * clamped_dist;
+
+				// Das Endergebnis für dein Spiel/deine Engine berechnen (-1.0 bis 1.0)
+				result.x = (nx * clamped_dist) / max_distance;
+				// Android-Y zeigt nach unten, für Spiele-Engines invertieren wir oft Y
+				result.y = -((ny * clamped_dist) / max_distance);
+			}
+		}
+	}
+
+	// 4. Zeichnen über das Nuklear-Command-Buffer (wird an WebGPU übergeben)
+	struct nk_command_buffer* canvas = nk_window_get_canvas(ctx);
+	if (canvas) {
+		// Basis zeichnen (Transparenter Kreis mit Rand)
+		nk_fill_circle(canvas, nk_rect(bounds.x, bounds.y, bounds.w, bounds.h), nk_rgba(50, 50, 50, 150));
+		nk_stroke_circle(canvas, nk_rect(bounds.x, bounds.y, bounds.w, bounds.h), 2.0f, nk_rgb(200, 200, 200));
+
+		// Stick/Knopf zeichnen (Gefüllter Kreis an berechneter Stick-Position)
+		float sx = stick_pos.x - radius_stick;
+		float sy = stick_pos.y - radius_stick;
+		float sw = radius_stick * 2.0f;
+		nk_fill_circle(canvas, nk_rect(sx, sy, sw, sw), nk_rgb(255, 100, 100));
+	}
+
+	return result;
+}
+
+bool NuklearGui::nk_circular_action_button(struct nk_context* ctx, const char* label, float size_px) {
+	bool is_pressed = false;
+
+	// 1. Platz im Layout reservieren (quadratisch)
+	struct nk_rect bounds;
+	nk_widget(&bounds, ctx);
+
+	float radius = bounds.w / 2.0f;
+	struct nk_vec2 center = nk_vec2(bounds.x + radius, bounds.y + radius);
+
+	const struct nk_input* input = &ctx->input;
+	bool is_touched = input->mouse.buttons[NK_BUTTON_LEFT].down;
+	struct nk_vec2 touch_pos = input->mouse.pos;
+
+
+	// Wir prüfen mathematisch, ob der Touch innerhalb des Kreises liegt
+	bool is_hovered = false;
+	if (is_touched) {
+		float dx = touch_pos.x - center.x;
+		float dy = touch_pos.y - center.y;
+		if ((dx * dx + dy * dy) <= (radius * radius)) {
+			is_hovered = true;
+		}
+	}
+
+	// Zustand für "Geklickt" im Immediate-Mode ermitteln
+	static bool button_was_down = false;
+	if (is_hovered && is_touched) {
+		if (!button_was_down) {
+			is_pressed = true; // Genau in diesem Frame gedrückt
+			button_was_down = true;
+		}
+	}
+	else if (!is_touched) {
+		button_was_down = false; // Finger wieder angehoben
+	}
+
+	// 3. Zeichnen auf dem Canvas
+	struct nk_command_buffer* canvas = nk_window_get_canvas(ctx);
+	if (canvas) {
+		// Farb-Feedback: Wenn gedrückt, dunkler färben
+		struct nk_color btn_color = is_hovered ? nk_rgb(180, 50, 50) : nk_rgb(255, 80, 80);
+		struct nk_color border_color = is_hovered ? nk_rgb(255, 255, 255) : nk_rgb(200, 200, 200);
+
+		// Kreis füllen und umranden
+		nk_fill_circle(canvas, bounds, btn_color);
+		nk_stroke_circle(canvas, bounds, 3.0f, border_color);
+
+		// Text in der Mitte des Kreises platzieren
+		// (Nutzt die aktuelle Font-Höhe, um den Text vertikal zu zentrieren)
+		const struct nk_user_font* font = ctx->style.font;
+		float text_width = font->width(font->userdata, font->height, label, nk_strlen(label));
+
+		struct nk_vec2 text_pos;
+		text_pos.x = center.x - (text_width / 2.0f);
+		text_pos.y = center.y - (font->height / 2.0f);
+
+		nk_draw_text(canvas, nk_rect(text_pos.x, text_pos.y, text_width, font->height),
+			label, nk_strlen(label), font, nk_rgb(0, 0, 0), nk_rgb(255, 255, 255));
+	}
+
+	return is_pressed;
 }

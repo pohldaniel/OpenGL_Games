@@ -24,6 +24,12 @@ class NuklearGui : public State, public MouseEventListener, public KeyboardEvent
 		uint8_t col[4];
 	};
 
+	struct JoystickResult {
+		float x = 0.0f; // -1.0 bis 1.0 (Links/Rechts)
+		float y = 0.0f; // -1.0 bis 1.0 (Oben/Unten)
+		bool is_active = false;
+	};
+
 public:
 
 	NuklearGui(StateMachine& machine);
@@ -67,4 +73,6 @@ private:
 	WGPUBindGroup createBindGroup();
 	WGPUBindGroup createBindGroupFont();
 	WGPUBindGroup createBindGroupIcon();
+	JoystickResult nk_virtual_joystick(struct nk_context* ctx, float size_px);
+	bool nk_circular_action_button(struct nk_context* ctx, const char* label, float size_px);
 };
