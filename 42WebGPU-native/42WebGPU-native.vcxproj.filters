@@ -46,6 +46,9 @@
     <Filter Include="engine\utils">
       <UniqueIdentifier>{9b4306b3-5a06-4228-b8e5-11084d85c403}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Nuklear">
+      <UniqueIdentifier>{9442c9c1-d3f2-42f9-b6b3-74a8f0310271}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\input\ApplicationEventListener.cpp">
@@ -281,6 +284,9 @@
     </ClCompile>
     <ClCompile Include="src\States\NuklearGui.cpp">
       <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="Nuklear\NkContext.cpp">
+      <Filter>Nuklear</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -544,6 +550,9 @@
     </ClInclude>
     <ClInclude Include="src\States\NuklearGui.h">
       <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Nuklear\NkContext.h">
+      <Filter>Nuklear</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

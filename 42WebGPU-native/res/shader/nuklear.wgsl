@@ -1,9 +1,7 @@
 struct Uniforms {
-    projectionMatrix: mat4x4<f32>,
+    projection: mat4x4<f32>,
 };
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
-@group(0) @binding(1) var s: sampler;
-@group(0) @binding(2) var t: texture_2d<f32>;
 
 struct VertexInput {
     @location(0) position: vec2<f32>,
@@ -20,11 +18,14 @@ struct VertexOutput {
 @vertex
 fn vs_main(in: VertexInput) -> VertexOutput {
     var out: VertexOutput;
-    out.position = uniforms.projectionMatrix * vec4<f32>(in.position, 0.0, 1.0);
+    out.position = uniforms.projection * vec4<f32>(in.position, 0.0, 1.0);
     out.uv = in.uv;
     out.color = in.color;
     return out;
 }
+
+@group(0) @binding(1) var s: sampler;
+@group(0) @binding(2) var t: texture_2d<f32>;
 
 @fragment
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {

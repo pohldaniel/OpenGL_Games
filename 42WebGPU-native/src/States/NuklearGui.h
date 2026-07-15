@@ -8,6 +8,7 @@
 #include <engine/Camera.h>
 
 #include <States/StateMachine.h>
+#include <Nuklear/NkContext.h>
 
 #include <WebGPU/WgpBuffer.h>
 #include <WebGPU/WgpModel.h>
@@ -17,13 +18,6 @@
 #define MAX_INDEX_MEMORY (256u * 1024u)
 
 class NuklearGui : public State, public MouseEventListener, public KeyboardEventListener {
-
-	struct nk_webgpu_vertex {
-		float position[2];
-		float uv[2];
-		uint8_t col[4];
-	};
-
 	struct JoystickResult {
 		float x = 0.0f; // -1.0 bis 1.0 (Links/Rechts)
 		float y = 0.0f; // -1.0 bis 1.0 (Oben/Unten)
@@ -39,6 +33,7 @@ public:
 	void update() override;
 	void render() override;
 	void OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor);
+	void OnFillBuffer(nk_context& nkCntxt);
 
 	void resize(int deltaW, int deltaH) override;
 	void OnMouseMotion(const Event::MouseMoveEvent& event) override;
@@ -50,7 +45,6 @@ public:
 
 private:
 
-	std::vector<WGPUBindGroupLayout> OnBindGroupLayouts();
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 
 	bool m_initUi = true;
@@ -58,21 +52,17 @@ private:
 	bool m_isHovered = false;
 	float m_uiScale = 1.0f;
 	float m_scrollDelta = 0.0f;
-	bool m_wasHovered1 = false;
-	bool m_wasHovered2 = false;
+	bool m_wasHovered = false;
 
 	Camera m_camera;
 	TrackBall m_trackball;
 
-	WgpBuffer m_vertexBuffer, m_indexBuffer, m_uniformBuffer;
-	WgpTexture m_texture, m_textureFont, m_textureIcon;
-
-	WGPURenderBundle m_renderBundle;
-	WGPUBindGroup m_bindgroup, m_bindgroupFont, m_bindgroupIcon;
-
-	WGPUBindGroup createBindGroup();
-	WGPUBindGroup createBindGroupFont();
-	WGPUBindGroup createBindGroupIcon();
 	JoystickResult nk_virtual_joystick(struct nk_context* ctx, float size_px);
 	bool nk_circular_action_button(struct nk_context* ctx, const char* label, float size_px);
+
+	struct nk_image playIcon;
+	struct nk_vec2 current_pos;
+
+	const float BASE_ROW_DYN = 30.0f;
+	const float BASE_ROW_STAT = 32.0f;
 };

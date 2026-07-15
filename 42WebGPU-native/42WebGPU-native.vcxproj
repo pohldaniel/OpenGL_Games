@@ -213,6 +213,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClCompile Include="engine\thread\WorkQueue.cpp" />
     <ClCompile Include="engine\Timer.cpp" />
     <ClCompile Include="engine\utils\BinaryIO.cpp" />
+    <ClCompile Include="Nuklear\NkContext.cpp" />
     <ClCompile Include="src\ImguiExtension.cpp" />
     <ClCompile Include="src\LoadingManager.cpp" />
     <ClCompile Include="src\States\Compute.cpp" />
@@ -312,6 +313,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClInclude Include="engine\Transform.h" />
     <ClInclude Include="engine\utils\BinaryIO.h" />
     <ClInclude Include="engine\Vector.h" />
+    <ClInclude Include="Nuklear\NkContext.h" />
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\DataStructs.h" />
     <ClInclude Include="src\Globals.h" />

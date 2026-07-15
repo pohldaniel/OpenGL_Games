@@ -1,14 +1,3 @@
-#define NK_INCLUDE_FIXED_TYPES
-#define NK_INCLUDE_STANDARD_IO
-#define NK_INCLUDE_DEFAULT_ALLOCATOR
-#define NK_INCLUDE_VERTEX_BUFFER_OUTPUT
-#define NK_INCLUDE_FONT_BAKING
-#define NK_INCLUDE_DEFAULT_FONT
-#define NK_IMPLEMENTATION
-#define  NK_INCLUDE_STANDARD_VARARGS
-
-#include <nuklear.h>
-
 #include <imgui.h>
 #include <imgui_impl_win32.h>
 #include <imgui_impl_wgpu.h>
@@ -21,24 +10,6 @@
 #include "Application.h"
 #include "Globals.h"
 
-struct nk_context ctx;
-//struct nk_user_font font;
-struct nk_buffer commands;
-struct nk_convert_config config;
-static uint8_t cpu_vertex_linear_buffer[MAX_VERTEX_MEMORY];
-static uint8_t cpu_index_linear_buffer[MAX_INDEX_MEMORY];
-const struct nk_draw_command* cmd = NULL;
-struct nk_buffer vbuf, ibuf;
-struct nk_font_atlas atlas;
-struct nk_font* default_font;
-struct nk_font* custom_font;
-struct nk_image playIcon;
-struct nk_vec2 current_pos;
-
-const float BASE_ROW_DYN = 30.0f;  // Basis-Höhe für den dynamischen Button
-const float BASE_ROW_STAT = 32.0f; // Basis-Größe für den statischen Button
-const float BASE_FONT_SIZE = 16.0f;
-
 NuklearGui::NuklearGui(StateMachine& machine) : State(machine, States::NUKLEAR_GUI) {
 
 	Application::SetCursorIcon(IDC_ARROW);
@@ -49,122 +20,27 @@ NuklearGui::NuklearGui(StateMachine& machine) : State(machine, States::NUKLEAR_G
 	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm, Application::OnSurfaceChange);
 	wgpSetSurfaceDepthFormat(WGPUTextureFormat::WGPUTextureFormat_Depth24Plus, Application::OnSurfaceChange);
 
+	nkInit();
+	nkInitFont("res/fonts/upheavtt.ttf");
+	nkInitIcon("res/textures/ui-icons-buttons-set-blue.png");
+	playIcon = nk_subimage_ptr(nkContext.bindgroupIcon, 960, 560, nk_rect(30.0f, 25.0f, 120.0f, 122.0f));
+
 	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 100.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f,  -1.0f, 1.0f);
 	m_camera.lookAt(4.0f, 0.1f * 180.0f, 0.0f, 0.1f * 180.0f);
 	m_camera.setMovingSpeed(5.0f);
 	m_camera.setRotationSpeed(0.1f);
 
-	m_vertexBuffer.createBuffer(MAX_VERTEX_MEMORY, WGPUBufferUsage_Vertex | WGPUBufferUsage_CopyDst);
-	m_indexBuffer.createBuffer(MAX_INDEX_MEMORY, WGPUBufferUsage_Index | WGPUBufferUsage_CopyDst);
-	m_texture.createEmpty(1u, 1u, 1u, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst, WGPUTextureFormat_RGBA8Unorm);
-	m_textureIcon.loadFromFile("res/textures/ui-icons-buttons-set-blue.png", true);
-
-	uint8_t white_pixel[4] = { 255, 255, 255, 255 };
-
-	WGPUTexelCopyTextureInfo destination = {};
-	destination.texture = m_texture.getTexture();
-	destination.mipLevel = 0u;
-	destination.origin = { 0u, 0u, 0u };
-	destination.aspect = WGPUTextureAspect_All;
-
-	WGPUTexelCopyBufferLayout source = {};
-	source.offset = 0u;
-	source.bytesPerRow = 4u;
-	source.rowsPerImage = 1u;
-
-	WGPUExtent3D size = { 1u , 1u , 1u };
-	wgpuQueueWriteTexture(wgpContext.queue, &destination, white_pixel, 4u, &source, &size);
-
-	memset(&config, 0, sizeof(config));
-	config.shape_AA = NK_ANTI_ALIASING_ON;
-	config.line_AA = NK_ANTI_ALIASING_ON;
-	config.circle_segment_count = 22;
-	config.curve_segment_count = 22;
-	config.arc_segment_count = 22;
-	config.global_alpha = 1.0f;
-	config.null.texture.ptr = m_texture.getTextureView();
-	config.null.uv = nk_vec2(0.5f, 0.5f);
-
-	static const struct nk_draw_vertex_layout_element vertex_layout[] = {
-		{NK_VERTEX_POSITION, NK_FORMAT_FLOAT, 0},
-		{NK_VERTEX_TEXCOORD, NK_FORMAT_FLOAT, 2 * sizeof(float)},
-		{NK_VERTEX_COLOR, NK_FORMAT_R8G8B8A8, 4 * sizeof(float)},
-		{NK_VERTEX_LAYOUT_END}
-	};
-
-	config.vertex_layout = vertex_layout;
-	config.vertex_size = 20;
-	config.vertex_alignment = 4;
-
-	nk_init_default(&ctx, NULL);
-	nk_buffer_init_default(&commands);
-	nk_buffer_init_fixed(&vbuf, cpu_vertex_linear_buffer, MAX_VERTEX_MEMORY);
-	nk_buffer_init_fixed(&ibuf, cpu_index_linear_buffer, MAX_INDEX_MEMORY);
-
-	nk_font_atlas_init_default(&atlas);
-	nk_font_atlas_begin(&atlas);
-
-	//default_font = nk_font_atlas_add_default(&atlas, BASE_FONT_SIZE, NULL);
-
-	struct nk_font_config config_font = nk_font_config(0.0f);
-	config_font.oversample_h = 3;
-	config_font.oversample_v = 3;
-	custom_font = nk_font_atlas_add_from_file(&atlas, "res/fonts/upheavtt.ttf", BASE_FONT_SIZE, &config_font);
-
-	const void* image_pixels;
-	int atlas_width, atlas_height;
-	image_pixels = nk_font_atlas_bake(&atlas, &atlas_width, &atlas_height, NK_FONT_ATLAS_RGBA32);
-
-	m_textureFont.createEmpty(atlas_width, atlas_height, 1u, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst, WGPUTextureFormat_RGBA8Unorm);
-
-	WGPUTexelCopyTextureInfo font_destination = {};
-	font_destination.texture = m_textureFont.getTexture();
-	font_destination.mipLevel = 0u;
-	font_destination.origin = { 0u, 0u, 0u };
-	font_destination.aspect = WGPUTextureAspect_All;
-
-	WGPUTexelCopyBufferLayout font_source = {};
-	font_source.offset = 0u;
-	font_source.bytesPerRow = (uint32_t)atlas_width * 4;
-	font_source.rowsPerImage = (uint32_t)atlas_height;
-
-	WGPUExtent3D font_size = { (uint32_t)atlas_width, (uint32_t)atlas_height, 1u };
-	wgpuQueueWriteTexture(wgpContext.queue, &font_destination, image_pixels, (size_t)(atlas_width * atlas_height * 4), &font_source, &font_size);
-
-	nk_handle font_handle;
-	font_handle.ptr = m_textureFont.getTextureView();
-
-	nk_font_atlas_end(&atlas, font_handle, &config.null);
-	nk_style_set_font(&ctx, &custom_font->handle);
-	nk_style_default(&ctx);
-
-	playIcon = nk_subimage_ptr(m_textureIcon.getTextureView(), 960, 560, nk_rect(30.0f, 25.0f, 120.0f, 122.0f));
-
-	wgpContext.addSahderModule("NUKLEAR", "res/shader/nuklear.wgsl");
-	wgpContext.createRenderPipeline("NUKLEAR", "RP_NUKLEAR", VL_GUI, std::bind(&NuklearGui::OnBindGroupLayouts, this), 1u,
-		WGPUPrimitiveTopology_TriangleList,
-		WGPUTextureFormat_Undefined,
-		WGPUTextureFormat_Undefined,
-		WGPUCompareFunction_Always,
-		{ DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_Undefined, WGPUCullMode_None });
-
 	m_trackball.reshape(Application::Width, Application::Height);
-
-	m_uniformBuffer.createBuffer(sizeof(Matrix4f), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
-	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0u, &m_camera.getOrthographicMatrix(), sizeof(Matrix4f));
-
 	wgpContext.setClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
-	
 	wgpContext.OnDraw = std::bind(&NuklearGui::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
-	m_bindgroup = createBindGroup();
-	m_bindgroupFont = createBindGroupFont();
-	m_bindgroupIcon = createBindGroupIcon();
+	nkContext.OnFillBuffer = std::bind(&NuklearGui::OnFillBuffer, this, std::placeholders::_1);
 }
 
 NuklearGui::~NuklearGui() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
+	nkShutDown();
 }
 
 void NuklearGui::fixedUpdate() {
@@ -228,16 +104,8 @@ void NuklearGui::update() {
 	}
 	m_trackball.idle();
 
-	nk_input_begin(&ctx);	
-	nk_input_motion(&ctx, mouse.xPos(), mouse.yPos());
-	nk_input_button(&ctx, NK_BUTTON_LEFT, mouse.xPos(), mouse.yPos(), mouse.buttonDown(Mouse::MouseButton::BUTTON_LEFT));
-	
-	if (m_wasHovered1)
-		nk_input_scroll(&ctx, nk_vec2(0.0f, m_scrollDelta));
-	nk_input_end(&ctx);	
-	
+	nkUpdateInput(mouse.xPos(), mouse.yPos(), mouse.buttonDown(Mouse::MouseButton::BUTTON_LEFT), m_scrollDelta);
 	m_scrollDelta = 0.0f;
-	m_isHovered = nk_window_is_any_hovered(&ctx);
 }
 
 void NuklearGui::render() {
@@ -246,185 +114,7 @@ void NuklearGui::render() {
 
 void NuklearGui::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor) {
 	{
-		wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0u, &m_camera.getOrthographicMatrix(), sizeof(Matrix4f));
-
-		custom_font->handle.height = BASE_FONT_SIZE * m_uiScale;
-		custom_font->scale = m_uiScale;
-
-		if(m_initUi)
-			current_pos = nk_vec2(static_cast<float>(Application::Width) * 0.25f, static_cast<float>(Application::Height) * 0.25f);
-
-		struct nk_rect scaled_bounds = nk_rect(
-			current_pos.x,
-			current_pos.y,
-			static_cast<float>(Application::Width) * 0.5f * m_uiScale,
-			static_cast<float>(Application::Height) * 0.5f * m_uiScale
-			
-		);
-		nk_window_set_bounds(&ctx, "Nuklear Window", scaled_bounds);
-
-		if (nk_begin(&ctx, "Nuklear Window", scaled_bounds, NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_TITLE)) {
-			nk_layout_row_dynamic(&ctx, BASE_ROW_DYN * m_uiScale, 1);
-			if (nk_button_label(&ctx, "Click Me!")) {
-				printf("Button was pressed!\n");
-			}
-
-			nk_layout_row_static(&ctx, BASE_ROW_STAT * m_uiScale, BASE_ROW_STAT * m_uiScale, 1);
-			if (nk_button_image(&ctx, playIcon)) {
-				printf("Play was pressed!\n");
-			}
-			m_wasHovered2 = nk_window_is_hovered(&ctx);
-			current_pos = nk_window_get_position(&ctx);
-		}
-		nk_end(&ctx);
-
-		custom_font->handle.height = BASE_FONT_SIZE;
-		custom_font->scale = 1.0f;
-
-		if (nk_begin(&ctx, "Scroll", nk_rect(50, 50, 300, 200), NK_WINDOW_BORDER | NK_WINDOW_MOVABLE)) {
-			nk_layout_row_dynamic(&ctx, 40, 1);
-			for (int i = 0; i < 20; i++) {
-				nk_labelf(&ctx, NK_TEXT_LEFT, "Element %d", i);
-			}
-			m_wasHovered1 = nk_window_is_hovered(&ctx);
-		}
-		nk_end(&ctx);
-
-		struct nk_color old_background = ctx.style.window.background;
-		ctx.style.window.background = nk_rgba(0, 0, 0, 0);
-
-		struct nk_color old_border = ctx.style.window.border_color;
-		ctx.style.window.border_color = nk_rgba(0, 0, 0, 0);
-
-		nk_style_push_style_item(&ctx, &ctx.style.window.fixed_background, nk_style_item_color(nk_rgba(0, 0, 0, 0)));
-		nk_style_push_color(&ctx, &ctx.style.window.background, nk_rgba(0, 0, 0, 0));
-		nk_style_push_color(&ctx, &ctx.style.window.border_color, nk_rgba(0, 0, 0, 0));
-
-		nk_style_push_vec2(&ctx, &ctx.style.window.padding, nk_vec2(0, 0));
-		nk_style_push_vec2(&ctx, &ctx.style.window.group_padding, nk_vec2(0, 0));
-		nk_style_push_vec2(&ctx, &ctx.style.window.spacing, nk_vec2(0, 0));
-		nk_style_push_float(&ctx, &ctx.style.window.border, 0.0f);
-
-
-		if (nk_begin(&ctx, "HUD_Controls", nk_rect(20, static_cast<float>(Application::Height) - 200 * m_uiScale, 180 * m_uiScale, 180 * m_uiScale),
-			NK_WINDOW_NO_INPUT | NK_WINDOW_NO_SCROLLBAR)) // Keine Ränder, reines Overlay
-		{
-			// Quadratische Zeile passend zur UI-Skalierung
-			float joystick_size = 180.0f * m_uiScale;
-			nk_layout_row_static(&ctx, joystick_size, joystick_size, 1);
-
-			// Unser Custom Widget aufrufen
-			JoystickResult input_vector = nk_virtual_joystick(&ctx, joystick_size);
-
-			if (input_vector.is_active) {
-				// Werte direkt an deine Spiellogik übergeben!
-				//my_player.move(input_vector.x, input_vector.y);
-			}
-		}
-		nk_end(&ctx);
-
-		nk_style_pop_float(&ctx);
-		nk_style_pop_vec2(&ctx);
-		nk_style_pop_vec2(&ctx);
-		nk_style_pop_vec2(&ctx);
-
-		nk_style_pop_color(&ctx);
-		nk_style_pop_color(&ctx);
-		nk_style_pop_style_item(&ctx);
-		ctx.style.window.background = old_background;
-		ctx.style.window.border_color = old_border;
-
-		nk_style_push_vec2(&ctx, &ctx.style.window.padding, nk_vec2(0, 0));
-		nk_style_push_vec2(&ctx, &ctx.style.window.group_padding, nk_vec2(0, 0));
-		nk_style_push_vec2(&ctx, &ctx.style.window.spacing, nk_vec2(0, 0));
-		nk_style_push_float(&ctx, &ctx.style.window.border, 0.0f);
-
-		nk_style_push_style_item(&ctx, &ctx.style.window.fixed_background, nk_style_item_color(nk_rgba(0, 0, 0, 0)));
-		nk_style_push_color(&ctx, &ctx.style.window.background, nk_rgba(0, 0, 0, 0));
-		nk_style_push_color(&ctx, &ctx.style.window.border_color, nk_rgba(0, 0, 0, 0));
-
-		float btn_box_size = 140.0f * m_uiScale;
-		float margin = 40.0f * m_uiScale;
-
-		float btn_x = static_cast<float>(Application::Width) - btn_box_size - margin;
-		float btn_y = static_cast<float>(Application::Height) - btn_box_size - margin;
-
-		if (nk_begin(&ctx, "HUD_ActionButton", nk_rect(btn_x, btn_y, btn_box_size, btn_box_size), NK_WINDOW_NO_SCROLLBAR)) {
-
-			nk_layout_row_static(&ctx, btn_box_size, btn_box_size, 1);
-
-			// Button aufrufen
-			if (nk_circular_action_button(&ctx, "A", btn_box_size)) {
-				// ECHTES ACTION-EVENT AUSLÖSEN!
-				//my_player.jump_or_attack();
-			}
-		}
-		nk_end(&ctx);
-
-
-		nk_style_pop_color(&ctx);
-		nk_style_pop_color(&ctx);
-		nk_style_pop_style_item(&ctx);
-		nk_style_pop_float(&ctx);
-		nk_style_pop_vec2(&ctx);
-		nk_style_pop_vec2(&ctx);
-		nk_style_pop_vec2(&ctx);
-
-		nk_buffer_clear(&vbuf);
-		nk_buffer_clear(&ibuf);
-
-		nk_convert(&ctx, &commands, &vbuf, &ibuf, &config);
-		m_initUi = false;
-
-		uint32_t vertex_count = vbuf.needed / sizeof(nk_webgpu_vertex);
-		nk_webgpu_vertex* vertices = (nk_webgpu_vertex*)cpu_vertex_linear_buffer;
-		ibuf.needed = (ibuf.needed + 3) & ~3;
-		wgpuQueueWriteBuffer(wgpContext.queue, m_vertexBuffer.getBuffer(), 0, cpu_vertex_linear_buffer, vbuf.needed);
-		wgpuQueueWriteBuffer(wgpContext.queue, m_indexBuffer.getBuffer(), 0, cpu_index_linear_buffer, ibuf.needed);
-
-		WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDescriptor);
-		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_NUKLEAR"));
-
-		wgpuRenderPassEncoderSetVertexBuffer(renderPassEncoder, 0, m_vertexBuffer.getBuffer(), 0, MAX_VERTEX_MEMORY);
-		wgpuRenderPassEncoderSetIndexBuffer(renderPassEncoder, m_indexBuffer.getBuffer(), WGPUIndexFormat_Uint16, 0, MAX_INDEX_MEMORY);
-
-		uint32_t index_offset = 0;
-		nk_draw_foreach(cmd, &ctx, &commands) {
-			if (!cmd->elem_count) continue;
-			WGPUTextureView active_view = (WGPUTextureView)cmd->texture.ptr;
-			if (active_view == m_textureFont.getTextureView()) {
-				wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_bindgroupFont, 0u, NULL);
-			}else if (active_view == m_textureIcon.getTextureView()) {
-				wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_bindgroupIcon, 0u, NULL);
-			}else {
-				wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_bindgroup, 0u, NULL);
-			}
-
-			float scissor_x = cmd->clip_rect.x < 0.0f ? 0.0f : cmd->clip_rect.x;
-			float scissor_y = cmd->clip_rect.y < 0.0f ? 0.0f : cmd->clip_rect.y;
-			float scissor_w = cmd->clip_rect.w;
-			float scissor_h = cmd->clip_rect.h;
-
-			if (scissor_x + scissor_w > static_cast<float>(Application::Width)) {
-				scissor_w = static_cast<float>(Application::Width) - scissor_x;
-			}
-
-			if (scissor_y + scissor_h > static_cast<float>(Application::Height)) {
-				scissor_h = static_cast<float>(Application::Height) - scissor_y;
-			}
-
-			if (scissor_w <= 0.0f || scissor_h <= 0.0f) {
-				continue;
-			}
-
-			wgpuRenderPassEncoderSetScissorRect(renderPassEncoder, (uint32_t)scissor_x, (uint32_t)scissor_y, (uint32_t)scissor_w, (uint32_t)scissor_h);
-			wgpuRenderPassEncoderDrawIndexed(renderPassEncoder, cmd->elem_count, 1, index_offset, 0, 0);
-			index_offset += cmd->elem_count;
-		}
-		wgpuRenderPassEncoderEnd(renderPassEncoder);
-		wgpuRenderPassEncoderRelease(renderPassEncoder);
-		nk_clear(&ctx);
-		nk_buffer_clear(&commands);
+		nkDraw(commandEncoder, renderPassDescriptor);
 	}
 
 	if (m_drawUi)
@@ -443,12 +133,133 @@ void NuklearGui::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURend
 	}
 }
 
+void NuklearGui::OnFillBuffer(nk_context& nkCntxt) {
+	nkContext.font->handle.height = BASE_FONT_SIZE * m_uiScale;
+	nkContext.font->scale = m_uiScale;
+
+	if (m_initUi) {
+		current_pos = nk_vec2(static_cast<float>(Application::Width) * 0.25f, static_cast<float>(Application::Height) * 0.25f);
+		m_initUi = false;
+	}
+
+	struct nk_rect scaled_bounds = nk_rect(
+		current_pos.x,
+		current_pos.y,
+		static_cast<float>(Application::Width) * 0.5f * m_uiScale,
+		static_cast<float>(Application::Height) * 0.5f * m_uiScale
+
+	);
+	nk_window_set_bounds(&nkCntxt, "Nuklear Window", scaled_bounds);
+
+	if (nk_begin(&nkCntxt, "Nuklear Window", scaled_bounds, NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_TITLE)) {
+		nk_layout_row_dynamic(&nkCntxt, BASE_ROW_DYN * m_uiScale, 1);
+		if (nk_button_label(&nkCntxt, "Click Me!")) {
+			printf("Button was pressed!\n");
+		}
+
+		nk_layout_row_static(&nkCntxt, BASE_ROW_STAT * m_uiScale, BASE_ROW_STAT * m_uiScale, 1);
+		if (nk_button_image(&nkCntxt, playIcon)) {
+			printf("Play was pressed!\n");
+		}
+		m_wasHovered = nk_window_is_hovered(&nkCntxt);
+		current_pos = nk_window_get_position(&nkCntxt);
+	}
+	nk_end(&nkCntxt);
+
+	nkContext.font->handle.height = BASE_FONT_SIZE;
+	nkContext.font->scale = 1.0f;
+
+	if (nk_begin(&nkCntxt, "Scroll", nk_rect(50, 50, 300, 200), NK_WINDOW_BORDER | NK_WINDOW_MOVABLE)) {
+		nk_layout_row_dynamic(&nkCntxt, 40, 1);
+		for (int i = 0; i < 20; i++) {
+			nk_labelf(&nkCntxt, NK_TEXT_LEFT, "Element %d", i);
+		}
+	}
+	nk_end(&nkCntxt);
+
+	struct nk_color old_background = nkContext.context.style.window.background;
+	nkContext.context.style.window.background = nk_rgba(0, 0, 0, 0);
+
+	struct nk_color old_border = nkContext.context.style.window.border_color;
+	nkContext.context.style.window.border_color = nk_rgba(0, 0, 0, 0);
+
+	nk_style_push_style_item(&nkCntxt, &nkContext.context.style.window.fixed_background, nk_style_item_color(nk_rgba(0, 0, 0, 0)));
+	nk_style_push_color(&nkCntxt, &nkContext.context.style.window.background, nk_rgba(0, 0, 0, 0));
+	nk_style_push_color(&nkCntxt, &nkContext.context.style.window.border_color, nk_rgba(0, 0, 0, 0));
+
+	nk_style_push_vec2(&nkCntxt, &nkContext.context.style.window.padding, nk_vec2(0, 0));
+	nk_style_push_vec2(&nkCntxt, &nkContext.context.style.window.group_padding, nk_vec2(0, 0));
+	nk_style_push_vec2(&nkCntxt, &nkContext.context.style.window.spacing, nk_vec2(0, 0));
+	nk_style_push_float(&nkCntxt, &nkContext.context.style.window.border, 0.0f);
+
+
+	if (nk_begin(&nkCntxt, "HUD_Controls", nk_rect(20, static_cast<float>(Application::Height) - 200, 180, 180), NK_WINDOW_NO_INPUT | NK_WINDOW_NO_SCROLLBAR))
+	{
+
+		float joystick_size = 180.0f;
+		nk_layout_row_static(&nkCntxt, joystick_size, joystick_size, 1);
+
+		JoystickResult input_vector = nk_virtual_joystick(&nkCntxt, joystick_size);
+
+		if (input_vector.is_active) {
+
+		}
+	}
+	nk_end(&nkCntxt);
+
+	nk_style_pop_float(&nkCntxt);
+	nk_style_pop_vec2(&nkCntxt);
+	nk_style_pop_vec2(&nkCntxt);
+	nk_style_pop_vec2(&nkCntxt);
+
+	nk_style_pop_color(&nkCntxt);
+	nk_style_pop_color(&nkCntxt);
+	nk_style_pop_style_item(&nkCntxt);
+	nkContext.context.style.window.background = old_background;
+	nkContext.context.style.window.border_color = old_border;
+
+	nk_style_push_vec2(&nkCntxt, &nkContext.context.style.window.padding, nk_vec2(0, 0));
+	nk_style_push_vec2(&nkCntxt, &nkContext.context.style.window.group_padding, nk_vec2(0, 0));
+	nk_style_push_vec2(&nkCntxt, &nkContext.context.style.window.spacing, nk_vec2(0, 0));
+	nk_style_push_float(&nkCntxt, &nkContext.context.style.window.border, 0.0f);
+
+	nk_style_push_style_item(&nkCntxt, &nkContext.context.style.window.fixed_background, nk_style_item_color(nk_rgba(0, 0, 0, 0)));
+	nk_style_push_color(&nkCntxt, &nkContext.context.style.window.background, nk_rgba(0, 0, 0, 0));
+	nk_style_push_color(&nkCntxt, &nkContext.context.style.window.border_color, nk_rgba(0, 0, 0, 0));
+
+	float btn_box_size = 140.0f;
+	float margin = 40.0f;
+
+	float btn_x = static_cast<float>(Application::Width) - btn_box_size - margin;
+	float btn_y = static_cast<float>(Application::Height) - btn_box_size - margin;
+
+	if (nk_begin(&nkCntxt, "HUD_ActionButton", nk_rect(btn_x, btn_y, btn_box_size, btn_box_size), NK_WINDOW_NO_SCROLLBAR)) {
+
+		nk_layout_row_static(&nkCntxt, btn_box_size, btn_box_size, 1);
+
+		if (nk_circular_action_button(&nkCntxt, "A", btn_box_size)) {
+
+		}
+	}
+	nk_end(&nkCntxt);
+
+
+	nk_style_pop_color(&nkCntxt);
+	nk_style_pop_color(&nkCntxt);
+	nk_style_pop_style_item(&nkCntxt);
+	nk_style_pop_float(&nkCntxt);
+	nk_style_pop_vec2(&nkCntxt);
+	nk_style_pop_vec2(&nkCntxt);
+	nk_style_pop_vec2(&nkCntxt);
+
+	m_isHovered = nk_window_is_any_hovered(&nkCntxt);
+}
+
 void NuklearGui::OnMouseMotion(const Event::MouseMoveEvent& event) {
 	m_trackball.motion(event.x, event.y);
 }
 
-void NuklearGui::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
-	
+void NuklearGui::OnMouseButtonDown(const Event::MouseButtonEvent& event) {	
 	if (event.button == Event::MouseButtonEvent::BUTTON_LEFT && !m_isHovered) {
 		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, true, event.x, event.y);
 		Mouse::instance().detach();
@@ -456,7 +267,6 @@ void NuklearGui::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
 
 	if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT && !m_isHovered)
 		Mouse::instance().attach(Application::GetWindow(), true, true, true);
-
 }
 
 void NuklearGui::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
@@ -470,12 +280,12 @@ void NuklearGui::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
 }
 
 void NuklearGui::OnMouseWheel(const Event::MouseWheelEvent& event) {
-	if (event.direction == 1u && m_wasHovered2) {
+	if (event.direction == 1u && m_wasHovered) {
 		m_uiScale = m_uiScale - 0.05f;
 		m_uiScale = Math::Clamp(m_uiScale, 0.0f, 5.0f);
 	}
 
-	if (event.direction == 0u && m_wasHovered2) {
+	if (event.direction == 0u && m_wasHovered) {
 		m_uiScale = m_uiScale + 0.05f;
 		m_uiScale = Math::Clamp(m_uiScale, 0.0f, 5.0f);
 	}
@@ -502,6 +312,7 @@ void NuklearGui::resize(int deltaW, int deltaH) {
 	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 100.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, -1.0f, 1.0f);
 	m_trackball.reshape(Application::Width, Application::Height);
+	nkResize(static_cast<float>(Application::Width), static_cast<float>(Application::Height));
 }
 
 void NuklearGui::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
@@ -544,100 +355,6 @@ void NuklearGui::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 
 	ImGui::Render();
 	ImGui_ImplWGPU_RenderDrawData(ImGui::GetDrawData(), renderPassEncoder);
-}
-
-std::vector<WGPUBindGroupLayout> NuklearGui::OnBindGroupLayouts() {
-	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
-
-	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(3);
-
-	bindingLayoutEntries[0].binding = 0u;
-	bindingLayoutEntries[0].visibility = WGPUShaderStage_Vertex;
-	bindingLayoutEntries[0].buffer.type = WGPUBufferBindingType_Uniform;
-	bindingLayoutEntries[0].buffer.minBindingSize = sizeof(Matrix4f);
-
-	bindingLayoutEntries[1].binding = 1u;
-	bindingLayoutEntries[1].visibility = WGPUShaderStage_Fragment;
-	bindingLayoutEntries[1].sampler.type = WGPUSamplerBindingType_Filtering;
-
-	bindingLayoutEntries[2].binding = 2u;
-	bindingLayoutEntries[2].visibility = WGPUShaderStage_Fragment;
-	bindingLayoutEntries[2].texture.sampleType = WGPUTextureSampleType_Float;
-	bindingLayoutEntries[2].texture.viewDimension = WGPUTextureViewDimension_2D;
-	bindingLayoutEntries[2].texture.multisampled = WGPU_FALSE;
-
-	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
-	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
-	bindGroupLayoutDescriptor.entries = bindingLayoutEntries.data();
-
-	bindingLayouts[0] = wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor);
-	return bindingLayouts;
-}
-
-WGPUBindGroup NuklearGui::createBindGroup() {
-	std::vector<WGPUBindGroupEntry> bindGroupEntries(3);
-	bindGroupEntries[0].binding = 0u;
-	bindGroupEntries[0].buffer = m_uniformBuffer.getBuffer();
-	bindGroupEntries[0].offset = 0u;
-	bindGroupEntries[0].size = sizeof(Matrix4f);
-
-	bindGroupEntries[1].binding = 1u;
-	bindGroupEntries[1].sampler = wgpContext.getSampler(SS_LINEAR_CLAMP);
-
-	bindGroupEntries[2].binding = 2u;
-	bindGroupEntries[2].textureView = m_texture.getTextureView();
-
-
-	WGPUBindGroupDescriptor bindGroupDesc = {};
-	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_NUKLEAR"), 0u);
-	bindGroupDesc.entryCount = (uint32_t)bindGroupEntries.size();
-	bindGroupDesc.entries = bindGroupEntries.data();
-
-	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
-}
-
-WGPUBindGroup NuklearGui::createBindGroupFont() {
-	std::vector<WGPUBindGroupEntry> bindGroupEntries(3);
-	bindGroupEntries[0].binding = 0u;
-	bindGroupEntries[0].buffer = m_uniformBuffer.getBuffer();
-	bindGroupEntries[0].offset = 0u;
-	bindGroupEntries[0].size = sizeof(Matrix4f);
-
-	bindGroupEntries[1].binding = 1u;
-	bindGroupEntries[1].sampler = wgpContext.getSampler(SS_LINEAR_CLAMP);
-
-	bindGroupEntries[2].binding = 2u;
-	bindGroupEntries[2].textureView = m_textureFont.getTextureView();
-
-
-	WGPUBindGroupDescriptor bindGroupDesc = {};
-	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_NUKLEAR"), 0u);
-	bindGroupDesc.entryCount = (uint32_t)bindGroupEntries.size();
-	bindGroupDesc.entries = bindGroupEntries.data();
-
-	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
-}
-
-WGPUBindGroup NuklearGui::createBindGroupIcon() {
-	std::vector<WGPUBindGroupEntry> bindGroupEntries(3);
-	bindGroupEntries[0].binding = 0u;
-	bindGroupEntries[0].buffer = m_uniformBuffer.getBuffer();
-	bindGroupEntries[0].offset = 0u;
-	bindGroupEntries[0].size = sizeof(Matrix4f);
-
-	bindGroupEntries[1].binding = 1u;
-	bindGroupEntries[1].sampler = wgpContext.getSampler(SS_LINEAR_CLAMP);
-
-	bindGroupEntries[2].binding = 2u;
-	bindGroupEntries[2].textureView = m_textureIcon.getTextureView();
-
-
-	WGPUBindGroupDescriptor bindGroupDesc = {};
-	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_NUKLEAR"), 0u);
-	bindGroupDesc.entryCount = (uint32_t)bindGroupEntries.size();
-	bindGroupDesc.entries = bindGroupEntries.data();
-
-	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
 }
 
 NuklearGui::JoystickResult NuklearGui::nk_virtual_joystick(struct nk_context* ctx, float size_px) {

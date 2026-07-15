@@ -20,9 +20,11 @@ WgpBuffer::~WgpBuffer() {
 }
 
 void WgpBuffer::cleanup() {
-	wgpuBufferDestroy(m_buffer);
-	wgpuBufferRelease(m_buffer);
-	m_buffer = NULL;
+	if (m_buffer) {
+		wgpuBufferDestroy(m_buffer);
+		wgpuBufferRelease(m_buffer);
+		m_buffer = NULL;
+	}	
 }
 
 void WgpBuffer::markForDelete() const {
