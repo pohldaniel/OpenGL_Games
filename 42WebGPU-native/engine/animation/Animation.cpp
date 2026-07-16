@@ -33,24 +33,30 @@ void Animation::loadAnimation(const std::string& filename) {
 	mdlcIO.anicToBuffer(filename.c_str(), m_animationName, m_length, m_tracks);
 }
 
-void Animation::loadAnimationAssimp(const std::string& filename, const std::string& sourceName, const std::string& destName) {
-	Assimp::Importer Importer;
-	const aiScene* aiScene = Importer.ReadFile(filename, NULL);
+void Animation::loadAnimationAssimp(const std::string& filename, const std::string& sourceName, const std::string& destName, unsigned int starTick, unsigned int endTick) {
+	//std::filesystem::path filePath = filename;
+	//bool isFbx = filePath.extension() == ".fbx";
+
+	Assimp::Importer importer;
+	importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, false);
+	importer.SetPropertyInteger(AI_CONFIG_IMPORT_FBX_STRICT_MODE, true);
+
+	const aiScene* aiScene = importer.ReadFile(filename, NULL);
 
 	if (!aiScene) {
-		std::cout << filename << "  " << Importer.GetErrorString() << std::endl;
+		std::cout << filename << "  " << importer.GetErrorString() << std::endl;
 		return;
 	}
-
+	
 	for (unsigned int i = 0; i < aiScene->mNumAnimations; i++) {
 		const aiAnimation* aiAnimation = aiScene->mAnimations[i];
-
+		
 		if (sourceName.compare(aiAnimation->mName.data) != 0) {
 			continue;
 		}
-
+		
 		m_animationName = destName;
-		m_length = aiAnimation->mDuration / 1000.0f;
+		m_length = (starTick != 0u || endTick != 0u) ? (endTick- starTick) / aiAnimation->mTicksPerSecond : aiAnimation->mDuration / aiAnimation->mTicksPerSecond;
 		m_tracks.clear();
 
 		for (unsigned int c = 0; c < aiAnimation->mNumChannels; c++) {
@@ -66,9 +72,9 @@ void Animation::loadAnimationAssimp(const std::string& filename, const std::stri
 
 			for (size_t j = 0; j < numKeyFrames; ++j) {
 				AnimationKeyFrame& newKeyFrame = newTrack->m_keyFrames[j];
-				newKeyFrame.m_time = numKeyFrames == aiAnimation->mChannels[c]->mNumPositionKeys ? aiAnimation->mChannels[c]->mPositionKeys[j].mTime / 1000.0f : 
-					                 numKeyFrames == aiAnimation->mChannels[c]->mNumRotationKeys ? aiAnimation->mChannels[c]->mRotationKeys[j].mTime / 1000.0f :
-					                 aiAnimation->mChannels[c]->mScalingKeys[j].mTime / 1000.0f;
+				newKeyFrame.m_time = numKeyFrames == aiAnimation->mChannels[c]->mNumPositionKeys ? aiAnimation->mChannels[c]->mPositionKeys[j].mTime / aiAnimation->mTicksPerSecond :
+					                 numKeyFrames == aiAnimation->mChannels[c]->mNumRotationKeys ? aiAnimation->mChannels[c]->mRotationKeys[j].mTime / aiAnimation->mTicksPerSecond :
+					                 aiAnimation->mChannels[c]->mScalingKeys[j].mTime / aiAnimation->mTicksPerSecond;
 
 				if (j < aiAnimation->mChannels[c]->mNumPositionKeys) {
 					newKeyFrame.m_position.set(aiAnimation->mChannels[c]->mPositionKeys[j].mValue.x, aiAnimation->mChannels[c]->mPositionKeys[j].mValue.y, aiAnimation->mChannels[c]->mPositionKeys[j].mValue.z);
@@ -91,6 +97,45 @@ void Animation::loadAnimationAssimp(const std::string& filename, const std::stri
 			}
 
 		}
+
+		if (starTick != 0u || endTick != 0u) {
+			for (std::map<std::string, AnimationTrack>::iterator it = m_tracks.begin(); it != m_tracks.end(); it++) {
+				sliceTrack(it->second, starTick, endTick);
+			}
+		}
+	}
+}
+
+AnimationTrack* Animation::sliceTrack(const AnimationTrack& sourceTrack, unsigned int starTick, unsigned int endTick) {
+	AnimationTrack& track = m_tracks[sourceTrack.m_name];
+
+	std::vector<AnimationKeyFrame>& keyFrames = track.m_keyFrames;
+	std::vector<AnimationKeyFrame> keyFramesNew;
+	AnimationKeyFrame* lastValid = nullptr;
+	float time = 0.0f;
+	for (size_t j = 0; j < keyFrames.size(); ++j) {
+		if (j <= starTick) {
+			lastValid = &keyFrames[0];
+		}
+
+		if (j >= starTick && j <= endTick) {
+			if (j == starTick)
+				time = keyFrames[j].m_time;
+
+
+			keyFrames[j].m_time -= time;
+			keyFramesNew.push_back(keyFrames[j]);
+		}
+	}
+
+	if (!keyFramesNew.empty()) {
+		keyFrames.assign(keyFramesNew.begin(), keyFramesNew.end());
+	}
+
+	if (keyFramesNew.empty() && lastValid) {
+		lastValid->m_time -= time;
+		keyFramesNew.push_back(*lastValid);
+		keyFrames.assign(keyFramesNew.begin(), keyFramesNew.end());
 	}
 }
 

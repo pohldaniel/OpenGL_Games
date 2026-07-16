@@ -2,8 +2,9 @@
 #include <vector>
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
+#include <engine/animation/AnimatedModel.h>
+#include <engine/animation/Animation.h>
 #include <engine/shape/Shape.h>
-#include <engine/AssimpModel.h>
 #include <engine/TrackBall.h>
 #include <engine/Camera.h>
 
@@ -13,9 +14,6 @@
 #include <WebGPU/WgpBuffer.h>
 #include <WebGPU/WgpModel.h>
 #include <WebGPU/WgpData.h>
-
-#define MAX_VERTEX_MEMORY (1024u * 1024u)
-#define MAX_INDEX_MEMORY (256u * 1024u)
 
 class NuklearGui : public State, public MouseEventListener, public KeyboardEventListener {
 	struct JoystickResult {
@@ -65,4 +63,7 @@ private:
 
 	const float BASE_ROW_DYN = 30.0f;
 	const float BASE_ROW_STAT = 32.0f;
+
+	AnimatedModel m_player;
+	Animation m_animation;
 };

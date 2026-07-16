@@ -123,7 +123,7 @@ void AnimatedModel::loadModelAssimp(const std::string& path, const short addVirt
 	unsigned short maxBones = 4;
 	AnimatedMesh* mesh;
 
-	for (unsigned int j = 0; j < pScene->mNumMeshes; j++) {
+	for (unsigned int j = 0; j < 1; j++) {
 
 		const aiMesh* aiMesh = pScene->mMeshes[j];
 		const aiMaterial* aiMaterial = pScene->mMaterials[aiMesh->mMaterialIndex];

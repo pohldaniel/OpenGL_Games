@@ -38,7 +38,7 @@ public:
 	Animation();
 	~Animation();
 
-	void loadAnimationAssimp(const std::string& filename, const std::string& sourceName, const std::string& destName);
+	void loadAnimationAssimp(const std::string& filename, const std::string& sourceName, const std::string& destName, unsigned int starTick = 0u, unsigned int endTick = 0u);
 	void loadAnimation(const std::string& filename);
 
 	AnimationTrack* createTrack(const std::string& name);
@@ -59,6 +59,7 @@ public:
 	void scaleTrack(const std::string& name, const float sx, const float sy, const float sz);
 
 private:
+	AnimationTrack* sliceTrack(const AnimationTrack& sourceTrack, unsigned int starTick, unsigned int endTick);
 
 	mutable std::string m_animationName;
 	mutable float m_length;

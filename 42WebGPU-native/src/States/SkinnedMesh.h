@@ -78,7 +78,7 @@ private:
 	WgpTexture m_wgpTextureCube;
 
 	SelectedAnimation m_animation = SelectedAnimation::PROCEDURAL;
-	SelectedModel m_model = SelectedModel::WHALE;
+	SelectedModel m_model = SelectedModel::VAMPIRE;
 	SelectedMode m_mode = SelectedMode::NORMAL;
 
 	void proceduralSkinning(Bone**& bones, unsigned short numBones, float angle);
