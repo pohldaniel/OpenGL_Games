@@ -49,15 +49,12 @@ SkinnedMesh::SkinnedMesh(StateMachine& machine) : State(machine, States::SKINNED
 	//const AnimatedMesh* mesh = static_cast<const AnimatedMesh*>(m_whale.getMesh());
 	//mdlcIO.animatedModelToMdlc("res/whale.mdlc", mesh->getVertexBuffer(), mesh->getIndexBuffer(), mesh->getStride(), mesh->getWeights(), mesh->getJoints(), mesh->getBoneDescriptions());
 
-	//m_dance.loadAnimationAssimp("res/models/vampire/dancing_vampire.dae", "Hips", "vampire_dance");
-	//m_vampire.loadModelAssimp("res/models/vampire/dancing_vampire.dae", 1u);
-
-	m_dance.loadAnimationAssimp("res/models/player.fbx", "Player", "idle", 5, 77);
-	m_vampire.loadModelAssimp("res/models/player.fbx", 1u);
+	m_dance.loadAnimationAssimp("res/models/vampire/dancing_vampire.dae", "Hips", "vampire_dance");
+	m_vampire.loadModelAssimp("res/models/vampire/dancing_vampire.dae", 1u);
 
 	m_vampire.scale(0.1f, 0.1f, 0.1f);
 	m_vampire.rotate(0.0f, 180.0f, 0.0f);
-	//m_vampire.translate(-7.5f, -7.5f, -25.0f);
+	m_vampire.translate(-7.5f, -7.5f, -25.0f);
 	m_vampire.applyBindpose(true);
 	m_vampire.addAnimationState(m_dance);
 	m_vampire.getAnimationState(0)->setLooped(true);

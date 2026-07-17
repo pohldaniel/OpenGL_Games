@@ -38,8 +38,8 @@ void Animation::loadAnimationAssimp(const std::string& filename, const std::stri
 	//bool isFbx = filePath.extension() == ".fbx";
 
 	Assimp::Importer importer;
-	importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, false);
-	importer.SetPropertyInteger(AI_CONFIG_IMPORT_FBX_STRICT_MODE, true);
+	//importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, false);
+	//importer.SetPropertyInteger(AI_CONFIG_IMPORT_FBX_STRICT_MODE, true);
 
 	const aiScene* aiScene = importer.ReadFile(filename, NULL);
 
@@ -58,23 +58,30 @@ void Animation::loadAnimationAssimp(const std::string& filename, const std::stri
 		m_animationName = destName;
 		m_length = (starTick != 0u || endTick != 0u) ? (endTick- starTick) / aiAnimation->mTicksPerSecond : aiAnimation->mDuration / aiAnimation->mTicksPerSecond;
 		m_tracks.clear();
+		size_t numKeyFrames;
 
 		for (unsigned int c = 0; c < aiAnimation->mNumChannels; c++) {
 			AnimationTrack* newTrack = createTrack(aiAnimation->mChannels[c]->mNodeName.data);
 
 			newTrack->m_channelMask = CHANNEL_POSITION + CHANNEL_ROTATION + CHANNEL_SCALE;
-			size_t numKeyFrames = std::max(aiAnimation->mChannels[c]->mNumPositionKeys, std::max(aiAnimation->mChannels[c]->mNumRotationKeys, aiAnimation->mChannels[c]->mNumScalingKeys));		
+			numKeyFrames = std::max(aiAnimation->mChannels[c]->mNumPositionKeys, std::max(aiAnimation->mChannels[c]->mNumRotationKeys, aiAnimation->mChannels[c]->mNumScalingKeys));
 			newTrack->m_keyFrames.resize(numKeyFrames);
 
 			Vector3f prevPosition;
 			Vector3f prevScale;
 			Quaternion prevRot;
+			float timeOffset = 0.0f;
 
 			for (size_t j = 0; j < numKeyFrames; ++j) {
 				AnimationKeyFrame& newKeyFrame = newTrack->m_keyFrames[j];
 				newKeyFrame.m_time = numKeyFrames == aiAnimation->mChannels[c]->mNumPositionKeys ? aiAnimation->mChannels[c]->mPositionKeys[j].mTime / aiAnimation->mTicksPerSecond :
 					                 numKeyFrames == aiAnimation->mChannels[c]->mNumRotationKeys ? aiAnimation->mChannels[c]->mRotationKeys[j].mTime / aiAnimation->mTicksPerSecond :
 					                 aiAnimation->mChannels[c]->mScalingKeys[j].mTime / aiAnimation->mTicksPerSecond;
+
+				if (j == 0)
+					timeOffset = newKeyFrame.m_time;
+
+				newKeyFrame.m_time -= timeOffset;
 
 				if (j < aiAnimation->mChannels[c]->mNumPositionKeys) {
 					newKeyFrame.m_position.set(aiAnimation->mChannels[c]->mPositionKeys[j].mValue.x, aiAnimation->mChannels[c]->mPositionKeys[j].mValue.y, aiAnimation->mChannels[c]->mPositionKeys[j].mValue.z);
@@ -110,13 +117,14 @@ AnimationTrack* Animation::sliceTrack(const AnimationTrack& sourceTrack, unsigne
 	AnimationTrack& track = m_tracks[sourceTrack.m_name];
 
 	std::vector<AnimationKeyFrame>& keyFrames = track.m_keyFrames;
+
+	std::cout << "NAME: " << track.m_name << "  " << keyFrames.size() << "  " << starTick << "  " << endTick  << std::endl;
+
 	std::vector<AnimationKeyFrame> keyFramesNew;
 	AnimationKeyFrame* lastValid = nullptr;
 	float time = 0.0f;
 	for (size_t j = 0; j < keyFrames.size(); ++j) {
-		if (j <= starTick) {
-			lastValid = &keyFrames[0];
-		}
+		
 
 		if (j >= starTick && j <= endTick) {
 			if (j == starTick)
@@ -132,11 +140,7 @@ AnimationTrack* Animation::sliceTrack(const AnimationTrack& sourceTrack, unsigne
 		keyFrames.assign(keyFramesNew.begin(), keyFramesNew.end());
 	}
 
-	if (keyFramesNew.empty() && lastValid) {
-		lastValid->m_time -= time;
-		keyFramesNew.push_back(*lastValid);
-		keyFrames.assign(keyFramesNew.begin(), keyFramesNew.end());
-	}
+	
 }
 
 AnimationTrack* Animation::createTrack(const std::string& name) {

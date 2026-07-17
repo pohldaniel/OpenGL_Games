@@ -25,18 +25,50 @@ NuklearGui::NuklearGui(StateMachine& machine) : State(machine, States::NUKLEAR_G
 	nkInitIcon("res/textures/ui-icons-buttons-set-blue.png");
 	playIcon = nk_subimage_ptr(nkContext.bindgroupIcon, 960, 560, nk_rect(30.0f, 25.0f, 120.0f, 122.0f));
 
+	//m_full.loadAnimationAssimp("res/models/player.fbx", "Player", "full", 0u, 245u);
+	//m_idle.loadAnimationAssimp("res/models/player.fbx", "Player", "idle", 5u, 77u);
+	m_forward.loadAnimationAssimp("res/models/player.fbx", "Player", "forward", 79u, 102u);
+	//m_backward.loadAnimationAssimp("res/models/player.fbx", "Player", "backward", 102u, 120u);
 
-	m_player.loadModelAssimp("res/models/player.fbx");
-	m_animation.loadAnimationAssimp("res/models/player.fbx", "Player", "full");
+	m_player.loadModelAssimp("res/models/player.fbx", 1u);
+	m_player.scale(0.1f, 0.1f, 0.1f);
+	m_player.rotate(0.0f, 180.0f, 0.0f);
+	m_player.applyBindpose(true);
+	m_player.addAnimationState(m_forward);
+	m_player.getAnimationState(0)->setLooped(true);
 
-	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 100.0f);
+	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f,  -1.0f, 1.0f);
-	m_camera.lookAt(4.0f, 0.1f * 180.0f, 0.0f, 0.1f * 180.0f);
-	m_camera.setMovingSpeed(5.0f);
+	m_camera.lookAt(Vector3f(0.0f, 15.0f, -50.0f), Vector3f(0.0f, 15.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.setMovingSpeed(50.0f);
 	m_camera.setRotationSpeed(0.1f);
 
 	m_trackball.reshape(Application::Width, Application::Height);
-	wgpContext.setClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
+
+	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
+	m_skinBuffer.createBuffer(sizeof(Matrix4f) * 96u, WGPUBufferUsage_CopyDst | WGPUBufferUsage_Storage);
+	m_modeBuffer.createBuffer(sizeof(unsigned int), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
+
+	m_uniforms.projection = m_camera.getPerspectiveMatrix();
+	m_uniforms.view = m_camera.getViewMatrix();
+	m_uniforms.env = m_camera.getRotationMatrix();
+	m_uniforms.model = Matrix4f::IDENTITY;
+	m_uniforms.normal = Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_uniforms.model);
+	m_uniforms.color = { 1.0f, 1.0f, 1.0f, 1.0f };
+	m_uniforms.camPosition = m_camera.getPosition();
+	m_uniforms.lightVP = Matrix4f::IDENTITY;
+	m_uniforms.shadow = Matrix4f::BIAS * m_uniforms.lightVP;
+	m_uniforms.lightPosition = Vector3f(50.0f, 100.0f, -100.0f);
+
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
+
+	wgpContext.addSahderModule("ANIMATION", "res/shader/animation.wgsl");
+	wgpContext.createRenderPipeline("ANIMATION", "RP_ANIMATION", VL_PTNWJ, std::bind(&NuklearGui::OnBindGroupLayouts, this));
+
+	m_wgpPlayer.create(m_player);
+	m_wgpPlayer.setBindGroups("BG", std::bind(&NuklearGui::OnBindGroups, this));
+
+	wgpContext.setClearColor({ 0.2f, 0.2f, 0.2f, 1.0f });
 	wgpContext.OnDraw = std::bind(&NuklearGui::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
 	nkContext.OnFillBuffer = std::bind(&NuklearGui::OnFillBuffer, this, std::placeholders::_1);
 }
@@ -110,6 +142,23 @@ void NuklearGui::update() {
 
 	nkUpdateInput(mouse.xPos(), mouse.yPos(), mouse.buttonDown(Mouse::MouseButton::BUTTON_LEFT), m_scrollDelta);
 	m_scrollDelta = 0.0f;
+
+	m_uniforms.projection = m_camera.getPerspectiveMatrix();
+	m_uniforms.view = m_camera.getViewMatrix();
+	m_uniforms.env = m_camera.getRotationMatrix();
+	m_uniforms.model = Matrix4f::IDENTITY;
+	m_uniforms.normal = Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_uniforms.model);
+	m_uniforms.camPosition = m_camera.getPosition();
+	m_uniforms.lightVP = Matrix4f::IDENTITY;
+	m_uniforms.shadow = Matrix4f::BIAS * m_uniforms.lightVP;
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
+
+	m_player.update(m_dt);
+	m_player.updateSkinning();
+	const AnimatedMesh* mesh = static_cast<const AnimatedMesh*>(m_player.getMesh());
+
+	
+	wgpuQueueWriteBuffer(wgpContext.queue, m_skinBuffer.getBuffer(), 0u, mesh->getSkinMatrices(), mesh->getNumBones() * sizeof(Matrix4f));
 }
 
 void NuklearGui::render() {
@@ -117,11 +166,18 @@ void NuklearGui::render() {
 }
 
 void NuklearGui::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor) {
+
 	{
-		nkDraw(commandEncoder, renderPassDescriptor);
+		WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDescriptor);
+		wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
+
+		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_ANIMATION"));
+		m_wgpPlayer.draw(renderPassEncoder);
+
+		wgpuRenderPassEncoderEnd(renderPassEncoder);
+		wgpuRenderPassEncoderRelease(renderPassEncoder);
 	}
 
-	if (m_drawUi)
 	{
 		WGPURenderPassColorAttachment renderPassColorAttachment = renderPassDescriptor.colorAttachments[0];
 		renderPassColorAttachment.loadOp = WGPULoadOp::WGPULoadOp_Load;
@@ -129,11 +185,7 @@ void NuklearGui::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURend
 		WGPURenderPassDescriptor rndrPssDscrptor = renderPassDescriptor;
 		rndrPssDscrptor.colorAttachments = &renderPassColorAttachment;
 
-		WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &rndrPssDscrptor);
-		wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
-		renderUi(renderPassEncoder);
-		wgpuRenderPassEncoderEnd(renderPassEncoder);
-		wgpuRenderPassEncoderRelease(renderPassEncoder);
+		nkDraw(commandEncoder, rndrPssDscrptor);
 	}
 }
 
@@ -146,7 +198,7 @@ void NuklearGui::OnFillBuffer(nk_context& nkCntxt) {
 		m_initUi = false;
 	}
 
-	struct nk_rect scaled_bounds = nk_rect(
+	/*struct nk_rect scaled_bounds = nk_rect(
 		current_pos.x,
 		current_pos.y,
 		static_cast<float>(Application::Width) * 0.5f * m_uiScale,
@@ -185,7 +237,7 @@ void NuklearGui::OnFillBuffer(nk_context& nkCntxt) {
 	nkContext.context.style.window.background = nk_rgba(0, 0, 0, 0);
 
 	struct nk_color old_border = nkContext.context.style.window.border_color;
-	nkContext.context.style.window.border_color = nk_rgba(0, 0, 0, 0);
+	nkContext.context.style.window.border_color = nk_rgba(0, 0, 0, 0);*/
 
 	nk_style_push_style_item(&nkCntxt, &nkContext.context.style.window.fixed_background, nk_style_item_color(nk_rgba(0, 0, 0, 0)));
 	nk_style_push_color(&nkCntxt, &nkContext.context.style.window.background, nk_rgba(0, 0, 0, 0));
@@ -219,8 +271,8 @@ void NuklearGui::OnFillBuffer(nk_context& nkCntxt) {
 	nk_style_pop_color(&nkCntxt);
 	nk_style_pop_color(&nkCntxt);
 	nk_style_pop_style_item(&nkCntxt);
-	nkContext.context.style.window.background = old_background;
-	nkContext.context.style.window.border_color = old_border;
+	//nkContext.context.style.window.background = old_background;
+	//nkContext.context.style.window.border_color = old_border;
 
 	nk_style_push_vec2(&nkCntxt, &nkContext.context.style.window.padding, nk_vec2(0, 0));
 	nk_style_push_vec2(&nkCntxt, &nkContext.context.style.window.group_padding, nk_vec2(0, 0));
@@ -313,7 +365,7 @@ void NuklearGui::OnKeyUp(const Event::KeyboardEvent& event) {
 }
 
 void NuklearGui::resize(int deltaW, int deltaH) {
-	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 100.0f);
+	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, -1.0f, 1.0f);
 	m_trackball.reshape(Application::Width, Application::Height);
 	nkResize(static_cast<float>(Application::Width), static_cast<float>(Application::Height));
@@ -359,6 +411,63 @@ void NuklearGui::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 
 	ImGui::Render();
 	ImGui_ImplWGPU_RenderDrawData(ImGui::GetDrawData(), renderPassEncoder);
+}
+
+std::vector<WGPUBindGroupLayout> NuklearGui::OnBindGroupLayouts() {
+	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
+
+	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(3);
+	bindingLayoutEntries[0].binding = 0u;
+	bindingLayoutEntries[0].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
+	bindingLayoutEntries[0].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
+	bindingLayoutEntries[0].buffer.minBindingSize = sizeof(Uniforms);
+
+	bindingLayoutEntries[1].binding = 1u;
+	bindingLayoutEntries[1].visibility = WGPUShaderStage_Vertex;
+	bindingLayoutEntries[1].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_ReadOnlyStorage;
+	bindingLayoutEntries[1].buffer.minBindingSize = 16 * sizeof(float);
+
+	bindingLayoutEntries[2].binding = 2u;
+	bindingLayoutEntries[2].visibility = WGPUShaderStage_Fragment;
+	bindingLayoutEntries[2].buffer.type = WGPUBufferBindingType_Uniform;
+	bindingLayoutEntries[2].buffer.minBindingSize = sizeof(unsigned int);
+
+	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
+	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
+	bindGroupLayoutDescriptor.entries = bindingLayoutEntries.data();
+
+	bindingLayouts[0] = wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor);
+
+	return bindingLayouts;
+}
+
+std::vector<WGPUBindGroup> NuklearGui::OnBindGroups() {
+	std::vector<WGPUBindGroup> bindGroups(1);
+
+	std::vector<WGPUBindGroupEntry> bindGroupEntries(3);
+	bindGroupEntries[0].binding = 0u;
+	bindGroupEntries[0].buffer = m_uniformBuffer.getBuffer();
+	bindGroupEntries[0].offset = 0u;
+	bindGroupEntries[0].size = sizeof(Uniforms);
+
+	bindGroupEntries[1].binding = 1u;
+	bindGroupEntries[1].buffer = m_skinBuffer.getBuffer();
+	bindGroupEntries[1].offset = 0u;
+	bindGroupEntries[1].size = wgpuBufferGetSize(m_skinBuffer.getBuffer());
+
+	bindGroupEntries[2].binding = 2u;
+	bindGroupEntries[2].buffer = m_modeBuffer.getBuffer();
+	bindGroupEntries[2].offset = 0u;
+	bindGroupEntries[2].size = wgpuBufferGetSize(m_modeBuffer.getBuffer());
+
+	WGPUBindGroupDescriptor bindGroupDesc = {};
+	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_ANIMATION"), 0u);
+	bindGroupDesc.entryCount = (uint32_t)bindGroupEntries.size();
+	bindGroupDesc.entries = bindGroupEntries.data();
+
+	bindGroups[0] = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
+
+	return bindGroups;
 }
 
 NuklearGui::JoystickResult NuklearGui::nk_virtual_joystick(struct nk_context* ctx, float size_px) {

@@ -43,6 +43,8 @@ public:
 
 private:
 
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayouts();
+	std::vector<WGPUBindGroup> OnBindGroups();
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 
 	bool m_initUi = true;
@@ -53,6 +55,7 @@ private:
 	bool m_wasHovered = false;
 
 	Camera m_camera;
+	Uniforms m_uniforms;
 	TrackBall m_trackball;
 
 	JoystickResult nk_virtual_joystick(struct nk_context* ctx, float size_px);
@@ -65,5 +68,7 @@ private:
 	const float BASE_ROW_STAT = 32.0f;
 
 	AnimatedModel m_player;
-	Animation m_animation;
+	Animation m_full, m_idle, m_left, m_forward, m_backward;
+	WgpBuffer m_uniformBuffer, m_skinBuffer, m_modeBuffer;
+	WgpModel m_wgpPlayer;
 };
