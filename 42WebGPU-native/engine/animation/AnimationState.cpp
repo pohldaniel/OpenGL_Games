@@ -27,7 +27,7 @@ AnimationState::AnimationState(const Animation& animation, Bone* startBone) :
 	m_fadeLayerLength(1.0f),
 	m_additiveDirection(1.0f),
 	m_invertBlend(false),
-	m_animationBlendMode(AnimationBlendMode::ABM_LERP){
+	m_animationBlendMode(AnimationBlendMode::ABM_LERP) {
 
 	setStartBone(m_startBone);
 }
@@ -59,7 +59,6 @@ void AnimationState::setStartBone(Bone* startBone_) {
 
 		// Include those tracks that are either the start bone itself, or its children
 		const std::string& name = it->second.m_name;
-
 		if (name == m_startBone->m_name) {
 			stateTrack.m_node = m_startBone;
 		}else {
@@ -269,8 +268,8 @@ void AnimationState::applyToModel() {
 				nextFrame = track->m_keyFrames.size();
 			else if (m_looped) {
 				nextFrame = 0;
-				interpolate = false;
-			}else {
+			}
+			else {
 				nextFrame = stateTrack.m_keyFrame;
 				interpolate = false;
 			}
@@ -286,34 +285,51 @@ void AnimationState::applyToModel() {
 		if (timeInterval < 0.0f)
 			timeInterval += m_animation.getLength();
 
-		if (interpolate) {
-
-			const AnimationKeyFrame& nextKeyFrame = track->m_keyFrames[nextFrame];
-			float timeInterval = nextKeyFrame.m_time - keyFrame.m_time;
-			if (timeInterval < 0.0f)
-				timeInterval += m_animation.getLength();
-
-
-			float t = timeInterval > 0.0f ? (m_stateTime - keyFrame.m_time) / timeInterval : 1.0f;
-
-			if (track->m_channelMask & CHANNEL_POSITION)
-				newPosition = Math::Lerp(keyFrame.m_position, nextKeyFrame.m_position, t);
-
-			if (track->m_channelMask & CHANNEL_ROTATION) {
-				newRotation = Quaternion::SLerp2(keyFrame.m_rotation, nextKeyFrame.m_rotation, t);
-			}
-
-			if (track->m_channelMask & CHANNEL_SCALE)
-				newScale = Math::Lerp(keyFrame.m_scale, nextKeyFrame.m_scale, t);
+		float t;
+		if (m_animationBlendMode == ABM_ADDITIVE) {
+			t = timeInterval + EPSILON > 0.0f ? (m_layeredTime - keyFrame.m_time) / (timeInterval + EPSILON) : 1.0f;
+		}
+		else if (m_animationBlendMode == ABM_FADE) {
+			t = timeInterval > 0.0f ? (m_layeredTime - keyFrame.m_time) / timeInterval : 1.0f;
 		}
 		else {
+			t = timeInterval > 0.0f ? (m_stateTime - keyFrame.m_time) / timeInterval : 1.0f;
+		}
 
-			if (track->m_channelMask & CHANNEL_POSITION)
-				newPosition = keyFrame.m_position;
-			if (track->m_channelMask & CHANNEL_ROTATION)
-				newRotation = keyFrame.m_rotation;
-			if (track->m_channelMask & CHANNEL_SCALE)
-				newScale = keyFrame.m_scale;
+		if (track->m_channelMask & CHANNEL_POSITION)
+			newPosition = Math::Lerp(keyFrame.m_position, nextKeyFrame.m_position, t);
+		if (track->m_channelMask & CHANNEL_ROTATION)
+			newRotation = Quaternion::SLerp2(keyFrame.m_rotation, nextKeyFrame.m_rotation, t);
+		if (track->m_channelMask & CHANNEL_SCALE)
+			newScale = Math::Lerp(keyFrame.m_scale, nextKeyFrame.m_scale, t);
+
+		if (m_animationBlendMode == ABM_ADDITIVE) {
+			if (track->m_channelMask & CHANNEL_POSITION) {
+				Vector3f delta = newPosition - stateTrack.m_initialPosition;
+				newPosition = bone->m_position + delta * finalWeight;
+			}
+
+			if (track->m_channelMask & CHANNEL_ROTATION) {
+				newRotation = (newRotation * stateTrack.m_initialOrientation * bone->m_orientation);
+				if (!Math::Equals(finalWeight, 1.0f))
+					newRotation = Quaternion::SLerp2(bone->m_orientation, newRotation, finalWeight);
+			}
+
+			if (track->m_channelMask & CHANNEL_SCALE) {
+				Vector3f delta = newScale - stateTrack.m_initialScale;
+				newScale = bone->m_scale + delta * finalWeight;
+			}
+
+		}
+		else {
+			if (finalWeight < 1.0f) {
+				if (track->m_channelMask & CHANNEL_POSITION)
+					newPosition = Math::Lerp(bone->m_position, newPosition, finalWeight);
+				if (track->m_channelMask & CHANNEL_ROTATION)
+					newRotation = Quaternion::SLerp2(bone->m_orientation, newRotation, finalWeight);
+				if (track->m_channelMask & CHANNEL_SCALE)
+					newScale = Math::Lerp(bone->m_scale, newScale, finalWeight);
+			}
 		}
 
 		bone->setTransformSilent(newPosition, newRotation, newScale);

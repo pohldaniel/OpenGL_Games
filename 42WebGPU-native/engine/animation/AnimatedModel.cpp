@@ -47,8 +47,12 @@ void AnimatedModel::update(float dt) {
 		m_animationOrderDirty = false;
 	}
 
-	for (std::vector<Mesh*>::iterator mesh = m_meshes.begin(); mesh != m_meshes.end(); mesh++) {
-		static_cast<AnimatedMesh*>(*mesh)->update(dt);
+	for (auto it = m_animationStates.begin(); it != m_animationStates.end(); ++it) {
+		AnimationState* state = (*it).get();
+		if (state->isEnabled() || state->getAnimationBlendMode() == ABM_FADE) {
+			state->addTime(dt);
+			state->apply();
+		}
 	}
 }
 
@@ -107,14 +111,13 @@ void AnimatedModel::loadModelAssimp(const std::string& path, const short addVirt
 
 	bool exportTangents = false;
 
-	Assimp::Importer Importer;
-	Importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, false);
-	Importer.SetPropertyBool(AI_CONFIG_IMPORT_REMOVE_EMPTY_BONES, false);
+	Assimp::Importer importer;
+	importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, false);
 
-	const aiScene* pScene = Importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs);
+	const aiScene* pScene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs);
 
 	if (!pScene) {
-		std::cout << path << "  " << Importer.GetErrorString() << std::endl;
+		std::cout << path << "  " << importer.GetErrorString() << std::endl;
 		return;
 	}
 
@@ -123,7 +126,7 @@ void AnimatedModel::loadModelAssimp(const std::string& path, const short addVirt
 	unsigned short maxBones = 4;
 	AnimatedMesh* mesh;
 
-	for (unsigned int j = 0; j < 1; j++) {
+	for (unsigned int j = 0; j < pScene->mNumMeshes; j++) {
 
 		const aiMesh* aiMesh = pScene->mMeshes[j];
 		const aiMaterial* aiMaterial = pScene->mMaterials[aiMesh->mMaterialIndex];
@@ -221,8 +224,30 @@ void AnimatedModel::loadModelAssimp(const std::string& path, const short addVirt
 			aiNode* meshRootNode = searchNode(pScene->mRootNode, mesh->m_boneList);
 			std::vector<BoneDescription>::iterator it = std::find_if(mesh->m_boneDescriptions.begin(), mesh->m_boneDescriptions.end(), [meshRootNode](BoneDescription& boneDescription) { return strcmp(meshRootNode->mName.C_Str(), boneDescription.name.c_str()) == 0; });
 			fetchAiHierarchy(meshRootNode, mesh->m_boneDescriptions, static_cast<int>(std::distance(mesh->m_boneDescriptions.begin(), it)));
-		}
 
+			if (addVirtualRoots) {
+
+				for (size_t i = 0; i < mesh->m_boneDescriptions.size(); ++i) {
+					BoneDescription& boneDescription = mesh->m_boneDescriptions[i];
+					if (boneDescription.parentIndex != i) {
+						boneDescription.parentIndex = boneDescription.parentIndex + addVirtualRoots;
+					}
+					else {
+						boneDescription.parentIndex = (addVirtualRoots - 1);
+					}
+				}
+
+				for (unsigned short count = 0; count < addVirtualRoots; count++) {
+					mesh->m_boneDescriptions.insert(mesh->m_boneDescriptions.begin(), BoneDescription());
+					mesh->m_boneDescriptions[0].name = "Root_" + std::to_string((addVirtualRoots - 1) - count);
+					if (count + 1 != addVirtualRoots)
+						mesh->m_boneDescriptions[0].parentIndex = (addVirtualRoots - 1) - count - 1;
+				}
+			}
+
+			mesh->createBones();		
+		}
+		
 		for (unsigned int t = 0; t < aiMesh->mNumFaces; ++t) {
 			const aiFace* face = &aiMesh->mFaces[t];
 			mesh->m_indexBuffer.push_back(face->mIndices[0]);
@@ -230,27 +255,7 @@ void AnimatedModel::loadModelAssimp(const std::string& path, const short addVirt
 			mesh->m_indexBuffer.push_back(face->mIndices[2]);
 		}
 
-		mesh->m_drawCount = aiMesh->mNumFaces * 3;
-
-		if (addVirtualRoots) {
-
-			for (size_t i = 0; i < mesh->m_boneDescriptions.size(); ++i) {
-				BoneDescription& boneDescription = mesh->m_boneDescriptions[i];
-				if (boneDescription.parentIndex != i) {
-					boneDescription.parentIndex = boneDescription.parentIndex + addVirtualRoots;
-				}else {
-					boneDescription.parentIndex = (addVirtualRoots - 1);
-				}
-			}
-
-			for (unsigned short count = 0; count < addVirtualRoots; count++) {
-				mesh->m_boneDescriptions.insert(mesh->m_boneDescriptions.begin(), BoneDescription());
-				mesh->m_boneDescriptions[0].name = "Root_" + std::to_string((addVirtualRoots - 1) - count);
-				if (count + 1 != addVirtualRoots)
-					mesh->m_boneDescriptions[0].parentIndex = (addVirtualRoots - 1) - count - 1;
-			}
-		}
-		mesh->createBones();
+		mesh->m_drawCount = aiMesh->mNumFaces * 3;		
 	}
 }
 
@@ -389,8 +394,13 @@ const Mesh* AnimatedModel::getMesh(unsigned short index) const {
 const std::vector<Mesh*>& AnimatedModel::getMeshes() const {
 	return m_meshes;
 }
+
+Mesh* AnimatedModel::mesh(unsigned short index) const {
+	return m_meshes[index];
+}
+
 ///////////////////////////////////////////////////////////
-AnimatedMesh::AnimatedMesh(AnimatedModel* model) : m_model(model) {
+AnimatedMesh::AnimatedMesh(AnimatedModel* model) : m_model(model), m_skinMatrices(nullptr), m_bones(nullptr), m_rootBone(nullptr){
 	m_model = model;
 
 	m_numBones = 0u;
@@ -403,24 +413,20 @@ AnimatedMesh::~AnimatedMesh() {
 }
 
 void AnimatedMesh::cleanup() {
-	delete m_rootBone;
-	delete[] m_bones;
-	delete[] m_skinMatrices;
+	if (m_bones) {
+		delete[] m_bones;
+		m_bones = nullptr;
+	}
+	if (m_skinMatrices) {
+		delete[] m_skinMatrices;
+		m_skinMatrices = nullptr;
+	}
+	m_rootBone = nullptr;
 }
 
 void AnimatedMesh::updateSkinning() {
-	for (size_t i = 0u; i < m_numBones; ++i)
+	for (size_t i = 0u; i < m_numBones; ++i) 
 		m_skinMatrices[i] = m_bones[i]->getWorldTransformation() * m_bones[i]->m_offsetMatrix;
-}
-
-void AnimatedMesh::update(float dt) {
-	for (auto it = m_model->m_animationStates.begin(); it != m_model->m_animationStates.end(); ++it) {
-		AnimationState* state = (*it).get();
-		if (state->isEnabled() || state->getAnimationBlendMode() == ABM_FADE) {
-			state->addTime(dt);
-			state->apply();
-		}
-	}
 }
 
 void AnimatedMesh::applyBindpose(bool transformChanged) {
@@ -436,6 +442,7 @@ void AnimatedMesh::applyBindpose(bool transformChanged) {
 }
 
 void AnimatedMesh::createBones() {
+	cleanup();
 	m_numBones = static_cast<unsigned short>(m_boneDescriptions.size());
 
 	m_bones = new Bone*[m_numBones];
@@ -560,4 +567,8 @@ unsigned int& AnimatedMesh::stride() const {
 
 Bone**& AnimatedMesh::bones() const {
 	return m_bones;
+}
+
+const Bone& AnimatedMesh::getBone(size_t index) const {
+	return *m_bones[index];
 }

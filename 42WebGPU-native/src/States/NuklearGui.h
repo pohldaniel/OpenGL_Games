@@ -5,6 +5,7 @@
 #include <engine/animation/AnimatedModel.h>
 #include <engine/animation/Animation.h>
 #include <engine/shape/Shape.h>
+#include <engine/AssimpModel.h>
 #include <engine/TrackBall.h>
 #include <engine/Camera.h>
 
@@ -44,7 +45,9 @@ public:
 private:
 
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayouts();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsT();
 	std::vector<WGPUBindGroup> OnBindGroups();
+	std::vector<WGPUBindGroup> OnBindGroupsT();
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 
 	bool m_initUi = true;
@@ -68,7 +71,10 @@ private:
 	const float BASE_ROW_STAT = 32.0f;
 
 	AnimatedModel m_player;
-	Animation m_full, m_idle, m_left, m_forward, m_backward;
+	Shape m_weapon;
+
+	Animation m_full, m_idle, m_left, m_right, m_forward, m_backward, m_death;
 	WgpBuffer m_uniformBuffer, m_skinBuffer, m_modeBuffer;
-	WgpModel m_wgpPlayer;
+	WgpModel m_wgpPlayer, m_wgpWeapon;
+	WgpTexture m_wgpTexture;
 };

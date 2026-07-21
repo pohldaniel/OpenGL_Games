@@ -60,6 +60,7 @@ public:
 	const unsigned int getStride() const override;
 	const Mesh* getMesh(unsigned short index = 0u) const;
 	const std::vector<Mesh*>& getMeshes() const;
+	Mesh* mesh(unsigned short index = 0u) const;
 
 private:
 
@@ -88,7 +89,6 @@ public:
 	AnimatedMesh(AnimatedModel* model);
 	virtual ~AnimatedMesh();
 	
-	void update(float dt);
 	void updateSkinning();
 	void applyBindpose(bool onTransformChanged = false);
 	void createBones();
@@ -115,6 +115,7 @@ public:
 	std::vector<std::array<unsigned int, 4>>& joints() const;
 	unsigned int& stride() const;
 	Bone**& bones() const;
+	const Bone& getBone(size_t index = 0u) const;
 
 private:
 
@@ -122,9 +123,8 @@ private:
 	
 	unsigned short m_numBones;
 	Matrix4f* m_skinMatrices;
-
-	Bone* m_rootBone;
 	mutable Bone** m_bones;
+	Bone* m_rootBone;
 
 	std::vector<std::string> m_boneList;
 	mutable std::vector<std::array<float, 4>> m_weights;

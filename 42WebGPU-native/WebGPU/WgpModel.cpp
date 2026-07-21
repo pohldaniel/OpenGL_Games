@@ -41,10 +41,13 @@ void WgpModel::create(const AssimpModel& model) {
 void WgpModel::create(const AnimatedModel& model) {
 	for (const Mesh* _mesh : model.getMeshes()) {
 		const AnimatedMesh* mesh = static_cast<const AnimatedMesh*>(_mesh);
-		if (mesh->hasMaterial() && mesh->getMaterial().hasTexture(TextureSlot::TEXTURE_DIFFUSE))
-			m_meshes.emplace_back(mesh->getVertexBuffer(), mesh->getIndexBuffer(), mesh->getWeights(), mesh->getJoints(), mesh->getStride(), mesh->getMaterial().getTextures().at(TextureSlot::TEXTURE_DIFFUSE));
-		else
-			m_meshes.emplace_back(mesh->getVertexBuffer(), mesh->getIndexBuffer(), mesh->getWeights(), mesh->getJoints(), mesh->getStride());
+
+		if (mesh->getWeights().size() && mesh->getJoints().size()) {
+			if (mesh->hasMaterial() && mesh->getMaterial().hasTexture(TextureSlot::TEXTURE_DIFFUSE))
+				m_meshes.emplace_back(mesh->getVertexBuffer(), mesh->getIndexBuffer(), mesh->getWeights(), mesh->getJoints(), mesh->getStride(), mesh->getMaterial().getTextures().at(TextureSlot::TEXTURE_DIFFUSE));
+			else
+				m_meshes.emplace_back(mesh->getVertexBuffer(), mesh->getIndexBuffer(), mesh->getWeights(), mesh->getJoints(), mesh->getStride());
+		}
 	}
 	markForDelete();
 }

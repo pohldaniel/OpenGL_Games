@@ -24,13 +24,13 @@ struct Uniforms {
 
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
 @group(0) @binding(1) var smplr: sampler;
-@group(1) @binding(0) var texture: texture_2d<f32>;
+@group(0) @binding(2) var texture: texture_2d<f32>;
 
 @vertex
 fn vs_main(in: VertexInput) -> VertexOutput {
 	var out: VertexOutput;
 	out.position = uniforms.projection * uniforms.view * uniforms.model * vec4f(in.position, 1.0);
-	out.normal = (uniforms.model * vec4f(in.normal, 0.0)).xyz;
+	out.normal = in.normal;
 	out.texcoord = in.texcoord;
 	out.color = uniforms.color;
 	return out;
@@ -39,5 +39,6 @@ fn vs_main(in: VertexInput) -> VertexOutput {
 
 @fragment
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
-	return textureSample(texture, smplr, in.texcoord);
+	//return textureSample(texture, smplr, in.texcoord);
+	return vec4f(in.normal, 1.0);
 }

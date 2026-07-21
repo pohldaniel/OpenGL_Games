@@ -34,12 +34,12 @@ public:
 
 	void rotate(const float pitch, const float yaw, const float roll);
 
-protected:
-
-	void OnTransformChanged();
 	const Matrix4f& getWorldTransformation() const;
 	const Matrix4f& getTransformationSOP() const;
 
+protected:
+
+	void OnTransformChanged();
 	const std::string& getName() const;
 	const Vector3f& getScale() const;
 

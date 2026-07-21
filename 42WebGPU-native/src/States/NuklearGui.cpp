@@ -20,21 +20,54 @@ NuklearGui::NuklearGui(StateMachine& machine) : State(machine, States::NUKLEAR_G
 	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm, Application::OnSurfaceChange);
 	wgpSetSurfaceDepthFormat(WGPUTextureFormat::WGPUTextureFormat_Depth24Plus, Application::OnSurfaceChange);
 
+	m_wgpTexture.createEmpty(1u, 1u, 1u, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst, WGPUTextureFormat_RGBA8Unorm);
+	uint8_t white_pixel[4] = { 255, 255, 255, 255 };
+
+	WGPUTexelCopyTextureInfo destination = {};
+	destination.texture = m_wgpTexture.getTexture();
+	destination.mipLevel = 0u;
+	destination.origin = { 0u, 0u, 0u };
+	destination.aspect = WGPUTextureAspect_All;
+
+	WGPUTexelCopyBufferLayout source = {};
+	source.offset = 0u;
+	source.bytesPerRow = 4u;
+	source.rowsPerImage = 1u;
+
+	WGPUExtent3D size = { 1u , 1u , 1u };
+	wgpuQueueWriteTexture(wgpContext.queue, &destination, white_pixel, 4u, &source, &size);
+
 	nkInit();
 	nkInitFont("res/fonts/upheavtt.ttf");
 	nkInitIcon("res/textures/ui-icons-buttons-set-blue.png");
 	playIcon = nk_subimage_ptr(nkContext.bindgroupIcon, 960, 560, nk_rect(30.0f, 25.0f, 120.0f, 122.0f));
 
-	//m_full.loadAnimationAssimp("res/models/player.fbx", "Player", "full", 0u, 245u);
-	//m_idle.loadAnimationAssimp("res/models/player.fbx", "Player", "idle", 5u, 77u);
-	m_forward.loadAnimationAssimp("res/models/player.fbx", "Player", "forward", 79u, 102u);
-	//m_backward.loadAnimationAssimp("res/models/player.fbx", "Player", "backward", 102u, 120u);
+	m_full.loadAnimationAssimp("res/models/player.fbx", "Player", "full", 0u, 245u);
+	m_idle.loadAnimationAssimp("res/models/player.fbx", "Player", "idle", 5u, 81u);
+	m_forward.loadAnimationAssimp("res/models/player.fbx", "Player", "forward", 85u, 105u);
+	m_backward.loadAnimationAssimp("res/models/player.fbx", "Player", "backward", 110u, 129u);
+	m_right.loadAnimationAssimp("res/models/player.fbx", "Player", "right", 135u, 155u);
+	m_left.loadAnimationAssimp("res/models/player.fbx", "Player", "left", 160u, 180u);
+	m_death.loadAnimationAssimp("res/models/player.fbx", "Player", "death", 185u, 244u);
 
 	m_player.loadModelAssimp("res/models/player.fbx", 1u);
+	m_weapon.fromBuffer(m_player.getMesh(1u)->getVertexBuffer(), m_player.getMesh(1u)->getIndexBuffer(), m_player.getMesh(1u)->getStride());
+
+	AnimatedMesh* mesh = static_cast<AnimatedMesh*>(m_player.mesh());
+	mesh->boneDescriptions().emplace_back();
+	mesh->boneDescriptions().back().name = "Gun_$AssimpFbx$_Rotation";
+	mesh->boneDescriptions().back().parentIndex = 0u;
+
+	mesh->boneDescriptions().emplace_back();
+	mesh->boneDescriptions().back().name = "Gun_$AssimpFbx$_Translation";
+	mesh->boneDescriptions().back().parentIndex = 0u;
+
+	mesh->createBones();
+
 	m_player.scale(0.1f, 0.1f, 0.1f);
 	m_player.rotate(0.0f, 180.0f, 0.0f);
 	m_player.applyBindpose(true);
-	m_player.addAnimationState(m_forward);
+	m_player.addAnimationState(m_full);
 	m_player.getAnimationState(0)->setLooped(true);
 
 	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
@@ -68,9 +101,17 @@ NuklearGui::NuklearGui(StateMachine& machine) : State(machine, States::NUKLEAR_G
 	m_wgpPlayer.create(m_player);
 	m_wgpPlayer.setBindGroups("BG", std::bind(&NuklearGui::OnBindGroups, this));
 
+	wgpContext.addSahderModule("TEXTURE", "res/shader/texture.wgsl");
+	wgpContext.createRenderPipeline("TEXTURE", "RP_TEXTURE", VL_PTN, std::bind(&NuklearGui::OnBindGroupLayoutsT, this));
+
+	m_wgpWeapon.create(m_weapon);
+	m_wgpWeapon.setBindGroups("BG", std::bind(&NuklearGui::OnBindGroupsT, this));
+
 	wgpContext.setClearColor({ 0.2f, 0.2f, 0.2f, 1.0f });
 	wgpContext.OnDraw = std::bind(&NuklearGui::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
 	nkContext.OnFillBuffer = std::bind(&NuklearGui::OnFillBuffer, this, std::placeholders::_1);
+
+	
 }
 
 NuklearGui::~NuklearGui() {
@@ -143,22 +184,40 @@ void NuklearGui::update() {
 	nkUpdateInput(mouse.xPos(), mouse.yPos(), mouse.buttonDown(Mouse::MouseButton::BUTTON_LEFT), m_scrollDelta);
 	m_scrollDelta = 0.0f;
 
+	m_player.update(m_dt);
+	m_player.updateSkinning();
+
+	Matrix4f offset = Matrix4f(1.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		-156.85f, -32.2427f, 144.702f, 1.0f);
+
+	Matrix4f pivot = Matrix4f(1.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		130.762f,  70.4033f, -3.52485f,  1.0f);
+
+	Matrix4f invPivot = Matrix4f(1.0f,  0.0f,  0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		-130.762f, -70.4033f,  3.52485f,  1.0f);
+
+	const AnimatedMesh* mesh = static_cast<const AnimatedMesh*>(m_player.getMesh());
+	const Bone& bone1 = mesh->getBone(42u);
+	const Bone& bone2 = mesh->getBone(43u);
+
+	const Matrix4f& trans = bone2.getWorldTransformation() * offset * pivot * bone1.getTransformationSOP() * invPivot;
+
+	wgpuQueueWriteBuffer(wgpContext.queue, m_skinBuffer.getBuffer(), 0u, mesh->getSkinMatrices(), mesh->getNumBones() * sizeof(Matrix4f));
 	m_uniforms.projection = m_camera.getPerspectiveMatrix();
 	m_uniforms.view = m_camera.getViewMatrix();
 	m_uniforms.env = m_camera.getRotationMatrix();
-	m_uniforms.model = Matrix4f::IDENTITY;
+	m_uniforms.model = trans;
 	m_uniforms.normal = Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_uniforms.model);
 	m_uniforms.camPosition = m_camera.getPosition();
 	m_uniforms.lightVP = Matrix4f::IDENTITY;
 	m_uniforms.shadow = Matrix4f::BIAS * m_uniforms.lightVP;
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
-
-	m_player.update(m_dt);
-	m_player.updateSkinning();
-	const AnimatedMesh* mesh = static_cast<const AnimatedMesh*>(m_player.getMesh());
-
-	
-	wgpuQueueWriteBuffer(wgpContext.queue, m_skinBuffer.getBuffer(), 0u, mesh->getSkinMatrices(), mesh->getNumBones() * sizeof(Matrix4f));
 }
 
 void NuklearGui::render() {
@@ -173,6 +232,10 @@ void NuklearGui::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURend
 
 		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_ANIMATION"));
 		m_wgpPlayer.draw(renderPassEncoder);
+
+
+		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_TEXTURE"));
+		m_wgpWeapon.draw(renderPassEncoder);
 
 		wgpuRenderPassEncoderEnd(renderPassEncoder);
 		wgpuRenderPassEncoderRelease(renderPassEncoder);
@@ -441,6 +504,35 @@ std::vector<WGPUBindGroupLayout> NuklearGui::OnBindGroupLayouts() {
 	return bindingLayouts;
 }
 
+std::vector<WGPUBindGroupLayout> NuklearGui::OnBindGroupLayoutsT() {
+	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
+
+	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(3);
+
+	bindingLayoutEntries[0].binding = 0u;
+	bindingLayoutEntries[0].visibility = WGPUShaderStage_Vertex;
+	bindingLayoutEntries[0].buffer.type = WGPUBufferBindingType_Uniform;
+	bindingLayoutEntries[0].buffer.minBindingSize = sizeof(Uniforms);
+
+	bindingLayoutEntries[1].binding = 1u;
+	bindingLayoutEntries[1].visibility = WGPUShaderStage_Fragment;
+	bindingLayoutEntries[1].sampler.type = WGPUSamplerBindingType_Filtering;
+
+	bindingLayoutEntries[2].binding = 2u;
+	bindingLayoutEntries[2].visibility = WGPUShaderStage_Fragment;
+	bindingLayoutEntries[2].texture.sampleType = WGPUTextureSampleType_Float;
+	bindingLayoutEntries[2].texture.viewDimension = WGPUTextureViewDimension_2D;
+	bindingLayoutEntries[2].texture.multisampled = WGPU_FALSE;
+
+	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
+	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
+	bindGroupLayoutDescriptor.entries = bindingLayoutEntries.data();
+
+	bindingLayouts[0] = wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor);
+
+	return bindingLayouts;
+}
+
 std::vector<WGPUBindGroup> NuklearGui::OnBindGroups() {
 	std::vector<WGPUBindGroup> bindGroups(1);
 
@@ -462,6 +554,31 @@ std::vector<WGPUBindGroup> NuklearGui::OnBindGroups() {
 
 	WGPUBindGroupDescriptor bindGroupDesc = {};
 	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_ANIMATION"), 0u);
+	bindGroupDesc.entryCount = (uint32_t)bindGroupEntries.size();
+	bindGroupDesc.entries = bindGroupEntries.data();
+
+	bindGroups[0] = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
+
+	return bindGroups;
+}
+
+std::vector<WGPUBindGroup> NuklearGui::OnBindGroupsT() {
+	std::vector<WGPUBindGroup> bindGroups(1);
+
+	std::vector<WGPUBindGroupEntry> bindGroupEntries(3);
+	bindGroupEntries[0].binding = 0u;
+	bindGroupEntries[0].buffer = m_uniformBuffer.getBuffer();
+	bindGroupEntries[0].offset = 0u;
+	bindGroupEntries[0].size = sizeof(Uniforms);
+
+	bindGroupEntries[1].binding = 1u;
+	bindGroupEntries[1].sampler = wgpContext.getSampler(SS_LINEAR_CLAMP);
+
+	bindGroupEntries[2].binding = 2u;
+	bindGroupEntries[2].textureView = m_wgpTexture.getTextureView();
+
+	WGPUBindGroupDescriptor bindGroupDesc = {};
+	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_TEXTURE"), 0u);
 	bindGroupDesc.entryCount = (uint32_t)bindGroupEntries.size();
 	bindGroupDesc.entries = bindGroupEntries.data();
 
