@@ -220,7 +220,7 @@ void AnimatedModel::loadModelAssimp(const std::string& path, const short addVirt
 
 			mesh->m_weights.push_back(jointWeight);
 			mesh->m_joints.push_back(jointId);
-
+			//printAiHierarchy(pScene->mRootNode);
 			aiNode* meshRootNode = searchNode(pScene->mRootNode, mesh->m_boneList);
 			std::vector<BoneDescription>::iterator it = std::find_if(mesh->m_boneDescriptions.begin(), mesh->m_boneDescriptions.end(), [meshRootNode](BoneDescription& boneDescription) { return strcmp(meshRootNode->mName.C_Str(), boneDescription.name.c_str()) == 0; });
 			fetchAiHierarchy(meshRootNode, mesh->m_boneDescriptions, static_cast<int>(std::distance(mesh->m_boneDescriptions.begin(), it)));
@@ -299,7 +299,6 @@ void AnimatedModel::fetchAiHierarchy(aiNode* node, std::vector<BoneDescription>&
 	}
 }
 
-
 void AnimatedModel::printAiHierarchy(aiNode * node) {
 	std::cout << node->mName.data << std::endl;
 
@@ -311,6 +310,13 @@ void AnimatedModel::printAiHierarchy(aiNode * node) {
 	std::cout << "POS: " << pos.x << "  " << pos.y << "  " << pos.z << std::endl;
 	std::cout << "SCALE: " << scale.x << "  " << scale.y << "  " << scale.z << std::endl;
 	std::cout << "ROT: " << rot.x << "  " << rot.y << "  " << rot.z << "  " << rot.w << std::endl;
+
+	std::cout << "NODE MATRIX: " << std::endl;
+	std::cout << transMatrix.a1 << "  " << transMatrix.b1 << "  " << transMatrix.c1 << "  " << transMatrix.d1 << std::endl;
+	std::cout << transMatrix.a2 << "  " << transMatrix.b2 << "  " << transMatrix.c2 << "  " << transMatrix.d2 << std::endl;
+	std::cout << transMatrix.a3 << "  " << transMatrix.b3 << "  " << transMatrix.c3 << "  " << transMatrix.d3 << std::endl;
+	std::cout << transMatrix.a4 << "  " << transMatrix.b4 << "  " << transMatrix.c4 << "  " << transMatrix.d4 << std::endl;
+	std::cout << "########################" << std::endl;
 
 	for (unsigned int i = 0; i < node->mNumChildren; i++) {
 			printAiHierarchy(node->mChildren[i]);
@@ -349,17 +355,18 @@ AnimationState* AnimatedModel::findAnimationState(const Animation& animation) co
 }
 
 AnimationState* AnimatedModel::addAnimationState(const Animation& animation) {
-	AnimatedMesh* mesh = static_cast<AnimatedMesh*>(m_meshes.front());
+	for (Mesh* mesh : m_meshes) {
+		AnimatedMesh* msh = static_cast<AnimatedMesh*>(mesh);
+		if (!msh->m_numBones)
+			return nullptr;
 
-	if (!mesh->m_numBones)
-		return nullptr;
+		AnimationState* existing = findAnimationState(animation);
+		if (existing)
+			return existing;
 
-	AnimationState* existing = findAnimationState(animation);
-	if (existing)
-		return existing;
-
-	m_animationStates.push_back(std::make_shared<AnimationState>(animation, mesh->m_rootBone));
-	OnAnimationOrderChanged();
+		m_animationStates.push_back(std::make_shared<AnimationState>(animation, msh->m_rootBone));
+		OnAnimationOrderChanged();
+	}
 	return m_animationStates.back().get();
 }
 
@@ -464,6 +471,10 @@ void AnimatedMesh::createBones() {
 			m_bones[i]->setParent(nullptr);
 			m_rootBone = m_bones[i];
 			m_bones[i]->setIsRootBone(true);
+		}else if (boneDescription.parentIndex == -1) {
+			m_bones[i]->setParent(m_bones[0]);
+			m_bones[i]->setIsRootBone(false);
+			m_bones[i]->setHasParent(false);
 		}else {
 			m_bones[i]->setParent(m_bones[boneDescription.parentIndex]);
 		}
@@ -561,6 +572,10 @@ std::vector<std::array<unsigned int, 4>>& AnimatedMesh::joints() const {
 	return m_joints;
 }
 
+Matrix4f* AnimatedMesh::skinMatrices() const {
+	return m_skinMatrices;
+}
+
 unsigned int& AnimatedMesh::stride() const {
 	return m_stride;
 }
@@ -571,4 +586,8 @@ Bone**& AnimatedMesh::bones() const {
 
 const Bone& AnimatedMesh::getBone(size_t index) const {
 	return *m_bones[index];
+}
+
+const Matrix4f& AnimatedMesh::getSkinMatrix(size_t index) const {
+	return m_skinMatrices[index];
 }

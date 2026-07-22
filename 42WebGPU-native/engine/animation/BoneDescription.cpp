@@ -6,7 +6,7 @@ BoneDescription::BoneDescription() :
 	initialScale(Vector3f::ONE),
 	offsetMatrix(Matrix4f::IDENTITY),
 	radius(0.0f),
-	parentIndex(0u) {
+	parentIndex(0) {
 }
 
 BoneDescription::~BoneDescription() {

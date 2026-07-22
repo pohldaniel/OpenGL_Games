@@ -10,6 +10,26 @@
 #include "Application.h"
 #include "Globals.h"
 
+//For getting this matrices load the model with 
+// importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, true); 
+// and call printAiHierarchy(pScene->mRootNode);.
+// The used ones are Gun_$AssimpFbx$_RotationOffset, Gun_$AssimpFbx$_RotationPivot and Gun_$AssimpFbx$_RotationPivotInverse
+
+Matrix4f offset = Matrix4f(1.0f, 0.0f, 0.0f, 0.0f,
+	0.0f, 1.0f, 0.0f, 0.0f,
+	0.0f, 0.0f, 1.0f, 0.0f,
+	-156.85f, -32.2427f, 144.702f, 1.0f);
+
+Matrix4f pivot = Matrix4f(1.0f, 0.0f, 0.0f, 0.0f,
+	0.0f, 1.0f, 0.0f, 0.0f,
+	0.0f, 0.0f, 1.0f, 0.0f,
+	130.762f, 70.4033f, -3.52485f, 1.0f);
+
+Matrix4f invPivot = Matrix4f(1.0f, 0.0f, 0.0f, 0.0f,
+	0.0f, 1.0f, 0.0f, 0.0f,
+	0.0f, 0.0f, 1.0f, 0.0f,
+	-130.762f, -70.4033f, 3.52485f, 1.0f);
+
 NuklearGui::NuklearGui(StateMachine& machine) : State(machine, States::NUKLEAR_GUI) {
 
 	Application::SetCursorIcon(IDC_ARROW);
@@ -49,20 +69,27 @@ NuklearGui::NuklearGui(StateMachine& machine) : State(machine, States::NUKLEAR_G
 	m_right.loadAnimationAssimp("res/models/player.fbx", "Player", "right", 135u, 155u);
 	m_left.loadAnimationAssimp("res/models/player.fbx", "Player", "left", 160u, 180u);
 	m_death.loadAnimationAssimp("res/models/player.fbx", "Player", "death", 185u, 244u);
-
 	m_player.loadModelAssimp("res/models/player.fbx", 1u);
-	m_weapon.fromBuffer(m_player.getMesh(1u)->getVertexBuffer(), m_player.getMesh(1u)->getIndexBuffer(), m_player.getMesh(1u)->getStride());
 
+	//Add additional nodes to the first Mesh, they are presented inside the Animation channels but not at the bone hierarchy from the model.
 	AnimatedMesh* mesh = static_cast<AnimatedMesh*>(m_player.mesh());
 	mesh->boneDescriptions().emplace_back();
 	mesh->boneDescriptions().back().name = "Gun_$AssimpFbx$_Rotation";
-	mesh->boneDescriptions().back().parentIndex = 0u;
+	mesh->boneDescriptions().back().parentIndex = -1;
+	mesh->boneDescriptions().back().offsetMatrix = invPivot;
 
 	mesh->boneDescriptions().emplace_back();
 	mesh->boneDescriptions().back().name = "Gun_$AssimpFbx$_Translation";
-	mesh->boneDescriptions().back().parentIndex = 0u;
+	mesh->boneDescriptions().back().parentIndex = 0;
+	mesh->boneDescriptions().back().offsetMatrix = offset * pivot;
 
 	mesh->createBones();
+
+	AnimatedMesh* mesh2 = static_cast<AnimatedMesh*>(m_player.mesh(1u));
+	for (size_t index = 0u; index < mesh2->getVertexBuffer().size() / mesh2->getStride(); index++) {
+		mesh2->weights().push_back({ 1.0f, 0.0f, 0.0f, 0.0f });
+		mesh2->joints().push_back({ 42u, 0u, 0u, 0u });
+	}
 
 	m_player.scale(0.1f, 0.1f, 0.1f);
 	m_player.rotate(0.0f, 180.0f, 0.0f);
@@ -104,14 +131,9 @@ NuklearGui::NuklearGui(StateMachine& machine) : State(machine, States::NUKLEAR_G
 	wgpContext.addSahderModule("TEXTURE", "res/shader/texture.wgsl");
 	wgpContext.createRenderPipeline("TEXTURE", "RP_TEXTURE", VL_PTN, std::bind(&NuklearGui::OnBindGroupLayoutsT, this));
 
-	m_wgpWeapon.create(m_weapon);
-	m_wgpWeapon.setBindGroups("BG", std::bind(&NuklearGui::OnBindGroupsT, this));
-
 	wgpContext.setClearColor({ 0.2f, 0.2f, 0.2f, 1.0f });
 	wgpContext.OnDraw = std::bind(&NuklearGui::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
 	nkContext.OnFillBuffer = std::bind(&NuklearGui::OnFillBuffer, this, std::placeholders::_1);
-
-	
 }
 
 NuklearGui::~NuklearGui() {
@@ -186,33 +208,15 @@ void NuklearGui::update() {
 
 	m_player.update(m_dt);
 	m_player.updateSkinning();
-
-	Matrix4f offset = Matrix4f(1.0f, 0.0f, 0.0f, 0.0f,
-		0.0f, 1.0f, 0.0f, 0.0f,
-		0.0f, 0.0f, 1.0f, 0.0f,
-		-156.85f, -32.2427f, 144.702f, 1.0f);
-
-	Matrix4f pivot = Matrix4f(1.0f, 0.0f, 0.0f, 0.0f,
-		0.0f, 1.0f, 0.0f, 0.0f,
-		0.0f, 0.0f, 1.0f, 0.0f,
-		130.762f,  70.4033f, -3.52485f,  1.0f);
-
-	Matrix4f invPivot = Matrix4f(1.0f,  0.0f,  0.0f, 0.0f,
-		0.0f, 1.0f, 0.0f, 0.0f,
-		0.0f, 0.0f, 1.0f, 0.0f,
-		-130.762f, -70.4033f,  3.52485f,  1.0f);
-
+	
 	const AnimatedMesh* mesh = static_cast<const AnimatedMesh*>(m_player.getMesh());
-	const Bone& bone1 = mesh->getBone(42u);
-	const Bone& bone2 = mesh->getBone(43u);
-
-	const Matrix4f& trans = bone2.getWorldTransformation() * offset * pivot * bone1.getTransformationSOP() * invPivot;
+	mesh->skinMatrices()[42] ^= mesh->getBone(43u).getWorldTransformation() * offset * pivot;
 
 	wgpuQueueWriteBuffer(wgpContext.queue, m_skinBuffer.getBuffer(), 0u, mesh->getSkinMatrices(), mesh->getNumBones() * sizeof(Matrix4f));
 	m_uniforms.projection = m_camera.getPerspectiveMatrix();
 	m_uniforms.view = m_camera.getViewMatrix();
 	m_uniforms.env = m_camera.getRotationMatrix();
-	m_uniforms.model = trans;
+	m_uniforms.model = Matrix4f::IDENTITY;
 	m_uniforms.normal = Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_uniforms.model);
 	m_uniforms.camPosition = m_camera.getPosition();
 	m_uniforms.lightVP = Matrix4f::IDENTITY;
@@ -234,8 +238,8 @@ void NuklearGui::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURend
 		m_wgpPlayer.draw(renderPassEncoder);
 
 
-		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_TEXTURE"));
-		m_wgpWeapon.draw(renderPassEncoder);
+		//wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_TEXTURE"));
+		//m_wgpWeapon.draw(renderPassEncoder);
 
 		wgpuRenderPassEncoderEnd(renderPassEncoder);
 		wgpuRenderPassEncoderRelease(renderPassEncoder);

@@ -5,7 +5,7 @@
 
 thread_local Matrix4f Bone::Transformation;
 
-Bone::Bone() : m_parent(nullptr), m_numChildBones(0u), m_isRootBone(false), m_isDirty(true), m_animationEnabled(true) {
+Bone::Bone() : m_parent(nullptr), m_numChildBones(0u), m_isRootBone(false), m_isDirty(true), m_animationEnabled(true), m_hasParent(false){
 
 }
 
@@ -28,7 +28,7 @@ void Bone::OnTransformChanged() {
 const Matrix4f& Bone::getWorldTransformation() const {
 	if (m_isDirty) {
 		m_modelMatrix = getTransformationSOP();
-		if (m_parent)
+		if (m_hasParent)
 			m_modelMatrix = m_parent->getWorldTransformation() * m_modelMatrix;
 
 		m_isDirty = false;
@@ -39,6 +39,7 @@ const Matrix4f& Bone::getWorldTransformation() const {
 Bone* Bone::addChild(Bone* node) {
 	m_children.emplace_back(std::unique_ptr<Bone>(node));
 	m_children.back()->m_parent = this;
+	m_children.back()->m_hasParent = true;
 	return m_children.back().get();
 }
 
@@ -47,6 +48,7 @@ void Bone::eraseChild(Bone* child) {
 		return;
 
 	child->m_parent = nullptr;
+	child->m_hasParent = false;
 	m_children.erase(std::remove_if(m_children.begin(), m_children.end(), [child](const std::unique_ptr<Bone>& node) { return node.get() == child; }), m_children.end());
 }
 
@@ -54,6 +56,7 @@ void Bone::eraseAllChildren(size_t offset) {
 	for (auto it = m_children.begin(); it != m_children.end(); ++it) {
 		Bone* child = (*it).release();
 		child->m_parent = nullptr;
+		child->m_hasParent = false;
 		delete child;
 		child = nullptr;
 	}
@@ -119,13 +122,13 @@ void Bone::setParent(Bone* node) {
 		if (it != m_parent->m_children.end()) {
 			node->m_children.splice(m_parent->m_children.end(), m_parent->m_children, it);
 		}
-	}
-	else if (node) {
+	}else if (node) {
 		node->addChild(this);
-	}
-	else if (m_parent) {
+		m_hasParent = true;
+	}else if (m_parent) {
 		m_parent->eraseChild(this);
 		m_parent = nullptr;
+		m_hasParent = false;
 	}
 }
 
@@ -135,6 +138,10 @@ void Bone::setIsRootBone(bool rootBone) {
 
 const bool Bone::isRootBone() const {
 	return m_isRootBone;
+}
+
+void Bone::setHasParent(bool hasParent) {
+	m_hasParent = hasParent;
 }
 
 bool Bone::animationEnabled() const {

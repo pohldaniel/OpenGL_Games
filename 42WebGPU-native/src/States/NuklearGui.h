@@ -71,10 +71,9 @@ private:
 	const float BASE_ROW_STAT = 32.0f;
 
 	AnimatedModel m_player;
-	Shape m_weapon;
 
 	Animation m_full, m_idle, m_left, m_right, m_forward, m_backward, m_death;
 	WgpBuffer m_uniformBuffer, m_skinBuffer, m_modeBuffer;
-	WgpModel m_wgpPlayer, m_wgpWeapon;
+	WgpModel m_wgpPlayer;
 	WgpTexture m_wgpTexture;
 };

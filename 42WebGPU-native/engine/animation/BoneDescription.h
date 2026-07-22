@@ -11,6 +11,6 @@ struct BoneDescription {
 	Quaternion initialRotation;
 	Vector3f initialScale;
 	Matrix4f offsetMatrix;
-	size_t parentIndex;
+	int parentIndex;
 	float radius;
 };

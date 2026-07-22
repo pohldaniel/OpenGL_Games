@@ -113,9 +113,12 @@ public:
 	std::vector<unsigned int>& indexBuffer() const;
 	std::vector<std::array<float, 4>>& weights() const;
 	std::vector<std::array<unsigned int, 4>>& joints() const;
+	Matrix4f* skinMatrices() const;
+
 	unsigned int& stride() const;
 	Bone**& bones() const;
 	const Bone& getBone(size_t index = 0u) const;
+	const Matrix4f& getSkinMatrix(size_t index = 0u) const;
 
 private:
 

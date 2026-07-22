@@ -31,12 +31,12 @@ public:
 	void setTransformSilent(const Vector3f& position, const Quaternion& rotation, const Vector3f& scale);
 	void setTransform(const Vector3f& position, const Quaternion& rotation, const Vector3f& scale);
 	const bool isRootBone() const;
-
+	void setHasParent(bool hasParent);
 	void rotate(const float pitch, const float yaw, const float roll);
 
 	const Matrix4f& getWorldTransformation() const;
 	const Matrix4f& getTransformationSOP() const;
-
+	
 protected:
 
 	void OnTransformChanged();
@@ -50,10 +50,13 @@ private:
 	void eraseAllChildren(size_t offset = 0u);
 	Bone* findChild(const std::string& name, bool recursive) const;
 
-	std::list<std::unique_ptr<Bone>> m_children;
 	Bone* m_parent;
+	std::list<std::unique_ptr<Bone>> m_children;
+	
 	size_t m_numChildBones;
 	bool m_isRootBone;
+	bool m_hasParent;
+
 	mutable bool m_isDirty;
 	bool m_animationEnabled;
 
