@@ -288,6 +288,9 @@
     <ClCompile Include="Nuklear\NkContext.cpp">
       <Filter>Nuklear</Filter>
     </ClCompile>
+    <ClCompile Include="engine\animation\AnimationController.cpp">
+      <Filter>engine\animation</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\input\ApplicationEventListener.h">
@@ -553,6 +556,9 @@
     </ClInclude>
     <ClInclude Include="Nuklear\NkContext.h">
       <Filter>Nuklear</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\animation\AnimationController.h">
+      <Filter>engine\animation</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

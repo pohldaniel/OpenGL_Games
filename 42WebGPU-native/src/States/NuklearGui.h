@@ -2,6 +2,7 @@
 #include <vector>
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
+#include <engine/animation/AnimationController.h>
 #include <engine/animation/AnimatedModel.h>
 #include <engine/animation/Animation.h>
 #include <engine/shape/Shape.h>
@@ -17,9 +18,18 @@
 #include <WebGPU/WgpData.h>
 
 class NuklearGui : public State, public MouseEventListener, public KeyboardEventListener {
+	enum CurrentAnimation {
+		IDLE,
+		LEFT,
+		RIGHT,
+		BACKWARD,
+		FORWARD
+	};
+
+
 	struct JoystickResult {
-		float x = 0.0f; // -1.0 bis 1.0 (Links/Rechts)
-		float y = 0.0f; // -1.0 bis 1.0 (Oben/Unten)
+		float x = 0.0f;
+		float y = 0.0f;
 		bool is_active = false;
 	};
 
@@ -71,9 +81,12 @@ private:
 	const float BASE_ROW_STAT = 32.0f;
 
 	AnimatedModel m_player;
+	AnimationController m_animationController;
 
-	Animation m_full, m_idle, m_left, m_right, m_forward, m_backward, m_death;
 	WgpBuffer m_uniformBuffer, m_skinBuffer, m_modeBuffer;
 	WgpModel m_wgpPlayer;
 	WgpTexture m_wgpTexture;
+
+	std::string m_currentAnimation = "idle";
+	std::string m_prevAnimation = "idle";
 };

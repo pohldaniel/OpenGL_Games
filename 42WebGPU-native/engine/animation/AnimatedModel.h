@@ -29,6 +29,7 @@ class AnimatedMesh;
 class AnimatedModel : public Model {
 
 	friend class AnimatedMesh;
+	friend class AnimationController;
 
 public:
 
@@ -51,10 +52,13 @@ public:
 	void setScale(const float sx, const float sy, const float sz);
 
 	AnimationState* findAnimationState(const Animation& animation) const;
+	AnimationState* findAnimationState(const std::string& name) const;
 	AnimationState* addAnimationState(const Animation& animation);
+	AnimationState* addAnimationStateFront(const Animation& animation);
 	
 	AnimationState* getAnimationState(size_t index) const;
 	void removeAnimationState(const Animation& animation);
+	void removeAnimationState(const AnimationState* state);
 	void removeAllAnimationStates();
 	
 	const unsigned int getStride() const override;
@@ -74,7 +78,7 @@ private:
 	bool m_hasTextureCoords, m_hasNormals, m_hasTangents, m_hasMaterial;
 	bool m_isStacked;
 
-	bool m_animationOrderDirty;
+	bool m_animationOrderDirty, m_hasAnimationController;
 	std::vector<std::shared_ptr<AnimationState>> m_animationStates;
 
 	static bool CompareAnimationStates(const std::shared_ptr<AnimationState>& lhs, const std::shared_ptr<AnimationState>& rhs);

@@ -17,7 +17,7 @@ struct AnimationStateTrack {
 	~AnimationStateTrack();
 
 	const AnimationTrack* m_track;
-	Bone* m_node;
+	Bone* m_bone;
 	float m_weight;
 	size_t m_keyFrame;
 
@@ -39,9 +39,6 @@ public:
 	void setWeight(float weight);
 	void setBlendMode(AnimationBlendMode mode);
 	void setTime(float time);
-	void setBoneWeight(size_t index, float weight, bool recursive = false);
-	void setBoneWeight(const std::string& name, float weight, bool recursive = false);
-	void addWeight(float delta);
 	void addTime(float dt);
 	void setBlendLayer(unsigned char layer);
 	void setFadeLayerLength(float length);

@@ -1,7 +1,7 @@
 #include <iostream>
 #include "AnimationState.h"
 
-AnimationStateTrack::AnimationStateTrack() : m_track(nullptr), m_node(nullptr), m_weight(1.0f), m_keyFrame(0) {
+AnimationStateTrack::AnimationStateTrack() : m_track(nullptr), m_bone(nullptr), m_weight(1.0f), m_keyFrame(0) {
 
 }
 
@@ -60,9 +60,9 @@ void AnimationState::setStartBone(Bone* startBone_) {
 		// Include those tracks that are either the start bone itself, or its children
 		const std::string& name = it->second.m_name;
 		if (name == m_startBone->m_name) {
-			stateTrack.m_node = m_startBone;
+			stateTrack.m_bone = m_startBone;
 		}else {
-			stateTrack.m_node = m_startBone->findChild(name, true);
+			stateTrack.m_bone = m_startBone->findChild(name, true);
 		}
 
 		stateTrack.m_initialPosition = Math::Lerp(it->second.m_keyFrames[0].m_position, it->second.m_keyFrames[1].m_position, EPSILON * 3.0f);
@@ -70,7 +70,7 @@ void AnimationState::setStartBone(Bone* startBone_) {
 		stateTrack.m_initialOrientation = Quaternion::SLerp2(it->second.m_keyFrames[0].m_rotation, it->second.m_keyFrames[1].m_rotation, EPSILON * 3.0f);
 		stateTrack.m_initialOrientation.inverse();
 
-		if (stateTrack.m_node)
+		if (stateTrack.m_bone)
 			m_stateTracks.push_back(stateTrack);
 	}
 }
@@ -91,38 +91,6 @@ void AnimationState::setTime(float time_) {
 	if (time_ != m_stateTime) {
 		m_stateTime = time_;
 	}
-}
-
-void AnimationState::setBoneWeight(size_t index, float weight_, bool recursive) {
-	if (index >= m_stateTracks.size())
-		return;
-
-	weight_ = Math::Clamp(weight_, 0.0f, 1.0f);
-
-	if (weight_ != m_stateTracks[index].m_weight) {
-		m_stateTracks[index].m_weight = weight_;
-	}
-
-	if (recursive && m_stateTracks[index].m_node) {
-		const std::list<std::unique_ptr<Bone>>& children = m_stateTracks[index].m_node->m_children;
-		for (auto it = children.begin(); it != children.end(); ++it) {
-			Bone* node = (*it).get();
-
-			size_t childTrackIndex = findTrackIndex(node);
-			if (childTrackIndex < m_stateTracks.size())
-				setBoneWeight(childTrackIndex, m_blendWeight, true);
-
-		}
-	}
-}
-
-void AnimationState::setBoneWeight(const std::string& name, float weight_, bool recursive) {
-	setBoneWeight(findTrackIndex(name), weight_, recursive);
-}
-
-void AnimationState::addWeight(float delta) {
-	if (delta != 0.0f)
-		setWeight(getWeight() + delta);
 }
 
 void AnimationState::addTime(float dt) {
@@ -204,7 +172,7 @@ float AnimationState::getBoneWeight(const std::string& name) const {
 
 size_t AnimationState::findTrackIndex(Bone* node) const {
 	for (unsigned i = 0; i < m_stateTracks.size(); ++i) {
-		if (m_stateTracks[i].m_node == node)
+		if (m_stateTracks[i].m_bone == node)
 			return i;
 	}
 	return UINT_MAX;
@@ -212,7 +180,7 @@ size_t AnimationState::findTrackIndex(Bone* node) const {
 
 size_t AnimationState::findTrackIndex(const std::string& name) const {
 	for (size_t i = 0; i < m_stateTracks.size(); ++i) {
-		Bone* node = m_stateTracks[i].m_node;
+		Bone* node = m_stateTracks[i].m_bone;
 		if (node && node->m_name == name)
 			return i;
 	}
@@ -224,11 +192,7 @@ float AnimationState::getLength() const {
 }
 
 void AnimationState::apply() {
-
-	if (m_animationBlendMode == ABM_NONE)
-		applyToNodes();
-	else
-		applyToModel();
+	applyToModel();		
 }
 
 void AnimationState::reset() {
@@ -248,15 +212,14 @@ void AnimationState::applyToModel() {
 
 		const AnimationTrack* track = stateTrack.m_track;
 		float finalWeight = m_blendWeight * stateTrack.m_weight;
-		Bone* bone = stateTrack.m_node;
+		Bone* bone = stateTrack.m_bone;
+
+		//std::cout << "NANME: " << stateTrack.m_track->m_name << " " << m_animationBlendMode << std::endl;
 
 		if (Math::Equals(finalWeight, 0.0f) || !bone->animationEnabled())
 			continue;
 
-		if (m_animationBlendMode != ABM_LERP)
-			track->findKeyFrameIndex(m_layeredTime, stateTrack.m_keyFrame);
-		else
-			track->findKeyFrameIndex(m_stateTime, stateTrack.m_keyFrame);
+		track->findKeyFrameIndex(m_stateTime, stateTrack.m_keyFrame);
 
 		const AnimationKeyFrame& keyFrame = track->m_keyFrames[stateTrack.m_keyFrame];
 
@@ -331,7 +294,7 @@ void AnimationState::applyToModel() {
 					newScale = Math::Lerp(bone->m_scale, newScale, finalWeight);
 			}
 		}
-
+		
 		bone->setTransformSilent(newPosition, newRotation, newScale);
 		bone->OnTransformChanged();
 	}
@@ -343,7 +306,7 @@ void AnimationState::applyToNodes() {
 
 		AnimationStateTrack& stateTrack = *it;
 		const AnimationTrack* track = stateTrack.m_track;
-		Bone* node = stateTrack.m_node;
+		Bone* node = stateTrack.m_bone;
 
 		track->findKeyFrameIndex(m_stateTime, stateTrack.m_keyFrame);
 		const AnimationKeyFrame& keyFrame = track->m_keyFrames[stateTrack.m_keyFrame];

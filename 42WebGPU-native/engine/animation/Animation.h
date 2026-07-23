@@ -31,7 +31,7 @@ struct AnimationTrack {
 class Animation {
 
 	friend class AnimatedModel;
-
+	friend class AnimationController;
 
 public:
 

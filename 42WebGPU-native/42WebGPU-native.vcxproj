@@ -182,6 +182,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
   <ItemGroup>
     <ClCompile Include="engine\animation\AnimatedModel.cpp" />
     <ClCompile Include="engine\animation\Animation.cpp" />
+    <ClCompile Include="engine\animation\AnimationController.cpp" />
     <ClCompile Include="engine\animation\AnimationState.cpp" />
     <ClCompile Include="engine\animation\Bone.cpp" />
     <ClCompile Include="engine\animation\BoneDescription.cpp" />
@@ -263,6 +264,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
   <ItemGroup>
     <ClInclude Include="engine\animation\AnimatedModel.h" />
     <ClInclude Include="engine\animation\Animation.h" />
+    <ClInclude Include="engine\animation\AnimationController.h" />
     <ClInclude Include="engine\animation\AnimationState.h" />
     <ClInclude Include="engine\animation\Bone.h" />
     <ClInclude Include="engine\animation\BoneDescription.h" />

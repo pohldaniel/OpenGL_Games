@@ -30,7 +30,7 @@ Matrix4f invPivot = Matrix4f(1.0f, 0.0f, 0.0f, 0.0f,
 	0.0f, 0.0f, 1.0f, 0.0f,
 	-130.762f, -70.4033f, 3.52485f, 1.0f);
 
-NuklearGui::NuklearGui(StateMachine& machine) : State(machine, States::NUKLEAR_GUI) {
+NuklearGui::NuklearGui(StateMachine& machine) : State(machine, States::NUKLEAR_GUI), m_animationController(&m_player) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -62,13 +62,14 @@ NuklearGui::NuklearGui(StateMachine& machine) : State(machine, States::NUKLEAR_G
 	nkInitIcon("res/textures/ui-icons-buttons-set-blue.png");
 	playIcon = nk_subimage_ptr(nkContext.bindgroupIcon, 960, 560, nk_rect(30.0f, 25.0f, 120.0f, 122.0f));
 
-	m_full.loadAnimationAssimp("res/models/player.fbx", "Player", "full", 0u, 245u);
-	m_idle.loadAnimationAssimp("res/models/player.fbx", "Player", "idle", 5u, 81u);
-	m_forward.loadAnimationAssimp("res/models/player.fbx", "Player", "forward", 85u, 105u);
-	m_backward.loadAnimationAssimp("res/models/player.fbx", "Player", "backward", 110u, 129u);
-	m_right.loadAnimationAssimp("res/models/player.fbx", "Player", "right", 135u, 155u);
-	m_left.loadAnimationAssimp("res/models/player.fbx", "Player", "left", 160u, 180u);
-	m_death.loadAnimationAssimp("res/models/player.fbx", "Player", "death", 185u, 244u);
+	AnimationManager::Get().getAnimation("full").loadAnimationAssimp("res/models/player.fbx", "Player", "full", 0u, 245u);
+	AnimationManager::Get().getAnimation("idle").loadAnimationAssimp("res/models/player.fbx", "Player", "idle", 5u, 81u);
+	AnimationManager::Get().getAnimation("forward").loadAnimationAssimp("res/models/player.fbx", "Player", "forward", 85u, 105u);
+	AnimationManager::Get().getAnimation("backward").loadAnimationAssimp("res/models/player.fbx", "Player", "backward", 110u, 129u);
+	AnimationManager::Get().getAnimation("right").loadAnimationAssimp("res/models/player.fbx", "Player", "right", 135u, 155u);
+	AnimationManager::Get().getAnimation("left").loadAnimationAssimp("res/models/player.fbx", "Player", "left", 160u, 180u);
+	AnimationManager::Get().getAnimation("death").loadAnimationAssimp("res/models/player.fbx", "Player", "death", 185u, 244u);
+
 	m_player.loadModelAssimp("res/models/player.fbx", 1u);
 
 	//Add additional nodes to the first Mesh, they are presented inside the Animation channels but not at the bone hierarchy from the model.
@@ -94,7 +95,7 @@ NuklearGui::NuklearGui(StateMachine& machine) : State(machine, States::NUKLEAR_G
 	m_player.scale(0.1f, 0.1f, 0.1f);
 	m_player.rotate(0.0f, 180.0f, 0.0f);
 	m_player.applyBindpose(true);
-	m_player.addAnimationState(m_full);
+	m_player.addAnimationState(AnimationManager::Get().getAnimation("full"));
 	m_player.getAnimationState(0)->setLooped(true);
 
 	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
@@ -134,6 +135,13 @@ NuklearGui::NuklearGui(StateMachine& machine) : State(machine, States::NUKLEAR_G
 	wgpContext.setClearColor({ 0.2f, 0.2f, 0.2f, 1.0f });
 	wgpContext.OnDraw = std::bind(&NuklearGui::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
 	nkContext.OnFillBuffer = std::bind(&NuklearGui::OnFillBuffer, this, std::placeholders::_1);
+	//m_animationController.play("forward", 0, true, 5.0f);
+	//m_animationController.addAnimationStateFront2(AnimationManager::Get().getAnimation("forward"));
+	//m_animationController.addAnimationStateFront2(AnimationManager::Get().getAnimation("idle"));
+	//m_animationController.playExclusive("idle", 0, true, 0.0f);
+
+	//m_animationController.addAnimationState(AnimationManager::Get().getAnimation("idle"));
+	//m_animationController.fadeOthers("forward", 0.0f, 1.0f);
 }
 
 NuklearGui::~NuklearGui() {
@@ -154,6 +162,7 @@ void NuklearGui::update() {
 	float dx = 0.0f;
 	float dy = 0.0f;
 	bool move = false;
+	bool playerMove = false;
 
 	if (keyboard.keyDown(Keyboard::KEY_W)) {
 		direction += Vector3f(0.0f, 0.0f, 1.0f);
@@ -185,6 +194,39 @@ void NuklearGui::update() {
 		move |= true;
 	}
 
+	if (keyboard.keyDown(Keyboard::KEY_UP)) {
+		m_currentAnimation = "backward";
+		playerMove |= true;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_DOWN)) {
+		m_currentAnimation = "forward";
+		playerMove |= true;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_LEFT)){
+		m_currentAnimation = "left";
+		playerMove |= true;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_RIGHT)) {	
+		m_currentAnimation = "right";
+		playerMove |= true;
+	}
+
+	if (playerMove && m_prevAnimation == "idle" && m_animationController.m_animationControls.size() == 1u) {	
+		m_animationController.m_animationControls.clear();
+	}
+
+	if (!playerMove) {
+		m_currentAnimation = "idle";	
+	}
+	
+	m_animationController.play(m_currentAnimation, 0, true, 0.0f);
+	m_animationController.fadeOthers(m_currentAnimation, 0.0f, 0.2f);
+
+	m_prevAnimation = m_currentAnimation;
+
 	Mouse& mouse = Mouse::instance();
 
 	if (mouse.buttonDownInvisible(Mouse::MouseButton::BUTTON_RIGHT)) {
@@ -206,6 +248,7 @@ void NuklearGui::update() {
 	nkUpdateInput(mouse.xPos(), mouse.yPos(), mouse.buttonDown(Mouse::MouseButton::BUTTON_LEFT), m_scrollDelta);
 	m_scrollDelta = 0.0f;
 
+	m_animationController.update(m_dt);
 	m_player.update(m_dt);
 	m_player.updateSkinning();
 	

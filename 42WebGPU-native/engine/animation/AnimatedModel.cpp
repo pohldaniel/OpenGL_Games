@@ -23,6 +23,7 @@ AnimatedModel::AnimatedModel() {
 	m_hasMaterial = false;
 	m_isStacked = false;
 	m_animationOrderDirty = true;
+	m_hasAnimationController = false;
 
 	m_numberOfTriangles = 0u;
 	m_numberOfMeshes = 0u;
@@ -49,9 +50,16 @@ void AnimatedModel::update(float dt) {
 
 	for (auto it = m_animationStates.begin(); it != m_animationStates.end(); ++it) {
 		AnimationState* state = (*it).get();
-		if (state->isEnabled() || state->getAnimationBlendMode() == ABM_FADE) {
-			state->addTime(dt);
-			state->apply();
+		if (m_hasAnimationController) {			
+			if (state->isEnabled()) {
+				state->apply();
+			}
+		}else {
+
+			if (state->isEnabled() || state->getAnimationBlendMode() == ABM_FADE) {
+				state->addTime(dt);
+				state->apply();
+			}
 		}
 	}
 }
@@ -354,6 +362,18 @@ AnimationState* AnimatedModel::findAnimationState(const Animation& animation) co
 	return nullptr;
 }
 
+AnimationState* AnimatedModel::findAnimationState(const std::string& name) const {
+	AnimationState* state = nullptr;
+	for (auto it = m_animationStates.begin(); it != m_animationStates.end(); ++it) {
+		const Animation& animation = (*it)->getAnimation();
+		if (animation.m_animationName == name) {
+			return (*it).get();
+		}
+
+	}
+	return state;
+}
+
 AnimationState* AnimatedModel::addAnimationState(const Animation& animation) {
 	for (Mesh* mesh : m_meshes) {
 		AnimatedMesh* msh = static_cast<AnimatedMesh*>(mesh);
@@ -370,6 +390,22 @@ AnimationState* AnimatedModel::addAnimationState(const Animation& animation) {
 	return m_animationStates.back().get();
 }
 
+AnimationState* AnimatedModel::addAnimationStateFront(const Animation& animation) {
+	for (Mesh* mesh : m_meshes) {
+		AnimatedMesh* msh = static_cast<AnimatedMesh*>(mesh);
+		if (!msh->m_numBones)
+			return nullptr;
+
+		AnimationState* existing = findAnimationState(animation);
+		if (existing)
+			return existing;
+		std::cout << "############" << std::endl;
+		m_animationStates.insert(m_animationStates.begin(), std::make_shared<AnimationState>(animation, msh->m_rootBone));
+		OnAnimationOrderChanged();
+	}
+	return m_animationStates.front().get();
+}
+
 AnimationState* AnimatedModel::getAnimationState(size_t index) const {
 	return (index < m_animationStates.size()) ? m_animationStates[index].get() : nullptr;
 }
@@ -381,6 +417,16 @@ void AnimatedModel::removeAnimationState(const Animation& _animation) {
 
 		if (animation.m_animationName == _animation.m_animationName) {
 			m_animationStates.erase(it);
+			return;
+		}
+	}
+}
+
+void AnimatedModel::removeAnimationState(const AnimationState* state) {
+	for (auto it = m_animationStates.begin(); it != m_animationStates.end(); ++it) {
+		if ((*it).get() == state) {
+			m_animationStates.erase(it);
+			OnAnimationOrderChanged();
 			return;
 		}
 	}
