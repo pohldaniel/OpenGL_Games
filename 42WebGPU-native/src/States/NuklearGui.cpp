@@ -95,8 +95,8 @@ NuklearGui::NuklearGui(StateMachine& machine) : State(machine, States::NUKLEAR_G
 	m_player.scale(0.1f, 0.1f, 0.1f);
 	m_player.rotate(0.0f, 180.0f, 0.0f);
 	m_player.applyBindpose(true);
-	m_player.addAnimationState(AnimationManager::Get().getAnimation("full"));
-	m_player.getAnimationState(0)->setLooped(true);
+	//m_player.addAnimationState(AnimationManager::Get().getAnimation("full"));
+	//m_player.getAnimationState(0)->setLooped(true);
 
 	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f,  -1.0f, 1.0f);
@@ -135,13 +135,8 @@ NuklearGui::NuklearGui(StateMachine& machine) : State(machine, States::NUKLEAR_G
 	wgpContext.setClearColor({ 0.2f, 0.2f, 0.2f, 1.0f });
 	wgpContext.OnDraw = std::bind(&NuklearGui::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
 	nkContext.OnFillBuffer = std::bind(&NuklearGui::OnFillBuffer, this, std::placeholders::_1);
-	//m_animationController.play("forward", 0, true, 5.0f);
-	//m_animationController.addAnimationStateFront2(AnimationManager::Get().getAnimation("forward"));
-	//m_animationController.addAnimationStateFront2(AnimationManager::Get().getAnimation("idle"));
-	//m_animationController.playExclusive("idle", 0, true, 0.0f);
-
-	//m_animationController.addAnimationState(AnimationManager::Get().getAnimation("idle"));
-	//m_animationController.fadeOthers("forward", 0.0f, 1.0f);
+	
+	m_animationController.play("idle", 0, true, 0.2f);
 }
 
 NuklearGui::~NuklearGui() {
@@ -195,38 +190,29 @@ void NuklearGui::update() {
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_UP)) {
-		m_currentAnimation = "backward";
+		m_animationController.fadeAndPlay("backward", 0.25f);
 		playerMove |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_DOWN)) {
-		m_currentAnimation = "forward";
+		m_animationController.fadeAndPlay("forward", 0.25f);
 		playerMove |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_LEFT)){
-		m_currentAnimation = "left";
+		m_animationController.fadeAndPlay("left", 0.25f);
 		playerMove |= true;
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_RIGHT)) {	
-		m_currentAnimation = "right";
+		m_animationController.fadeAndPlay("right", 0.25f);
 		playerMove |= true;
 	}
 
-	if (playerMove && m_prevAnimation == "idle" && m_animationController.m_animationControls.size() == 1u) {	
-		m_animationController.m_animationControls.clear();
-	}
-
 	if (!playerMove) {
-		m_currentAnimation = "idle";	
+		m_animationController.fadeAndPlay("idle", 0.2f, 0.25f);	
 	}
 	
-	m_animationController.play(m_currentAnimation, 0, true, 0.0f);
-	m_animationController.fadeOthers(m_currentAnimation, 0.0f, 0.2f);
-
-	m_prevAnimation = m_currentAnimation;
-
 	Mouse& mouse = Mouse::instance();
 
 	if (mouse.buttonDownInvisible(Mouse::MouseButton::BUTTON_RIGHT)) {

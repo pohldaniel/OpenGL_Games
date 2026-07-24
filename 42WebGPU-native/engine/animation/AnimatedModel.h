@@ -58,6 +58,7 @@ public:
 	
 	AnimationState* getAnimationState(size_t index) const;
 	void removeAnimationState(const Animation& animation);
+	void removeAnimationState(const std::string& name);
 	void removeAnimationState(const AnimationState* state);
 	void removeAllAnimationStates();
 	

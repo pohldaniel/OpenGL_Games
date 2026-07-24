@@ -86,7 +86,4 @@ private:
 	WgpBuffer m_uniformBuffer, m_skinBuffer, m_modeBuffer;
 	WgpModel m_wgpPlayer;
 	WgpTexture m_wgpTexture;
-
-	std::string m_currentAnimation = "idle";
-	std::string m_prevAnimation = "idle";
 };

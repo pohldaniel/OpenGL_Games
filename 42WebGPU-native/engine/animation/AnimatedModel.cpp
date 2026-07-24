@@ -375,34 +375,35 @@ AnimationState* AnimatedModel::findAnimationState(const std::string& name) const
 }
 
 AnimationState* AnimatedModel::addAnimationState(const Animation& animation) {
-	for (Mesh* mesh : m_meshes) {
-		AnimatedMesh* msh = static_cast<AnimatedMesh*>(mesh);
-		if (!msh->m_numBones)
-			return nullptr;
+	//for (Mesh* mesh : m_meshes) {
+	AnimatedMesh* msh = static_cast<AnimatedMesh*>(m_meshes.front());
+	if (!msh->m_numBones)
+		return nullptr;
+		
+	AnimationState* existing = findAnimationState(animation);
+	if (existing)
+		return existing;
+		
+	m_animationStates.push_back(std::make_shared<AnimationState>(animation, msh->m_rootBone));
+	OnAnimationOrderChanged();
+	//}
 
-		AnimationState* existing = findAnimationState(animation);
-		if (existing)
-			return existing;
-
-		m_animationStates.push_back(std::make_shared<AnimationState>(animation, msh->m_rootBone));
-		OnAnimationOrderChanged();
-	}
 	return m_animationStates.back().get();
 }
 
 AnimationState* AnimatedModel::addAnimationStateFront(const Animation& animation) {
-	for (Mesh* mesh : m_meshes) {
-		AnimatedMesh* msh = static_cast<AnimatedMesh*>(mesh);
-		if (!msh->m_numBones)
-			return nullptr;
+	//for (Mesh* mesh : m_meshes) {
+	AnimatedMesh* msh = static_cast<AnimatedMesh*>(m_meshes.front());
+	if (!msh->m_numBones)
+		return nullptr;
 
-		AnimationState* existing = findAnimationState(animation);
-		if (existing)
-			return existing;
-		std::cout << "############" << std::endl;
-		m_animationStates.insert(m_animationStates.begin(), std::make_shared<AnimationState>(animation, msh->m_rootBone));
-		OnAnimationOrderChanged();
-	}
+	AnimationState* existing = findAnimationState(animation);
+	if (existing)
+		return existing;
+
+	m_animationStates.insert(m_animationStates.begin(), std::make_shared<AnimationState>(animation, msh->m_rootBone));
+	OnAnimationOrderChanged();
+	//}
 	return m_animationStates.front().get();
 }
 
@@ -417,6 +418,20 @@ void AnimatedModel::removeAnimationState(const Animation& _animation) {
 
 		if (animation.m_animationName == _animation.m_animationName) {
 			m_animationStates.erase(it);
+			OnAnimationOrderChanged();
+			return;
+		}
+	}
+}
+
+void AnimatedModel::removeAnimationState(const std::string& name) {
+	for (auto it = m_animationStates.begin(); it != m_animationStates.end(); ++it) {
+		AnimationState* state = (*it).get();
+		const Animation& animation = state->getAnimation();
+
+		if (animation.m_animationName == name) {
+			m_animationStates.erase(it);
+			OnAnimationOrderChanged();
 			return;
 		}
 	}

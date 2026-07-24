@@ -1,4 +1,3 @@
-#include <iostream>
 #include "AnimatedModel.h"
 #include "AnimationController.h"
 
@@ -11,9 +10,9 @@ AnimationController::~AnimationController() {
 }
 
 void AnimationController::update(float dt) {
+	
 	// Loop through animations
 	for (unsigned i = 0; i < m_animationControls.size();) {
-
 		AnimationControl& ctrl = m_animationControls[i];
 		AnimationState* state = getAnimationState(ctrl.m_name);
 
@@ -24,6 +23,7 @@ void AnimationController::update(float dt) {
 		}
 		else {
 			if (ctrl.m_speed != 0.0f) {
+
 				state->addTime(ctrl.m_speed * dt);
 			}
 
@@ -70,13 +70,11 @@ void AnimationController::update(float dt) {
 				else
 					state->setWeight(targetWeight);
 			}
-
 			// Remove if weight zero and target weight zero
 			if (state->getWeight() == 0.0f && (targetWeight == 0.0f || fadeTime == 0.0f) && ctrl.m_removeOnCompletion) {
 				remove = true;
 			}
 		}
-
 		if (remove) {
 			if (state)
 				removeAnimationState(state);
@@ -99,15 +97,17 @@ bool AnimationController::play(const std::string& name, unsigned char layer, boo
 	unsigned index;
 	AnimationState* state;
 	findAnimation(newAnimation.m_animationName, index, state);
-
+	
 	if (!state) {
 		state = addAnimationState(newAnimation);
+
 		if (!state)
 			return false;
 		state->setWeight(0.0f);
 	}
-
+	
 	if (index == UINT_MAX) {
+
 		AnimationControl newControl;
 		newControl.m_name = newAnimation.m_animationName;
 		m_animationControls.push_back(newControl);
@@ -128,8 +128,6 @@ bool AnimationController::playExclusive(const std::string& name, unsigned char l
 	// Fade other animations only if successfully started the new one
 	if (success)
 		fadeOthers(name, 0.0f, fadeTime);
-
-	std::cout << "SUCCESS: " << success << std::endl;
 
 	return success;
 }
@@ -191,15 +189,10 @@ bool AnimationController::fadeOthers(const std::string& name, float targetWeight
 
 	unsigned char layer = state->getBlendLayer();
 
-	//std::cout << "Name1: " << name << "  " << index << "  " << m_animationControls.size() << std::endl;
-
 	for (unsigned i = 0; i < m_animationControls.size(); ++i) {
 		if (i != index) {
 			AnimationControl& control = m_animationControls[i];
 			AnimationState* otherState = getAnimationState(control.m_name);
-
-			//std::cout << "NAME2: " << control.m_name << "  " << i << std::endl;
-
 			if (otherState && otherState->getBlendLayer() == layer) {
 				control.m_targetWeight = Math::Clamp(targetWeight, 0.0f, 1.0f);
 				control.m_fadeTime = fadeTime;
@@ -245,6 +238,25 @@ bool AnimationController::fadeOtherExclusive(const std::string& targetName, floa
 	return true;
 }
 
+//fades from the current Animmation to the target with fadetime uses fadeOut for fading back
+void AnimationController::fadeAndPlay(const std::string& target, float fadeTime, float fadeback) {
+	if (m_animationControls.size() > 1u && fadeback) {
+		m_animationControls.front().m_targetWeight = 0.0f;
+		m_animationControls.front().m_fadeTime = fadeback;
+
+		m_animationControls.back().m_targetWeight = 1.0f;
+		m_animationControls.back().m_fadeTime = fadeback;
+	}
+	
+	if (m_animationControls.back().m_name == target) {
+		return;
+	}
+	m_animationControls.back().m_targetWeight = 0.0f;
+	m_animationControls.back().m_fadeTime = fadeTime;
+
+	addAnimationStateFront(AnimationManager::Get().getAnimation(target), 0.0f, 1.0f, false, 0.0f, 0.0f);
+}
+
 bool AnimationController::setTime(const std::string& name, float time) {
 	unsigned index;
 	AnimationState* state;
@@ -284,7 +296,7 @@ const bool AnimationController::hasAnimationControl(const std::string& name) con
 	return false;
 }
 
-AnimationState* AnimationController::addAnimationStateFront(const Animation& animation, bool invertWeight, float weightOffset, float fadeTimeOffset) {
+AnimationState* AnimationController::addAnimationStateFront(const Animation& animation, float fadeTime, float targetWeight, bool invertWeight, float weightOffset, float fadeTimeOffset) {
 	if (!&animation)
 		return nullptr;
 
@@ -293,48 +305,22 @@ AnimationState* AnimationController::addAnimationStateFront(const Animation& ani
 	newControl.m_invertWeight = invertWeight;
 	newControl.m_weightOffset = weightOffset;
 	newControl.m_fadeTimeOffset = fadeTimeOffset;
+	newControl.m_targetWeight = targetWeight;
+	newControl.m_fadeTime = fadeTime;
 
 	if (!getAnimationState(newControl.m_name))
-		m_animationControls.push_back(newControl);
+		m_animationControls.insert(m_animationControls.begin(), newControl);
 
 	if (m_animatedModel) {
 		AnimationState* state = m_animatedModel->addAnimationStateFront(animation);
+		state->setBlendLayer(0);
+		state->setLooped(true);
 		if (invertWeight) {
-			state->setWeight(0.0f);
+			state->setWeight(0.0f);			
 		}
 		return state;
 	}
 
-	return nullptr;
-}
-
-AnimationState* AnimationController::addAnimationStateFront2(const Animation& animation, bool invertWeight, float weightOffset, float fadeTimeOffset) {
-	if (!&animation)
-		return nullptr;
-
-	AnimationControl newControl;
-	newControl.m_name = animation.m_animationName;
-	newControl.m_invertWeight = invertWeight;
-	newControl.m_weightOffset = weightOffset;
-	newControl.m_fadeTimeOffset = fadeTimeOffset;
-
-	//if (!getAnimationState(newControl.m_name)) {
-	//	m_animationControls.push_back(newControl);
-	//}
-
-	if (!hasAnimationControl(newControl.m_name)) {
-		m_animationControls.push_back(newControl);
-	}
-
-	std::cout << "SIZE: " << m_animationControls.size() << "  " << newControl.m_name << std::endl;
-	if (m_animatedModel) {
-		AnimationState* state = m_animatedModel->addAnimationStateFront(animation);
-		if (invertWeight) {
-			state->setWeight(0.0f);
-		}
-		return state;
-	} 
-	
 	return nullptr;
 }
 
@@ -342,8 +328,36 @@ AnimationState* AnimationController::addAnimationState(const Animation& animatio
 	if (!&animation)
 		return nullptr;
 
-	if (m_animatedModel)
+	if (m_animatedModel) 
 		return m_animatedModel->addAnimationState(animation);
+	
+	return nullptr;
+}
+
+AnimationState* AnimationController::addAnimationState(const Animation& animation, float fadeTime, float targetWeight, bool invertWeight, float weightOffset, float fadeTimeOffset) {
+	if (!&animation)
+		return nullptr;
+
+	AnimationControl newControl;
+	newControl.m_name = animation.m_animationName;
+	newControl.m_invertWeight = invertWeight;
+	newControl.m_weightOffset = weightOffset;
+	newControl.m_fadeTimeOffset = fadeTimeOffset;
+	newControl.m_targetWeight = targetWeight;
+	newControl.m_fadeTime = fadeTime;
+
+	if (!getAnimationState(newControl.m_name))
+		m_animationControls.push_back(newControl);
+
+	if (m_animatedModel) {
+		AnimationState* state = m_animatedModel->addAnimationState(animation);
+		state->setBlendLayer(0);
+		state->setLooped(true);
+		if (invertWeight) {
+			state->setWeight(0.0f);		
+		}
+		return state;
+	}
 
 	return nullptr;
 }
@@ -388,8 +402,14 @@ float AnimationController::getTime(const std::string& name) const {
 	return state ? state->getTime() : 0.0f;
 }
 
-AnimatedModel* AnimationController::getAnimationNode() {
+AnimatedModel* AnimationController::getAnimatedModel() {
 	return m_animatedModel;
+}
+
+void AnimationController::clearAll() {
+	m_animationControls.clear();
+	if (m_animatedModel)
+		m_animatedModel->removeAllAnimationStates();
 }
 
 AnimationManager AnimationManager::Instance;

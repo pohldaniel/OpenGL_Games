@@ -44,6 +44,8 @@ public:
 	bool fade(const std::string& name, float targetWeight, float fadeTime);
 	bool fadeOthers(const std::string& name, float targetWeight, float fadeTime);
 	bool fadeOtherExclusive(const std::string& targetName, float targetWeight, const float restTime, float weightOffset = 0.0f);
+	void fadeAndPlay(const std::string& target, float fadeTime, float fadeOut = 0.0f);
+
 	bool setTime(const std::string& name, float time);
 	bool isAtEnd(const std::string& name) const;
 
@@ -53,19 +55,19 @@ public:
 
 	AnimationState* getAnimationState(const std::string& name) const;
 	AnimationState* addAnimationState(const Animation& animation);
-	AnimationState* addAnimationStateFront(const Animation& animation, bool invertWeight = false, float weightOffset = 0.0f, float fadeTimeOffset = 0.0f);
-	AnimationState* addAnimationStateFront2(const Animation& animation, bool invertWeight = false, float weightOffset = 0.0f, float fadeTimeOffset = 0.0f);
+	AnimationState* addAnimationState(const Animation& animation, float fadeTime, float targetWeight, bool invertWeight = false, float weightOffset = 0.0f, float fadeTimeOffset = 0.0f);
+	AnimationState* addAnimationStateFront(const Animation& animation, float fadeTime, float targetWeight, bool invertWeight = false, float weightOffset = 0.0f, float fadeTimeOffset = 0.0f);
+
 	const bool hasAnimationControl(const std::string& name) const;
 
 	void removeAnimationState(AnimationState* state);
 	void findAnimation(const std::string& name, unsigned& index, AnimationState*& state) const;
-	AnimatedModel* getAnimationNode();
-
-	std::vector<AnimationControl> m_animationControls;
+	AnimatedModel* getAnimatedModel();
+	void clearAll();
 
 private:
 
-	
+	std::vector<AnimationControl> m_animationControls;
 	AnimatedModel* m_animatedModel;
 };
 

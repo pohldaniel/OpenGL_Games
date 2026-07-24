@@ -1,4 +1,3 @@
-#include <iostream>
 #include "AnimationState.h"
 
 AnimationStateTrack::AnimationStateTrack() : m_track(nullptr), m_bone(nullptr), m_weight(1.0f), m_keyFrame(0) {
@@ -9,13 +8,7 @@ AnimationStateTrack::~AnimationStateTrack() {
 
 }
 
-//const auto deleter = [](Animation* animation) {
-	//delete animation;
-//};
-
-
 AnimationState::AnimationState(const Animation& animation, Bone* startBone) :
-	//m_animation(animation, [&](Animation* animation) {/*delete animation;*/}),
 	m_animation(animation),
 	m_startBone(startBone),
 	m_stateTime(0.0f),
@@ -41,7 +34,6 @@ void AnimationState::setStartBone(Bone* startBone_) {
 	if (!startBone_)
 		startBone_ = m_startBone;
 
-	// Do not reassign if the start bone did not actually change, and we already have valid bone nodes
 	if (!m_stateTracks.empty())
 		return;
 
@@ -206,7 +198,7 @@ void AnimationState::reset() {
 }
 
 void AnimationState::applyToModel() {
-
+	int index = 0;
 	for (auto it = m_stateTracks.begin(); it != m_stateTracks.end(); ++it) {
 		AnimationStateTrack& stateTrack = *it;
 
@@ -214,11 +206,11 @@ void AnimationState::applyToModel() {
 		float finalWeight = m_blendWeight * stateTrack.m_weight;
 		Bone* bone = stateTrack.m_bone;
 
-		//std::cout << "NANME: " << stateTrack.m_track->m_name << " " << m_animationBlendMode << std::endl;
+		
 
 		if (Math::Equals(finalWeight, 0.0f) || !bone->animationEnabled())
 			continue;
-
+		
 		track->findKeyFrameIndex(m_stateTime, stateTrack.m_keyFrame);
 
 		const AnimationKeyFrame& keyFrame = track->m_keyFrames[stateTrack.m_keyFrame];
@@ -294,9 +286,11 @@ void AnimationState::applyToModel() {
 					newScale = Math::Lerp(bone->m_scale, newScale, finalWeight);
 			}
 		}
-		
+		//if(index == 0)
+			//std::cout << "TRACK TIME: " << m_stateTime << "  " << m_looped << std::endl;
 		bone->setTransformSilent(newPosition, newRotation, newScale);
 		bone->OnTransformChanged();
+		index++;
 	}
 }
 
