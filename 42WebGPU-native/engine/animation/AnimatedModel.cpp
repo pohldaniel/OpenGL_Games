@@ -50,16 +50,10 @@ void AnimatedModel::update(float dt) {
 
 	for (auto it = m_animationStates.begin(); it != m_animationStates.end(); ++it) {
 		AnimationState* state = (*it).get();
-		if (m_hasAnimationController) {			
-			if (state->isEnabled()) {
-				state->apply();
-			}
-		}else {
-
-			if (state->isEnabled() || state->getAnimationBlendMode() == ABM_FADE) {
+		if (state->isEnabled()) {
+			if(!m_hasAnimationController)
 				state->addTime(dt);
-				state->apply();
-			}
+			state->apply();
 		}
 	}
 }
@@ -387,7 +381,6 @@ AnimationState* AnimatedModel::addAnimationState(const Animation& animation) {
 	m_animationStates.push_back(std::make_shared<AnimationState>(animation, msh->m_rootBone));
 	OnAnimationOrderChanged();
 	//}
-
 	return m_animationStates.back().get();
 }
 
@@ -467,6 +460,9 @@ Mesh* AnimatedModel::mesh(unsigned short index) const {
 	return m_meshes[index];
 }
 
+std::vector<std::shared_ptr<AnimationState>>& AnimatedModel::animationStates() {
+	return m_animationStates;
+}
 ///////////////////////////////////////////////////////////
 AnimatedMesh::AnimatedMesh(AnimatedModel* model) : m_model(model), m_skinMatrices(nullptr), m_bones(nullptr), m_rootBone(nullptr){
 	m_model = model;

@@ -44,7 +44,6 @@ public:
 	void loadModelAssimp(const std::string& path, const short addVirtualRoots = 0, const bool reverseBoneList = false);
 	void loadModel(const std::string& path, const short addVirtualRoots = 0);
 	
-
 	void rotate(const float pitch, const float yaw, const float roll);
 	void scale(const float sx, const float sy, const float sz);
 	void translate(const float dx, const float dy, const float dz);
@@ -66,6 +65,8 @@ public:
 	const Mesh* getMesh(unsigned short index = 0u) const;
 	const std::vector<Mesh*>& getMeshes() const;
 	Mesh* mesh(unsigned short index = 0u) const;
+
+	std::vector<std::shared_ptr<AnimationState>>& animationStates();
 
 private:
 

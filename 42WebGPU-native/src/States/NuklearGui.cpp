@@ -136,7 +136,7 @@ NuklearGui::NuklearGui(StateMachine& machine) : State(machine, States::NUKLEAR_G
 	wgpContext.OnDraw = std::bind(&NuklearGui::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
 	nkContext.OnFillBuffer = std::bind(&NuklearGui::OnFillBuffer, this, std::placeholders::_1);
 	
-	m_animationController.play("idle", 0, true, 0.2f);
+	m_animationController.play("forward", true, 0.2f);
 }
 
 NuklearGui::~NuklearGui() {
@@ -209,8 +209,16 @@ void NuklearGui::update() {
 		playerMove |= true;
 	}
 
-	if (!playerMove) {
-		m_animationController.fadeAndPlay("idle", 0.2f, 0.25f);	
+	if (keyboard.keyPressed(Keyboard::KEY_T)) {
+		m_isDeath = true;
+	}
+
+	if (!playerMove && !m_isDeath) {		
+		m_animationController.fadeAndPlay("idle", 0.2f, 0.25f);			
+	}
+
+	if (m_isDeath) {
+		m_animationController.play("death", false, 2.0f);
 	}
 	
 	Mouse& mouse = Mouse::instance();
@@ -265,10 +273,6 @@ void NuklearGui::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURend
 
 		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_ANIMATION"));
 		m_wgpPlayer.draw(renderPassEncoder);
-
-
-		//wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_TEXTURE"));
-		//m_wgpWeapon.draw(renderPassEncoder);
 
 		wgpuRenderPassEncoderEnd(renderPassEncoder);
 		wgpuRenderPassEncoderRelease(renderPassEncoder);

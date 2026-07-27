@@ -21,8 +21,8 @@ struct AnimationKeyFrame {
 };
 
 struct AnimationTrack {
-
 	void findKeyFrameIndex(float time, size_t& index) const;
+
 	std::string m_name;
 	unsigned char m_channelMask;
 	std::vector<AnimationKeyFrame> m_keyFrames;

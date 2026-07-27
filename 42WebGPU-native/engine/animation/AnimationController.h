@@ -34,38 +34,19 @@ public:
 
 	AnimationController(AnimatedModel* animatedModel);
 	~AnimationController();
+
 	void update(float dt);
+	void fadeAndPlay(const std::string& target, float fadeInTime, float fadeBackTime = 0.0f);
+	bool play(const std::string& name, bool looped, float fadeInTime = 0.0f);
 
-	bool play(const std::string& name, unsigned char layer, bool looped, float fadeInTime = 0.0f);
-	bool playExclusive(const std::string& name, unsigned char layer, bool looped, float fadeTime = 0.0f);
-	bool stop(const std::string& name, float fadeOutTime = 0.0f);
-	void stopLayer(unsigned char layer, float fadeOutTime = 0.0f);
-	void stopAll(float fadeTime = 0.0f);
-	bool fade(const std::string& name, float targetWeight, float fadeTime);
-	bool fadeOthers(const std::string& name, float targetWeight, float fadeTime);
-	bool fadeOtherExclusive(const std::string& targetName, float targetWeight, const float restTime, float weightOffset = 0.0f);
-	void fadeAndPlay(const std::string& target, float fadeTime, float fadeOut = 0.0f);
-
-	bool setTime(const std::string& name, float time);
-	bool isAtEnd(const std::string& name) const;
-
-	bool setSpeed(const std::string& name, float speed);
-	float getTime(const std::string& name) const;
-	float getRestTime(const std::string& name);
-
-	AnimationState* getAnimationState(const std::string& name) const;
-	AnimationState* addAnimationState(const Animation& animation);
-	AnimationState* addAnimationState(const Animation& animation, float fadeTime, float targetWeight, bool invertWeight = false, float weightOffset = 0.0f, float fadeTimeOffset = 0.0f);
-	AnimationState* addAnimationStateFront(const Animation& animation, float fadeTime, float targetWeight, bool invertWeight = false, float weightOffset = 0.0f, float fadeTimeOffset = 0.0f);
-
-	const bool hasAnimationControl(const std::string& name) const;
-
-	void removeAnimationState(AnimationState* state);
-	void findAnimation(const std::string& name, unsigned& index, AnimationState*& state) const;
 	AnimatedModel* getAnimatedModel();
-	void clearAll();
 
 private:
+
+	AnimationState* addAnimationStateFront(const Animation& animation, float fadeTime, float targetWeight, bool invertWeight = false, float weightOffset = 0.0f, float fadeTimeOffset = 0.0f);
+	AnimationState* getAnimationState(const std::string& name) const;
+	void findAnimation(const std::string& name, unsigned& index, AnimationState*& state) const;
+	void removeAnimationState(AnimationState* state);
 
 	std::vector<AnimationControl> m_animationControls;
 	AnimatedModel* m_animatedModel;

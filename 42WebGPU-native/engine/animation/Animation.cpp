@@ -62,10 +62,10 @@ void Animation::loadAnimationAssimp(const std::string& filename, const std::stri
 
 			newTrack->m_channelMask = CHANNEL_POSITION + CHANNEL_ROTATION + CHANNEL_SCALE;
 			numKeyFrames = std::max(aiAnimation->mChannels[c]->mNumPositionKeys, std::max(aiAnimation->mChannels[c]->mNumRotationKeys, aiAnimation->mChannels[c]->mNumScalingKeys));
-
-			Vector3f prevPosition;
-			Vector3f prevScale;
-			Quaternion prevRot;
+	
+			Vector3f prevPosition = Vector3f(0.0f, 0.0f, 0.0f);
+			Vector3f prevScale = Vector3f(1.0f, 1.0f, 1.0f);
+			Quaternion prevRot = Quaternion::IDENTITY;
 			float timeOffset = 0.0f;
 
 			for (size_t j = 0; j < numKeyFrames; ++j) {
@@ -73,16 +73,15 @@ void Animation::loadAnimationAssimp(const std::string& filename, const std::stri
 					numKeyFrames == aiAnimation->mChannels[c]->mNumRotationKeys ? aiAnimation->mChannels[c]->mRotationKeys[j].mTime :
 					aiAnimation->mChannels[c]->mScalingKeys[j].mTime;
 
-				if (j == 0)
+				if (j == 0) 					
 					timeOffset = time;
-
+				
 				time -= timeOffset;
-
-				if (time < startTick && endTick < time)
+			
+				if (time <= startTick || endTick <= time)
 					continue;
-
+				
 				newTrack->m_keyFrames.emplace_back();
-
 				AnimationKeyFrame& newKeyFrame = newTrack->m_keyFrames.back();
 				newKeyFrame.m_time = time - startTick;
 

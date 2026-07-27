@@ -66,6 +66,7 @@ private:
 	float m_uiScale = 1.0f;
 	float m_scrollDelta = 0.0f;
 	bool m_wasHovered = false;
+	bool m_isDeath = false;
 
 	Camera m_camera;
 	Uniforms m_uniforms;

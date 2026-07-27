@@ -6,10 +6,7 @@
 #include "Bone.h"
 
 enum AnimationBlendMode {
-	ABM_NONE = 0,
-	ABM_LERP,
-	ABM_ADDITIVE,
-	ABM_FADE
+	ABM_LERP = 0
 };
 
 struct AnimationStateTrack {
@@ -35,13 +32,11 @@ public:
 
 	void setStartBone(Bone* startBone);
 	void setLooped(bool looped);
-	void setBackward(bool backward);
 	void setWeight(float weight);
 	void setBlendMode(AnimationBlendMode mode);
 	void setTime(float time);
 	void addTime(float dt);
 	void setBlendLayer(unsigned char layer);
-	void setFadeLayerLength(float length);
 
 	const Animation& getAnimation() const;
 	const AnimationBlendMode getAnimationBlendMode() const;
@@ -57,7 +52,6 @@ public:
 	bool isLooped() const;
 	float getWeight() const;
 	float getTime() const;
-	const float getRestTime() const;
 	float getLength() const;
 	unsigned char getBlendLayer() const;
 
@@ -67,7 +61,6 @@ public:
 private:
 
 	void applyToModel();
-	void applyToNodes();
 
 	std::vector<AnimationStateTrack> m_stateTracks;
 	const Animation& m_animation;
@@ -77,12 +70,7 @@ private:
 	unsigned char m_blendLayer;
 
 	bool m_looped;
-	bool m_backward;
 	float m_blendWeight;
 
-	float m_layeredTime;
-	float m_fadeLayerLength;
-	float m_additiveDirection;
-	bool m_invertBlend;
 	AnimationBlendMode m_animationBlendMode;
 };
