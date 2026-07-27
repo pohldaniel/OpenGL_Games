@@ -78,7 +78,7 @@ void Animation::loadAnimationAssimp(const std::string& filename, const std::stri
 				
 				time -= timeOffset;
 			
-				if (time <= startTick || endTick <= time)
+				if ((startTick != 0u || endTick != 0u) && (time <= startTick || endTick <= time))
 					continue;
 				
 				newTrack->m_keyFrames.emplace_back();
