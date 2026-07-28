@@ -45,7 +45,7 @@ public:
 	float getBoneWeight(size_t index) const;
 	float getBoneWeight(const std::string& name) const;
 
-	size_t findTrackIndex(Bone* node) const;
+	size_t findTrackIndex(Bone* bone) const;
 	size_t findTrackIndex(const std::string& name) const;
 
 	bool isEnabled() const;

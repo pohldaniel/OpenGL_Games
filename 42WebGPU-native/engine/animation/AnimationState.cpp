@@ -110,9 +110,9 @@ float AnimationState::getBoneWeight(const std::string& name) const {
 	return getBoneWeight(findTrackIndex(name));
 }
 
-size_t AnimationState::findTrackIndex(Bone* node) const {
+size_t AnimationState::findTrackIndex(Bone* bone) const {
 	for (unsigned i = 0; i < m_stateTracks.size(); ++i) {
-		if (m_stateTracks[i].m_bone == node)
+		if (m_stateTracks[i].m_bone == bone)
 			return i;
 	}
 	return UINT_MAX;
@@ -120,8 +120,8 @@ size_t AnimationState::findTrackIndex(Bone* node) const {
 
 size_t AnimationState::findTrackIndex(const std::string& name) const {
 	for (size_t i = 0; i < m_stateTracks.size(); ++i) {
-		Bone* node = m_stateTracks[i].m_bone;
-		if (node && node->m_name == name)
+		Bone* bone = m_stateTracks[i].m_bone;
+		if (bone && bone->m_name == name)
 			return i;
 	}
 	return UINT_MAX;

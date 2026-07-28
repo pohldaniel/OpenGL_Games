@@ -233,8 +233,7 @@ void AnimatedModel::loadModelAssimp(const std::string& path, const short addVirt
 					BoneDescription& boneDescription = mesh->m_boneDescriptions[i];
 					if (boneDescription.parentIndex != i) {
 						boneDescription.parentIndex = boneDescription.parentIndex + addVirtualRoots;
-					}
-					else {
+					}else {
 						boneDescription.parentIndex = (addVirtualRoots - 1);
 					}
 				}
@@ -246,7 +245,6 @@ void AnimatedModel::loadModelAssimp(const std::string& path, const short addVirt
 						mesh->m_boneDescriptions[0].parentIndex = (addVirtualRoots - 1) - count - 1;
 				}
 			}
-
 			mesh->createBones();		
 		}
 		
@@ -256,7 +254,6 @@ void AnimatedModel::loadModelAssimp(const std::string& path, const short addVirt
 			mesh->m_indexBuffer.push_back(face->mIndices[1]);
 			mesh->m_indexBuffer.push_back(face->mIndices[2]);
 		}
-
 		mesh->m_drawCount = aiMesh->mNumFaces * 3;		
 	}
 }
@@ -291,8 +288,8 @@ void AnimatedModel::fetchAiHierarchy(aiNode* node, std::vector<BoneDescription>&
 		(*it).initialPosition.set(pos.x, pos.y, pos.z);
 		(*it).initialRotation.set(rot.x, rot.y, rot.z, rot.w);
 		(*it).initialScale.set(scale.x, scale.y, scale.z);
-
 		(*it).parentIndex = parentIndex;
+
 		_parentIndex = static_cast<int>(std::distance(boneDescriptions.begin(), it));
 	}
 
@@ -324,6 +321,7 @@ void AnimatedModel::printAiHierarchy(aiNode * node) {
 			printAiHierarchy(node->mChildren[i]);
 	}
 }
+
 void AnimatedModel::rotate(const float pitch, const float yaw, const float roll) {
 	for (std::vector<Mesh*>::iterator mesh = m_meshes.begin(); mesh != m_meshes.end(); mesh++) {
 		static_cast<AnimatedMesh*>(*mesh)->rotate(pitch, yaw, roll);
@@ -561,12 +559,12 @@ const unsigned short AnimatedMesh::getNumBones() const {
 	return m_numBones;
 }
 
-const bool AnimatedMesh::hasMaterial() const {
-	return m_materialIndex >= 0;
-}
-
 const Material& AnimatedMesh::getMaterial() const {
 	return Material::GetMaterials()[m_materialIndex];
+}
+
+const bool AnimatedMesh::hasMaterial() const {
+	return m_materialIndex >= 0;
 }
 
 void AnimatedMesh::rotate(const float pitch, const float yaw, const float roll) {

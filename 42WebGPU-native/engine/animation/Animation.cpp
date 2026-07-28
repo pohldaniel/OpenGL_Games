@@ -36,8 +36,6 @@ void Animation::loadAnimation(const std::string& filename) {
 void Animation::loadAnimationAssimp(const std::string& filename, const std::string& sourceName, const std::string& destName, unsigned int startTick, unsigned int endTick) {
 	
 	Assimp::Importer importer;
-	//importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, false);
-
 	const aiScene* aiScene = importer.ReadFile(filename, NULL);
 
 	if (!aiScene) {
@@ -55,13 +53,12 @@ void Animation::loadAnimationAssimp(const std::string& filename, const std::stri
 		m_animationName = destName;
 		m_length = (startTick != 0u || endTick != 0u) ? (endTick- startTick) / aiAnimation->mTicksPerSecond : aiAnimation->mDuration / aiAnimation->mTicksPerSecond;
 		m_tracks.clear();
-		size_t numKeyFrames;
 
 		for (unsigned int c = 0; c < aiAnimation->mNumChannels; c++) {
 			AnimationTrack* newTrack = createTrack(aiAnimation->mChannels[c]->mNodeName.data);
 
 			newTrack->m_channelMask = CHANNEL_POSITION + CHANNEL_ROTATION + CHANNEL_SCALE;
-			numKeyFrames = std::max(aiAnimation->mChannels[c]->mNumPositionKeys, std::max(aiAnimation->mChannels[c]->mNumRotationKeys, aiAnimation->mChannels[c]->mNumScalingKeys));
+			size_t numKeyFrames = std::max(aiAnimation->mChannels[c]->mNumPositionKeys, std::max(aiAnimation->mChannels[c]->mNumRotationKeys, aiAnimation->mChannels[c]->mNumScalingKeys));
 	
 			Vector3f prevPosition = Vector3f(0.0f, 0.0f, 0.0f);
 			Vector3f prevScale = Vector3f(1.0f, 1.0f, 1.0f);
@@ -106,7 +103,6 @@ void Animation::loadAnimationAssimp(const std::string& filename, const std::stri
 				}else
 					newKeyFrame.m_rotation.set(prevRot[0], prevRot[1], prevRot[2], prevRot[2]);
 			}
-
 		}
 	}
 }
@@ -136,15 +132,6 @@ float Animation::getLength() const {
 
 const std::map<std::string, AnimationTrack>& Animation::getTracks() const {
 	return m_tracks;
-}
-
-const std::vector<AnimationTrack> Animation::getAnimationTracks() const {
-	std::vector<AnimationTrack> animationTracks;
-	std::transform(m_tracks.begin(), m_tracks.end(), std::back_inserter(animationTracks),
-		[](const std::pair<std::string, AnimationTrack>& a) {
-			return a.second;
-		});
-	return animationTracks;
 }
 
 size_t Animation::getNumTracks() const {

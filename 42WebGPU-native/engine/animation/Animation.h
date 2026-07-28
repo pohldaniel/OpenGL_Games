@@ -47,7 +47,6 @@ public:
 	const std::string& getAnimationName() const;
 	float getLength() const;
 	const std::map<std::string, AnimationTrack>& getTracks() const;
-	const std::vector<AnimationTrack> getAnimationTracks() const;
 	size_t getNumTracks() const;
 
 	std::string& animationName() const;

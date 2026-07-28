@@ -2,6 +2,11 @@
 #include <vector>
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
+#include <engine/animation/AnimationController.h>
+#include <engine/animation/AnimatedModel.h>
+#include <engine/animation/Animation.h>
+#include <engine/shape/Shape.h>
+#include <engine/AssimpModel.h>
 #include <engine/TrackBall.h>
 #include <engine/Camera.h>
 
@@ -12,12 +17,17 @@
 #include <WebGPU/WgpModel.h>
 #include <WebGPU/WgpData.h>
 
-class NuklearGui : public State, public MouseEventListener, public KeyboardEventListener {
-	
+class Isometric : public State, public MouseEventListener, public KeyboardEventListener {
+	struct JoystickResult {
+		float x = 0.0f;
+		float y = 0.0f;
+		bool is_active = false;
+	};
+
 public:
 
-	NuklearGui(StateMachine& machine);
-	~NuklearGui();
+	Isometric(StateMachine& machine);
+	~Isometric();
 
 	void fixedUpdate() override;
 	void update() override;
@@ -35,23 +45,25 @@ public:
 
 private:
 
-
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayouts();
+	std::vector<WGPUBindGroup> OnBindGroups();
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 
 	bool m_initUi = true;
 	bool m_drawUi = false;
-	bool m_isHovered = false;
-	float m_uiScale = 1.0f;
 	float m_scrollDelta = 0.0f;
-	bool m_wasHovered = false;
+	bool m_isDeath = false;
 
 	Camera m_camera;
 	Uniforms m_uniforms;
 	TrackBall m_trackball;
 
-	struct nk_image playIcon;
-	struct nk_vec2 current_pos;
+	JoystickResult nk_virtual_joystick(struct nk_context* ctx, float size_px);
+	bool nk_circular_action_button(struct nk_context* ctx, const char* label, float size_px);
 
-	const float BASE_ROW_DYN = 30.0f;
-	const float BASE_ROW_STAT = 32.0f;
+	AnimatedModel m_player;
+	AnimationController m_animationController;
+
+	WgpBuffer m_uniformBuffer, m_skinBuffer;
+	WgpModel m_wgpPlayer;
 };

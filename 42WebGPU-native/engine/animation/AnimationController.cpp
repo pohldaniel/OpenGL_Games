@@ -10,8 +10,7 @@ AnimationController::~AnimationController() {
 }
 
 void AnimationController::update(float dt) {
-	
-	// Loop through animations
+
 	for (unsigned i = 0; i < m_animationControls.size();) {
 		AnimationControl& ctrl = m_animationControls[i];
 		AnimationState* state = getAnimationState(ctrl.m_name);
@@ -20,8 +19,7 @@ void AnimationController::update(float dt) {
 
 		if (!state) {
 			remove = true;
-		}
-		else {
+		}else {
 			if (ctrl.m_speed != 0.0f) {
 
 				state->addTime(ctrl.m_speed * dt);
@@ -35,7 +33,6 @@ void AnimationController::update(float dt) {
 			if (!state->isLooped() && state->getTime() >= state->getLength() && ctrl.m_autoFadeTime > 0.0f) {
 				targetWeight = 0.0f;
 				fadeTime = ctrl.m_autoFadeTime;
-				//fadeTimeOffset = ctrl.autoFadeTime_;
 			}
 
 			// Process weight fade
@@ -134,9 +131,7 @@ bool AnimationController::play(const std::string& name, bool looped, float fadeI
 }
 
 AnimationState* AnimationController::addAnimationStateFront(const Animation& animation, float fadeTime, float targetWeight, bool invertWeight, float weightOffset, float fadeTimeOffset) {
-	if (!&animation)
-		return nullptr;
-
+	
 	AnimationControl newControl;
 	newControl.m_name = animation.m_animationName;
 	newControl.m_invertWeight = invertWeight;

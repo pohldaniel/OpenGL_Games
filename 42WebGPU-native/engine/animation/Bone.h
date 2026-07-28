@@ -36,10 +36,10 @@ public:
 
 	const Matrix4f& getWorldTransformation() const;
 	const Matrix4f& getTransformationSOP() const;
-	
+
 protected:
 
-	void OnTransformChanged();
+	void OnTransformChanged();	
 	const std::string& getName() const;
 	const Vector3f& getScale() const;
 

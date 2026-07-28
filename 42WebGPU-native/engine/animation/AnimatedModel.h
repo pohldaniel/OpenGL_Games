@@ -96,7 +96,7 @@ public:
 	virtual ~AnimatedMesh();
 	
 	void updateSkinning();
-	void applyBindpose(bool onTransformChanged = false);
+	void applyBindpose(bool transformChanged = false);
 	void createBones();
 	void cleanup();
 
@@ -110,9 +110,11 @@ public:
 	const std::vector<std::array<float, 4>>& getWeights() const;
 	const std::vector<std::array<unsigned int, 4>>& getJoints() const;
 	const Matrix4f* getSkinMatrices() const;
+	const Matrix4f& getSkinMatrix(size_t index = 0u) const;
 	const unsigned short getNumBones() const;
-	const bool hasMaterial() const;
+	const Bone& getBone(size_t index = 0u) const;
 	const Material& getMaterial() const;
+	const bool hasMaterial() const;
 
 	std::vector<BoneDescription>& boneDescriptions() const;
 	std::vector<float>& vertexBuffer() const;
@@ -120,11 +122,8 @@ public:
 	std::vector<std::array<float, 4>>& weights() const;
 	std::vector<std::array<unsigned int, 4>>& joints() const;
 	Matrix4f* skinMatrices() const;
-
 	unsigned int& stride() const;
 	Bone**& bones() const;
-	const Bone& getBone(size_t index = 0u) const;
-	const Matrix4f& getSkinMatrix(size_t index = 0u) const;
 
 private:
 
