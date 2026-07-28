@@ -3,16 +3,17 @@
 
 #define NUKLEAR_IMPLEMENTATION
 #include "NkContext.h"
-#include "Application.h"
 
 NkContext nkContext = {};
 
-void nkInit() {
+void nkInit(float width, float height) {
+	nkContext.width = width;
+	nkContext.height = height;
 
 	nkContext.wgpVertexBuffer.createBuffer(MAX_VERTEX_MEMORY, WGPUBufferUsage_Vertex | WGPUBufferUsage_CopyDst);
 	nkContext.wgpIndexBuffer.createBuffer(MAX_INDEX_MEMORY, WGPUBufferUsage_Index | WGPUBufferUsage_CopyDst);
 	nkContext.wgpUniformBuffer.createBuffer(16 * sizeof(float), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
-	nkResize(static_cast<float>(Application::Width), static_cast<float>(Application::Height));
+	nkResize(nkContext.width, nkContext.height);
 
 	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(3);
 
@@ -135,8 +136,11 @@ void nkInitIcon(const char* path) {
 }
 
 void nkResize(float width, float height) {
-	float ortho[16] = { 2.0f / width, 0.0f,   0.0f, 0.0f,
-					    0.0f, -2.0f / height, 0.0f, 0.0f,
+	nkContext.width = width;
+	nkContext.height = height;
+
+	float ortho[16] = { 2.0f / nkContext.width, 0.0f,   0.0f, 0.0f,
+					    0.0f, -2.0f / nkContext.height, 0.0f, 0.0f,
 					    0.0f, 0.0f, -1.0f, 0.0f,
 					   -1.0f, 1.0f,  0.0f, 1.0f };
 
@@ -246,12 +250,12 @@ void nkDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescri
 		float scissor_w = nkContext.drawCommand->clip_rect.w;
 		float scissor_h = nkContext.drawCommand->clip_rect.h;
 
-		if (scissor_x + scissor_w > static_cast<float>(Application::Width)) {
-			scissor_w = static_cast<float>(Application::Width) - scissor_x;
+		if (scissor_x + scissor_w > nkContext.width) {
+			scissor_w = nkContext.width - scissor_x;
 		}
 
-		if (scissor_y + scissor_h > static_cast<float>(Application::Height)) {
-			scissor_h = static_cast<float>(Application::Height) - scissor_y;
+		if (scissor_y + scissor_h > nkContext.height) {
+			scissor_h = nkContext.height - scissor_y;
 		}
 
 		if (scissor_w <= 0.0f || scissor_h <= 0.0f) {

@@ -35,13 +35,13 @@ public:
 
 	static int Width;
 	static int Height;
-	static bool OverClient;
-
-	bool m_initUi = true;
+	static float ScrollDelta;
 
 private:
+
 	static LRESULT CALLBACK StaticWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	LRESULT ApplicationWndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lParam);
+	void processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 	void createWindow();
 	void initWebGPU();
@@ -55,8 +55,7 @@ private:
 	const float& m_fdt;
 	const float& m_dt;
 
-	void processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-
+	
 	static void Resize(int deltaW, int deltaH);
 	static StateMachine* Machine;
 	static EventDispatcher& EventDispatcher;
@@ -71,5 +70,6 @@ private:
 	static HCURSOR Cursor;
 	static HICON Icon;
 	static bool VerticalSync;
-	static bool Fullscreen;	
+	static bool Fullscreen;
+	static bool OverClient;
 };

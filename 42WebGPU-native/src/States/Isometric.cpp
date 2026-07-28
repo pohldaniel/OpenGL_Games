@@ -39,7 +39,7 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm, Application::OnSurfaceChange);
 	wgpSetSurfaceDepthFormat(WGPUTextureFormat::WGPUTextureFormat_Depth24Plus, Application::OnSurfaceChange);
 
-	nkInit();
+	nkInit(static_cast<float>(Application::Width), static_cast<float>(Application::Height));
 	nkInitFont("res/fonts/upheavtt.ttf");
 
 	AnimationManager::Get().getAnimation("full").loadAnimationAssimp("res/models/player.fbx", "Player", "full", 0u, 245u);
@@ -214,8 +214,7 @@ void Isometric::update() {
 	}
 	m_trackball.idle();
 
-	nkUpdateInput(mouse.xPos(), mouse.yPos(), mouse.buttonDown(Mouse::MouseButton::BUTTON_LEFT), m_scrollDelta);
-	m_scrollDelta = 0.0f;
+	nkUpdateInput(mouse.xPos(), mouse.yPos(), mouse.buttonDown(Mouse::MouseButton::BUTTON_LEFT), Application::ScrollDelta);
 
 	m_animationController.update(m_dt);
 	m_player.update(m_dt);

@@ -60,7 +60,7 @@ struct NkContext;
 extern NkContext nkContext;
 
 extern "C" {
-	void nkInit();
+	void nkInit(float width, float height);
 	void nkInitFont(const char* path = nullptr);
 	void nkInitIcon(const char* path);	
 	void nkResize(float width, float height);
@@ -87,6 +87,8 @@ struct NkContext {
 	struct nk_font_atlas fontAtlas;
 	struct nk_font* font = nullptr;
 	const struct nk_draw_command* drawCommand = nullptr;
+    float width;
+    float height;
 
 	uint8_t vertexBufferData[MAX_VERTEX_MEMORY];
 	uint8_t indexBufferData[MAX_INDEX_MEMORY];

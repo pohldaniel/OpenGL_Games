@@ -41,7 +41,6 @@ private:
 	bool m_drawUi = false;
 	bool m_isHovered = false;
 	float m_uiScale = 1.0f;
-	float m_scrollDelta = 0.0f;
 	bool m_wasHovered = false;
 
 	Camera m_camera;

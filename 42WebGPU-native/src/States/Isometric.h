@@ -51,7 +51,6 @@ private:
 
 	bool m_initUi = true;
 	bool m_drawUi = false;
-	float m_scrollDelta = 0.0f;
 	bool m_isDeath = false;
 
 	Camera m_camera;

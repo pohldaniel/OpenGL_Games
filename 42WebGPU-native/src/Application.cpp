@@ -46,6 +46,7 @@ DWORD Application::SavedStyle;
 RECT Application::Savedrc;
 bool Application::OverClient = true;
 bool Application::VerticalSync = false;
+float Application::ScrollDelta = 0.0f;
 
 HCURSOR Application::Cursor = LoadCursor(nullptr, IDC_ARROW);
 HICON Application::Icon = (HICON)LoadImage(NULL, "res/poison.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
@@ -310,6 +311,8 @@ void Application::update() {
 	Keyboard::instance().update();
 
 	Machine->update();
+
+	ScrollDelta = 0.0f;
 }
 
 void Application::fixedUpdate() {
@@ -335,8 +338,8 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new OcclusionQuery(*Machine));
 	//Machine->addStateAtTop(new VideoDecode(*Machine));
 	//Machine->addStateAtTop(new RenderBundles(*Machine));
-	//Machine->addStateAtTop(new NuklearGui(*Machine));	
-	Machine->addStateAtTop(new Isometric(*Machine));
+	Machine->addStateAtTop(new NuklearGui(*Machine));	
+	//Machine->addStateAtTop(new Isometric(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -474,6 +477,7 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 			event.type = Event::MOUSEWHEEL;
 			event.data.mouseWheel.delta = static_cast<float>(GET_WHEEL_DELTA_WPARAM(wParam)) / static_cast<float>(WHEEL_DELTA);
 			event.data.mouseWheel.direction = event.data.mouseWheel.delta > 0 ? Event::MouseWheelEvent::WheelDirection::UP : Event::MouseWheelEvent::WheelDirection::DOWN;
+			ScrollDelta = event.data.mouseWheel.delta;
 			EventDispatcher.pushEvent(event);
 			break;
 		}
