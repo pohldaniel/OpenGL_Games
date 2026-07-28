@@ -377,10 +377,10 @@ void Isometric::OnKeyUp(const Event::KeyboardEvent& event) {
 }
 
 void Isometric::resize(int deltaW, int deltaH) {
+	nkResize(static_cast<float>(Application::Width), static_cast<float>(Application::Height));
 	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, -1.0f, 1.0f);
-	m_trackball.reshape(Application::Width, Application::Height);
-	nkResize(static_cast<float>(Application::Width), static_cast<float>(Application::Height));
+	m_trackball.reshape(Application::Width, Application::Height);	
 }
 
 void Isometric::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {

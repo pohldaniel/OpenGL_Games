@@ -35,7 +35,6 @@ public:
 
 private:
 
-
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 
 	bool m_initUi = true;
