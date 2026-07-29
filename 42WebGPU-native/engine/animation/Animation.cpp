@@ -60,9 +60,9 @@ void Animation::loadAnimationAssimp(const std::string& filename, const std::stri
 			newTrack->m_channelMask = CHANNEL_POSITION + CHANNEL_ROTATION + CHANNEL_SCALE;
 			size_t numKeyFrames = std::max(aiAnimation->mChannels[c]->mNumPositionKeys, std::max(aiAnimation->mChannels[c]->mNumRotationKeys, aiAnimation->mChannels[c]->mNumScalingKeys));
 	
-			Vector3f prevPosition = Vector3f(0.0f, 0.0f, 0.0f);
-			Vector3f prevScale = Vector3f(1.0f, 1.0f, 1.0f);
-			Quaternion prevRot = Quaternion::IDENTITY;
+			Vector3f prevPosition;
+			Vector3f prevScale ;
+			Quaternion prevRot;
 			float timeOffset = 0.0f;
 
 			for (size_t j = 0; j < numKeyFrames; ++j) {
@@ -74,34 +74,33 @@ void Animation::loadAnimationAssimp(const std::string& filename, const std::stri
 					timeOffset = time;
 				
 				time -= timeOffset;
-			
-				if ((startTick != 0u || endTick != 0u) && (time <= startTick || endTick <= time))
+
+				if (j < aiAnimation->mChannels[c]->mNumPositionKeys) {
+					prevPosition.set(aiAnimation->mChannels[c]->mPositionKeys[j].mValue.x, aiAnimation->mChannels[c]->mPositionKeys[j].mValue.y, aiAnimation->mChannels[c]->mPositionKeys[j].mValue.z);
+				}
+				if (j < aiAnimation->mChannels[c]->mNumScalingKeys) {
+					prevScale.set(aiAnimation->mChannels[c]->mScalingKeys[j].mValue.x, aiAnimation->mChannels[c]->mScalingKeys[j].mValue.y, aiAnimation->mChannels[c]->mScalingKeys[j].mValue.z);
+				}
+				if (j < aiAnimation->mChannels[c]->mNumRotationKeys) {
+					prevRot.set(aiAnimation->mChannels[c]->mRotationKeys[j].mValue.x, aiAnimation->mChannels[c]->mRotationKeys[j].mValue.y, aiAnimation->mChannels[c]->mRotationKeys[j].mValue.z, aiAnimation->mChannels[c]->mRotationKeys[j].mValue.w);
+				}
+		
+				if ((startTick != 0u || endTick != 0u) && (time <= startTick || endTick <= time)) {					
 					continue;
-				
+				}
+								
 				newTrack->m_keyFrames.emplace_back();
 				AnimationKeyFrame& newKeyFrame = newTrack->m_keyFrames.back();
 				newKeyFrame.m_time = time - startTick;
 
 				newKeyFrame.m_time /= aiAnimation->mTicksPerSecond;
 
-				if (j < aiAnimation->mChannels[c]->mNumPositionKeys) {
-					newKeyFrame.m_position.set(aiAnimation->mChannels[c]->mPositionKeys[j].mValue.x, aiAnimation->mChannels[c]->mPositionKeys[j].mValue.y, aiAnimation->mChannels[c]->mPositionKeys[j].mValue.z);
-					prevPosition = newKeyFrame.m_position;
-				}else
-					newKeyFrame.m_position.set(prevPosition[0], prevPosition[1], prevPosition[2]);
+				newKeyFrame.m_position.set(prevPosition[0], prevPosition[1], prevPosition[2]);
 
-				if (j < aiAnimation->mChannels[c]->mNumScalingKeys) {
-					newKeyFrame.m_scale.set(aiAnimation->mChannels[c]->mScalingKeys[j].mValue.x, aiAnimation->mChannels[c]->mScalingKeys[j].mValue.y, aiAnimation->mChannels[c]->mScalingKeys[j].mValue.z);
-					prevScale = newKeyFrame.m_scale;
-				}else
-					newKeyFrame.m_scale.set(prevScale[0], prevScale[1], prevScale[2]);
 
-				if (j < aiAnimation->mChannels[c]->mNumRotationKeys) {
-					aiQuaternion quat = aiAnimation->mChannels[c]->mRotationKeys[j].mValue;
-					newKeyFrame.m_rotation.set(quat.x, quat.y, quat.z, quat.w);
-					prevRot = newKeyFrame.m_rotation;
-				}else
-					newKeyFrame.m_rotation.set(prevRot[0], prevRot[1], prevRot[2], prevRot[2]);
+				newKeyFrame.m_scale.set(prevScale[0], prevScale[1], prevScale[2]);
+
+				newKeyFrame.m_rotation.set(prevRot[0], prevRot[1], prevRot[2], prevRot[3]);
 			}
 		}
 	}
