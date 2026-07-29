@@ -294,6 +294,15 @@
     <ClCompile Include="src\States\Isometric.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
+    <ClCompile Include="Nuklear\NkStyle.cpp">
+      <Filter>Nuklear</Filter>
+    </ClCompile>
+    <ClCompile Include="Nuklear\NkNodeEditor.cpp">
+      <Filter>Nuklear</Filter>
+    </ClCompile>
+    <ClCompile Include="Nuklear\NkCalculator.cpp">
+      <Filter>Nuklear</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\input\ApplicationEventListener.h">
@@ -565,6 +574,15 @@
     </ClInclude>
     <ClInclude Include="src\States\Isometric.h">
       <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Nuklear\NkStyle.h">
+      <Filter>Nuklear</Filter>
+    </ClInclude>
+    <ClInclude Include="Nuklear\NkNodeEditor.h">
+      <Filter>Nuklear</Filter>
+    </ClInclude>
+    <ClInclude Include="Nuklear\NkCalculator.h">
+      <Filter>Nuklear</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

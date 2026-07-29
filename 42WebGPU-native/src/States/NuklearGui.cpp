@@ -6,9 +6,31 @@
 #include <WebGPU/WgpContext.h>
 #include <WebGPU/WgpRenderer.h>
 
+#include <Nuklear/NkStyle.h>
+#include <Nuklear/NkNodeEditor.h>
+#include <Nuklear/NkCalculator.h>
+
 #include "NuklearGui.h"
 #include "Application.h"
 #include "Globals.h"
+
+int style_id[] = {
+	999,
+	THEME_WHITE,
+	THEME_RED,
+	THEME_BLUE,
+	THEME_DARK
+};
+
+const char* style_name[] = {
+	"Default",
+	"White",
+	"Red",
+	"Blue",
+	"Dark"
+};
+static int selected_item = 0;
+struct nk_colorf backgroundf = { 0.2f, 0.2f, 0.2f, 1.0f };
 
 NuklearGui::NuklearGui(StateMachine& machine) : State(machine, States::NUKLEAR_GUI) {
 
@@ -33,7 +55,7 @@ NuklearGui::NuklearGui(StateMachine& machine) : State(machine, States::NUKLEAR_G
 
 	m_trackball.reshape(Application::Width, Application::Height);
 
-	wgpContext.setClearColor({ 0.2f, 0.2f, 0.2f, 1.0f });
+	wgpContext.setClearColor({ backgroundf.r, backgroundf.g, backgroundf.b, backgroundf.a });
 	wgpContext.OnDraw = std::bind(&NuklearGui::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
 	nkContext.OnFillBuffer = std::bind(&NuklearGui::OnFillBuffer, this, std::placeholders::_1);
 }
@@ -104,8 +126,7 @@ void NuklearGui::update() {
 		}
 	}
 	m_trackball.idle();
-
-	nkUpdateInput(mouse.xPos(), mouse.yPos(), mouse.buttonDown(Mouse::MouseButton::BUTTON_LEFT), Application::ScrollDelta);
+	nkUpdateInput(mouse.xPos(), mouse.yPos(), mouse.buttonDown(Mouse::MouseButton::BUTTON_LEFT), mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT), Application::ScrollDelta);
 }
 
 void NuklearGui::render() {
@@ -120,65 +141,53 @@ void NuklearGui::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURend
 		WGPURenderPassDescriptor rndrPssDscrptor = renderPassDescriptor;
 		rndrPssDscrptor.colorAttachments = &renderPassColorAttachment;
 
-		nkDraw(commandEncoder, rndrPssDscrptor);
+		nkDraw(commandEncoder, renderPassDescriptor);
 	}
 }
 
 void NuklearGui::OnFillBuffer(nk_context& nkCntxt) {
-	nkContext.font->handle.height = BASE_FONT_SIZE * m_uiScale;
-	nkContext.font->scale = m_uiScale;
+	calculator(&nkCntxt);
+	node_editor(&nkCntxt);
+	if (nk_begin(&nkCntxt, "Demo", nk_rect(430, 10, 230, 250),
+		NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE |
+		NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE))
+	{
 
-	if (m_initUi) {
-		current_pos = nk_vec2(static_cast<float>(Application::Width) * 0.25f, static_cast<float>(Application::Height) * 0.25f);
-		m_initUi = false;
-	}
+		nk_layout_row_dynamic(&nkCntxt, 20, 1);
+		nk_label(&nkCntxt, "background:", NK_TEXT_LEFT);
+		nk_layout_row_dynamic(&nkCntxt, 25, 1);
+		if (nk_combo_begin_color(&nkCntxt, nk_rgba_cf(backgroundf), nk_vec2(nk_widget_width(&nkCntxt), 400))) {
 
-	struct nk_rect scaled_bounds = nk_rect(
-		current_pos.x,
-		current_pos.y,
-		static_cast<float>(Application::Width) * 0.5f * m_uiScale,
-		static_cast<float>(Application::Height) * 0.5f * m_uiScale
+			nk_layout_row_dynamic(&nkCntxt, 120, 1);
+			backgroundf = nk_color_picker(&nkCntxt, backgroundf, NK_RGBA);
+			nk_layout_row_dynamic(&nkCntxt, 25, 1);
 
-	);
-	nk_window_set_bounds(&nkCntxt, "Nuklear Window", scaled_bounds);
-
-	if (nk_begin(&nkCntxt, "Nuklear Window", scaled_bounds, NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_TITLE)) {
-		nk_layout_row_dynamic(&nkCntxt, BASE_ROW_DYN * m_uiScale, 1);
-		if (nk_button_label(&nkCntxt, "Click Me!")) {
-			printf("Button was pressed!\n");
+			struct nk_color background = nk_rgba_cf(backgroundf);
+			background.r = (nk_byte)nk_propertyi(&nkCntxt, "#R:", 0, background.r, 255, 1, 1);
+			background.g = (nk_byte)nk_propertyi(&nkCntxt, "#G:", 0, background.g, 255, 1, 1);
+			background.b = (nk_byte)nk_propertyi(&nkCntxt, "#B:", 0, background.b, 255, 1, 1);
+			background.a = (nk_byte)nk_propertyi(&nkCntxt, "#A:", 0, background.a, 255, 1, 1);
+			nk_combo_end(&nkCntxt);
+			 
+			backgroundf = nk_color_cf(background);
+			wgpContext.setClearColor({ backgroundf.r, backgroundf.g, backgroundf.b, backgroundf.a });
 		}
 
-		nk_layout_row_static(&nkCntxt, BASE_ROW_STAT * m_uiScale, BASE_ROW_STAT * m_uiScale, 1);
-		if (nk_button_image(&nkCntxt, playIcon)) {
-			printf("Play was pressed!\n");
+		nk_layout_row_dynamic(&nkCntxt, 25, 2);
+		nk_label(&nkCntxt, "GUI skin:", NK_TEXT_LEFT);
+		if (nk_combo_begin_label(&nkCntxt, style_name[selected_item], nk_vec2(nk_widget_width(&nkCntxt), 200))) {
+			int i;
+			nk_layout_row_dynamic(&nkCntxt, 25, 1);
+			for (i = 0; i < sizeof(style_id) / sizeof(style_id[0]); ++i)
+				if (nk_combo_item_label(&nkCntxt, style_name[i], NK_TEXT_LEFT)) {
+					selected_item = i;
+					set_style(&nkCntxt, static_cast<theme>(style_id[i]));
+				}
+			nk_combo_end(&nkCntxt);
 		}
-		m_wasHovered = nk_window_is_hovered(&nkCntxt);
-		current_pos = nk_window_get_position(&nkCntxt);
 	}
 	nk_end(&nkCntxt);
-
-	nkContext.font->handle.height = BASE_FONT_SIZE;
-	nkContext.font->scale = 1.0f;
-
-	if (nk_begin(&nkCntxt, "Scroll", nk_rect(50, 50, 300, 200), NK_WINDOW_BORDER | NK_WINDOW_MOVABLE)) {
-		nk_layout_row_dynamic(&nkCntxt, 40, 1);
-		for (int i = 0; i < 20; i++) {
-			nk_labelf(&nkCntxt, NK_TEXT_LEFT, "Element %d", i);
-		}
-	}
-	nk_end(&nkCntxt);
-
-	struct nk_color old_background = nkContext.context.style.window.background;
-	nkContext.context.style.window.background = nk_rgba(0, 0, 0, 0);
-
-	struct nk_color old_border = nkContext.context.style.window.border_color;
-	nkContext.context.style.window.border_color = nk_rgba(0, 0, 0, 0);
-
 	
-	nkContext.context.style.window.background = old_background;
-	nkContext.context.style.window.border_color = old_border;
-	
-	m_isHovered = nk_window_is_any_hovered(&nkCntxt);
 }
 
 void NuklearGui::OnMouseMotion(const Event::MouseMoveEvent& event) {
@@ -188,7 +197,7 @@ void NuklearGui::OnMouseMotion(const Event::MouseMoveEvent& event) {
 void NuklearGui::OnMouseButtonDown(const Event::MouseButtonEvent& event) {	
 	if (event.button == Event::MouseButtonEvent::BUTTON_LEFT && !m_isHovered) {
 		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, true, event.x, event.y);
-		Mouse::instance().detach();
+		Mouse::instance().attach(Application::GetWindow(), false, true);
 	}
 
 	if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT && !m_isHovered)

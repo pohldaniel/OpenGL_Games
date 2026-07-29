@@ -207,10 +207,11 @@ void nkShutDown() {
 	nkContext.OnFillBuffer = NULL;
 }
 
-void nkUpdateInput(int x, int y, bool button, float scrollDelta) {
+void nkUpdateInput(int x, int y, bool left, bool right, float scrollDelta) {
 	nk_input_begin(&nkContext.context);
 	nk_input_motion(&nkContext.context, x, y);
-	nk_input_button(&nkContext.context, NK_BUTTON_LEFT, x, y, button);
+	nk_input_button(&nkContext.context, NK_BUTTON_LEFT, x, y, left);
+	nk_input_button(&nkContext.context, NK_BUTTON_RIGHT, x, y, right);
 	nk_input_scroll(&nkContext.context, nk_vec2(0.0f, scrollDelta));
 	nk_input_end(&nkContext.context);
 }
@@ -245,8 +246,8 @@ void nkDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescri
 
 		wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, bindGroup, 0u, NULL);
 
-		float scissor_x = nkContext.drawCommand->clip_rect.x < 0.0f ? 0.0f : nkContext.drawCommand->clip_rect.x;
-		float scissor_y = nkContext.drawCommand->clip_rect.y < 0.0f ? 0.0f : nkContext.drawCommand->clip_rect.y;
+		float scissor_x = nkContext.drawCommand->clip_rect.x < 0.0f ? 0.0f : nkContext.drawCommand->clip_rect.x > nkContext.width ? nkContext.width : nkContext.drawCommand->clip_rect.x;
+		float scissor_y = nkContext.drawCommand->clip_rect.y < 0.0f ? 0.0f : nkContext.drawCommand->clip_rect.y > nkContext.height ? nkContext.height : nkContext.drawCommand->clip_rect.y;
 		float scissor_w = nkContext.drawCommand->clip_rect.w;
 		float scissor_h = nkContext.drawCommand->clip_rect.h;
 
@@ -256,10 +257,6 @@ void nkDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescri
 
 		if (scissor_y + scissor_h > nkContext.height) {
 			scissor_h = nkContext.height - scissor_y;
-		}
-
-		if (scissor_w <= 0.0f || scissor_h <= 0.0f) {
-			continue;
 		}
 
 		wgpuRenderPassEncoderSetScissorRect(renderPassEncoder, (uint32_t)scissor_x, (uint32_t)scissor_y, (uint32_t)scissor_w, (uint32_t)scissor_h);

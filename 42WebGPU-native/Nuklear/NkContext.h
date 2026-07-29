@@ -12,6 +12,7 @@
 	#define NK_IMPLEMENTATION
 #endif
 
+#include <functional>
 #include <nuklear.h>
 #include <webgpu.h>
 
@@ -52,8 +53,8 @@
                                 return in.color * textureSample(t, s, in.uv);                           \n \
                             }"
 
-#define MAX_VERTEX_MEMORY (1024u * 1024u)
-#define MAX_INDEX_MEMORY (256u * 1024u)
+#define MAX_VERTEX_MEMORY (100u * 1024u * 1024u)
+#define MAX_INDEX_MEMORY (100u * 256u * 1024u)
 #define BASE_FONT_SIZE 16.0f
 
 struct NkContext;
@@ -65,7 +66,7 @@ extern "C" {
 	void nkInitIcon(const char* path);	
 	void nkResize(float width, float height);
 	void nkShutDown();
-	void nkUpdateInput(int x, int y, bool button, float scrollDelta);
+	void nkUpdateInput(int x, int y, bool left, bool right, float scrollDelta);
 	void nkDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor);
 	
 	void nkCreateBindGroup(const WgpTexture& texture, WGPUBindGroup& bindgroup);
