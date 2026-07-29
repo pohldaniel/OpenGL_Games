@@ -5,7 +5,7 @@
 
 thread_local Matrix4f Bone::Transformation;
 
-Bone::Bone() : m_parent(nullptr), m_numChildBones(0u), m_isRootBone(false), m_isDirty(true), m_animationEnabled(true), m_hasParent(false){
+Bone::Bone() : m_parent(nullptr), m_numChildBones(0u), m_isRootBone(false), m_hasParent(false), m_isDirty(true), m_animationEnabled(true) {
 
 }
 
