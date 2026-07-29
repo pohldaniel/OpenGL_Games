@@ -214,12 +214,12 @@ void nkUpdateInput(int x, int y, bool left, bool right, float scrollDelta) {
 	nk_input_button(&nkContext.context, NK_BUTTON_RIGHT, x, y, right);
 	nk_input_scroll(&nkContext.context, nk_vec2(0.0f, scrollDelta));
 	nk_input_end(&nkContext.context);
+
+	if (nkContext.OnFillBuffer)
+		nkContext.OnFillBuffer(nkContext.context);
 }
 
 void nkDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor) {
-	if (nkContext.OnFillBuffer)
-		nkContext.OnFillBuffer(nkContext.context);
-
 	nk_buffer_clear(&nkContext.vertexBuffer);
 	nk_buffer_clear(&nkContext.indexBuffer);
 

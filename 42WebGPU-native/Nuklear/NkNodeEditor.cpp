@@ -75,7 +75,8 @@ void node_editor_init(struct node_editor* editor) {
     editor->show_grid = nk_true;
 }
 
-int node_editor(struct nk_context* ctx) {
+int node_editor() {
+    struct nk_context* ctx = &nkContext.context;
     int n = 0;
     struct nk_rect total_space;
     const struct nk_input* in = &ctx->input;

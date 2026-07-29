@@ -53,5 +53,5 @@ extern "C" {
     void node_editor_add(struct node_editor* editor, const char* name, struct nk_rect bounds, struct nk_color col, int in_count, int out_count);
     void node_editor_link(struct node_editor* editor, int in_id, int in_slot, int out_id, int out_slot);
     void node_editor_init(struct node_editor* editor);
-    int node_editor(struct nk_context* ctx);
+    int node_editor();
 }

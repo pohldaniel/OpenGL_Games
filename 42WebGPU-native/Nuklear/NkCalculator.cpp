@@ -1,7 +1,8 @@
 #include "NkCalculator.h"
 #include "NkContext.h"
 
-void calculator(struct nk_context* ctx) {
+void calculator() {
+    struct nk_context* ctx = &nkContext.context;
     if (nk_begin(ctx, "Calculator", nk_rect(450, 290, 180, 250),
         NK_WINDOW_BORDER | NK_WINDOW_NO_SCROLLBAR | NK_WINDOW_MOVABLE))
     {

@@ -1,7 +1,7 @@
 #include "NkStyle.h"
 #include "NkContext.h"
 
-void set_style(struct nk_context* ctx, enum theme theme) {
+void set_style(enum theme theme) {
     struct nk_color table[NK_COLOR_COUNT];
     if (theme == THEME_WHITE) {
         table[NK_COLOR_TEXT] = nk_rgba(70, 70, 70, 255);
@@ -32,9 +32,8 @@ void set_style(struct nk_context* ctx, enum theme theme) {
         table[NK_COLOR_SCROLLBAR_CURSOR_HOVER] = nk_rgba(150, 150, 150, 255);
         table[NK_COLOR_SCROLLBAR_CURSOR_ACTIVE] = nk_rgba(160, 160, 160, 255);
         table[NK_COLOR_TAB_HEADER] = nk_rgba(180, 180, 180, 255);
-        nk_style_from_table(ctx, table);
-    }
-    else if (theme == THEME_RED) {
+        nk_style_from_table(&nkContext.context, table);
+    }else if (theme == THEME_RED) {
         table[NK_COLOR_TEXT] = nk_rgba(190, 190, 190, 255);
         table[NK_COLOR_WINDOW] = nk_rgba(30, 33, 40, 215);
         table[NK_COLOR_HEADER] = nk_rgba(181, 45, 69, 220);
@@ -63,9 +62,8 @@ void set_style(struct nk_context* ctx, enum theme theme) {
         table[NK_COLOR_SCROLLBAR_CURSOR_HOVER] = nk_rgba(70, 90, 100, 255);
         table[NK_COLOR_SCROLLBAR_CURSOR_ACTIVE] = nk_rgba(75, 95, 105, 255);
         table[NK_COLOR_TAB_HEADER] = nk_rgba(181, 45, 69, 220);
-        nk_style_from_table(ctx, table);
-    }
-    else if (theme == THEME_BLUE) {
+        nk_style_from_table(&nkContext.context, table);
+    }else if (theme == THEME_BLUE) {
         table[NK_COLOR_TEXT] = nk_rgba(20, 20, 20, 255);
         table[NK_COLOR_WINDOW] = nk_rgba(202, 212, 214, 215);
         table[NK_COLOR_HEADER] = nk_rgba(137, 182, 224, 220);
@@ -94,9 +92,8 @@ void set_style(struct nk_context* ctx, enum theme theme) {
         table[NK_COLOR_SCROLLBAR_CURSOR_HOVER] = nk_rgba(70, 90, 100, 255);
         table[NK_COLOR_SCROLLBAR_CURSOR_ACTIVE] = nk_rgba(75, 95, 105, 255);
         table[NK_COLOR_TAB_HEADER] = nk_rgba(156, 193, 220, 255);
-        nk_style_from_table(ctx, table);
-    }
-    else if (theme == THEME_DARK) {
+        nk_style_from_table(&nkContext.context, table);
+    }else if (theme == THEME_DARK) {
         table[NK_COLOR_TEXT] = nk_rgba(210, 210, 210, 255);
         table[NK_COLOR_WINDOW] = nk_rgba(57, 67, 71, 215);
         table[NK_COLOR_HEADER] = nk_rgba(51, 51, 56, 220);
@@ -125,9 +122,29 @@ void set_style(struct nk_context* ctx, enum theme theme) {
         table[NK_COLOR_SCROLLBAR_CURSOR_HOVER] = nk_rgba(53, 88, 116, 255);
         table[NK_COLOR_SCROLLBAR_CURSOR_ACTIVE] = nk_rgba(58, 93, 121, 255);
         table[NK_COLOR_TAB_HEADER] = nk_rgba(48, 83, 111, 255);
-        nk_style_from_table(ctx, table);
+        nk_style_from_table(&nkContext.context, table);
+    }else {
+        nk_style_default(&nkContext.context);
     }
-    else {
-        nk_style_default(ctx);
-    }
+}
+
+void set_transparent_window_style() {
+    nk_style_push_vec2(&nkContext.context, &nkContext.context.style.window.padding, nk_vec2(0, 0));
+    nk_style_push_vec2(&nkContext.context, &nkContext.context.style.window.group_padding, nk_vec2(0, 0));
+    nk_style_push_vec2(&nkContext.context, &nkContext.context.style.window.spacing, nk_vec2(0, 0));
+    nk_style_push_float(&nkContext.context, &nkContext.context.style.window.border, 0.0f);
+
+    nk_style_push_style_item(&nkContext.context, &nkContext.context.style.window.fixed_background, nk_style_item_color(nk_rgba(0, 0, 0, 0)));
+    nk_style_push_color(&nkContext.context, &nkContext.context.style.window.background, nk_rgba(0, 0, 0, 0));
+    nk_style_push_color(&nkContext.context, &nkContext.context.style.window.border_color, nk_rgba(0, 0, 0, 0));
+}
+
+void reset_transparent_window_style() {
+    nk_style_pop_color(&nkContext.context);
+    nk_style_pop_color(&nkContext.context);
+    nk_style_pop_style_item(&nkContext.context);
+    nk_style_pop_float(&nkContext.context);
+    nk_style_pop_vec2(&nkContext.context);
+    nk_style_pop_vec2(&nkContext.context);
+    nk_style_pop_vec2(&nkContext.context);
 }

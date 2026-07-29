@@ -11,18 +11,13 @@
 #include <engine/Camera.h>
 
 #include <States/StateMachine.h>
-#include <Nuklear/NkContext.h>
+#include <Nuklear/NkJoystick.h>
 
 #include <WebGPU/WgpBuffer.h>
 #include <WebGPU/WgpModel.h>
 #include <WebGPU/WgpData.h>
 
 class Isometric : public State, public MouseEventListener, public KeyboardEventListener {
-	struct JoystickResult {
-		float x = 0.0f;
-		float y = 0.0f;
-		bool is_active = false;
-	};
 
 public:
 
@@ -56,9 +51,8 @@ private:
 	Camera m_camera;
 	Uniforms m_uniforms;
 	TrackBall m_trackball;
-
-	JoystickResult nk_virtual_joystick(struct nk_context* ctx, float size_px);
-	bool nk_circular_action_button(struct nk_context* ctx, const char* label, float size_px);
+	JoystickResult m_joystickResult;
+	bool m_isPressed;
 
 	AnimatedModel m_player;
 	AnimationController m_animationController;

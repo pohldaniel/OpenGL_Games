@@ -146,8 +146,8 @@ void NuklearGui::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURend
 }
 
 void NuklearGui::OnFillBuffer(nk_context& nkCntxt) {
-	calculator(&nkCntxt);
-	node_editor(&nkCntxt);
+	calculator();
+	node_editor();
 	if (nk_begin(&nkCntxt, "Demo", nk_rect(430, 10, 230, 250),
 		NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE |
 		NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE))
@@ -181,13 +181,12 @@ void NuklearGui::OnFillBuffer(nk_context& nkCntxt) {
 			for (i = 0; i < sizeof(style_id) / sizeof(style_id[0]); ++i)
 				if (nk_combo_item_label(&nkCntxt, style_name[i], NK_TEXT_LEFT)) {
 					selected_item = i;
-					set_style(&nkCntxt, static_cast<theme>(style_id[i]));
+					set_style(static_cast<theme>(style_id[i]));
 				}
 			nk_combo_end(&nkCntxt);
 		}
 	}
-	nk_end(&nkCntxt);
-	
+	nk_end(&nkCntxt);	
 }
 
 void NuklearGui::OnMouseMotion(const Event::MouseMoveEvent& event) {

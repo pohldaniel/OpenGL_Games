@@ -303,6 +303,9 @@
     <ClCompile Include="Nuklear\NkCalculator.cpp">
       <Filter>Nuklear</Filter>
     </ClCompile>
+    <ClCompile Include="Nuklear\NkJoystick.cpp">
+      <Filter>Nuklear</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\input\ApplicationEventListener.h">
@@ -582,6 +585,9 @@
       <Filter>Nuklear</Filter>
     </ClInclude>
     <ClInclude Include="Nuklear\NkCalculator.h">
+      <Filter>Nuklear</Filter>
+    </ClInclude>
+    <ClInclude Include="Nuklear\NkJoystick.h">
       <Filter>Nuklear</Filter>
     </ClInclude>
   </ItemGroup>
