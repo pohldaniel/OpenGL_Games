@@ -15,7 +15,7 @@ void virtual_joystick(struct nk_rect dimension, JoystickResult& out) {
 	}
 	nk_end(&nkContext.context);
 }
-#include <iostream>
+
 void nk_virtual_joystick(struct nk_context* ctx, float size_px, JoystickResult& out) {
 	struct nk_rect bounds;
 	nk_widget(&bounds, ctx);
@@ -89,7 +89,6 @@ void action_button(struct nk_rect dimension, bool& isPressed) {
 bool nk_circular_action_button(struct nk_context* ctx, const char* label, float size_px, bool& isPressed) {
 	isPressed = false;
 	
-	// 1. Platz im Layout reservieren (quadratisch)
 	struct nk_rect bounds;
 	nk_widget(&bounds, ctx);
 
@@ -99,9 +98,6 @@ bool nk_circular_action_button(struct nk_context* ctx, const char* label, float 
 	const struct nk_input* input = &ctx->input;
 	bool is_touched = input->mouse.buttons[NK_BUTTON_LEFT].down;
 	struct nk_vec2 touch_pos = input->mouse.pos;
-
-
-	// Wir prüfen mathematisch, ob der Touch innerhalb des Kreises liegt
 	bool is_hovered = false;
 	if (is_touched) {
 		float dx = touch_pos.x - center.x;
@@ -111,31 +107,24 @@ bool nk_circular_action_button(struct nk_context* ctx, const char* label, float 
 		}
 	}
 
-	// Zustand für "Geklickt" im Immediate-Mode ermitteln
 	static bool button_was_down = false;
 	if (is_hovered && is_touched) {
 		if (!button_was_down) {
-			isPressed = true; // Genau in diesem Frame gedrückt
+			isPressed = true;
 			button_was_down = true;
 		}
-	}
-	else if (!is_touched) {
-		button_was_down = false; // Finger wieder angehoben
+	}else if (!is_touched) {
+		button_was_down = false;
 	}
 
-	// 3. Zeichnen auf dem Canvas
 	struct nk_command_buffer* canvas = nk_window_get_canvas(ctx);
 	if (canvas) {
-		// Farb-Feedback: Wenn gedrückt, dunkler färben
 		struct nk_color btn_color = is_hovered ? nk_rgb(180, 50, 50) : nk_rgb(255, 80, 80);
 		struct nk_color border_color = is_hovered ? nk_rgb(255, 255, 255) : nk_rgb(200, 200, 200);
 
-		// Kreis füllen und umranden
 		nk_fill_circle(canvas, bounds, btn_color);
 		nk_stroke_circle(canvas, bounds, 3.0f, border_color);
 
-		// Text in der Mitte des Kreises platzieren
-		// (Nutzt die aktuelle Font-Höhe, um den Text vertikal zu zentrieren)
 		const struct nk_user_font* font = ctx->style.font;
 		float text_width = font->width(font->userdata, font->height, label, nk_strlen(label));
 
