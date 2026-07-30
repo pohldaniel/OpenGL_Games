@@ -85,7 +85,7 @@ void Animation::loadAnimationAssimp(const std::string& filename, const std::stri
 					prevRot.set(aiAnimation->mChannels[c]->mRotationKeys[j].mValue.x, aiAnimation->mChannels[c]->mRotationKeys[j].mValue.y, aiAnimation->mChannels[c]->mRotationKeys[j].mValue.z, aiAnimation->mChannels[c]->mRotationKeys[j].mValue.w);
 				}
 		
-				if ((startTick != 0u || endTick != 0u) && (time <= startTick || endTick <= time)) {					
+				if ((startTick != 0u || endTick != 0u) && (time < startTick || endTick <= time)) {					
 					continue;
 				}
 								
@@ -170,5 +170,25 @@ void Animation::scaleTrack(const std::string& name, const float sx, const float 
 		for (auto& keyFrame : track->m_keyFrames) {
 			keyFrame.m_scale.scale(sx, sy, sz);
 		}
+	}
+}
+
+void  Animation::shift(unsigned int ticks) {
+	for (std::map<std::string, AnimationTrack>::iterator it = m_tracks.begin(); it != m_tracks.end();) {
+		AnimationTrack& track = it->second;
+
+		std::vector<AnimationKeyFrame> keyFrames;
+		for (size_t frame = 0u; frame < track.m_keyFrames.size(); frame++) {			
+			size_t current = frame + ticks < track.m_keyFrames.size() ? frame + ticks :  (ticks + frame) - track.m_keyFrames.size();			
+			float time = track.m_keyFrames[frame].m_time;
+			keyFrames.emplace_back();
+			keyFrames.back().m_time = time;
+			keyFrames.back().m_position = track.m_keyFrames[current].m_position;
+			keyFrames.back().m_scale = track.m_keyFrames[current].m_scale;
+			keyFrames.back().m_rotation = track.m_keyFrames[current].m_rotation;
+
+		}
+		track.m_keyFrames.assign(keyFrames.begin(), keyFrames.end());
+		++it;
 	}
 }

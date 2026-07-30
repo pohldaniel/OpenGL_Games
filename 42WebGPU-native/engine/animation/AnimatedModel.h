@@ -47,8 +47,10 @@ public:
 	void rotate(const float pitch, const float yaw, const float roll);
 	void scale(const float sx, const float sy, const float sz);
 	void translate(const float dx, const float dy, const float dz);
+	void translateRelative(const float dx, const float dy, const float dz);
 
 	void setScale(const float sx, const float sy, const float sz);
+	void setRotation(const float pitch, const float yaw, const float roll);
 
 	AnimationState* findAnimationState(const Animation& animation) const;
 	AnimationState* findAnimationState(const std::string& name) const;
@@ -103,8 +105,10 @@ public:
 	void rotate(const float pitch, const float yaw, const float roll);
 	void scale(const float sx, const float sy, const float sz);
 	void translate(const float dx, const float dy, const float dz);
+	void translateRelative(const float dx, const float dy, const float dz);
 
 	void setScale(const float sx, const float sy, const float sz);
+	void setRotation(const float pitch, const float yaw, const float roll);
 
 	const std::vector<BoneDescription>& getBoneDescriptions() const;
 	const std::vector<std::array<float, 4>>& getWeights() const;

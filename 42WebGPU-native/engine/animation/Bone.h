@@ -30,6 +30,10 @@ public:
 	void setAnimationEnabled(bool enable);
 	void setTransformSilent(const Vector3f& position, const Quaternion& rotation, const Vector3f& scale);
 	void setTransform(const Vector3f& position, const Quaternion& rotation, const Vector3f& scale);
+
+	const Vector3f& getPosition() const;
+	const Quaternion& getOrientation() const;
+
 	const bool isRootBone() const;
 	void setHasParent(bool hasParent);
 	void rotate(const float pitch, const float yaw, const float roll);

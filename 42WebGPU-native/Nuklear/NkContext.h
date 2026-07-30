@@ -105,4 +105,5 @@ struct NkContext {
 	WgpTexture wgpTextureNull, wgpTextureFont, wgpTextureIcon;
 
 	std::function<void(nk_context& nkCntxt)> OnFillBuffer = NULL;
+    const void* activeWidget = NULL;
 };

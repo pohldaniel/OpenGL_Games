@@ -340,9 +340,21 @@ void AnimatedModel::translate(const float dx, const float dy, const float dz) {
 	}
 }
 
+void AnimatedModel::translateRelative(const float dx, const float dy, const float dz) {
+	for (std::vector<Mesh*>::iterator mesh = m_meshes.begin(); mesh != m_meshes.end(); mesh++) {
+		static_cast<AnimatedMesh*>(*mesh)->translateRelative(dx, dy, dz);
+	}
+}
+
 void AnimatedModel::setScale(const float sx, const float sy, const float sz) {
 	for (std::vector<Mesh*>::iterator mesh = m_meshes.begin(); mesh != m_meshes.end(); mesh++) {
 		static_cast<AnimatedMesh*>(*mesh)->setScale(sx, sy, sz);
+	}
+}
+
+void AnimatedModel::setRotation(const float pitch, const float yaw, const float roll) {
+	for (std::vector<Mesh*>::iterator mesh = m_meshes.begin(); mesh != m_meshes.end(); mesh++) {
+		static_cast<AnimatedMesh*>(*mesh)->setRotation(pitch, yaw, roll);
 	}
 }
 
@@ -591,7 +603,17 @@ void AnimatedMesh::translate(const float dx, const float dy, const float dz) {
 	for (size_t i = 0u; i < m_numBones; ++i) {
 		if (m_bones[i]->isRootBone()) {
 			m_boneDescriptions[i].initialPosition.translate(dx, dy, dz);
-			m_rootBone->OnTransformChanged();
+			m_rootBone->setPosition(m_boneDescriptions[i].initialPosition);
+			break;
+		}
+	}
+}
+
+void AnimatedMesh::translateRelative(const float dx, const float dy, const float dz) {
+	for (size_t i = 0u; i < m_numBones; ++i) {
+		if (m_bones[i]->isRootBone()) {
+			m_boneDescriptions[i].initialPosition += Quaternion::Rotate(m_bones[i]->getOrientation(), Vector3f(dx, dy, dz));;
+			m_rootBone->setPosition(m_boneDescriptions[i].initialPosition);
 			break;
 		}
 	}
@@ -602,6 +624,16 @@ void AnimatedMesh::setScale(const float sx, const float sy, const float sz) {
 		if (m_bones[i]->isRootBone()) {
 			m_boneDescriptions[i].initialScale.set(sx, sy, sz);
 			m_rootBone->OnTransformChanged();
+			break;
+		}
+	}
+}
+
+void AnimatedMesh::setRotation(const float pitch, const float yaw, const float roll) {
+	for (size_t i = 0u; i < m_numBones; ++i) {
+		if (m_bones[i]->isRootBone()) {
+			m_boneDescriptions[i].initialRotation = Quaternion(pitch, yaw, roll);
+			m_rootBone->setOrientation(m_boneDescriptions[i].initialRotation);
 			break;
 		}
 	}

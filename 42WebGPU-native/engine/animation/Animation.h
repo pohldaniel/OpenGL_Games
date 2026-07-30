@@ -56,6 +56,7 @@ public:
 	void setPositionOfTrack(const std::string& name, const float x, const float y, const float z);
 	void setScaleOfTrack(const std::string& name, const float sx, const float sy, const float sz);
 	void scaleTrack(const std::string& name, const float sx, const float sy, const float sz);
+	void shift(unsigned int ticks);
 
 private:
 

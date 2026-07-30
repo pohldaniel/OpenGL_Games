@@ -163,6 +163,14 @@ void Bone::setTransform(const Vector3f& position, const Quaternion& rotation, co
 	OnTransformChanged();
 }
 
+const Vector3f& Bone::getPosition() const {
+	return m_position;
+}
+
+const Quaternion& Bone::getOrientation() const {
+	return m_orientation;
+}
+
 void Bone::countChildBones() {
 	m_numChildBones = 0;
 	for (auto it = m_children.begin(); it != m_children.end(); ++it) {

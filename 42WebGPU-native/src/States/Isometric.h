@@ -12,6 +12,7 @@
 
 #include <States/StateMachine.h>
 #include <Nuklear/NkJoystick.h>
+#include <Nuklear/NkContext.h>
 
 #include <WebGPU/WgpBuffer.h>
 #include <WebGPU/WgpModel.h>
@@ -41,8 +42,13 @@ public:
 private:
 
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayouts();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsTexture();
 	std::vector<WGPUBindGroup> OnBindGroups();
+	std::vector<WGPUBindGroup> OnBindGroupsTexture();
+
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
+	bool getWorldPosition(int xPos, int yPos, const Vector3f& planeNormal, Vector3f& outIntersection);
+	float getLookAtYRotation(const Vector3f& objectPos, const Vector3f& targetPos);
 
 	bool m_initUi = true;
 	bool m_drawUi = false;
@@ -52,11 +58,17 @@ private:
 	Uniforms m_uniforms;
 	TrackBall m_trackball;
 	JoystickResult m_joystickResult;
-	bool m_isPressed;
+	NuclearWidgetResult m_nuclearWidgetResult;
 
 	AnimatedModel m_player;
 	AnimationController m_animationController;
 
+	Shape m_floor;
+
 	WgpBuffer m_uniformBuffer, m_skinBuffer;
-	WgpModel m_wgpPlayer;
+	WgpModel m_wgpPlayer, m_wgpFloor;
+	WgpTexture m_wgpFloorD;
+	
+	float m_weightRight = 0.5f;
+	float m_weightLeft = 0.5f;
 };

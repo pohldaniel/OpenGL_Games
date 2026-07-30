@@ -269,6 +269,7 @@ void WgpTexture::loadFromFile(const std::string& fileName, const bool flipVertic
     FIBITMAP* sourceBitmap = filePath.extension() == ".png" ? FreeImage_Load(FIF_PNG, fileName.c_str(), PNG_DEFAULT) : 
                              filePath.extension() == ".jpg" ? FreeImage_Load(FIF_JPEG, fileName.c_str(), JPEG_DEFAULT) :
                              filePath.extension() == ".hdr" ? FreeImage_Load(FIF_HDR, fileName.c_str(), HDR_DEFAULT) :
+                             filePath.extension() == ".psd" ? FreeImage_Load(FIF_PSD, fileName.c_str(), PSD_DEFAULT) :
                                                               FreeImage_Load(FIF_BMP, fileName.c_str(), BMP_DEFAULT);
 
     SwapRedBlue32(sourceBitmap);
@@ -393,6 +394,7 @@ void WgpTexture::loadHDRICubeFromFile(const std::string& fileName, const bool fl
     FIBITMAP* sourceBitmap = filePath.extension() == ".png" ? FreeImage_Load(FIF_PNG, fileName.c_str(), PNG_DEFAULT) :
                              filePath.extension() == ".jpg" ? FreeImage_Load(FIF_JPEG, fileName.c_str(), JPEG_DEFAULT) :
                              filePath.extension() == ".hdr" ? FreeImage_Load(FIF_HDR, fileName.c_str(), HDR_DEFAULT) :
+                             filePath.extension() == ".psd" ? FreeImage_Load(FIF_PSD, fileName.c_str(), PSD_DEFAULT) :
                                                               FreeImage_Load(FIF_BMP, fileName.c_str(), BMP_DEFAULT);
 
     if (flipVertical)
@@ -437,9 +439,10 @@ void WgpTexture::loadHDRIFromFile(const std::string& fileName, const bool flipVe
 
     FreeImage_Initialise();
     FIBITMAP* sourceBitmap = filePath.extension() == ".png" ? FreeImage_Load(FIF_PNG, fileName.c_str(), PNG_DEFAULT) :
-        filePath.extension() == ".jpg" ? FreeImage_Load(FIF_JPEG, fileName.c_str(), JPEG_DEFAULT) :
-        filePath.extension() == ".hdr" ? FreeImage_Load(FIF_HDR, fileName.c_str(), HDR_DEFAULT) :
-        FreeImage_Load(FIF_BMP, fileName.c_str(), BMP_DEFAULT);
+                             filePath.extension() == ".jpg" ? FreeImage_Load(FIF_JPEG, fileName.c_str(), JPEG_DEFAULT) :
+                             filePath.extension() == ".hdr" ? FreeImage_Load(FIF_HDR, fileName.c_str(), HDR_DEFAULT) :
+                             filePath.extension() == ".psd" ? FreeImage_Load(FIF_PSD, fileName.c_str(), PSD_DEFAULT) :
+                                                              FreeImage_Load(FIF_BMP, fileName.c_str(), BMP_DEFAULT);
 
     if (flipVertical)
         FreeImage_FlipVertical(sourceBitmap);
@@ -474,9 +477,10 @@ void WgpTexture::loadCubeFromFiles(std::string* fileNames, const bool flipVertic
     for (unsigned short face = 0u; face < 6; face++) {
         std::filesystem::path filePath = fileNames[face];
         FIBITMAP* sourceBitmap = filePath.extension() == ".png" ? FreeImage_Load(FIF_PNG, fileNames[face].c_str(), PNG_DEFAULT) :
-            filePath.extension() == ".jpg" ? FreeImage_Load(FIF_JPEG, fileNames[face].c_str(), JPEG_DEFAULT) :
-            filePath.extension() == ".hdr" ? FreeImage_Load(FIF_HDR, fileNames[face].c_str(), HDR_DEFAULT) :
-            FreeImage_Load(FIF_BMP, fileNames[face].c_str(), BMP_DEFAULT);
+                                 filePath.extension() == ".jpg" ? FreeImage_Load(FIF_JPEG, fileNames[face].c_str(), JPEG_DEFAULT) :
+                                 filePath.extension() == ".hdr" ? FreeImage_Load(FIF_HDR, fileNames[face].c_str(), HDR_DEFAULT) :
+                                 filePath.extension() == ".psd" ? FreeImage_Load(FIF_PSD, fileNames[face].c_str(), PSD_DEFAULT) :
+                                                                  FreeImage_Load(FIF_BMP, fileNames[face].c_str(), BMP_DEFAULT);
 
         SwapRedBlue32(sourceBitmap);
 
@@ -541,6 +545,7 @@ unsigned char* WgpTexture::LoadFromFile(const std::string& fileName, const bool 
     FIBITMAP* sourceBitmap = filePath.extension() == ".png" ? FreeImage_Load(FIF_PNG, fileName.c_str(), PNG_DEFAULT) :
                              filePath.extension() == ".jpg" ? FreeImage_Load(FIF_JPEG, fileName.c_str(), JPEG_DEFAULT) :
                              filePath.extension() == ".hdr" ? FreeImage_Load(FIF_HDR, fileName.c_str(), HDR_DEFAULT) :
+                             filePath.extension() == ".psd" ? FreeImage_Load(FIF_PSD, fileName.c_str(), PSD_DEFAULT) :
                                                               FreeImage_Load(FIF_BMP, fileName.c_str(), BMP_DEFAULT);
     SwapRedBlue32(sourceBitmap);
 
@@ -569,6 +574,7 @@ unsigned char* WgpTexture::LoadFromFile(const std::string& fileName, uint32_t& w
     FIBITMAP* sourceBitmap = filePath.extension() == ".png" ? FreeImage_Load(FIF_PNG, fileName.c_str(), PNG_DEFAULT) :
                              filePath.extension() == ".jpg" ? FreeImage_Load(FIF_JPEG, fileName.c_str(), JPEG_DEFAULT) :
                              filePath.extension() == ".hdr" ? FreeImage_Load(FIF_HDR, fileName.c_str(), HDR_DEFAULT) :
+                             filePath.extension() == ".psd" ? FreeImage_Load(FIF_PSD, fileName.c_str(), PSD_DEFAULT) :
                                                               FreeImage_Load(FIF_BMP, fileName.c_str(), BMP_DEFAULT);
     SwapRedBlue32(sourceBitmap);
 
