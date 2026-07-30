@@ -45,15 +45,15 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 	nkInit(static_cast<float>(Application::Width), static_cast<float>(Application::Height));
 	nkInitFont("res/fonts/upheavtt.ttf");
 
-	AnimationManager::Get().getAnimation("full").loadAnimationAssimp("res/models/player.fbx", "Player", "full", 0u, 245u);
-	AnimationManager::Get().getAnimation("idle").loadAnimationAssimp("res/models/player.fbx", "Player", "idle", 5u, 81u);
-	AnimationManager::Get().getAnimation("forward").loadAnimationAssimp("res/models/player.fbx", "Player", "forward", 85u, 105u);
-	AnimationManager::Get().getAnimation("backward").loadAnimationAssimp("res/models/player.fbx", "Player", "backward", 110u, 129u);
-	AnimationManager::Get().getAnimation("right").loadAnimationAssimp("res/models/player.fbx", "Player", "right", 135u, 155u);
-	AnimationManager::Get().getAnimation("left").loadAnimationAssimp("res/models/player.fbx", "Player", "left", 160u, 180u);
-	AnimationManager::Get().getAnimation("death").loadAnimationAssimp("res/models/player.fbx", "Player", "death", 185u, 244u);
+	AnimationManager::Get().getAnimation("full").loadAnimationAssimp("res/models/Player.fbx", "Player", "full", 0u, 245u);
+	AnimationManager::Get().getAnimation("idle").loadAnimationAssimp("res/models/Player.fbx", "Player", "idle", 5u, 81u);
+	AnimationManager::Get().getAnimation("forward").loadAnimationAssimp("res/models/Player.fbx", "Player", "forward", 85u, 105u);
+	AnimationManager::Get().getAnimation("backward").loadAnimationAssimp("res/models/Player.fbx", "Player", "backward", 110u, 129u);
+	AnimationManager::Get().getAnimation("right").loadAnimationAssimp("res/models/Player.fbx", "Player", "right", 135u, 155u);
+	AnimationManager::Get().getAnimation("left").loadAnimationAssimp("res/models/Player.fbx", "Player", "left", 160u, 180u);
+	AnimationManager::Get().getAnimation("death").loadAnimationAssimp("res/models/Player.fbx", "Player", "death", 185u, 244u);
 
-	m_player.loadModelAssimp("res/models/player.fbx", 1u);
+	m_player.loadModelAssimp("res/models/Player.fbx", 1u);
 
 	//Add additional nodes to the first Mesh, they are presented inside the Animation channels but not at the bone hierarchy from the model.
 	AnimatedMesh* mesh = static_cast<AnimatedMesh*>(m_player.mesh());
@@ -168,31 +168,6 @@ void Isometric::update() {
 		move |= true;
 	}
 
-	if (keyboard.keyDown(Keyboard::KEY_UP)) {
-		m_animationController.fadeAndPlay("backward", 0.25f);
-		playerMove |= true;
-	}
-
-	if (keyboard.keyDown(Keyboard::KEY_DOWN)) {
-		m_animationController.fadeAndPlay("forward", 0.25f);
-		playerMove |= true;
-	}
-
-	if (keyboard.keyDown(Keyboard::KEY_LEFT)){
-		m_animationController.fadeAndPlay("left", 0.25f);
-		playerMove |= true;
-	}
-
-	if (keyboard.keyDown(Keyboard::KEY_RIGHT)) {	
-		m_animationController.fadeAndPlay("right", 0.25f);
-		playerMove |= true;
-	}
-
-	if (keyboard.keyPressed(Keyboard::KEY_T)) {
-		m_isDeath = true;
-	}
-
-	
 	Mouse& mouse = Mouse::instance();
 
 	if (mouse.buttonDownInvisible(Mouse::MouseButton::BUTTON_RIGHT)) {
@@ -232,24 +207,28 @@ void Isometric::update() {
 		moveY = 0.0f;
 	}
 
-	if (moveY > 0.0f) {
+	if (keyboard.keyDown(Keyboard::KEY_UP) || moveY > 0.0f) {
 		m_animationController.fadeAndPlay("backward", 0.25f);
 		playerMove |= true;
 	}
 
-	if (moveY < 0.0f) {
+	if (keyboard.keyDown(Keyboard::KEY_DOWN) || moveY < 0.0f) {
 		m_animationController.fadeAndPlay("forward", 0.25f);
 		playerMove |= true;
 	}
 
-	if (moveX > 0.0f) {
+	if (keyboard.keyDown(Keyboard::KEY_LEFT) || moveX < 0.0f) {
+		m_animationController.fadeAndPlay("left", 0.25f);
+		playerMove |= true;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_RIGHT) || moveX > 0.0f) {
 		m_animationController.fadeAndPlay("right", 0.25f);
 		playerMove |= true;
 	}
 
-	if (moveX < 0.0f) {
-		m_animationController.fadeAndPlay("left", 0.25f);
-		playerMove |= true;
+	if (keyboard.keyPressed(Keyboard::KEY_T) || m_isPressed) {
+		m_isDeath = true;
 	}
 
 	if (!playerMove && !m_isDeath) {

@@ -96,10 +96,7 @@ void Animation::loadAnimationAssimp(const std::string& filename, const std::stri
 				newKeyFrame.m_time /= aiAnimation->mTicksPerSecond;
 
 				newKeyFrame.m_position.set(prevPosition[0], prevPosition[1], prevPosition[2]);
-
-
 				newKeyFrame.m_scale.set(prevScale[0], prevScale[1], prevScale[2]);
-
 				newKeyFrame.m_rotation.set(prevRot[0], prevRot[1], prevRot[2], prevRot[3]);
 			}
 		}
