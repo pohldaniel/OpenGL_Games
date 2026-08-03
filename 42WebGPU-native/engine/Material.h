@@ -44,7 +44,7 @@ struct Material {
 	friend bool operator== (const Material& m1, const Material& m2);
 
 	void cleanup();
-	void print();
+	void print() const;
 
 	void setAmbient(std::array<float, 4> ambient) const;
 	void setDiffuse(std::array<float, 4> diffuse) const;

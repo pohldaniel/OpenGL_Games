@@ -56,6 +56,15 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 	AnimationManager::Get().getAnimation("death").loadAnimationAssimp("res/models/Player.fbx", "Player", "death", 185u, 244u);
 
 	m_player.loadModelAssimp("res/models/Player.fbx", 1u);
+	m_enemy.loadModel("res/models/EelDog/EelDog.fbx");
+	m_enemy.rotate(90.0f, 0.0f, 0.0f);
+	m_enemy.rotate(0.0f, 180.0f, 0.0f);
+	m_enemy.scale(0.01f);
+
+
+
+	Material::CleanupMaterials();
+	static_cast<const AssimpMesh*>(m_enemy.getMesh())->setMaterialIndex(-1);
 
 	//Add additional nodes to the first Mesh, they are presented inside the Animation channels but not at the bone hierarchy from the model.
 	AnimatedMesh* mesh = static_cast<AnimatedMesh*>(m_player.mesh());
@@ -91,6 +100,8 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 	m_floor.buildQuadXZ({-50.0f, 0.0f, -50.0f}, {100.0f, 100.0f});
 
 	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
+	m_instanceBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
+	m_wigglyBuffer.createBuffer(sizeof(Vector4f), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	m_skinBuffer.createBuffer(sizeof(Matrix4f) * 96u, WGPUBufferUsage_CopyDst | WGPUBufferUsage_Storage);
 
 	m_uniforms.projection = m_camera.getPerspectiveMatrix();
@@ -105,12 +116,16 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 	m_uniforms.lightPosition = Vector3f(50.0f, 100.0f, -100.0f);
 
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
+	wgpuQueueWriteBuffer(wgpContext.queue, m_instanceBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
 
 	wgpContext.addSahderModule("ANIMATION", "res/shader/animation_fbx.wgsl");
 	wgpContext.createRenderPipeline("ANIMATION", "RP_ANIMATION", VL_PTNWJ, std::bind(&Isometric::OnBindGroupLayouts, this));
 
-	wgpContext.addSahderModule("TEXTURE", "res/shader/texture.wgsl");
-	wgpContext.createRenderPipeline("TEXTURE", "RP_TEXTURE", VL_PTN, std::bind(&Isometric::OnBindGroupLayoutsTexture, this));
+	wgpContext.addSahderModule("FLOOR", "res/shader/floor.wgsl");
+	wgpContext.createRenderPipeline("FLOOR", "RP_FLOOR", VL_PTN, std::bind(&Isometric::OnBindGroupLayoutsTexture, this));
+
+	wgpContext.addSahderModule("TEXTURE", "res/shader/wiggly.wgsl");
+	wgpContext.createRenderPipeline("TEXTURE", "RP_TEXTURE", VL_PTN, std::bind(&Isometric::OnBindGroupLayoutsWiggly, this));
 
 	m_wgpPlayer.create(m_player);
 	m_wgpPlayer.setBindGroups("BG", std::bind(&Isometric::OnBindGroups, this));
@@ -120,9 +135,13 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 	nkContext.OnFillBuffer = std::bind(&Isometric::OnFillBuffer, this, std::placeholders::_1);
 	
 	m_wgpFloorD.loadFromFile("res/textures/floor/Floor_D.psd");
+	m_wgpEnemyD.loadFromFile("res/models/EelDog/Eeldog_Albedo.tif");
 
 	m_wgpFloor.create(m_floor);
-	m_wgpFloor.setBindGroups("BG", std::bind(&Isometric::OnBindGroupsTexture, this));
+	m_wgpFloor.setBindGroups("BG", std::bind(&Isometric::OnBindGroupsFloor, this));
+
+	m_wgpEnemy.create(m_enemy);
+	m_wgpEnemy.addBindGroup("BG", CreateBindGroup(m_instanceBuffer, m_wigglyBuffer, m_wgpEnemyD));
 
 	/*m_player.addAnimationState(AnimationManager::Get().getAnimation("forward"));
 	m_player.getAnimationState(0u)->setLooped(true);
@@ -215,7 +234,7 @@ void Isometric::update() {
 	
 	const AnimatedMesh* mesh_ = static_cast<const AnimatedMesh*>(m_player.getMesh());
 	const Vector3f posistion = mesh_->getBone(0u).getPosition();
-	m_camera.lookAt(posistion + Vector3f(-4.0f, 4.3f, 0.0f), posistion, Vector3f(0.0f, 1.0f, 0.0f));
+	//m_camera.lookAt(posistion + Vector3f(-4.0f, 4.3f, 0.0f), posistion, Vector3f(0.0f, 1.0f, 0.0f));
 	if ((mouse.xDelta() || mouse.yDelta()) && !m_isDeath) {
 		Vector3f coords;	
 		if (getWorldPosition(mouse.xPos(), mouse.yPos(), Vector3f(0.0f, 1.0f, 0.0f), coords)) {
@@ -302,6 +321,15 @@ void Isometric::update() {
 	m_uniforms.lightVP = Matrix4f::IDENTITY;
 	m_uniforms.shadow = Matrix4f::BIAS * m_uniforms.lightVP;
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
+
+	m_uniforms.model = Matrix4f::Translate(2.0f, 120.0f * 0.0044f, 2.0f) * Matrix4f::Rotate(0.0f, 90.0f, 0.0f);
+	wgpuQueueWriteBuffer(wgpContext.queue, m_instanceBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
+
+	m_wiggly.nosePos[0] = 1.0f ;
+	m_wiggly.nosePos[1] = 120.0f * 0.0044f ;
+	m_wiggly.nosePos[2] = -2.0f ;
+	m_wiggly.time = Globals::clock.getElapsedTimeSec();
+	wgpuQueueWriteBuffer(wgpContext.queue, m_wigglyBuffer.getBuffer(), 0, &m_wiggly, sizeof(Wiggly));
 }
 
 void Isometric::render() {
@@ -315,8 +343,11 @@ void Isometric::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURende
 		wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
 
 
-		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_TEXTURE"));
+		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_FLOOR"));
 		m_wgpFloor.draw(renderPassEncoder);
+
+		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_TEXTURE"));
+		m_wgpEnemy.draw(renderPassEncoder);
 
 		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_ANIMATION"));
 		m_wgpPlayer.draw(renderPassEncoder);
@@ -507,6 +538,38 @@ std::vector<WGPUBindGroupLayout> Isometric::OnBindGroupLayoutsTexture() {
 	return bindingLayouts;
 }
 
+std::vector<WGPUBindGroupLayout> Isometric::OnBindGroupLayoutsWiggly() {
+	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
+
+	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(4);
+	bindingLayoutEntries[0].binding = 0u;
+	bindingLayoutEntries[0].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
+	bindingLayoutEntries[0].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
+	bindingLayoutEntries[0].buffer.minBindingSize = sizeof(Uniforms);
+
+	bindingLayoutEntries[1].binding = 1u;
+	bindingLayoutEntries[1].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
+	bindingLayoutEntries[1].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
+	bindingLayoutEntries[1].buffer.minBindingSize = sizeof(Vector4f);
+
+	bindingLayoutEntries[2].binding = 2u;
+	bindingLayoutEntries[2].visibility = WGPUShaderStage_Fragment;
+	bindingLayoutEntries[2].sampler.type = WGPUSamplerBindingType::WGPUSamplerBindingType_Filtering;
+
+	bindingLayoutEntries[3].binding = 3u;
+	bindingLayoutEntries[3].visibility = WGPUShaderStage_Fragment;
+	bindingLayoutEntries[3].texture.sampleType = WGPUTextureSampleType::WGPUTextureSampleType_Float;
+	bindingLayoutEntries[3].texture.viewDimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
+
+	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
+	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
+	bindGroupLayoutDescriptor.entries = bindingLayoutEntries.data();
+
+	bindingLayouts[0] = wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor);
+
+	return bindingLayouts;
+}
+
 std::vector<WGPUBindGroup> Isometric::OnBindGroups() {
 	std::vector<WGPUBindGroup> bindGroups(1);
 
@@ -531,7 +594,7 @@ std::vector<WGPUBindGroup> Isometric::OnBindGroups() {
 	return bindGroups;
 }
 
-std::vector<WGPUBindGroup> Isometric::OnBindGroupsTexture() {
+std::vector<WGPUBindGroup> Isometric::OnBindGroupsFloor() {
 	std::vector<WGPUBindGroup> bindGroups(1);
 
 	std::vector<WGPUBindGroupEntry> bindGroupEntries(3);
@@ -547,13 +610,39 @@ std::vector<WGPUBindGroup> Isometric::OnBindGroupsTexture() {
 	bindGroupEntries[2].textureView = m_wgpFloorD.getTextureView();
 
 	WGPUBindGroupDescriptor bindGroupDesc = {};
-	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_TEXTURE"), 0u);
+	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_FLOOR"), 0u);
 	bindGroupDesc.entryCount = (uint32_t)bindGroupEntries.size();
 	bindGroupDesc.entries = bindGroupEntries.data();
 
 	bindGroups[0] = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
 
 	return bindGroups;
+}
+
+WGPUBindGroup Isometric::CreateBindGroup(const WgpBuffer& uniformBuffer, const WgpBuffer& wigglyBuffer, const WgpTexture& texture) {
+	std::vector<WGPUBindGroupEntry> bindGroupEntries(4);
+	bindGroupEntries[0].binding = 0u;
+	bindGroupEntries[0].buffer = uniformBuffer.getBuffer();
+	bindGroupEntries[0].offset = 0u;
+	bindGroupEntries[0].size = sizeof(Uniforms);
+
+	bindGroupEntries[1].binding = 1u;
+	bindGroupEntries[1].buffer = wigglyBuffer.getBuffer();
+	bindGroupEntries[1].offset = 0u;
+	bindGroupEntries[1].size = sizeof(Vector4f);
+
+	bindGroupEntries[2].binding = 2u;
+	bindGroupEntries[2].sampler = wgpContext.getSampler(SS_LINEAR_REPEAT);
+
+	bindGroupEntries[3].binding = 3u;
+	bindGroupEntries[3].textureView = texture.getTextureView();
+
+	WGPUBindGroupDescriptor bindGroupDesc = {};
+	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_TEXTURE"), 0u);
+	bindGroupDesc.entryCount = (uint32_t)bindGroupEntries.size();
+	bindGroupDesc.entries = bindGroupEntries.data();
+
+	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
 }
 
 bool Isometric::getWorldPosition(int xPos, int yPos, const Vector3f& planeNormal, Vector3f& outIntersection) {

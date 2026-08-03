@@ -24,7 +24,8 @@ ShadowMapping::ShadowMapping(StateMachine& machine) : State(machine, States::SHA
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(50.0f);
 
-	m_dragon.loadModel("res/models/dragon_vrip_res4.ply", Vector3f(0.0f, 1.0f, 0.0f), 0.0f, Vector3f(0.0f, 0.0f, 0.0f), 500.0f);
+	m_dragon.loadModel("res/models/dragon_vrip_res4.ply");
+	m_dragon.scale(500.0f);
 	m_dragon.generateNormals();
 	m_quad.buildQuadXZ({ -100.0f, 20.0f, -100.0f }, { 200.0f, 200.0f }, 1u, 1u, false, true);
 

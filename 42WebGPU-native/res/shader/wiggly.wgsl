@@ -22,14 +22,27 @@ struct Uniforms {
 	camPos: vec3<f32>
 };
 
+struct Wiggly {
+	nosePos: vec3f,
+	time: f32
+};
+
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
-@group(0) @binding(1) var smplr: sampler;
-@group(0) @binding(2) var texture: texture_2d<f32>;
+@group(0) @binding(1) var<uniform> wiggly: Wiggly;
+@group(0) @binding(2) var smplr: sampler;
+@group(0) @binding(3) var texture: texture_2d<f32>;
+
+const wiggleMagnitude: f32 = 0.03;
+const wiggleDistModifier: f32 = 0.12;
+const wiggleTimeModifier: f32 = 9.4;
 
 @vertex
 fn vs_main(in: VertexInput) -> VertexOutput {
 	var out: VertexOutput;
-	out.position = uniforms.projection * uniforms.view * uniforms.model * vec4f(in.position, 1.0);
+	
+	let xOffset = sin(wiggleTimeModifier * wiggly.time + wiggleDistModifier * distance(wiggly.nosePos, in.position * 100.0)) * wiggleMagnitude;
+	
+	out.position = uniforms.projection * uniforms.view * uniforms.model * vec4(in.position.x + xOffset, in.position.y, in.position.z, 1.0);
 	out.normal = in.normal;
 	out.texcoord = in.texcoord;
 	out.color = uniforms.color;

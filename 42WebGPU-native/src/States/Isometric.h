@@ -20,6 +20,11 @@
 
 class Isometric : public State, public MouseEventListener, public KeyboardEventListener {
 
+	struct Wiggly {
+		Vector3f nosePos;
+		float time;
+	};
+
 public:
 
 	Isometric(StateMachine& machine);
@@ -43,8 +48,9 @@ private:
 
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayouts();
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsTexture();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsWiggly();
 	std::vector<WGPUBindGroup> OnBindGroups();
-	std::vector<WGPUBindGroup> OnBindGroupsTexture();
+	std::vector<WGPUBindGroup> OnBindGroupsFloor();
 
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 	bool getWorldPosition(int xPos, int yPos, const Vector3f& planeNormal, Vector3f& outIntersection);
@@ -56,19 +62,24 @@ private:
 
 	Camera m_camera;
 	Uniforms m_uniforms;
+	Wiggly m_wiggly;
 	TrackBall m_trackball;
 	JoystickResult m_joystickResult;
 	RotationButtonResult m_rotationButtonResult;
+	Transform m_transform;
 
+	AssimpModel m_enemy;
 	AnimatedModel m_player;
 	AnimationController m_animationController;
 
 	Shape m_floor;
 
-	WgpBuffer m_uniformBuffer, m_skinBuffer;
-	WgpModel m_wgpPlayer, m_wgpFloor;
-	WgpTexture m_wgpFloorD;
+	WgpBuffer m_uniformBuffer, m_instanceBuffer, m_wigglyBuffer, m_skinBuffer;
+	WgpModel m_wgpPlayer, m_wgpFloor, m_wgpEnemy;
+	WgpTexture m_wgpFloorD, m_wgpEnemyD;
 	
 	float m_weightRight = 0.5f;
 	float m_weightLeft = 0.5f;
+
+	static WGPUBindGroup CreateBindGroup(const WgpBuffer& uniformBuffer, const WgpBuffer& wigglyBuffer, const WgpTexture& texture);
 };

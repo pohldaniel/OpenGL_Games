@@ -98,6 +98,40 @@ void AssimpModel::cleanup() {
 	m_meshes.shrink_to_fit();
 }
 
+void AssimpModel::scale(float sx, float sy, float sz) {
+	if (m_isStacked) {		
+		Model::Scale(sx, sy, sz, m_vertexBuffer, m_stride);		
+	}else {
+		for (size_t j = 0; j < m_meshes.size(); j++) {
+			Model::Scale(sx, sy, sz, m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_stride);
+		}
+	}
+}
+
+void AssimpModel::scale(float s) {
+	scale(s, s, s);
+}
+
+void AssimpModel::rotate(float pitch, float yaw, float roll) {
+	if (m_isStacked) {
+		Model::Rotate(pitch * PI_ON_180, yaw * PI_ON_180, roll * PI_ON_180, m_vertexBuffer, m_stride);
+	}else {
+		for (size_t j = 0; j < m_meshes.size(); j++) {		
+			Model::Rotate(pitch * PI_ON_180, yaw * PI_ON_180, roll * PI_ON_180, m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_stride);			
+		}
+	}
+}
+
+void AssimpModel::translate(float dx, float dy, float dz) {
+	if (m_isStacked) {
+		Model::Translate(dx, dy, dz, m_vertexBuffer, m_stride);
+	}else {
+		for (size_t j = 0; j < m_meshes.size(); j++) {
+			Model::Translate(dx, dy, dz, m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_stride);
+		}
+	}
+}
+
 const Vector3f &AssimpModel::getCenter() const {
 	return m_center;
 }
@@ -181,18 +215,10 @@ void AssimpModel::packBuffer() {
 }
 
 void AssimpModel::loadModel(const char* filename, bool isStacked, bool generateNormals, bool generateTangents, bool flipYZ, bool flipWinding) {
-	loadModelCpu(filename, Vector3f(0.0, 1.0, 0.0), 0.0, Vector3f(0.0, 0.0, 0.0), 1.0, isStacked, generateNormals, generateTangents, flipYZ, flipWinding);
+	loadModelCpu(filename, isStacked, generateNormals, generateTangents, flipYZ, flipWinding);
 }
 
-void AssimpModel::loadModel(const char* filename, const Vector3f& axis, float degrees, const Vector3f& translate, float scale, bool isStacked, bool generateNormals, bool generateTangents, bool flipYZ, bool flipWinding) {
-	loadModelCpu(filename, axis, degrees, translate, scale, isStacked, generateNormals, generateTangents, flipYZ, flipWinding);
-}
-
-void AssimpModel::loadModelCpu(const char* filename, bool isStacked, bool generateNormals, bool generateTangents, bool flipYZ, bool flipWinding) {
-	loadModelCpu(filename, Vector3f(0.0, 1.0, 0.0), 0.0, Vector3f(0.0, 0.0, 0.0), 1.0, isStacked, generateNormals, generateTangents, flipYZ, flipWinding);
-}
-
-void AssimpModel::loadModelCpu(const char* _filename, const Vector3f& axis, float degrees, const Vector3f& translate, float scale, bool isStacked, bool generateNormals, bool generateTangents, bool flipYZ, bool flipWinding) {
+void AssimpModel::loadModelCpu(const char* _filename, bool isStacked, bool generateNormals, bool generateTangents, bool flipYZ, bool flipWinding) {
 	std::string filename(_filename);
 
 	const size_t index = filename.rfind('/');
@@ -252,14 +278,6 @@ void AssimpModel::loadModelCpu(const char* _filename, const Vector3f& axis, floa
 			float posY = flipYZ ? aiMesh->mVertices[i].z : aiMesh->mVertices[i].y;
 			float posZ = flipYZ ? aiMesh->mVertices[i].y : aiMesh->mVertices[i].z;
 
-			Matrix4f rot;
-			rot.rotate(axis, degrees);
-			Vector3f pos = rot * Vector3f(posX, posY, posZ);
-
-			posX = pos[0] * scale + translate[0];
-			posY = pos[1] * scale + translate[1];
-			posZ = pos[2] * scale + translate[2];
-
 			xmin = (std::min)(posX, xmin);
 			ymin = (std::min)(posY, ymin);
 			zmin = (std::min)(posZ, zmin);
@@ -278,11 +296,7 @@ void AssimpModel::loadModelCpu(const char* _filename, const Vector3f& axis, floa
 				float normY = flipYZ ? aiMesh->mNormals[i].z : aiMesh->mNormals[i].y;
 				float normZ = flipYZ ? aiMesh->mNormals[i].y : aiMesh->mNormals[i].z;
 
-				Matrix4f rot;
-				rot.rotate(axis, degrees);
-
-				Vector3f normal = rot * Vector3f(aiMesh->mNormals[i].x, normY, normZ);
-				vertexBuffer.push_back(normal[0]); vertexBuffer.push_back(normal[1]); vertexBuffer.push_back(normal[2]);
+				vertexBuffer.push_back(aiMesh->mNormals[i].x); vertexBuffer.push_back(normY); vertexBuffer.push_back(normZ);
 			}
 
 			if (m_hasTangents || mesh->m_hasTangents) {
@@ -293,14 +307,8 @@ void AssimpModel::loadModelCpu(const char* _filename, const Vector3f& axis, floa
 				float bitangY = flipYZ ? aiMesh->mBitangents[i].z : aiMesh->mBitangents[i].y;
 				float bitangZ = flipYZ ? aiMesh->mBitangents[i].y : aiMesh->mBitangents[i].z;
 
-				Matrix4f rot;
-				rot.rotate(axis, degrees);
-
-				Vector3f tangent = rot * Vector3f(aiMesh->mTangents[i].x, tangY, tangZ);
-				Vector3f bitangent = rot * Vector3f(aiMesh->mBitangents[i].x, bitangY, bitangZ);
-
-				vertexBuffer.push_back(tangent[0]); vertexBuffer.push_back(tangent[1]); vertexBuffer.push_back(tangent[2]);
-				vertexBuffer.push_back(bitangent[0]); vertexBuffer.push_back(bitangent[1]); vertexBuffer.push_back(bitangent[2]);
+				vertexBuffer.push_back(aiMesh->mTangents[i].x); vertexBuffer.push_back(tangY); vertexBuffer.push_back(tangZ);
+				vertexBuffer.push_back(aiMesh->mBitangents[i].x); vertexBuffer.push_back(bitangY); vertexBuffer.push_back(bitangZ);
 			}
 
 		}

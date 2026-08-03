@@ -32,10 +32,13 @@ public:
 	~AssimpModel();
 
 	void loadModel(const char* filename, bool isStacked = false, bool generateNormals = false, bool generateTangents = false, bool flipYZ = false, bool flipWinding = false);
-	void loadModel(const char* filename, const Vector3f& axis, float degrees, const Vector3f& translate = Vector3f(0.0f, 0.0f, 0.0f), float scale = 1.0f, bool isStacked = false, bool generateNormals = false, bool generateTangents = false, bool flipYZ = false, bool flipWinding = false);
 	void loadModelCpu(const char* filename, bool isStacked = false, bool generateNormals = false, bool generateTangents = false, bool flipYZ = false, bool flipWinding = false);
-	void loadModelCpu(const char* filename, const Vector3f& axis, float degrees, const Vector3f& translate = Vector3f(0.0f, 0.0f, 0.0f), float scale = 1.0f, bool isStacked = false, bool generateNormals = false, bool generateTangents = false, bool flipYZ = false, bool flipWinding = false);
-		
+
+	void scale(float sx, float sy, float sz);
+	void scale(float s);
+	void rotate(float pitch, float yaw, float roll);
+	void translate(float dx, float dy, float dz);
+
 	const Vector3f& getCenter() const;
 	unsigned int getStride() const override;
 	const std::string& getModelDirectory();

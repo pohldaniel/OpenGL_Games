@@ -12,7 +12,12 @@ bool operator== (const Material& m1, const Material& m2) {
 }
 
 void Material::cleanup() {
-
+	m_textures.clear();
+	m_buffer.ambient[4] = { 0.0f };
+	m_buffer.diffuse[4] = { 0.0f };
+	m_buffer.specular[4] = { 0.0f };
+	m_buffer.shininess = 0.0f;
+	m_buffer.alpha = 1.0f;
 }
 
 void Material::addTexture(TextureSlot textureSlot, const std::string& texture) {
@@ -27,7 +32,7 @@ const std::unordered_map<TextureSlot, std::string>& Material::getTextures() cons
 	return m_textures;
 }
 
-void Material::print() {
+void Material::print() const {
 	std::cout << "Ambient: " << m_buffer.ambient[0] << "  " << m_buffer.ambient[1] << "  " << m_buffer.ambient[2] << "  " << m_buffer.ambient[3] << std::endl;
 	std::cout << "Diffuse: " << m_buffer.diffuse[0] << "  " << m_buffer.diffuse[1] << "  " << m_buffer.diffuse[2] << "  " << m_buffer.diffuse[3] << std::endl;
 	std::cout << "Specular: " << m_buffer.specular[0] << "  " << m_buffer.specular[1] << "  " << m_buffer.specular[2] << "  " << m_buffer.specular[3] << std::endl;

@@ -32,6 +32,9 @@ protected:
 	void static GenerateUVs(std::vector<float>& vertexBuffer, unsigned int& stride, ProjectedPlane projectedPlane = XY);
 	void static PackBuffer(std::vector<float>& vertexBuffer, unsigned int stride);
 	void static Rewind(const std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, unsigned int stride);
+	void static Scale(float sx, float sy, float sz, std::vector<float>& vertexBuffer, unsigned int stride);
+	void static Rotate(float pitchR, float yawR, float rollR, std::vector<float>& vertexBuffer, unsigned int stride);
+	void static Translate(float dx, float dy, float dz, std::vector<float>& vertexBuffer, unsigned int stride);
 
 	void static GenerateNormals(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, Model& model, bool& hasNormals, unsigned int& stride, unsigned int startIndex, unsigned int endIndex);
 	void static GenerateNormals(std::vector<float>& vertexCoords, std::vector<std::array<int, 10>>& face, std::vector<float>& normalCoords);

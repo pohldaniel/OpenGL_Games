@@ -97,6 +97,43 @@ void ObjModel::cleanup() {
 	m_meshes.shrink_to_fit();
 }
 
+void ObjModel::scale(float sx, float sy, float sz) {
+	if (m_isStacked) {
+		Model::Scale(sx, sy, sz, m_vertexBuffer, m_stride);
+	}
+	else {
+		for (size_t j = 0; j < m_meshes.size(); j++) {
+			Model::Scale(sx, sy, sz, m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_stride);
+		}
+	}
+}
+
+void ObjModel::scale(float s) {
+	scale(s, s, s);
+}
+
+void ObjModel::rotate(float pitch, float yaw, float roll) {
+	if (m_isStacked) {
+		Model::Rotate(pitch * PI_ON_180, yaw * PI_ON_180, roll * PI_ON_180, m_vertexBuffer, m_stride);
+	}
+	else {
+		for (size_t j = 0; j < m_meshes.size(); j++) {
+			Model::Rotate(pitch * PI_ON_180, yaw * PI_ON_180, roll * PI_ON_180, m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_stride);
+		}
+	}
+}
+
+void ObjModel::translate(float dx, float dy, float dz) {
+	if (m_isStacked) {
+		Model::Translate(dx, dy, dz, m_vertexBuffer, m_stride);
+	}
+	else {
+		for (size_t j = 0; j < m_meshes.size(); j++) {
+			Model::Translate(dx, dy, dz, m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_stride);
+		}
+	}
+}
+
 const Vector3f &ObjModel::getCenter() const {
 	return m_center;
 }
@@ -117,19 +154,12 @@ void ObjModel::loadModel(const char* filename, bool isStacked, bool withoutNorma
 	loadModelCpu(filename, isStacked, withoutNormals, generateSmoothNormals, generateFlatNormals, generateSmoothTangents, flipYZ, flipWinding, rescale);
 }
 
-void ObjModel::loadModel(const char* filename, const Vector3f& axis, float degree, const Vector3f& translate, float scale, bool isStacked, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool flipYZ, bool flipWinding, bool rescale) {
-	loadModelCpu(filename, axis, degree, translate, scale, isStacked, withoutNormals, generateSmoothNormals, generateFlatNormals, generateSmoothTangents, flipYZ, flipWinding, rescale);
-}
-
-void ObjModel::loadModelCpu(const char* filename, bool isStacked, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool flipYZ, bool flipWinding, bool rescale) {
-	loadModelCpu(filename, Vector3f(0.0, 1.0, 0.0), 0.0, Vector3f(0.0, 0.0, 0.0), 1.0, isStacked, withoutNormals, generateSmoothNormals, generateFlatNormals, generateSmoothTangents, flipYZ, flipWinding, rescale);
-}
 
 bool compare(const std::array<int, 10> &i_lhs, const std::array<int, 10> &i_rhs) {
 	return i_lhs[9] < i_rhs[9];
 }
 
-void ObjModel::loadModelCpu(const char* _filename, const Vector3f& axis, float degree, const Vector3f& translate, float scale, bool isStacked, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool flipYZ, bool flipWinding, bool rescale) {
+void ObjModel::loadModelCpu(const char* _filename, bool isStacked, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool flipYZ, bool flipWinding, bool rescale) {
 
 	std::string filename(_filename);
 	const size_t index = filename.rfind('/');
@@ -192,27 +222,18 @@ void ObjModel::loadModelCpu(const char* _filename, const Vector3f& axis, float d
 
 					float posY = flipYZ ? tmpz : tmpy;
 					float posZ = flipYZ ? tmpy : tmpz;
-
-					Matrix4f rot;
-					rot.rotate(axis, degree);
-
-					Vector3f tmp = rot * Vector3f(tmpx, posY, posZ);
-
-					tmpx = tmp[0] * scale + translate[0];
-					tmpy = tmp[1] * scale + translate[1];
-					tmpz = tmp[2] * scale + translate[2];
-
+					
 					vertexCords.push_back(tmpx);
-					vertexCords.push_back(tmpy);
-					vertexCords.push_back(tmpz);
+					vertexCords.push_back(posY);
+					vertexCords.push_back(posZ);
 
 					xmin = (std::min)(tmpx, xmin);
-					ymin = (std::min)(tmpy, ymin);
-					zmin = (std::min)(tmpz, zmin);
+					ymin = (std::min)(posY, ymin);
+					zmin = (std::min)(posZ, zmin);
 
 					xmax = (std::max)(tmpx, xmax);
-					ymax = (std::max)(tmpy, ymax);
-					zmax = (std::max)(tmpz, zmax);
+					ymax = (std::max)(posY, ymax);
+					zmax = (std::max)(posZ, zmax);
 					break;
 
 				}case 't': {
@@ -235,14 +256,9 @@ void ObjModel::loadModelCpu(const char* _filename, const Vector3f& axis, float d
 						float normY = flipYZ ? tmpz : tmpy;
 						float normZ = flipYZ ? tmpy : tmpz;
 
-						Matrix4f rot;
-						rot.rotate(axis, degree);
-
-						Vector3f tmp = rot * Vector3f(tmpx, normY, normZ);
-
-						normalCords.push_back(tmp[0]);
-						normalCords.push_back(tmp[1]);
-						normalCords.push_back(tmp[2]);
+						normalCords.push_back(tmpx);
+						normalCords.push_back(normY);
+						normalCords.push_back(normZ);
 					}
 					break;
 
@@ -437,7 +453,7 @@ void ObjModel::loadModelCpu(const char* _filename, const Vector3f& axis, float d
 		Vector3f center = Vector3f(xmin, ymin, zmin) + r;
 
 		float oldRadius = (std::max)(r[0], (std::max)(r[1], r[2]));
-		float _scale = scale / oldRadius;
+		float _scale = 1.0f / oldRadius;
 
 		xmin = FLT_MAX; ymin = FLT_MAX; zmin = FLT_MAX;
 		xmax = -FLT_MAX; ymax = -FLT_MAX; zmax = -FLT_MAX;

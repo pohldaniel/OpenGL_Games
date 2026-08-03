@@ -221,6 +221,78 @@ void Model::Rewind(const std::vector<float>& vertexBuffer, std::vector<unsigned 
 	}
 }
 
+void Model::Scale(float sx, float sy, float sz, std::vector<float>& vertexBuffer, unsigned int stride) {
+	for (size_t i = 0; i < vertexBuffer.size(); i = i + stride) {
+		vertexBuffer[i] *= sx;
+		vertexBuffer[i + 1u] *= sy;
+		vertexBuffer[i + 2u] *= sz;
+	}
+}
+
+void Model::Rotate(float pitchR, float yawR, float rollR, std::vector<float>& vertexBuffer, unsigned int stride) {
+	float cosY = cosf(yawR);
+	float cosP = cosf(pitchR);
+	float cosR = cosf(rollR);
+	float sinY = sinf(yawR);
+	float sinP = sinf(pitchR);
+	float sinR = sinf(rollR);
+
+	float mtx00 = cosR * cosY - sinR * sinP * sinY;
+	float mtx01 = sinR * cosY + cosR * sinP * sinY;
+	float mtx02 = -cosP * sinY;
+
+	float mtx10 = -sinR * cosP;
+	float mtx11 = cosR * cosP;
+	float mtx12 = sinP;
+
+	float mtx20 = cosR * sinY + sinR * sinP * cosY;
+	float mtx21 = sinR * sinY - cosR * sinP * cosY;
+	float mtx22 = cosP * cosY;
+
+	for (size_t i = 0; i < vertexBuffer.size(); i = i + stride) {
+		float x = mtx00 * vertexBuffer[i] + mtx01 * vertexBuffer[i + 1u] + mtx02 * vertexBuffer[i + 2u];
+		float y = mtx10 * vertexBuffer[i] + mtx11 * vertexBuffer[i + 1u] + mtx12 * vertexBuffer[i + 2u];
+		float z = mtx20 * vertexBuffer[i] + mtx21 * vertexBuffer[i + 1u] + mtx22 * vertexBuffer[i + 2u];
+
+		vertexBuffer[i] = x;
+		vertexBuffer[i + 1u] = y;
+		vertexBuffer[i + 2u] = z;
+
+		if (stride >= 6u) {
+			x = mtx00 * vertexBuffer[i + 5u] + mtx01 * vertexBuffer[i + 6u] + mtx02 * vertexBuffer[i + 7u];
+			y = mtx10 * vertexBuffer[i + 5u] + mtx11 * vertexBuffer[i + 6u] + mtx12 * vertexBuffer[i + 7u];
+			z = mtx20 * vertexBuffer[i + 5u] + mtx21 * vertexBuffer[i + 6u] + mtx22 * vertexBuffer[i + 7u];
+			vertexBuffer[i + 5u] = x;
+			vertexBuffer[i + 6u] = y;
+			vertexBuffer[i + 7u] = z;
+		}
+
+		if (stride >= 14u) {
+			x = mtx00 * vertexBuffer[i + 8u] + mtx01 * vertexBuffer[i + 9u] + mtx02 * vertexBuffer[i + 10u];
+			y = mtx10 * vertexBuffer[i + 8u] + mtx11 * vertexBuffer[i + 9u] + mtx12 * vertexBuffer[i + 10u];
+			z = mtx20 * vertexBuffer[i + 8u] + mtx21 * vertexBuffer[i + 9u] + mtx22 * vertexBuffer[i + 10u];
+			vertexBuffer[i + 8u] = x;
+			vertexBuffer[i + 9u] = y;
+			vertexBuffer[i + 10u] = z;
+
+			x = mtx00 * vertexBuffer[i + 11u] + mtx01 * vertexBuffer[i + 12u] + mtx02 * vertexBuffer[i + 13u];
+			y = mtx10 * vertexBuffer[i + 11u] + mtx11 * vertexBuffer[i + 12u] + mtx12 * vertexBuffer[i + 13u];
+			z = mtx20 * vertexBuffer[i + 11u] + mtx21 * vertexBuffer[i + 12u] + mtx22 * vertexBuffer[i + 13u];
+			vertexBuffer[i + 11u] = x;
+			vertexBuffer[i + 12u] = y;
+			vertexBuffer[i + 13u] = z;
+		}
+	}
+}
+
+void Model::Translate(float dx, float dy, float dz, std::vector<float>& vertexBuffer, unsigned int stride) {
+	for (size_t i = 0; i < vertexBuffer.size(); i = i + stride) {
+		vertexBuffer[i] += dx;
+		vertexBuffer[i + 1u] += dy;
+		vertexBuffer[i + 2u] += dz;
+	}
+}
+
 void Model::GenerateNormals(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, Model& model, bool& hasNormals, unsigned int& stride, unsigned int startIndex, unsigned int endIndex) {
 	if (hasNormals) { return; }
 

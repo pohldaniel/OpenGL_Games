@@ -24,14 +24,14 @@ Object2D& Object2D::operator=(const Object2D& rhs) {
 	return *this;
 }
 
-Object2D::Object2D(Object2D&& rhs) : Object2D(rhs) {
+Object2D::Object2D(Object2D&& rhs) noexcept : Object2D(rhs) {
 	m_position = std::move(rhs.m_position);
 	m_origin = std::move(rhs.m_origin);
 	m_scale = std::move(rhs.m_scale);
 	m_orientation = std::move(rhs.m_orientation);
 }
 
-Object2D& Object2D::operator=(Object2D&& rhs) {
+Object2D& Object2D::operator=(Object2D&& rhs) noexcept {
 	m_position = std::move(rhs.m_position);
 	m_origin = std::move(rhs.m_origin);
 	m_scale = std::move(rhs.m_scale);
@@ -43,7 +43,7 @@ Object2D::~Object2D() {
 
 }
 
-void Object2D::setScale(const float sx, const float sy) {
+void Object2D::setScale(float sx, float sy) {
 	m_scale.set(sx, sy);
 }
 
@@ -51,11 +51,11 @@ void Object2D::setScale(const Vector2f &scale) {
 	m_scale = scale;
 }
 
-void Object2D::setScale(const float s) {
+void Object2D::setScale(float s) {
 	setScale(s, s);
 }
 
-void Object2D::setPosition(const float x, const float y) {
+void Object2D::setPosition(float x, float y) {
 	m_position.set(x, y);
 }
 
@@ -63,7 +63,7 @@ void Object2D::setPosition(const Vector2f &position) {
 	m_position = position;
 }
 
-void Object2D::setOrigin(const float x, const float y) {
+void Object2D::setOrigin(float x, float y) {
 	m_origin.set(x, y);
 }
 
@@ -71,7 +71,7 @@ void Object2D::setOrigin(const Vector2f& origin) {
 	m_origin = origin;
 }
 
-void Object2D::setOrientation(const float degrees) {
+void Object2D::setOrientation(float degrees) {
 	m_orientation = degrees;
 }
 
@@ -79,15 +79,15 @@ void Object2D::translate(const Vector2f &trans) {
 	m_position.translate(trans);
 }
 
-void Object2D::translate(const float dx, const float dy) {
+void Object2D::translate(float dx, float dy) {
 	m_position.translate(dx, dy);
 }
 
-void Object2D::rotate(const float degrees) {
+void Object2D::rotate(float degrees) {
 	m_orientation += degrees;
 }
 
-void Object2D::translateRelative(const float _dx, const float _dy) {
+void Object2D::translateRelative(float _dx, float _dy) {
 
 	float angle = m_orientation * HALF_PI_ON_180;
 	float cos = cosf(angle);
@@ -108,11 +108,11 @@ void Object2D::scale(const Vector2f &scale) {
 	m_scale.scale(scale);
 }
 
-void Object2D::scale(const float sx, const float sy) {
+void Object2D::scale(float sx, float sy) {
 	m_scale.scale(sx, sy);
 }
 
-void Object2D::scale(const float s) {
+void Object2D::scale(float s) {
 	m_scale.scale(s, s);
 }
 
@@ -197,14 +197,14 @@ Object& Object::operator=(const Object& rhs) {
 	return *this;
 }
 
-Object::Object(Object&& rhs) : Object(rhs) {
+Object::Object(Object&& rhs) noexcept : Object(rhs) {
 	m_position = std::move(rhs.m_position);
 	m_origin = std::move(rhs.m_origin);
 	m_scale = std::move(rhs.m_scale);
 	m_orientation = std::move(rhs.m_orientation);
 }
 
-Object& Object::operator=(Object&& rhs) {
+Object& Object::operator=(Object&& rhs) noexcept {
 	m_position = std::move(rhs.m_position);
 	m_origin = std::move(rhs.m_origin);
 	m_scale = std::move(rhs.m_scale);
@@ -212,7 +212,7 @@ Object& Object::operator=(Object&& rhs) {
 	return *this;
 }
 
-void Object::setScale(const float sx, const float sy, const float sz) {
+void Object::setScale(float sx, float sy, float sz) {
 	m_scale.set(sx, sy, sz);
 }
 
@@ -220,11 +220,11 @@ void Object::setScale(const Vector3f &scale) {
 	m_scale = scale;
 }
 
-void Object::setScale(const float s) {
+void Object::setScale(float s) {
 	setScale(s, s, s);
 }
 
-void Object::setPosition(const float x, const float y, const float z) {
+void Object::setPosition(float x, float y, float z) {
 	m_position.set(x, y, z);
 }
 
@@ -232,7 +232,7 @@ void Object::setPosition(const Vector3f &position) {
 	m_position = position;
 }
 
-void Object::setOrigin(const float x, const float y, const float z) {
+void Object::setOrigin(float x, float y, float z) {
 	m_origin.set(x, y, z);
 }
 
@@ -244,7 +244,7 @@ void Object::setOrientation(const Vector3f &axis, float degrees) {
 	m_orientation.set(axis, degrees);
 }
 
-void Object::setOrientation(const float pitch, const float yaw, const float roll) {
+void Object::setOrientation(float pitch, float yaw, float roll) {
 	m_orientation.fromPitchYawRoll(pitch, yaw, roll);
 }
 
@@ -256,7 +256,7 @@ void Object::setOrientation(const Quaternion &orientation) {
 	m_orientation = orientation;
 }
 
-void Object::setOrientation(const float x, const float y, const float z, const float w) {
+void Object::setOrientation(float x, float y, float z, float w) {
 	m_orientation.set(x, y, z, w);
 }
 
@@ -264,7 +264,7 @@ void Object::translate(const Vector3f &trans) {
 	m_position.translate(trans);
 }
 
-void Object::translate(const float dx, const float dy, const float dz) {
+void Object::translate(float dx, float dy, float dz) {
 	m_position.translate(dx, dy, dz);
 }
 
@@ -272,7 +272,7 @@ void Object::translateRelative(const Vector3f& trans) {
 	m_position += Quaternion::Rotate(m_orientation, trans);
 }
 
-void Object::translateRelative(const float dx, const float dy, const float dz) {
+void Object::translateRelative(float dx, float dy, float dz) {
 	m_position += Quaternion::Rotate(m_orientation, Vector3f(dx, dy, dz));
 }
 
@@ -280,15 +280,15 @@ void Object::scale(const Vector3f &scale) {
 	m_scale.scale(scale);
 }
 
-void Object::scale(const float sx, const float sy, const float sz) {
+void Object::scale(float sx, float sy, float sz) {
 	m_scale.scale(sx, sy, sz);
 }
 
-void Object::scale(const float s) {
+void Object::scale(float s) {
 	m_scale.scale(s, s, s);
 }
 
-void Object::rotate(const float pitch, const float yaw, const float roll) {
+void Object::rotate(float pitch, float yaw, float roll) {
 	m_orientation.rotate(pitch, yaw, roll);
 }
 
@@ -304,7 +304,7 @@ void Object::rotate(const Quaternion& orientation) {
 	m_orientation *= orientation;
 }
 
-void Object::rotate(const float x, const float y, const float z, const float w) {
+void Object::rotate(float x, float y, float z, float w) {
 	m_orientation.rotate(x, y, z, w);
 }
 
