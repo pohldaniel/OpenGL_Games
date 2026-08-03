@@ -48,7 +48,7 @@ public:
 	const float getNear() const;
 	const float getFovXDeg() const;
 	const float getFovXRad() const;
-	const float getScaleFactor() const;
+	const float getTanFov() const;
 	const float getAspect(bool ortho = false) const;
 	const float getOffsetDistance() const;
 

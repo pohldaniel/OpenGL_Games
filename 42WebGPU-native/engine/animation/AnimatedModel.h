@@ -38,19 +38,19 @@ public:
 
 	void update(float dt);
 	void updateSkinning();
-	void applyBindpose(bool onTransformChanged = false);
+	void applyBindPose(bool onTransformChanged = false);
 	void cleanup();
 
-	void loadModelAssimp(const std::string& path, const short addVirtualRoots = 0, const bool reverseBoneList = false);
-	void loadModel(const std::string& path, const short addVirtualRoots = 0);
+	void loadModelAssimp(const std::string& path, short addVirtualRoots = 0, bool reverseBoneList = false);
+	void loadModel(const std::string& path, short addVirtualRoots = 0);
 	
-	void rotate(const float pitch, const float yaw, const float roll);
-	void scale(const float sx, const float sy, const float sz);
-	void translate(const float dx, const float dy, const float dz);
-	void translateRelative(const float dx, const float dy, const float dz);
+	void rotate(float pitch, float yaw, float roll);
+	void scale(float sx, float sy, float sz);
+	void translate(float dx, float dy, float dz);
+	void translateRelative(float dx, float dy, float dz);
 
-	void setScale(const float sx, const float sy, const float sz);
-	void setRotation(const float pitch, const float yaw, const float roll);
+	void setScale(float sx, float sy, float sz);
+	void setRotation(float pitch, float yaw, float roll);
 
 	AnimationState* findAnimationState(const Animation& animation) const;
 	AnimationState* findAnimationState(const std::string& name) const;
@@ -63,7 +63,7 @@ public:
 	void removeAnimationState(const AnimationState* state);
 	void removeAllAnimationStates();
 	
-	const unsigned int getStride() const override;
+	unsigned int getStride() const override;
 	const Mesh* getMesh(unsigned short index = 0u) const;
 	const std::vector<Mesh*>& getMeshes() const;
 	Mesh* mesh(unsigned short index = 0u) const;
@@ -79,7 +79,7 @@ private:
 
 	unsigned int m_numberOfTriangles, m_numberOfMeshes, m_stride;
 
-	bool m_hasTextureCoords, m_hasNormals, m_hasTangents, m_hasMaterial;
+	bool m_hasTextureCords, m_hasNormals, m_hasTangents, m_hasMaterial;
 	bool m_isStacked;
 
 	bool m_animationOrderDirty, m_hasAnimationController;
@@ -98,27 +98,27 @@ public:
 	virtual ~AnimatedMesh();
 	
 	void updateSkinning();
-	void applyBindpose(bool transformChanged = false);
+	void applyBindPose(bool transformChanged = false);
 	void createBones();
 	void cleanup();
 
-	void rotate(const float pitch, const float yaw, const float roll);
-	void scale(const float sx, const float sy, const float sz);
-	void translate(const float dx, const float dy, const float dz);
-	void translateRelative(const float dx, const float dy, const float dz);
+	void rotate(float pitch, float yaw, float roll);
+	void scale(float sx, float sy, float sz);
+	void translate(float dx, float dy, float dz);
+	void translateRelative(float dx, float dy, float dz);
 
-	void setScale(const float sx, const float sy, const float sz);
-	void setRotation(const float pitch, const float yaw, const float roll);
+	void setScale(float sx, float sy, float sz);
+	void setRotation(float pitch, float yaw, float roll);
 
 	const std::vector<BoneDescription>& getBoneDescriptions() const;
 	const std::vector<std::array<float, 4>>& getWeights() const;
 	const std::vector<std::array<unsigned int, 4>>& getJoints() const;
 	const Matrix4f* getSkinMatrices() const;
 	const Matrix4f& getSkinMatrix(size_t index = 0u) const;
-	const unsigned short getNumBones() const;
+	unsigned short getNumBones() const;
 	const Bone& getBone(size_t index = 0u) const;
 	const Material& getMaterial() const;
-	const bool hasMaterial() const;
+	bool hasMaterial() const;
 
 	std::vector<BoneDescription>& boneDescriptions() const;
 	std::vector<float>& vertexBuffer() const;

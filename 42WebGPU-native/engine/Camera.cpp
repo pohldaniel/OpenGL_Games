@@ -513,7 +513,7 @@ const float Camera::getFovXRad() const {
 	return 2.0f * atanf(1.0f / m_persMatrix[1][1]);
 }
 
-const float Camera::getScaleFactor() const{
+const float Camera::getTanFov() const {
 	//return 1.0f / m_persMatrix[1][1];
 	return m_invPersMatrix[1][1];
 }

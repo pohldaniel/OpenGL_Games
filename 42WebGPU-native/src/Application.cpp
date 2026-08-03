@@ -329,7 +329,7 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new InstancedCube(*Machine));
 	//Machine->addStateAtTop(new ImageBasedLighting(*Machine));
 	//Machine->addStateAtTop(new ShadowMapping(*Machine));
-	//Machine->addStateAtTop(new SkinnedMesh(*Machine));
+	Machine->addStateAtTop(new SkinnedMesh(*Machine));
 	//Machine->addStateAtTop(new ComputeParticleLogo(*Machine));	
 	//Machine->addStateAtTop(new PrimitivePicking(*Machine));
 	//Machine->addStateAtTop(new StencilMask(*Machine));
@@ -339,7 +339,7 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new VideoDecode(*Machine));
 	//Machine->addStateAtTop(new RenderBundles(*Machine));
 	//Machine->addStateAtTop(new NuklearGui(*Machine));	
-	Machine->addStateAtTop(new Isometric(*Machine));
+	//Machine->addStateAtTop(new Isometric(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

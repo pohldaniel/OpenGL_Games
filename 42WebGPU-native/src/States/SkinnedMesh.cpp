@@ -42,7 +42,7 @@ SkinnedMesh::SkinnedMesh(StateMachine& machine) : State(machine, States::SKINNED
 		m_whale.scale(4.0f, 4.0f, 4.0f);
 		m_whale.translate(0.0f, -20.0f, 0.0f);
 	}
-	m_whale.applyBindpose(true);
+	m_whale.applyBindPose(true);
 	m_whale.addAnimationState(m_attack);
 	m_whale.getAnimationState(0)->setLooped(true);
 
@@ -55,7 +55,7 @@ SkinnedMesh::SkinnedMesh(StateMachine& machine) : State(machine, States::SKINNED
 	m_vampire.scale(0.1f, 0.1f, 0.1f);
 	m_vampire.rotate(0.0f, 180.0f, 0.0f);
 	m_vampire.translate(-7.5f, -7.5f, -25.0f);
-	m_vampire.applyBindpose(true);
+	m_vampire.applyBindPose(true);
 	m_vampire.addAnimationState(m_dance);
 	m_vampire.getAnimationState(0)->setLooped(true);
 
@@ -113,7 +113,7 @@ SkinnedMesh::SkinnedMesh(StateMachine& machine) : State(machine, States::SKINNED
 	m_fade.start();
 	m_fade.setTransitionSpeed(m_speed * 0.02f);
 	m_fade.setOnFadeEnd([&m_whale = m_whale] {
-		m_whale.applyBindpose();
+		m_whale.applyBindPose();
 	});
 }
 
@@ -342,10 +342,10 @@ void SkinnedMesh::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 		if (ImGui::Button("Skin Mode Off")) {
 			m_skinMode = !m_skinMode;
 			
-			m_whale.applyBindpose(true);
+			m_whale.applyBindPose(true);
 			m_whale.getAnimationState(0)->reset();
 
-			m_vampire.applyBindpose(true);
+			m_vampire.applyBindPose(true);
 			m_vampire.getAnimationState(0)->reset();
 		}
 	}
@@ -367,7 +367,6 @@ void SkinnedMesh::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 				if (prevAnimation == SelectedAnimation::PROCEDURAL) {
 					m_whale.scale(0.25f, 0.25f, 0.25f);
 					m_whale.translate(0.0f, 20.0f, 0.0f);
-					m_whale.applyBindpose();
 				}
 			}else if(m_animation == SelectedAnimation::SWIM) {
 				m_whale.removeAllAnimationStates();
@@ -377,13 +376,11 @@ void SkinnedMesh::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 				if (prevAnimation == SelectedAnimation::PROCEDURAL) {
 					m_whale.scale(0.25f, 0.25f, 0.25f);
 					m_whale.translate(0.0f, 20.0f, 0.0f);
-					m_whale.applyBindpose();
 				}
 			}else {
 				m_fadeValue = 0.0f;
 				m_whale.scale(4.0f, 4.0f, 4.0f);
 				m_whale.translate(0.0f, -20.0f, 0.0f);
-				m_whale.applyBindpose();
 			}
 		}
 		if (m_animation == SelectedAnimation::PROCEDURAL) {

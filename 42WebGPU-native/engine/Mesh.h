@@ -20,7 +20,7 @@ public:
 
 	const std::vector<float>& getVertexBuffer() const;
 	const std::vector<unsigned int>& getIndexBuffer() const;
-	const unsigned int getStride() const;
+	unsigned int getStride() const;
 
 protected:
 
@@ -29,7 +29,7 @@ protected:
 	mutable unsigned int m_stride;
 
 	unsigned int m_drawCount, m_baseVertex, m_baseIndex;
-	bool m_hasTextureCoords, m_hasNormals, m_hasTangents;
+	bool m_hasTextureCords, m_hasNormals, m_hasTangents;
 
 	
 };

@@ -9,12 +9,12 @@ struct JoystickResult {
 };
 
 struct RotationResult {
-	float angle;
+	float degrees;
 	bool isActive;
 };
 
-struct NuclearWidgetResult {
-	float angle;
+struct RotationButtonResult {
+	float degrees;
 	bool isRotating;
 	bool buttonPressed;
 	bool buttonDown;
@@ -32,6 +32,6 @@ extern "C" {
 	void virtual_rotation(struct nk_rect dimension, RotationResult& out);
 	void nk_virtual_rotation(struct nk_context* ctx, float size_px, RotationResult& out);
 
-	void virtual_rotation_button(struct nk_rect dimension, NuclearWidgetResult& out);
-	void nk_virtual_rotation_button(struct nk_context* ctx, float size_px, NuclearWidgetResult& out);
+	void virtual_rotation_button(struct nk_rect dimension, RotationButtonResult& out);
+	void nk_virtual_rotation_button(struct nk_context* ctx, float size_px, RotationButtonResult& out);
 }

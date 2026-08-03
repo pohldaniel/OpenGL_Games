@@ -58,7 +58,7 @@ private:
 	Uniforms m_uniforms;
 	TrackBall m_trackball;
 	JoystickResult m_joystickResult;
-	NuclearWidgetResult m_nuclearWidgetResult;
+	RotationButtonResult m_rotationButtonResult;
 
 	AnimatedModel m_player;
 	AnimationController m_animationController;

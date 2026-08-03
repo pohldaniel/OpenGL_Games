@@ -56,14 +56,14 @@ public:
 
 	const Vector3f& getCenter() const;
 
-	const unsigned int getStride() const override;
+	unsigned int getStride() const override;
 	const std::string& getMltPath();
 	const std::string& getModelDirectory();
 	const Mesh* getMesh(unsigned short index = 0u) const;
 	const std::vector<Mesh*>& getMeshes() const;
 	const std::vector<float>& getVertexBuffer() const;
 	const std::vector<unsigned int>& getIndexBuffer() const;
-	const unsigned int getNumberOfTriangles() const;
+	unsigned int getNumberOfTriangles() const;
 	
 	void generateNormals();
 	void generateTangents();

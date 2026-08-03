@@ -52,14 +52,8 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 	AnimationManager::Get().getAnimation("backward").shift(10u);
 	AnimationManager::Get().getAnimation("right").loadAnimationAssimp("res/models/Player.fbx", "Player", "right", 135u, 155u);
 	AnimationManager::Get().getAnimation("right").shift(10u);
-
-	AnimationManager::Get().getAnimation("right2").loadAnimationAssimp("res/models/Player.fbx", "Player", "right", 135u, 155u);
 	AnimationManager::Get().getAnimation("left").loadAnimationAssimp("res/models/Player.fbx", "Player", "left", 160u, 180u);
-	
-
 	AnimationManager::Get().getAnimation("death").loadAnimationAssimp("res/models/Player.fbx", "Player", "death", 185u, 244u);
-	AnimationManager::Get().getAnimation("death").shift(50u);
-	AnimationManager::Get().getAnimation("death2").loadAnimationAssimp("res/models/Player.fbx", "Player", "right", 185u, 244u);
 
 	m_player.loadModelAssimp("res/models/Player.fbx", 1u);
 
@@ -84,11 +78,9 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 	}
 
 	m_player.scale(0.0044f, 0.0044f, 0.0044f);
-	m_player.rotate(0.0f, 0.0f, 0.0f);
-	m_player.translate(0.0f, 0.0f, 0.0f);
-	m_player.applyBindpose(true);
 
-	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
+
+	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 100.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f,  -1.0f, 1.0f);
 	m_camera.lookAt(Vector3f(-4.0f, 4.3f, 0.0f), Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setMovingSpeed(50.0f);
@@ -127,7 +119,6 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 	wgpContext.OnDraw = std::bind(&Isometric::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
 	nkContext.OnFillBuffer = std::bind(&Isometric::OnFillBuffer, this, std::placeholders::_1);
 	
-
 	m_wgpFloorD.loadFromFile("res/textures/floor/Floor_D.psd");
 
 	m_wgpFloor.create(m_floor);
@@ -228,8 +219,8 @@ void Isometric::update() {
 	if ((mouse.xDelta() || mouse.yDelta()) && !m_isDeath) {
 		Vector3f coords;	
 		if (getWorldPosition(mouse.xPos(), mouse.yPos(), Vector3f(0.0f, 1.0f, 0.0f), coords)) {
-			float degrees = (!m_nuclearWidgetResult.isActive && !m_joystickResult.isActive) && mouse.buttonDown(Mouse::BUTTON_LEFT) ? getLookAtYRotation(posistion, coords) : m_nuclearWidgetResult.angle;
-			m_nuclearWidgetResult.angle = degrees;
+			float degrees = (!m_rotationButtonResult.isActive && !m_joystickResult.isActive) && mouse.buttonDown(Mouse::BUTTON_LEFT) ? getLookAtYRotation(posistion, coords) : m_rotationButtonResult.degrees;
+			m_rotationButtonResult.degrees = degrees;
 			if(degrees)
 				m_player.setRotation(0.0f, degrees, 0.0f);
 		}
@@ -282,7 +273,7 @@ void Isometric::update() {
 		m_player.translateRelative(-2.0f * m_dt, 0.0f, 0.0f);
 	}
 
-	if (keyboard.keyPressed(Keyboard::KEY_T) || m_nuclearWidgetResult.buttonPressed) {
+	if (keyboard.keyPressed(Keyboard::KEY_T) || m_rotationButtonResult.buttonPressed) {
 		m_isDeath = true;
 	}
 
@@ -363,9 +354,7 @@ void Isometric::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURende
 void Isometric::OnFillBuffer(nk_context& nkCntxt) {
 	set_transparent_window_style();
 	virtual_joystick(nk_rect(20.0f, static_cast<float>(Application::Height) - 200.0f, 180.0f, 180.0f), m_joystickResult);
-	//action_button(nk_rect(static_cast<float>(Application::Width) - 180.0f, static_cast<float>(Application::Height) - 180.0f, 140.0f, 140.0f), m_isPressed);
-	//virtual_rotation(nk_rect(static_cast<float>(Application::Width) - 180.0f, static_cast<float>(Application::Height) - 180.0f, 140.0f, 140.0f), m_rotationResult);
-	virtual_rotation_button(nk_rect(static_cast<float>(Application::Width) - 180.0f, static_cast<float>(Application::Height) - 180.0f, 140.0f, 140.0f), m_nuclearWidgetResult);
+	virtual_rotation_button(nk_rect(static_cast<float>(Application::Width) - 180.0f, static_cast<float>(Application::Height) - 180.0f, 140.0f, 140.0f), m_rotationButtonResult);
 	reset_transparent_window_style();
 }
 
@@ -415,7 +404,7 @@ void Isometric::OnKeyUp(const Event::KeyboardEvent& event) {
 
 void Isometric::resize(int deltaW, int deltaH) {
 	nkResize(static_cast<float>(Application::Width), static_cast<float>(Application::Height));
-	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
+	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 100.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, -1.0f, 1.0f);
 	m_trackball.reshape(Application::Width, Application::Height);	
 }
@@ -571,7 +560,7 @@ bool Isometric::getWorldPosition(int xPos, int yPos, const Vector3f& planeNormal
 	float mouseXndc = (2.0f * xPos) / static_cast<float>(Application::Width) - 1.0f;
 	float mouseYndc = 1.0f - (2.0f * yPos) / static_cast<float>(Application::Height);
 
-	float tanfov = m_camera.getInvPerspectiveMatrixNew()[1][1];
+	float tanfov = m_camera.getTanFov();
 	float aspect = (static_cast<float>(Application::Width) / static_cast<float>(Application::Height));
 
 	Vector3f rayStartWorld = m_camera.getPosition() + (m_camera.getCamX() * mouseXndc * tanfov * aspect + m_camera.getCamY() * mouseYndc * tanfov + m_camera.getViewDirection()) * m_camera.getNear();

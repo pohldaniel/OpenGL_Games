@@ -102,7 +102,7 @@ const Vector3f &AssimpModel::getCenter() const {
 	return m_center;
 }
 
-const unsigned int AssimpModel::getStride() const {
+unsigned int AssimpModel::getStride() const {
 	return m_isStacked ? m_stride : m_meshes.back()->getStride();
 }
 
@@ -126,7 +126,7 @@ const std::vector<unsigned int>& AssimpModel::getIndexBuffer() const {
 	return m_indexBuffer;
 }
 
-const unsigned int AssimpModel::getNumberOfTriangles() const {
+unsigned int AssimpModel::getNumberOfTriangles() const {
 	return m_drawCount / 3;
 }
 
@@ -231,12 +231,12 @@ void AssimpModel::loadModelCpu(const char* _filename, const Vector3f& axis, floa
 		if (aiMaterial->GetName().length != 0) {
 			AssimpModel::ReadAiMaterial(aiMaterial, mesh->m_materialIndex, m_modelDirectory, aiMaterial->GetName().length == 0 ? "default" : aiMaterial->GetName().data);
 		}
-		m_isStacked ? m_hasTextureCoords = aiMesh->HasTextureCoords(0) : mesh->m_hasTextureCoords = aiMesh->HasTextureCoords(0);
+		m_isStacked ? m_hasTextureCoords = aiMesh->HasTextureCoords(0) : mesh->m_hasTextureCords = aiMesh->HasTextureCoords(0);
 		m_isStacked ? m_hasNormals = aiMesh->HasNormals() : mesh->m_hasNormals = aiMesh->HasNormals();
 		m_isStacked ? m_hasTangents = aiMesh->HasTangentsAndBitangents() && exportTangents : mesh->m_hasTangents = aiMesh->HasTangentsAndBitangents() && exportTangents;
 
 		m_isStacked ? m_stride = m_hasTangents ? 14 : (m_hasNormals && m_hasTextureCoords) ? 8 : m_hasNormals ? 6 : m_hasTextureCoords ? 5 : 3
-			: mesh->m_stride = mesh->m_hasTangents ? 14 : (mesh->m_hasNormals && mesh->m_hasTextureCoords) ? 8 : mesh->m_hasNormals ? 6 : mesh->m_hasTextureCoords ? 5 : 3;
+			: mesh->m_stride = mesh->m_hasTangents ? 14 : (mesh->m_hasNormals && mesh->m_hasTextureCords) ? 8 : mesh->m_hasNormals ? 6 : mesh->m_hasTextureCords ? 5 : 3;
 
 
 		if (m_isStacked) {
@@ -270,7 +270,7 @@ void AssimpModel::loadModelCpu(const char* _filename, const Vector3f& axis, floa
 
 			vertexBuffer.push_back(posX); vertexBuffer.push_back(posY); vertexBuffer.push_back(posZ);
 
-			if (m_hasTextureCoords || mesh->m_hasTextureCoords) {
+			if (m_hasTextureCoords || mesh->m_hasTextureCords) {
 				vertexBuffer.push_back(aiMesh->mTextureCoords[0][i].x); vertexBuffer.push_back(aiMesh->mTextureCoords[0][i].y);
 			}
 

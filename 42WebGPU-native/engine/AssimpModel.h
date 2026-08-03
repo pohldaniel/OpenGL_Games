@@ -37,13 +37,13 @@ public:
 	void loadModelCpu(const char* filename, const Vector3f& axis, float degrees, const Vector3f& translate = Vector3f(0.0f, 0.0f, 0.0f), float scale = 1.0f, bool isStacked = false, bool generateNormals = false, bool generateTangents = false, bool flipYZ = false, bool flipWinding = false);
 		
 	const Vector3f& getCenter() const;
-	const unsigned int getStride() const override;
+	unsigned int getStride() const override;
 	const std::string& getModelDirectory();
 	const Mesh* getMesh(unsigned short index = 0u) const;
 	const std::vector<Mesh*>& getMeshes() const;
 	const std::vector<float>& getVertexBuffer() const;
 	const std::vector<unsigned int>& getIndexBuffer() const;
-	const unsigned int getNumberOfTriangles() const;
+	unsigned int getNumberOfTriangles() const;
 
 	void generateNormals();
 	void rewind();

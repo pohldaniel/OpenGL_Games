@@ -183,7 +183,7 @@ void nk_virtual_rotation(struct nk_context* ctx, float size_px, RotationResult& 
 			if (angle_rad < 0.0f) {
 				angle_rad += 2.0f * M_PI;
 			}
-			out.angle = angle_rad * (180.0f / M_PI);
+			out.degrees = angle_rad * (180.0f / M_PI);
 		}
 	}
 	else {
@@ -192,7 +192,7 @@ void nk_virtual_rotation(struct nk_context* ctx, float size_px, RotationResult& 
 			nkContext.activeWidget = nullptr;
 	}
 
-	float current_rad = out.angle * (M_PI / 180.0f);
+	float current_rad = out.degrees * (M_PI / 180.0f);
 	struct nk_vec2 knob_pos;
 	knob_pos.x = center.x + outer_radius * std::cos(current_rad);
 	knob_pos.y = center.y + outer_radius * std::sin(current_rad);
@@ -223,7 +223,7 @@ void nk_virtual_rotation(struct nk_context* ctx, float size_px, RotationResult& 
 	}
 }
 
-void virtual_rotation_button(struct nk_rect dimension, NuclearWidgetResult& out) {
+void virtual_rotation_button(struct nk_rect dimension, RotationButtonResult& out) {
 	if (nk_begin(&nkContext.context, "nuclear_widget", dimension, NK_WINDOW_NO_INPUT | NK_WINDOW_NO_SCROLLBAR)) {
 		float widget_size = std::min(dimension.w, dimension.h);
 		nk_layout_row_static(&nkContext.context, widget_size, widget_size, 1);
@@ -232,7 +232,7 @@ void virtual_rotation_button(struct nk_rect dimension, NuclearWidgetResult& out)
 	nk_end(&nkContext.context);
 }
 
-void nk_virtual_rotation_button(struct nk_context* ctx, float size_px, NuclearWidgetResult& out) {
+void nk_virtual_rotation_button(struct nk_context* ctx, float size_px, RotationButtonResult& out) {
 	struct nk_rect bounds;
 	nk_widget(&bounds, ctx);
 
@@ -272,7 +272,7 @@ void nk_virtual_rotation_button(struct nk_context* ctx, float size_px, NuclearWi
 		if (out.isRotating && distance > 5.0f) {
 			float angle_rad = std::atan2(-dy, dx);
 			if (angle_rad < 0.0f) angle_rad += 2.0f * M_PI;
-			out.angle = angle_rad * (180.0f / M_PI);
+			out.degrees = angle_rad * (180.0f / M_PI);
 		}else if (out.buttonDown) {
 			out.buttonDown = (distance <= inner_radius);
 		}
@@ -284,7 +284,7 @@ void nk_virtual_rotation_button(struct nk_context* ctx, float size_px, NuclearWi
 			nkContext.activeWidget = nullptr;
 	}
 
-	float current_rad = out.angle * (M_PI / 180.0f);
+	float current_rad = out.degrees * (M_PI / 180.0f);
 
 	struct nk_vec2 knob_pos;
 	knob_pos.x = center.x + outer_radius * std::cos(current_rad);
