@@ -56,12 +56,12 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 	AnimationManager::Get().getAnimation("death").loadAnimationAssimp("res/models/Player.fbx", "Player", "death", 185u, 244u);
 
 	m_player.loadModelAssimp("res/models/Player.fbx", 1u);
+	m_player.scale(0.0044f, 0.0044f, 0.0044f);
+
 	m_enemy.loadModel("res/models/EelDog/EelDog.fbx");
 	m_enemy.rotate(90.0f, 0.0f, 0.0f);
 	m_enemy.rotate(0.0f, 180.0f, 0.0f);
 	m_enemy.scale(0.01f);
-
-
 
 	Material::CleanupMaterials();
 	static_cast<const AssimpMesh*>(m_enemy.getMesh())->setMaterialIndex(-1);
@@ -85,9 +85,6 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 		mesh->weights().push_back({ 1.0f, 0.0f, 0.0f, 0.0f });
 		mesh->joints().push_back({ 42u, 0u, 0u, 0u });
 	}
-
-	m_player.scale(0.0044f, 0.0044f, 0.0044f);
-
 
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 100.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f,  -1.0f, 1.0f);
@@ -322,7 +319,8 @@ void Isometric::update() {
 	m_uniforms.shadow = Matrix4f::BIAS * m_uniforms.lightVP;
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
 
-	m_uniforms.model = Matrix4f::Translate(2.0f, 120.0f * 0.0044f, 2.0f) * Matrix4f::Rotate(0.0f, 90.0f, 0.0f);
+	Vector3f posEnemy = Vector3f(2.0f, 120.0f * 0.0044f, 2.0f);
+	m_uniforms.model = Matrix4f::Translate(2.0f, 120.0f * 0.0044f, 2.0f) * Matrix4f::Rotate(0.0f, getLookAtYRotation(posistion, posEnemy), 0.0f);
 	wgpuQueueWriteBuffer(wgpContext.queue, m_instanceBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
 
 	m_wiggly.nosePos[0] = 1.0f ;
