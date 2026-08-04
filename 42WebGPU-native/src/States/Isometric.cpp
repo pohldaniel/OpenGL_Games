@@ -32,7 +32,7 @@ Matrix4f invPivot = Matrix4f(1.0f, 0.0f, 0.0f, 0.0f,
 	0.0f, 0.0f, 1.0f, 0.0f,
 	-130.762f, -70.4033f, 3.52485f, 1.0f);
 
-Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC), m_animationController(&m_player) {
+Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -57,6 +57,7 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 
 	m_player.loadModelAssimp("res/models/Player.fbx", 1u);
 	m_player.scale(0.0044f, 0.0044f, 0.0044f);
+	m_rotationButtonResult.degrees = aimTheta * _180_ON_PI;
 
 	m_enemy.loadModel("res/models/EelDog/EelDog.fbx");
 	m_enemy.rotate(90.0f, 0.0f, 0.0f);
@@ -88,7 +89,7 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 100.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f,  -1.0f, 1.0f);
-	m_camera.lookAt(Vector3f(-4.0f, 4.3f, 0.0f), Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.lookAt(Vector3f(0.0f, 4.3f, 4.0f), Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setMovingSpeed(50.0f);
 	m_camera.setRotationSpeed(0.1f);
 
@@ -140,21 +141,46 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 	m_wgpEnemy.create(m_enemy);
 	m_wgpEnemy.addBindGroup("BG", CreateBindGroup(m_instanceBuffer, m_wigglyBuffer, m_wgpEnemyD));
 
-	/*m_player.addAnimationState(AnimationManager::Get().getAnimation("forward"));
-	m_player.getAnimationState(0u)->setLooped(true);
-	m_player.getAnimationState(0u)->setWeight(0.25f);
+	float forward = 0.01f;
+	float left = 0.01f;
+	float backward = 0.01f;
+	float right = 0.01f;
 
-	m_player.addAnimationState(AnimationManager::Get().getAnimation("right"));
+	float sum = forward + left + backward + right;
+
+	forward /= sum;
+	left /= sum;
+	backward /= sum;
+	right /= sum;
+
+	forward *= 4.0f;
+	left *= 2.0f;
+	backward *= 2.0f;
+	right *= 1.0f;
+
+	m_player.addAnimationState(AnimationManager::Get().getAnimation("forward"));
+	m_player.getAnimationState(0u)->setLooped(true);
+	m_player.getAnimationState(0u)->setWeight(forward);
+
+	m_player.addAnimationState(AnimationManager::Get().getAnimation("left"));
 	m_player.getAnimationState(1u)->setLooped(true);
-	m_player.getAnimationState(1u)->setWeight(0.25f);
+	m_player.getAnimationState(1u)->setWeight(left);
 
 	m_player.addAnimationState(AnimationManager::Get().getAnimation("backward"));
 	m_player.getAnimationState(2u)->setLooped(true);
-	m_player.getAnimationState(2u)->setWeight(0.25f);
+	m_player.getAnimationState(2u)->setWeight(backward);
 
-	m_player.addAnimationState(AnimationManager::Get().getAnimation("left"));
+	m_player.addAnimationState(AnimationManager::Get().getAnimation("right"));
 	m_player.getAnimationState(3u)->setLooped(true);
-	m_player.getAnimationState(3u)->setWeight(0.25f);*/
+	m_player.getAnimationState(3u)->setWeight(right);
+
+	m_player.addAnimationState(AnimationManager::Get().getAnimation("idle"));
+	m_player.getAnimationState(4u)->setLooped(true);
+	m_player.getAnimationState(4u)->setWeight(0.0f);
+
+	m_player.addAnimationState(AnimationManager::Get().getAnimation("death"));
+	m_player.getAnimationState(5u)->setLooped(false);
+	m_player.getAnimationState(5u)->setWeight(0.0f);
 }
 
 Isometric::~Isometric() {
@@ -170,7 +196,6 @@ void Isometric::fixedUpdate() {
 }
 
 void Isometric::update() {
-
 	Keyboard& keyboard = Keyboard::instance();
 	Vector3f direction = Vector3f();
 
@@ -231,14 +256,16 @@ void Isometric::update() {
 	
 	const AnimatedMesh* mesh_ = static_cast<const AnimatedMesh*>(m_player.getMesh());
 	const Vector3f posistion = mesh_->getBone(0u).getPosition();
-	//m_camera.lookAt(posistion + Vector3f(-4.0f, 4.3f, 0.0f), posistion, Vector3f(0.0f, 1.0f, 0.0f));
+	
+	m_camera.lookAt(posistion + Vector3f(0.0f, 4.3f, 4.0f), posistion, Vector3f(0.0f, 1.0f, 0.0f));
 	if ((mouse.xDelta() || mouse.yDelta()) && !m_isDeath) {
 		Vector3f coords;	
 		if (getWorldPosition(mouse.xPos(), mouse.yPos(), Vector3f(0.0f, 1.0f, 0.0f), coords)) {
-			float degrees = (!m_rotationButtonResult.isActive && !m_joystickResult.isActive) && mouse.buttonDown(Mouse::BUTTON_LEFT) ? getLookAtYRotation(posistion, coords) : m_rotationButtonResult.degrees;
-			m_rotationButtonResult.degrees = degrees;
-			if(degrees)
-				m_player.setRotation(0.0f, degrees, 0.0f);
+			aimTheta = (!m_rotationButtonResult.isActive && !m_joystickResult.isActive) && mouse.buttonDown(Mouse::BUTTON_LEFT) ? getLookAtYRotation(posistion, coords) : m_rotationButtonResult.degrees;
+			m_rotationButtonResult.degrees = aimTheta ;
+
+			if(m_rotationButtonResult.degrees)
+				m_player.setRotation(0.0f, m_rotationButtonResult.degrees + 90.0f, 0.0f);
 		}
 	}
 
@@ -261,47 +288,83 @@ void Isometric::update() {
 		moveY = 0.0f;
 	}
 
+	Vector3f playerDirection = Vector3f();
 	if (keyboard.keyDown(Keyboard::KEY_UP) || moveY > 0.0f) {
-		m_animationController.fadeAndPlay("forward", 0.25f);
-		playerMove |= true;
-		//m_player.translate(2.0f * m_dt, 0.0f, 0.0f);
-		m_player.translateRelative(0.0f, 0.0f, 2.0f * m_dt);
+		playerDirection -= Vector3f(0.0f, 0.0f, 1.0f);
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_DOWN) || moveY < 0.0f) {
-		m_animationController.fadeAndPlay("backward", 0.25f);
-		playerMove |= true;
-		//m_player.translate(-2.0f * m_dt, 0.0f, 0.0f);
-		m_player.translateRelative(0.0f, 0.0f, -2.0f * m_dt);
+		playerDirection += Vector3f(0.0f, 0.0f, 1.0f);
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_LEFT) || moveX < 0.0f) {
-		m_animationController.fadeAndPlay("left", 0.25f);
-		playerMove |= true;
-		//m_player.translate(0.0f, 0.0f, -2.0f * m_dt);
-		m_player.translateRelative(2.0f * m_dt, 0.0f, 0.0f);
+		playerDirection -= Vector3f(1.0f, 0.0f, 0.0f);
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_RIGHT) || moveX > 0.0f) {
-		m_animationController.fadeAndPlay("right", 0.25f);
-		playerMove |= true;
-		//m_player.translate(0.0f, 0.0f, 2.0f * m_dt);
-		m_player.translateRelative(-2.0f * m_dt, 0.0f, 0.0f);
+		playerDirection += Vector3f(1.0f, 0.0f, 0.0f);
 	}
 
 	if (keyboard.keyPressed(Keyboard::KEY_T) || m_rotationButtonResult.buttonPressed) {
 		m_isDeath = true;
 	}
 
-	if (!playerMove && !m_isDeath) {
-		m_animationController.fadeAndPlay("idle", 0.2f, 0.25f);
+	playerMove = playerDirection.lengthSq() > 0.01f && !m_isDeath;
+
+	if (playerMove) {
+		m_player.translate(playerDirection[0] * 2.0f * m_dt, playerDirection[1] * 2.0f * m_dt, playerDirection[2] * 2.0f * m_dt);
 	}
 
-	if (m_isDeath) {
-		m_animationController.play("death", false, 2.0f);
-	}
+	Vector3f coords;
+	getWorldPosition(mouse.xPos(), mouse.yPos(), Vector3f(0.0f, 1.0f, 0.0f), coords);
+	
+	const bool isPlayerMoving = direction.length() > 0.1f;
+	float movementTheta = std::atan2(-playerDirection[2], playerDirection[0]);
 
-	m_animationController.update(m_dt);
+	if (movementTheta < 0.0f)
+		movementTheta += TWO_PI;
+
+	const float thetaDelta = movementTheta - aimTheta * PI_ON_180;
+	const Vector2f movementAnim = !playerMove ? Vector2f() : Vector2f(sinf(thetaDelta), cosf(thetaDelta));
+
+	prev_idleWeight = std::max(0.0f, prev_idleWeight - m_dt / animTransitionTime);
+	prev_rightWeight = std::max(0.0f, prev_rightWeight - m_dt / animTransitionTime);
+	prev_leftWeight = std::max(0.0f, prev_leftWeight - m_dt / animTransitionTime);
+	prev_forwardWeight = std::max(0.0f, prev_forwardWeight - m_dt / animTransitionTime);
+	prev_backWeight = std::max(0.0f, prev_backWeight - m_dt / animTransitionTime);
+
+	float deathWeight = m_isDeath ? 1.0f : 0.0f;
+	float idleWeight = prev_idleWeight + ((m_isDeath || playerMove) ? 0.0f : 1.0f);
+	float forwardWeight = prev_forwardWeight + (playerMove ? std::max(0.0f, movementAnim[1]) : 0.0f);
+	float leftWeight = prev_leftWeight + (playerMove ? std::max(0.0f, movementAnim[0]) : 0.0f);
+	float backWeight = prev_backWeight + (playerMove ? std::max(0.0f, -movementAnim[1]) : 0.0f);
+	float rightWeight = prev_rightWeight + (playerMove ? std::max(0.0f, -movementAnim[0]) : 0.0f);
+	const float weightSum = deathWeight + idleWeight + rightWeight + forwardWeight + backWeight + leftWeight;
+
+	deathWeight /= weightSum;
+	idleWeight /= weightSum;
+	rightWeight /= weightSum;
+	forwardWeight /= weightSum;
+	backWeight /= weightSum;
+	leftWeight /= weightSum;
+	prev_idleWeight = std::max(prev_idleWeight, idleWeight);
+	prev_rightWeight = std::max(prev_rightWeight, rightWeight);
+	prev_leftWeight = std::max(prev_leftWeight, leftWeight);
+	prev_forwardWeight = std::max(prev_forwardWeight, forwardWeight);
+	prev_backWeight = std::max(prev_backWeight, backWeight);
+	 
+	//leftWeight *= 0.75f;
+	//backWeight *= 0.75f;
+	//rightWeight *= 0.75f;
+	idleWeight *= 0.25f;
+
+	m_player.getAnimationState(0u)->setWeight(forwardWeight);
+	m_player.getAnimationState(1u)->setWeight(leftWeight);
+	m_player.getAnimationState(2u)->setWeight(backWeight);
+	m_player.getAnimationState(3u)->setWeight(rightWeight);
+	m_player.getAnimationState(4u)->setWeight(idleWeight);
+	m_player.getAnimationState(5u)->setWeight(deathWeight);
+
 	m_player.update(m_dt);
 	m_player.updateSkinning();
 
@@ -312,7 +375,7 @@ void Isometric::update() {
 	m_uniforms.projection = m_camera.getPerspectiveMatrix();
 	m_uniforms.view = m_camera.getViewMatrix();
 	m_uniforms.env = m_camera.getRotationMatrix();
-	m_uniforms.model = Matrix4f::IDENTITY;
+	m_uniforms.model = Matrix4f::Rotate(0.0f, 45.0f, 0.0f);
 	m_uniforms.normal = Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_uniforms.model);
 	m_uniforms.camPosition = m_camera.getPosition();
 	m_uniforms.lightVP = Matrix4f::IDENTITY;
@@ -320,7 +383,7 @@ void Isometric::update() {
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
 
 	Vector3f posEnemy = Vector3f(2.0f, 120.0f * 0.0044f, 2.0f);
-	m_uniforms.model = Matrix4f::Translate(2.0f, 120.0f * 0.0044f, 2.0f) * Matrix4f::Rotate(0.0f, getLookAtYRotation(posistion, posEnemy), 0.0f);
+	m_uniforms.model = Matrix4f::Translate(posEnemy) * Matrix4f::Rotate(0.0f, getLookAtYRotation(posistion, posEnemy), 0.0f);
 	wgpuQueueWriteBuffer(wgpContext.queue, m_instanceBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
 
 	m_wiggly.nosePos[0] = 1.0f ;
@@ -672,5 +735,23 @@ float Isometric::getLookAtYRotation(const Vector3f& objectPos, const Vector3f& t
 	if (abs(dx) < 0.01f && abs(dz) < 0.01f)
 		return 0.0f;
 
-	return std::atan2(dx, dz) * _180_ON_PI;
+	float radians = std::atan2(-dz, dx);
+	if (radians < 0.0f) 
+		radians += TWO_PI;
+
+	return radians * _180_ON_PI;
+}
+
+float Isometric::getLookAtYRotationR(const Vector3f& objectPos, const Vector3f& targetPos) {
+	float dx = targetPos[0] - objectPos[0];
+	float dz = targetPos[2] - objectPos[2];
+
+	if (abs(dx) < 0.01f && abs(dz) < 0.01f)
+		return 0.0f;
+
+	float radians = std::atan2(-dz, dx);
+	if (radians < 0.0f)
+		radians += TWO_PI;
+
+	return radians;
 }

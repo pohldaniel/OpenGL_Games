@@ -70,6 +70,10 @@ void AnimatedModel::applyBindPose(bool onTransformChanged) {
 	}
 }
 
+void AnimatedModel::setHasAnimationController(bool hasAnimationController) {
+	m_hasAnimationController = hasAnimationController;
+}
+
 void AnimatedModel::OnAnimationOrderChanged() {
 	m_animationOrderDirty = true;
 }

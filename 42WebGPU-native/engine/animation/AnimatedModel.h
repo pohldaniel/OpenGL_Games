@@ -51,6 +51,7 @@ public:
 
 	void setScale(float sx, float sy, float sz);
 	void setRotation(float pitch, float yaw, float roll);
+	void setHasAnimationController(bool hasAnimationController);
 
 	AnimationState* findAnimationState(const Animation& animation) const;
 	AnimationState* findAnimationState(const std::string& name) const;

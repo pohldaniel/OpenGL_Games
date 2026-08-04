@@ -55,6 +55,7 @@ private:
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 	bool getWorldPosition(int xPos, int yPos, const Vector3f& planeNormal, Vector3f& outIntersection);
 	float getLookAtYRotation(const Vector3f& objectPos, const Vector3f& targetPos);
+	float getLookAtYRotationR(const Vector3f& objectPos, const Vector3f& targetPos);
 
 	bool m_initUi = true;
 	bool m_drawUi = false;
@@ -70,7 +71,6 @@ private:
 
 	AssimpModel m_enemy;
 	AnimatedModel m_player;
-	AnimationController m_animationController;
 
 	Shape m_floor;
 
@@ -81,5 +81,13 @@ private:
 	float m_weightRight = 0.5f;
 	float m_weightLeft = 0.5f;
 
+	float prev_idleWeight = 0.0f;
+	float prev_rightWeight = 0.0f;
+	float prev_forwardWeight = 0.0f;
+	float prev_backWeight = 0.0f;
+	float prev_leftWeight = 0.0f;
+	const float animTransitionTime = 0.2f;
+	float deathTime = -1.0f;
+	float aimTheta = PI * 1.5f;
 	static WGPUBindGroup CreateBindGroup(const WgpBuffer& uniformBuffer, const WgpBuffer& wigglyBuffer, const WgpTexture& texture);
 };
