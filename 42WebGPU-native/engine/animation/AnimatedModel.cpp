@@ -470,6 +470,10 @@ const std::vector<Mesh*>& AnimatedModel::getMeshes() const {
 	return m_meshes;
 }
 
+const Matrix4f& AnimatedModel::getWorldTransformation() const {
+	return static_cast<AnimatedMesh*>(m_meshes.front())->getRootBone()->getWorldTransformation();
+}
+
 Mesh* AnimatedModel::mesh(unsigned short index) const {
 	return m_meshes[index];
 }
@@ -671,6 +675,10 @@ unsigned int& AnimatedMesh::stride() const {
 	return m_stride;
 }
 
+Bone& AnimatedMesh::bone(size_t index) const {
+	return *m_bones[index];
+}
+
 Bone**& AnimatedMesh::bones() const {
 	return m_bones;
 }
@@ -681,4 +689,8 @@ const Bone& AnimatedMesh::getBone(size_t index) const {
 
 const Matrix4f& AnimatedMesh::getSkinMatrix(size_t index) const {
 	return m_skinMatrices[index];
+}
+
+const Bone* AnimatedMesh::getRootBone() const {
+	return m_rootBone;
 }

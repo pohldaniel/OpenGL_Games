@@ -161,7 +161,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;GLEW_STATIC;FREEIMAGE_LIB;WEBGPU_DAWN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;..\libimgui;..\libassimp\include;..\rapidjson\include;..\Freeimage\libfreeimage\include;..\openal\include;..\sndfile\include;..\nuklear;..\SDKs\wgpu-dawn\include;..\SDKs\ffmpeg\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;..\libimgui;..\libassimp\include;..\rapidjson\include;..\Freeimage\libfreeimage\include;..\openal\include;..\sndfile\include;..\nuklear;..\SDKs\wgpu-dawn\include;..\SDKs\ffmpeg\include;..\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -219,6 +219,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClCompile Include="Nuklear\NkJoystick.cpp" />
     <ClCompile Include="Nuklear\NkNodeEditor.cpp" />
     <ClCompile Include="Nuklear\NkStyle.cpp" />
+    <ClCompile Include="src\bullet_store.cpp" />
     <ClCompile Include="src\ImguiExtension.cpp" />
     <ClCompile Include="src\LoadingManager.cpp" />
     <ClCompile Include="src\States\Compute.cpp" />
@@ -326,6 +327,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClInclude Include="Nuklear\NkNodeEditor.h" />
     <ClInclude Include="Nuklear\NkStyle.h" />
     <ClInclude Include="src\Application.h" />
+    <ClInclude Include="src\bullet_store.h" />
     <ClInclude Include="src\DataStructs.h" />
     <ClInclude Include="src\Globals.h" />
     <ClInclude Include="src\ImguiExtension.h" />
@@ -350,6 +352,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClInclude Include="src\States\VideoDecode.h" />
     <ClInclude Include="src\States\VolumeRendering.h" />
     <ClInclude Include="src\States\Wireframe.h" />
+    <ClInclude Include="src\ThreadPool.h" />
     <ClInclude Include="src\Utils\Fade.h" />
     <ClInclude Include="src\VideoReader.h" />
     <ClInclude Include="WebGPU\WgpBatchRenderer.h" />

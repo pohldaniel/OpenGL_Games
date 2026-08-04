@@ -306,6 +306,9 @@
     <ClCompile Include="Nuklear\NkJoystick.cpp">
       <Filter>Nuklear</Filter>
     </ClCompile>
+    <ClCompile Include="src\bullet_store.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\input\ApplicationEventListener.h">
@@ -589,6 +592,12 @@
     </ClInclude>
     <ClInclude Include="Nuklear\NkJoystick.h">
       <Filter>Nuklear</Filter>
+    </ClInclude>
+    <ClInclude Include="src\bullet_store.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ThreadPool.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

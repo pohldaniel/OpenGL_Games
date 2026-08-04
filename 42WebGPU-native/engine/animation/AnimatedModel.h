@@ -67,8 +67,8 @@ public:
 	unsigned int getStride() const override;
 	const Mesh* getMesh(unsigned short index = 0u) const;
 	const std::vector<Mesh*>& getMeshes() const;
+	const Matrix4f& getWorldTransformation() const;
 	Mesh* mesh(unsigned short index = 0u) const;
-
 	std::vector<std::shared_ptr<AnimationState>>& animationStates();
 
 private:
@@ -118,6 +118,7 @@ public:
 	const Matrix4f& getSkinMatrix(size_t index = 0u) const;
 	unsigned short getNumBones() const;
 	const Bone& getBone(size_t index = 0u) const;
+	const Bone* getRootBone() const;
 	const Material& getMaterial() const;
 	bool hasMaterial() const;
 
@@ -128,6 +129,7 @@ public:
 	std::vector<std::array<unsigned int, 4>>& joints() const;
 	Matrix4f* skinMatrices() const;
 	unsigned int& stride() const;
+	Bone& bone(size_t index = 0u) const;
 	Bone**& bones() const;
 
 private:

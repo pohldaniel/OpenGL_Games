@@ -26,7 +26,8 @@ public:
 	void cleanup();
 	void markForDelete();
 	void setTextureUsage(WGPUTextureUsage textureUsage = WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst);
-	
+	void setFlipHorizontal(bool flipHorizontal = false);
+
 	const WGPUTexture& getTexture() const;
 	const WGPUTextureView& getTextureView() const;
 
@@ -65,5 +66,6 @@ private:
 	unsigned short m_channels;
 	bool m_markForDelete;
 	WGPUTextureUsage m_textureUsage;
+	bool m_flipHorizontal;
 };
 

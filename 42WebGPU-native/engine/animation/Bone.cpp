@@ -106,6 +106,11 @@ void Bone::setOrientation(const Quaternion& orientation) {
 	OnTransformChanged();
 }
 
+void Bone::setOrientation(float pitch, float yaw, float roll) {
+	m_orientation = Quaternion(pitch, yaw, roll);
+	OnTransformChanged();
+}
+
 void Bone::setScale(const Vector3f& scale) {
 	m_scale = scale;
 	OnTransformChanged();

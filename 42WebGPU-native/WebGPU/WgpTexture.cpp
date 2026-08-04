@@ -14,7 +14,8 @@ WgpTexture::WgpTexture() :
     m_height(0u),
     m_channels(0u),
     m_markForDelete(false),
-    m_textureUsage(WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst) {
+    m_textureUsage(WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst),
+    m_flipHorizontal(false){
 
 }
 
@@ -51,6 +52,10 @@ void WgpTexture::markForDelete() {
 
 void WgpTexture::setTextureUsage(WGPUTextureUsage textureUsage) {
     m_textureUsage = textureUsage;
+}
+
+void WgpTexture::setFlipHorizontal(bool flipHorizontal) {
+    m_flipHorizontal = flipHorizontal;
 }
 
 const WGPUTexture& WgpTexture::getTexture() const {
@@ -278,6 +283,9 @@ void WgpTexture::loadFromFile(const std::string& fileName, const bool flipVertic
     if(flipVertical)
         FreeImage_FlipVertical(sourceBitmap);
 
+    if(m_flipHorizontal)
+        FreeImage_FlipHorizontal(sourceBitmap);
+
     sourceBitmap = AddAlphaChannel(sourceBitmap, alphaChannel);
 
     unsigned int channels = FreeImage_GetBPP(sourceBitmap) / 8;
@@ -365,6 +373,9 @@ void WgpTexture::loadFromMemory(unsigned char* data, uint32_t size, const bool f
     if (flipVertical)
         FreeImage_FlipVertical(sourceBitmap);
 
+    if (m_flipHorizontal)
+        FreeImage_FlipHorizontal(sourceBitmap);
+
     sourceBitmap = AddAlphaChannel(sourceBitmap, alphaChannel);
 
     unsigned int channels = FreeImage_GetBPP(sourceBitmap) / 8;
@@ -401,6 +412,9 @@ void WgpTexture::loadHDRICubeFromFile(const std::string& fileName, const bool fl
 
     if (flipVertical)
         FreeImage_FlipVertical(sourceBitmap);
+
+    if (m_flipHorizontal)
+        FreeImage_FlipHorizontal(sourceBitmap);
 
     sourceBitmap = AddAlphaChannel(sourceBitmap);
 
@@ -450,6 +464,9 @@ void WgpTexture::loadHDRIFromFile(const std::string& fileName, const bool flipVe
     if (flipVertical)
         FreeImage_FlipVertical(sourceBitmap);
 
+    if (m_flipHorizontal)
+        FreeImage_FlipHorizontal(sourceBitmap);
+
     sourceBitmap = AddAlphaChannel(sourceBitmap);
 
     unsigned int channels = FreeImage_GetBPP(sourceBitmap) / (8u * sizeof(float));
@@ -490,6 +507,9 @@ void WgpTexture::loadCubeFromFiles(std::string* fileNames, const bool flipVertic
 
         if (flipVertical)
             FreeImage_FlipVertical(sourceBitmap);
+
+        if (m_flipHorizontal)
+            FreeImage_FlipHorizontal(sourceBitmap);
 
         sourceBitmap = AddAlphaChannel(sourceBitmap);
 

@@ -23,6 +23,7 @@ public:
 
 	void setPosition(const Vector3f& position);
 	void setOrientation(const Quaternion& orientation);
+	void setOrientation(float pitch, float yaw, float roll);
 	void setScale(const Vector3f& scale);
 	void setName(const std::string& name);
 	void setParent(Bone* node);

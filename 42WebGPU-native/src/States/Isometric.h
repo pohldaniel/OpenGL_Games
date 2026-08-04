@@ -18,6 +18,14 @@
 #include <WebGPU/WgpModel.h>
 #include <WebGPU/WgpData.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/transform.hpp>
+#include <glm/gtx/quaternion.hpp>
+
+#include "bullet_store.h"
+
 class Isometric : public State, public MouseEventListener, public KeyboardEventListener {
 
 	struct Wiggly {
@@ -49,8 +57,11 @@ private:
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayouts();
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsTexture();
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsWiggly();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsBullet();
+
 	std::vector<WGPUBindGroup> OnBindGroups();
 	std::vector<WGPUBindGroup> OnBindGroupsFloor();
+	std::vector<WGPUBindGroup> OnBindGroupsBullet();
 
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 	bool getWorldPosition(int xPos, int yPos, const Vector3f& planeNormal, Vector3f& outIntersection);
@@ -72,11 +83,11 @@ private:
 	AssimpModel m_enemy;
 	AnimatedModel m_player;
 
-	Shape m_floor;
+	Shape m_floor, m_bullet;
 
-	WgpBuffer m_uniformBuffer, m_instanceBuffer, m_wigglyBuffer, m_skinBuffer;
-	WgpModel m_wgpPlayer, m_wgpFloor, m_wgpEnemy;
-	WgpTexture m_wgpFloorD, m_wgpEnemyD;
+	WgpBuffer m_uniformBuffer, m_instanceBuffer, m_wigglyBuffer, m_skinBuffer, m_rotationBuffer, m_offsetBuffer;
+	WgpModel m_wgpPlayer, m_wgpFloor, m_wgpEnemy, m_wgpBullet;
+	WgpTexture m_wgpFloorD, m_wgpEnemyD, m_wgpBulletTexture;
 	
 	float m_weightRight = 0.5f;
 	float m_weightLeft = 0.5f;
@@ -89,5 +100,11 @@ private:
 	const float animTransitionTime = 0.2f;
 	float deathTime = -1.0f;
 	float aimTheta = PI * 1.5f;
+	float lastFireTime = 0.0f;
+
+	//std::vector<glm::quat> m_rots;
+	//std::vector<glm::vec3> m_offsets;
+	BulletStore m_bulletStore;
+
 	static WGPUBindGroup CreateBindGroup(const WgpBuffer& uniformBuffer, const WgpBuffer& wigglyBuffer, const WgpTexture& texture);
 };

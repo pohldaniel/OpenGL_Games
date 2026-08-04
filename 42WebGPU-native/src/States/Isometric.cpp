@@ -32,7 +32,10 @@ Matrix4f invPivot = Matrix4f(1.0f, 0.0f, 0.0f, 0.0f,
 	0.0f, 0.0f, 1.0f, 0.0f,
 	-130.762f, -70.4033f, 3.52485f, 1.0f);
 
-Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC) {
+ThreadPool threadPool(4);
+const int spreadAmount = 10;
+
+Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC), m_bulletStore(&threadPool) {
 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -57,6 +60,7 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC) 
 
 	m_player.loadModelAssimp("res/models/Player.fbx", 1u);
 	m_player.scale(0.0044f, 0.0044f, 0.0044f);
+
 	m_rotationButtonResult.degrees = aimTheta * _180_ON_PI;
 
 	m_enemy.loadModel("res/models/EelDog/EelDog.fbx");
@@ -69,6 +73,7 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC) 
 
 	//Add additional nodes to the first Mesh, they are presented inside the Animation channels but not at the bone hierarchy from the model.
 	AnimatedMesh* mesh = static_cast<AnimatedMesh*>(m_player.mesh());
+
 	mesh->boneDescriptions().emplace_back();
 	mesh->boneDescriptions().back().name = "Gun_$AssimpFbx$_Rotation";
 	mesh->boneDescriptions().back().parentIndex = -1;
@@ -96,11 +101,18 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC) 
 	m_trackball.reshape(Application::Width, Application::Height);
 
 	m_floor.buildQuadXZ({-50.0f, 0.0f, -50.0f}, {100.0f, 100.0f});
+	m_bullet.buildQuadXZ({ -0.3f * 0.243f, 0.0f, -0.3f * 0.243f }, { 0.3f * 0.5f, 0.3f * 0.5f }, 1u, 1u, true, false);
 
 	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	m_instanceBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	m_wigglyBuffer.createBuffer(sizeof(Vector4f), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	m_skinBuffer.createBuffer(sizeof(Matrix4f) * 96u, WGPUBufferUsage_CopyDst | WGPUBufferUsage_Storage);
+
+	m_rotationBuffer.createBuffer(sizeof(Vector4f) * 4000u, WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
+	m_offsetBuffer.createBuffer(sizeof(Vector4f) * 4000u, WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
+
+	m_wgpBulletTexture.setFlipHorizontal(true);
+	m_wgpBulletTexture.loadFromFile("res/textures/BulletTexture.png");
 
 	m_uniforms.projection = m_camera.getPerspectiveMatrix();
 	m_uniforms.view = m_camera.getViewMatrix();
@@ -125,10 +137,15 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC) 
 	wgpContext.addSahderModule("TEXTURE", "res/shader/wiggly.wgsl");
 	wgpContext.createRenderPipeline("TEXTURE", "RP_TEXTURE", VL_PTN, std::bind(&Isometric::OnBindGroupLayoutsWiggly, this));
 
+	wgpContext.addSahderModule("BULLET", "res/shader/bullet.wgsl");
+	wgpContext.createRenderPipeline("BULLET", "RP_BULLET", VL_PT, std::bind(&Isometric::OnBindGroupLayoutsBullet, this),
+		1u, WGPUPrimitiveTopology_TriangleList, WGPUTextureFormat_Undefined, WGPUTextureFormat_Undefined, WGPUCompareFunction_Always,
+		{ DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_Undefined, WGPUCullMode_None, StencilMode::DEFAULT, {} });
+
 	m_wgpPlayer.create(m_player);
 	m_wgpPlayer.setBindGroups("BG", std::bind(&Isometric::OnBindGroups, this));
 
-	wgpContext.setClearColor({ 0.2f, 0.2f, 0.2f, 1.0f });
+	wgpContext.setClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
 	wgpContext.OnDraw = std::bind(&Isometric::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
 	nkContext.OnFillBuffer = std::bind(&Isometric::OnFillBuffer, this, std::placeholders::_1);
 	
@@ -141,46 +158,28 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC) 
 	m_wgpEnemy.create(m_enemy);
 	m_wgpEnemy.addBindGroup("BG", CreateBindGroup(m_instanceBuffer, m_wigglyBuffer, m_wgpEnemyD));
 
-	float forward = 0.01f;
-	float left = 0.01f;
-	float backward = 0.01f;
-	float right = 0.01f;
-
-	float sum = forward + left + backward + right;
-
-	forward /= sum;
-	left /= sum;
-	backward /= sum;
-	right /= sum;
-
-	forward *= 4.0f;
-	left *= 2.0f;
-	backward *= 2.0f;
-	right *= 1.0f;
+	m_wgpBullet.create(m_bullet);
+	m_wgpBullet.setBindGroups("BG", std::bind(&Isometric::OnBindGroupsBullet, this));
 
 	m_player.addAnimationState(AnimationManager::Get().getAnimation("forward"));
 	m_player.getAnimationState(0u)->setLooped(true);
-	m_player.getAnimationState(0u)->setWeight(forward);
 
 	m_player.addAnimationState(AnimationManager::Get().getAnimation("left"));
 	m_player.getAnimationState(1u)->setLooped(true);
-	m_player.getAnimationState(1u)->setWeight(left);
 
 	m_player.addAnimationState(AnimationManager::Get().getAnimation("backward"));
 	m_player.getAnimationState(2u)->setLooped(true);
-	m_player.getAnimationState(2u)->setWeight(backward);
 
 	m_player.addAnimationState(AnimationManager::Get().getAnimation("right"));
 	m_player.getAnimationState(3u)->setLooped(true);
-	m_player.getAnimationState(3u)->setWeight(right);
 
 	m_player.addAnimationState(AnimationManager::Get().getAnimation("idle"));
 	m_player.getAnimationState(4u)->setLooped(true);
-	m_player.getAnimationState(4u)->setWeight(0.0f);
 
 	m_player.addAnimationState(AnimationManager::Get().getAnimation("death"));
 	m_player.getAnimationState(5u)->setLooped(false);
-	m_player.getAnimationState(5u)->setWeight(0.0f);
+
+	m_player.update(0.01f);
 }
 
 Isometric::~Isometric() {
@@ -197,6 +196,10 @@ void Isometric::fixedUpdate() {
 
 void Isometric::update() {
 	Keyboard& keyboard = Keyboard::instance();
+	Mouse& mouse = Mouse::instance();
+
+	nkUpdateInput(mouse.xPos(), mouse.yPos(), mouse.buttonDown(Mouse::MouseButton::BUTTON_LEFT), mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT), Application::ScrollDelta);
+
 	Vector3f direction = Vector3f();
 
 	float dx = 0.0f;
@@ -234,7 +237,21 @@ void Isometric::update() {
 		move |= true;
 	}
 
-	Mouse& mouse = Mouse::instance();
+	if ((m_rotationButtonResult.buttonDown || (mouse.buttonDown(Mouse::MouseButton::BUTTON_LEFT) && !m_rotationButtonResult.isActive && !m_joystickResult.isActive)) && (lastFireTime + 0.1f) < Globals::clock.getElapsedTimeSec()) {
+		const Quaternion orientation = Quaternion(0.0f, m_rotationButtonResult.degrees, 0.0f);
+		const glm::quat midOri(orientation[3], orientation[0], orientation[1], orientation[2]);
+
+		const Matrix4f trans = m_player.getWorldTransformation();
+		const glm::mat4 playerModelTransform(trans[0][0], trans[0][1], trans[0][2], trans[0][3],
+                                             trans[1][0], trans[1][1], trans[1][2], trans[1][3],
+                                             trans[2][0], trans[2][1], trans[2][2], trans[2][3],
+                                             trans[3][0], trans[3][1], trans[3][2], trans[3][3]);
+
+		const glm::vec3 projectileSpawnPoint = playerModelTransform * glm::vec4(-20.0f, 120.0f, 100.0f, 1.0f);
+
+		m_bulletStore.createBullets(projectileSpawnPoint, midOri, spreadAmount);
+		lastFireTime = Globals::clock.getElapsedTimeSec();
+	}
 
 	if (mouse.buttonDownInvisible(Mouse::MouseButton::BUTTON_RIGHT)) {
 		dx = mouse.xDelta();
@@ -252,8 +269,6 @@ void Isometric::update() {
 	}
 	m_trackball.idle();
 
-	nkUpdateInput(mouse.xPos(), mouse.yPos(), mouse.buttonDown(Mouse::MouseButton::BUTTON_LEFT), mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT), Application::ScrollDelta);
-	
 	const AnimatedMesh* mesh_ = static_cast<const AnimatedMesh*>(m_player.getMesh());
 	const Vector3f posistion = mesh_->getBone(0u).getPosition();
 	
@@ -305,7 +320,7 @@ void Isometric::update() {
 		playerDirection += Vector3f(1.0f, 0.0f, 0.0f);
 	}
 
-	if (keyboard.keyPressed(Keyboard::KEY_T) || m_rotationButtonResult.buttonPressed) {
+	if (keyboard.keyPressed(Keyboard::KEY_T) ) {
 		m_isDeath = true;
 	}
 
@@ -367,6 +382,7 @@ void Isometric::update() {
 
 	m_player.update(m_dt);
 	m_player.updateSkinning();
+	m_bulletStore.updateBullets(m_dt);
 
 	const AnimatedMesh* mesh = static_cast<const AnimatedMesh*>(m_player.getMesh());
 	mesh->skinMatrices()[42] ^= mesh->getBone(43u).getWorldTransformation() * offset * pivot;
@@ -380,17 +396,21 @@ void Isometric::update() {
 	m_uniforms.camPosition = m_camera.getPosition();
 	m_uniforms.lightVP = Matrix4f::IDENTITY;
 	m_uniforms.shadow = Matrix4f::BIAS * m_uniforms.lightVP;
-	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0u, &m_uniforms, sizeof(Uniforms));
 
 	Vector3f posEnemy = Vector3f(2.0f, 120.0f * 0.0044f, 2.0f);
 	m_uniforms.model = Matrix4f::Translate(posEnemy) * Matrix4f::Rotate(0.0f, getLookAtYRotation(posistion, posEnemy), 0.0f);
-	wgpuQueueWriteBuffer(wgpContext.queue, m_instanceBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
+	wgpuQueueWriteBuffer(wgpContext.queue, m_instanceBuffer.getBuffer(), 0u, &m_uniforms, sizeof(Uniforms));
 
 	m_wiggly.nosePos[0] = 1.0f ;
 	m_wiggly.nosePos[1] = 120.0f * 0.0044f ;
 	m_wiggly.nosePos[2] = -2.0f ;
 	m_wiggly.time = Globals::clock.getElapsedTimeSec();
+
 	wgpuQueueWriteBuffer(wgpContext.queue, m_wigglyBuffer.getBuffer(), 0, &m_wiggly, sizeof(Wiggly));
+
+	wgpuQueueWriteBuffer(wgpContext.queue, m_rotationBuffer.getBuffer(), 0u, m_bulletStore.m_rots.data(), m_bulletStore.m_rots.size() * sizeof(Vector4f));
+	wgpuQueueWriteBuffer(wgpContext.queue, m_offsetBuffer.getBuffer(), 0u, m_bulletStore.m_offsets.data(), m_bulletStore.m_offsets.size() * sizeof(Vector4f));
 }
 
 void Isometric::render() {
@@ -403,7 +423,6 @@ void Isometric::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURende
 		WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDescriptor);
 		wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
 
-
 		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_FLOOR"));
 		m_wgpFloor.draw(renderPassEncoder);
 
@@ -412,6 +431,9 @@ void Isometric::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURende
 
 		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_ANIMATION"));
 		m_wgpPlayer.draw(renderPassEncoder);
+
+		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_BULLET"));
+		m_wgpBullet.draw(renderPassEncoder, m_bulletStore.m_rots.size());
 
 		wgpuRenderPassEncoderEnd(renderPassEncoder);
 		wgpuRenderPassEncoderRelease(renderPassEncoder);
@@ -631,6 +653,44 @@ std::vector<WGPUBindGroupLayout> Isometric::OnBindGroupLayoutsWiggly() {
 	return bindingLayouts;
 }
 
+std::vector<WGPUBindGroupLayout> Isometric::OnBindGroupLayoutsBullet() {
+	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
+
+	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(5);
+
+	bindingLayoutEntries[0].binding = 0u;
+	bindingLayoutEntries[0].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
+	bindingLayoutEntries[0].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
+	bindingLayoutEntries[0].buffer.minBindingSize = sizeof(Uniforms);
+
+	bindingLayoutEntries[1].binding = 1u;
+	bindingLayoutEntries[1].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
+	bindingLayoutEntries[1].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
+	bindingLayoutEntries[1].buffer.minBindingSize = sizeof(Vector4f) * 4000u;
+
+	bindingLayoutEntries[2].binding = 2u;
+	bindingLayoutEntries[2].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
+	bindingLayoutEntries[2].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
+	bindingLayoutEntries[2].buffer.minBindingSize = sizeof(Vector4f) * 4000u;
+
+	bindingLayoutEntries[3].binding = 3u;
+	bindingLayoutEntries[3].visibility = WGPUShaderStage_Fragment;
+	bindingLayoutEntries[3].sampler.type = WGPUSamplerBindingType::WGPUSamplerBindingType_Filtering;
+
+	bindingLayoutEntries[4].binding = 4u;
+	bindingLayoutEntries[4].visibility = WGPUShaderStage_Fragment;
+	bindingLayoutEntries[4].texture.sampleType = WGPUTextureSampleType::WGPUTextureSampleType_Float;
+	bindingLayoutEntries[4].texture.viewDimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
+
+	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
+	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
+	bindGroupLayoutDescriptor.entries = bindingLayoutEntries.data();
+
+	bindingLayouts[0] = wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor);
+
+	return bindingLayouts;
+}
+
 std::vector<WGPUBindGroup> Isometric::OnBindGroups() {
 	std::vector<WGPUBindGroup> bindGroups(1);
 
@@ -672,6 +732,42 @@ std::vector<WGPUBindGroup> Isometric::OnBindGroupsFloor() {
 
 	WGPUBindGroupDescriptor bindGroupDesc = {};
 	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_FLOOR"), 0u);
+	bindGroupDesc.entryCount = (uint32_t)bindGroupEntries.size();
+	bindGroupDesc.entries = bindGroupEntries.data();
+
+	bindGroups[0] = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
+
+	return bindGroups;
+}
+
+std::vector<WGPUBindGroup> Isometric::OnBindGroupsBullet() {
+	std::vector<WGPUBindGroup> bindGroups(1);
+
+	std::vector<WGPUBindGroupEntry> bindGroupEntries(5);
+
+	bindGroupEntries[0].binding = 0u;
+	bindGroupEntries[0].buffer = m_uniformBuffer.getBuffer();
+	bindGroupEntries[0].offset = 0u;
+	bindGroupEntries[0].size = wgpuBufferGetSize(m_uniformBuffer.getBuffer());
+
+	bindGroupEntries[1].binding = 1u;
+	bindGroupEntries[1].buffer = m_rotationBuffer.getBuffer();
+	bindGroupEntries[1].offset = 0u;
+	bindGroupEntries[1].size = wgpuBufferGetSize(m_rotationBuffer.getBuffer());
+
+	bindGroupEntries[2].binding = 2u;
+	bindGroupEntries[2].buffer = m_offsetBuffer.getBuffer();
+	bindGroupEntries[2].offset = 0u;
+	bindGroupEntries[2].size = wgpuBufferGetSize(m_rotationBuffer.getBuffer());
+
+	bindGroupEntries[3].binding = 3u;
+	bindGroupEntries[3].sampler = wgpContext.getSampler(SS_LINEAR_CLAMP);
+
+	bindGroupEntries[4].binding = 4u;
+	bindGroupEntries[4].textureView = m_wgpBulletTexture.getTextureView();
+
+	WGPUBindGroupDescriptor bindGroupDesc = {};
+	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_BULLET"), 0u);
 	bindGroupDesc.entryCount = (uint32_t)bindGroupEntries.size();
 	bindGroupDesc.entries = bindGroupEntries.data();
 
