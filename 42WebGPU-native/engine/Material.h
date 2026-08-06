@@ -53,11 +53,11 @@ struct Material {
 	void setAlpha(float alpha) const;
 
 	void addTexture(TextureSlot textureSlot, const std::string& texture);
-	const bool hasTexture(TextureSlot textureSlot) const;
+	bool hasTexture(TextureSlot textureSlot) const;
 	const std::unordered_map<TextureSlot, std::string>& getTextures() const;
 	
-	const float getAlpha() const;
-	const float getShininess() const;
+	float getAlpha() const;
+	float getShininess() const;
 
 	mutable MaterialBuffer m_buffer;
 	std::string m_name;

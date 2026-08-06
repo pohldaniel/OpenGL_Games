@@ -23,9 +23,9 @@ struct CharacterSet {
 	void loadMsdfBmFromFile(const std::string& pathJson, const std::string& pathTexture);
 	const Char& getCharacter(const char c) const;
 	const std::vector<Kerning>& getKernings(const char c) const;
-	const bool hasKernings() const;
-	const bool kerningsHasChar(const char c) const;
-	const float getWidth(const std::string& text) const;
+	bool hasKernings() const;
+	bool kerningsHasChar(const char c) const;
+	float getWidth(const std::string& text) const;
 
 	std::map<char, Char> characters;
 	std::map<char, std::vector<Kerning>> kernings;

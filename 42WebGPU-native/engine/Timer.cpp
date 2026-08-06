@@ -69,15 +69,15 @@ void Timer::startExclusive(unsigned int milli, bool repeat, unsigned int delayMi
 	}
 }
 
-const bool Timer::isActivated() const {
+bool Timer::isActivated() const {
 	return m_activated;
 }
 
-void Timer::update(const float dt) {
+void Timer::update(float dt) {
 	OnUpdate(dt);
 }
 
-void Timer::updateDefault(const float dt) {
+void Timer::updateDefault(float dt) {
 	if (!m_activated)
 		return;
 
@@ -98,7 +98,7 @@ void Timer::updateDefault(const float dt) {
 	}
 }
 
-void Timer::updateDelay(const float dt) {
+void Timer::updateDelay(float dt) {
 	m_elapsedTime += dt;
 	while (m_elapsedTime > m_updateTime + m_delayTime) {
 		m_elapsedTime = 0.0f;

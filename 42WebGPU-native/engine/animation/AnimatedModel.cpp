@@ -17,7 +17,7 @@ bool AnimatedModel::CompareAnimationStates(const std::shared_ptr<AnimationState>
 }
 
 AnimatedModel::AnimatedModel() {
-	m_hasTextureCords = false;
+	m_hasTextureCoords = false;
 	m_hasNormals = false;
 	m_hasTangents = false;
 	m_hasMaterial = false;
@@ -78,7 +78,7 @@ void AnimatedModel::OnAnimationOrderChanged() {
 	m_animationOrderDirty = true;
 }
 
-void AnimatedModel::loadModel(const std::string& path, const short addVirtualRoots) {
+void AnimatedModel::loadModel(const std::string& path, short addVirtualRoots) {
 	Utils::MdlcIO mdlcIO;
 
 	m_meshes.push_back(new AnimatedMesh(this));
@@ -113,7 +113,7 @@ void AnimatedModel::loadModel(const std::string& path, const short addVirtualRoo
 	mesh->createBones();
 }
 
-void AnimatedModel::loadModelAssimp(const std::string& path, const short addVirtualRoots, const bool reverseBoneList) {
+void AnimatedModel::loadModelAssimp(const std::string& path, short addVirtualRoots, bool reverseBoneList) {
 
 	bool exportTangents = false;
 
@@ -140,12 +140,12 @@ void AnimatedModel::loadModelAssimp(const std::string& path, const short addVirt
 		m_meshes.push_back(new AnimatedMesh(this));
 		mesh = static_cast<AnimatedMesh*>(m_meshes.back());
 
-		m_isStacked ? m_hasTextureCords = aiMesh->HasTextureCoords(0) : mesh->m_hasTextureCords = aiMesh->HasTextureCoords(0);
+		m_isStacked ? m_hasTextureCoords = aiMesh->HasTextureCoords(0) : mesh->m_hasTextureCoords = aiMesh->HasTextureCoords(0);
 		m_isStacked ? m_hasNormals = aiMesh->HasNormals() : mesh->m_hasNormals = aiMesh->HasNormals();
 		m_isStacked ? m_hasTangents = aiMesh->HasTangentsAndBitangents()  : mesh->m_hasTangents = aiMesh->HasTangentsAndBitangents() && exportTangents;
 
-		m_isStacked ? m_stride = m_hasTangents ? 14 : (m_hasNormals && m_hasTextureCords) ? 8 : m_hasNormals ? 6 : m_hasTextureCords ? 5 : 3
-			: mesh->m_stride = mesh->m_hasTangents ? 14 : (mesh->m_hasNormals && mesh->m_hasTextureCords) ? 8 : mesh->m_hasNormals ? 6 : mesh->m_hasTextureCords ? 5 : 3;
+		m_isStacked ? m_stride = m_hasTangents ? 14 : (m_hasNormals && m_hasTextureCoords) ? 8 : m_hasNormals ? 6 : m_hasTextureCoords ? 5 : 3
+			: mesh->m_stride = mesh->m_hasTangents ? 14 : (mesh->m_hasNormals && mesh->m_hasTextureCoords) ? 8 : mesh->m_hasNormals ? 6 : mesh->m_hasTextureCoords ? 5 : 3;
 
 		for (unsigned int i = 0; i < aiMesh->mNumVertices; i++) {
 			mesh->m_vertexBuffer.push_back(aiMesh->mVertices[i].x); mesh->m_vertexBuffer.push_back(aiMesh->mVertices[i].y); mesh->m_vertexBuffer.push_back(aiMesh->mVertices[i].z);
@@ -483,8 +483,6 @@ std::vector<std::shared_ptr<AnimationState>>& AnimatedModel::animationStates() {
 }
 ///////////////////////////////////////////////////////////
 AnimatedMesh::AnimatedMesh(AnimatedModel* model) : m_model(model), m_skinMatrices(nullptr), m_bones(nullptr), m_rootBone(nullptr){
-	m_model = model;
-
 	m_numBones = 0u;
 	m_materialIndex = -1;
 	m_textureIndex = -1;

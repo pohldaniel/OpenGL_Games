@@ -29,7 +29,7 @@ protected:
 	mutable unsigned int m_stride;
 
 	unsigned int m_drawCount, m_baseVertex, m_baseIndex;
-	bool m_hasTextureCords, m_hasNormals, m_hasTangents;
+	bool m_hasTextureCoords, m_hasNormals, m_hasTangents;
 
 	
 };

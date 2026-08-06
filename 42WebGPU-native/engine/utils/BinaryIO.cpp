@@ -303,7 +303,7 @@ void Utils::MdlcIO::mdlcModelToBuffer(const char* in, std::vector<float>& vertex
 	file.close();
 }
 
-void  Utils::MdlcIO::animationToAnic(const char* out, const std::string& animationName, const float length, const std::vector<AnimationTrack>& animationTracks) {
+void  Utils::MdlcIO::animationToAnic(const char* out, const std::string& animationName, float length, const std::vector<AnimationTrack>& animationTracks) {
 	std::ofstream file(out, std::ios::binary);
 	file.write(&animationName[0], animationName.size() + 1);
 

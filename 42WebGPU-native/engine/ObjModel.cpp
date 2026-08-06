@@ -154,7 +154,6 @@ void ObjModel::loadModel(const char* filename, bool isStacked, bool withoutNorma
 	loadModelCpu(filename, isStacked, withoutNormals, generateSmoothNormals, generateFlatNormals, generateSmoothTangents, flipYZ, flipWinding, rescale);
 }
 
-
 bool compare(const std::array<int, 10> &i_lhs, const std::array<int, 10> &i_rhs) {
 	return i_lhs[9] < i_rhs[9];
 }
@@ -170,11 +169,11 @@ void ObjModel::loadModelCpu(const char* _filename, bool isStacked, bool withoutN
 
 	std::vector<std::array<int, 10>> face;
 
-	std::vector<float> vertexCords;
-	std::vector<float> normalCords;
-	std::vector<float> textureCords;
-	std::vector<float> tangentCords;
-	std::vector<float> bitangentCords;
+	std::vector<float> vertexCoords;
+	std::vector<float> normalCoords;
+	std::vector<float> textureCoords;
+	std::vector<float> tangentCoords;
+	std::vector<float> bitangentCoords;
 
 	std::map<std::string, int> name;
 
@@ -223,9 +222,9 @@ void ObjModel::loadModelCpu(const char* _filename, bool isStacked, bool withoutN
 					float posY = flipYZ ? tmpz : tmpy;
 					float posZ = flipYZ ? tmpy : tmpz;
 					
-					vertexCords.push_back(tmpx);
-					vertexCords.push_back(posY);
-					vertexCords.push_back(posZ);
+					vertexCoords.push_back(tmpx);
+					vertexCoords.push_back(posY);
+					vertexCoords.push_back(posZ);
 
 					xmin = (std::min)(tmpx, xmin);
 					ymin = (std::min)(posY, ymin);
@@ -242,8 +241,8 @@ void ObjModel::loadModelCpu(const char* _filename, bool isStacked, bool withoutN
 					fgets(buffer, sizeof(buffer), pFile);
 					sscanf(buffer, "%f %f", &tmpu, &tmpv);
 
-					textureCords.push_back(tmpu);
-					textureCords.push_back(tmpv);
+					textureCoords.push_back(tmpu);
+					textureCoords.push_back(tmpv);
 					break;
 
 				}case 'n': {
@@ -256,9 +255,9 @@ void ObjModel::loadModelCpu(const char* _filename, bool isStacked, bool withoutN
 						float normY = flipYZ ? tmpz : tmpy;
 						float normZ = flipYZ ? tmpy : tmpz;
 
-						normalCords.push_back(tmpx);
-						normalCords.push_back(normY);
-						normalCords.push_back(normZ);
+						normalCoords.push_back(tmpx);
+						normalCoords.push_back(normY);
+						normalCoords.push_back(normZ);
 					}
 					break;
 
@@ -310,7 +309,7 @@ void ObjModel::loadModelCpu(const char* _filename, bool isStacked, bool withoutN
 			int p = 0, n = 0, t = 0, acc = 0, read = 0, index = 0;
 			int p1 = 0, p2 = 0, p3 = 0, n1 = 0, n2 = 0, n3 = 0, t1 = 0, t2 = 0, t3 = 0;
 
-			if (!textureCords.empty() && !normalCords.empty()) {
+			if (!textureCoords.empty() && !normalCoords.empty()) {
 				while (sscanf(buffer + acc, "%d/%d/%d%n", &p, &t, &n, &read) > 0) {
 					acc += read;
 					if (index == 0) {
@@ -339,7 +338,7 @@ void ObjModel::loadModelCpu(const char* _filename, bool isStacked, bool withoutN
 					}
 					index++;
 				}
-			}else if (!normalCords.empty()) {
+			}else if (!normalCoords.empty()) {
 				while (sscanf(buffer + acc, "%d//%d%n", &p, &n, &read) > 0) {
 					acc += read;
 					if (index == 0) {
@@ -363,7 +362,7 @@ void ObjModel::loadModelCpu(const char* _filename, bool isStacked, bool withoutN
 
 					index++;
 				}
-			}else if (!textureCords.empty()) {
+			}else if (!textureCoords.empty()) {
 				if (!withoutNormals) {
 					while (sscanf(buffer + acc, "%d/%d/%d%n", &p, &t, &n, &read) > 0) {
 						acc += read;
@@ -458,7 +457,7 @@ void ObjModel::loadModelCpu(const char* _filename, bool isStacked, bool withoutN
 		xmin = FLT_MAX; ymin = FLT_MAX; zmin = FLT_MAX;
 		xmax = -FLT_MAX; ymax = -FLT_MAX; zmax = -FLT_MAX;
 
-		for (std::vector<float>::iterator pit = vertexCords.begin(); pit != vertexCords.end(); pit += 3) {
+		for (std::vector<float>::iterator pit = vertexCoords.begin(); pit != vertexCoords.end(); pit += 3) {
 			*(pit + 0) = _scale * (*(pit + 0) - center[0]);
 			*(pit + 1) = _scale * (*(pit + 1) - center[1]);
 			*(pit + 2) = _scale * (*(pit + 2) - center[2]);
@@ -477,19 +476,19 @@ void ObjModel::loadModelCpu(const char* _filename, bool isStacked, bool withoutN
 
 	if (!withoutNormals) {
 		if (generateSmoothNormals) {
-			ObjModel::GenerateNormals(vertexCords, face, normalCords);
+			ObjModel::GenerateNormals(vertexCoords, face, normalCoords);
 		}
 
 		if (generateFlatNormals) {
-			ObjModel::GenerateFlatNormals(vertexCords, face, normalCords);
+			ObjModel::GenerateFlatNormals(vertexCoords, face, normalCoords);
 		}
 	}
 
 	if (generateSmoothTangents) {
-		if (normalCords.empty()) {
-			ObjModel::GenerateNormals(vertexCords, face, normalCords);
+		if (normalCoords.empty()) {
+			ObjModel::GenerateNormals(vertexCoords, face, normalCoords);
 		}
-		ObjModel::GenerateTangents(vertexCords, textureCords, normalCords, face, tangentCords, bitangentCords);
+		ObjModel::GenerateTangents(vertexCoords, textureCoords, normalCoords, face, tangentCoords, bitangentCoords);
 	}
 
 	std::sort(face.begin(), face.end(), compare);
@@ -526,11 +525,11 @@ void ObjModel::loadModelCpu(const char* _filename, bool isStacked, bool withoutN
 	m_isStacked = !(m_numberOfMeshes == 1) && isStacked;
 
 	IndexBufferCreator indexBufferCreator;
-	indexBufferCreator.positionCoordsIn = vertexCords;
-	indexBufferCreator.normalCoordsIn = normalCords;
-	indexBufferCreator.textureCoordsIn = textureCords;
-	indexBufferCreator.tangentCoordsIn = tangentCords;
-	indexBufferCreator.bitangentCoordsIn = bitangentCords;
+	indexBufferCreator.positionCoordsIn = vertexCoords;
+	indexBufferCreator.normalCoordsIn = normalCoords;
+	indexBufferCreator.textureCoordsIn = textureCoords;
+	indexBufferCreator.tangentCoordsIn = tangentCoords;
+	indexBufferCreator.bitangentCoordsIn = bitangentCoords;
 	
 	std::vector<unsigned int>::iterator triangles = numberOfTriangles.begin();
 	Mesh* prevMesh = nullptr;
@@ -544,27 +543,27 @@ void ObjModel::loadModelCpu(const char* _filename, bool isStacked, bool withoutN
 		std::vector<std::array<int, 10>> subFace(first, last);
 		indexBufferCreator.face = subFace;
 		indexBufferCreator.createIndexBuffer(flipWinding || flipYZ);
-		if (!tangentCords.empty()) {
+		if (!tangentCoords.empty()) {
 			m_hasTextureCoords = true; m_hasNormals = true; m_hasTangents = true;
 			m_stride = 14;
-			mesh->m_hasTextureCords = true; mesh->m_hasNormals = true; mesh->m_hasTangents = true;
+			mesh->m_hasTextureCoords = true; mesh->m_hasNormals = true; mesh->m_hasTangents = true;
 			mesh->m_stride = 14;
-		} else if (!textureCords.empty() && !normalCords.empty()) {
+		} else if (!textureCoords.empty() && !normalCoords.empty()) {
 			m_hasTextureCoords = true; m_hasNormals = true;
 			m_stride = 8;
-			mesh->m_hasTextureCords = true; mesh->m_hasNormals = true;
+			mesh->m_hasTextureCoords = true; mesh->m_hasNormals = true;
 			mesh->m_stride = 8;
 
-		}else if (!normalCords.empty()) {
+		}else if (!normalCoords.empty()) {
 			m_hasNormals = true;
 			m_stride = 6;
 			mesh->m_hasNormals = true;
 			mesh->m_stride = 6;
 
-		}else if (!textureCords.empty()) {
+		}else if (!textureCoords.empty()) {
 			m_hasTextureCoords = true;
 			m_stride = 5;
-			mesh->m_hasTextureCords = true;
+			mesh->m_hasTextureCoords = true;
 			mesh->m_stride = 5;
 
 		}else {
@@ -924,7 +923,7 @@ unsigned int ObjMesh::getNumberOfTriangles() const {
 	return m_drawCount / 3;
 }
 
-const bool ObjMesh::hasMaterial() const {
+bool ObjMesh::hasMaterial() const {
 	return m_materialIndex >= 0;
 }
 ////////////////////////////////////////////////////////////////////////////////

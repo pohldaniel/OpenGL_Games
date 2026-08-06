@@ -146,7 +146,7 @@ std::map<std::string, AnimationTrack>& Animation::tracks() const {
 	return m_tracks;
 }
 
-void Animation::setPositionOfTrack(const std::string& name, const float x, const float y, const float z) {
+void Animation::setPositionOfTrack(const std::string& name, float x, float y, float z) {
 	AnimationTrack* track = findTrack(name);
 	if (track) {
 		for (auto& keyFrame : track->m_keyFrames) {
@@ -155,7 +155,7 @@ void Animation::setPositionOfTrack(const std::string& name, const float x, const
 	}
 }
 
-void Animation::setScaleOfTrack(const std::string& name, const float sx, const float sy, const float sz) {
+void Animation::setScaleOfTrack(const std::string& name, float sx, float sy, float sz) {
 	AnimationTrack* track = findTrack(name);
 	if (track) {
 		for (auto& keyFrame : track->m_keyFrames) {
@@ -164,7 +164,7 @@ void Animation::setScaleOfTrack(const std::string& name, const float sx, const f
 	}
 }
 
-void Animation::scaleTrack(const std::string& name, const float sx, const float sy, const float sz) {
+void Animation::scaleTrack(const std::string& name, float sx, float sy, float sz) {
 	AnimationTrack* track = findTrack(name);
 	if (track) {
 		for (auto& keyFrame : track->m_keyFrames) {

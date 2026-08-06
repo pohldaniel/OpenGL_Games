@@ -35,7 +35,7 @@ public:
 	void rotate(float yaw, float pitch, const Vector3f &target);
 	void updateTarget();
 
-	void pitchReflection(const float distance);
+	void pitchReflection(float distance);
 	void calcLightTransformation(Vector3f &direction);
 	void calcLightTransformation2(Vector3f &direction);
 
@@ -44,23 +44,23 @@ public:
 	
 	void calcLightTransformation(Vector3f &direction, float near, float far, Matrix4f& viewMatrix, Matrix4f& perspectiveMatrix);
 
-	const float getFar() const;
-	const float getNear() const;
-	const float getFovXDeg() const;
-	const float getFovXRad() const;
-	const float getTanFov() const;
-	const float getAspect(bool ortho = false) const;
-	const float getOffsetDistance() const;
+	float getFar() const;
+	float getNear() const;
+	float getFovXDeg() const;
+	float getFovXRad() const;
+	float getTanFov() const;
+	float getAspect(bool ortho = false) const;
+	float getOffsetDistance() const;
 
-	const float getLeftOrthographic() const;
-	const float getRightOrthographic() const;
-	const float getBottomOrthographic() const;
-	const float getTopOrthographic() const;
-	const float getNearOrthographic() const;
-	const float getFarOrthographic() const;
-	const float getPitchDegrees() const;
-	const float getYawDegrees() const;
-	const float getRotationSpeed() const;
+	float getLeftOrthographic() const;
+	float getRightOrthographic() const;
+	float getBottomOrthographic() const;
+	float getTopOrthographic() const;
+	float getNearOrthographic() const;
+	float getFarOrthographic() const;
+	float getPitchDegrees() const;
+	float getYawDegrees() const;
+	float getRotationSpeed() const;
 
 	const Matrix4f& getViewMatrix() const;
 	const Matrix4f& getInvViewMatrix() const;
@@ -75,20 +75,20 @@ public:
 	const Matrix4f getRotationMatrix(const Vector3f &position = Vector3f(0.0f, 0.0f, 0.0f)) const;
 
 	const Vector3f& getPosition() const;
-	const float getPositionX() const;
-	const float getPositionY() const;
-	const float getPositionZ() const;
+	float getPositionX() const;
+	float getPositionY() const;
+	float getPositionZ() const;
 	const Vector3f& getCamX() const;
 	const Vector3f& getCamY() const;
 	const Vector3f& getCamZ() const;
 	const Vector3f& getViewDirection() const;
-	const float getViewDirectionX() const;
-	const float getViewDirectionY() const;
-	const float getViewDirectionZ() const;
+	float getViewDirectionX() const;
+	float getViewDirectionY() const;
+	float getViewDirectionZ() const;
 	const Vector3f getViewSpaceDirection(const Vector3f &direction);
-	const float getDistance() const;
-	const float getDistanceSq() const;
-	//const float getYawDeg() const;
+	float getDistance() const;
+	float getDistanceSq() const;
+	//float getYawDeg() const;
 
 	void setPosition(float x, float y, float z, bool observe = false);
 	void setPosition(const Vector3f &position, bool observe = false);
@@ -198,7 +198,7 @@ public:
 	void setHeight(float height);
 	void resize(unsigned int width, unsigned int height);
 	int convertCoordinates(unsigned int x, unsigned int y, float &, float &);
-	const float getAngle() const;
+	float getAngle() const;
 	void scrollOver(float x, float y);
 	void setSpeed(float speed);
 

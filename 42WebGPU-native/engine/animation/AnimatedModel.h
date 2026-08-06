@@ -80,7 +80,7 @@ private:
 
 	unsigned int m_numberOfTriangles, m_numberOfMeshes, m_stride;
 
-	bool m_hasTextureCords, m_hasNormals, m_hasTangents, m_hasMaterial;
+	bool m_hasTextureCoords, m_hasNormals, m_hasTangents, m_hasMaterial;
 	bool m_isStacked;
 
 	bool m_animationOrderDirty, m_hasAnimationController;

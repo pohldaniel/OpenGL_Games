@@ -257,12 +257,12 @@ void AssimpModel::loadModelCpu(const char* _filename, bool isStacked, bool gener
 		if (aiMaterial->GetName().length != 0) {
 			AssimpModel::ReadAiMaterial(aiMaterial, mesh->m_materialIndex, m_modelDirectory, aiMaterial->GetName().length == 0 ? "default" : aiMaterial->GetName().data);
 		}
-		m_isStacked ? m_hasTextureCoords = aiMesh->HasTextureCoords(0) : mesh->m_hasTextureCords = aiMesh->HasTextureCoords(0);
+		m_isStacked ? m_hasTextureCoords = aiMesh->HasTextureCoords(0) : mesh->m_hasTextureCoords = aiMesh->HasTextureCoords(0);
 		m_isStacked ? m_hasNormals = aiMesh->HasNormals() : mesh->m_hasNormals = aiMesh->HasNormals();
 		m_isStacked ? m_hasTangents = aiMesh->HasTangentsAndBitangents() && exportTangents : mesh->m_hasTangents = aiMesh->HasTangentsAndBitangents() && exportTangents;
 
 		m_isStacked ? m_stride = m_hasTangents ? 14 : (m_hasNormals && m_hasTextureCoords) ? 8 : m_hasNormals ? 6 : m_hasTextureCoords ? 5 : 3
-			: mesh->m_stride = mesh->m_hasTangents ? 14 : (mesh->m_hasNormals && mesh->m_hasTextureCords) ? 8 : mesh->m_hasNormals ? 6 : mesh->m_hasTextureCords ? 5 : 3;
+			: mesh->m_stride = mesh->m_hasTangents ? 14 : (mesh->m_hasNormals && mesh->m_hasTextureCoords) ? 8 : mesh->m_hasNormals ? 6 : mesh->m_hasTextureCoords ? 5 : 3;
 
 
 		if (m_isStacked) {
@@ -288,7 +288,7 @@ void AssimpModel::loadModelCpu(const char* _filename, bool isStacked, bool gener
 
 			vertexBuffer.push_back(posX); vertexBuffer.push_back(posY); vertexBuffer.push_back(posZ);
 
-			if (m_hasTextureCoords || mesh->m_hasTextureCords) {
+			if (m_hasTextureCoords || mesh->m_hasTextureCoords) {
 				vertexBuffer.push_back(aiMesh->mTextureCoords[0][i].x); vertexBuffer.push_back(aiMesh->mTextureCoords[0][i].y);
 			}
 
@@ -593,7 +593,7 @@ const std::unordered_map<TextureSlot, std::pair<unsigned char*, unsigned int>>& 
 	return m_embeddedTextures;
 }
 
-const void AssimpMesh::removeEmbeddedTexture(TextureSlot textureSlot) const {
+void AssimpMesh::removeEmbeddedTexture(TextureSlot textureSlot) const {
 	if (m_embeddedTextures.count(textureSlot)) {
 		std::pair<unsigned char*, unsigned int>& texture = m_embeddedTextures.at(textureSlot);
 		free(texture.first);
@@ -601,6 +601,6 @@ const void AssimpMesh::removeEmbeddedTexture(TextureSlot textureSlot) const {
 	}
 }
 
-const bool AssimpMesh::hasMaterial() const {
+bool AssimpMesh::hasMaterial() const {
 	return m_materialIndex >= 0;
 }

@@ -13,7 +13,7 @@ public:
 	void addStateAtBottom(T* state);
 	void clearAndPush(T* state);
 
-	const bool isRunning() const;
+	bool isRunning() const;
 	std::stack<T*>& getStates();
 
 protected:
@@ -60,7 +60,7 @@ void IStateMachine<T>::clearAndPush(T* state) {
 }
 
 template<typename T>
-const bool IStateMachine<T>::isRunning() const {
+bool IStateMachine<T>::isRunning() const {
 	return m_isRunning;
 }
 
@@ -93,8 +93,8 @@ public:
 	virtual void resize(int deltaW, int deltaH) {};
 	virtual void OnReEnter(unsigned int prevState) {};
 
-	const bool isRunning() const;
-	const bool isActive() const;
+	bool isRunning() const;
+	bool isActive() const;
 	void stopState();
 
 protected:
@@ -104,12 +104,12 @@ protected:
 };
 
 template<typename T>
-const bool IState<T>::isRunning() const {
+bool IState<T>::isRunning() const {
 	return m_isRunning;
 }
 
 template<typename T>
-const bool IState<T>::isActive() const {
+bool IState<T>::isActive() const {
 	return m_isActive;
 }
 

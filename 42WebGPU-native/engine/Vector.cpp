@@ -2776,7 +2776,7 @@ void Vector2f::translate(const Vector2f& rhs) {
 	vec[0] += rhs[0], vec[1] += rhs[1];
 }
 
-void Vector2f::translate(const float dx, const float dy) {
+void Vector2f::translate(float dx, float dy) {
 	vec[0] += dx, vec[1] += dy;
 }
 
@@ -2784,7 +2784,7 @@ void Vector2f::scale(const Vector2f &rhs) {
 	vec[0] *= rhs[0], vec[1] *= rhs[1];
 }
 
-void Vector2f::scale(const float sx, const float sy) {
+void Vector2f::scale(float sx, float sy) {
 	vec[0] *= sx, vec[1] *= sy;
 }
 
@@ -2792,7 +2792,7 @@ float &Vector2f::operator[](int index) {
 	return vec[index];
 }
 
-const float Vector2f::operator[](int index) const {
+float Vector2f::operator[](int index) const {
 	return vec[index];
 }
 
@@ -2952,7 +2952,7 @@ float &Vector3f::operator[](int index) {
 	return vec[index];
 }
 
-const float Vector3f::operator[](int index) const {
+float Vector3f::operator[](int index) const {
 	return vec[index];
 }
 
@@ -3140,7 +3140,7 @@ void Vector3f::translate(const Vector3f &rhs) {
 	vec[0] += rhs[0], vec[1] += rhs[1], vec[2] += rhs[2];
 }
 
-void Vector3f::translate(const float dx, const float dy, const float dz) {
+void Vector3f::translate(float dx, float dy, float dz) {
 	vec[0] += dx, vec[1] += dy, vec[2] += dz;
 }
 
@@ -3148,7 +3148,7 @@ void Vector3f::scale(const Vector3f &rhs) {
 	vec[0] *= rhs[0], vec[1] *= rhs[1], vec[2] *= rhs[2];
 }
 
-void Vector3f::scale(const float sx, const float sy, const float sz) {
+void Vector3f::scale(float sx, float sy, float sz) {
 	vec[0] *= sx, vec[1] *= sy, vec[2] *= sz;
 }
 
@@ -3253,7 +3253,7 @@ float &Vector4f::operator[](int index) {
 	return vec[index];
 }
 
-const float Vector4f::operator[](int index) const {
+float Vector4f::operator[](int index) const {
 	return vec[index];
 }
 
@@ -3469,7 +3469,7 @@ float &Quaternion::operator[](int index) {
 	return quat[index];
 }
 
-const float Quaternion::operator[](int index) const {
+float Quaternion::operator[](int index) const {
 	return quat[index];
 }
 

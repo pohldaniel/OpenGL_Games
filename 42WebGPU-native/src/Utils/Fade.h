@@ -7,7 +7,7 @@ public:
 
 	Fade(float& fadeValue);
 
-	void update(const float dt);
+	void update(float dt);
 	void toggleFade(bool activate = true);
 	void fadeIn(bool activate = true);
 	void fadeOut(bool activate = true);
@@ -15,11 +15,11 @@ public:
 	void setOnFadeEnd(std::function<void()> fun);
 	void setOnFadeIn(std::function<void()> fun);
 	void setOnFadeOut(std::function<void()> fun);
-	void setTransitionSpeed(const float transitionSpeed);
+	void setTransitionSpeed(float transitionSpeed);
 	void setTransitionEnd(bool transitionEnd);
 	void setFadeValue(float fadeValue);
-	const bool isActivated() const;
-	const float getTransitionSpeed() const;
+	bool isActivated() const;
+	float getTransitionSpeed() const;
 
 private:
 

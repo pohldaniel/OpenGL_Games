@@ -13,12 +13,12 @@ public:
 
 	virtual ~Timer() = default;
 
-	virtual void update(const float dt);
+	virtual void update(float dt);
 	void start(unsigned int milli, bool repeat = true, unsigned int delayMilli = 0u, bool starOnce = false);
 	void startExclusive(unsigned int milli, bool repeat = true, unsigned int delayMilli = 0u, bool starOnce = false);
 	void stop();
 	void print();
-	const bool isActivated() const;
+	bool isActivated() const;
 	void setOnTimerEnd(std::function<void()> fun);
 	void setStartOnce(bool startOnce);
 
@@ -33,10 +33,10 @@ protected:
 
 private:
 	
-	void updateDefault(const float dt);
-	void updateDelay(const float dt);
+	void updateDefault(float dt);
+	void updateDelay(float dt);
 
-	std::function<void(const float dt)> OnUpdate;
+	std::function<void(float dt)> OnUpdate;
 	std::function<void()> OnTimerEnd;
 };
 
@@ -61,7 +61,7 @@ public:
 
 	~CBTimer();
 
-	void update(const float dt) override;
+	void update(float dt) override;
 	void setReceiver(U* receiver);
 	void setCallBack(CallBack callBack);
 	U* m_receiver;
@@ -109,7 +109,7 @@ CBTimer<U>& CBTimer<U>::operator=(CBTimer&& rhs) {
 }
 
 template <typename U>
-void CBTimer<U>::update(const float dt) {
+void CBTimer<U>::update(float dt) {
 
 	if (!m_activated)
 		return;

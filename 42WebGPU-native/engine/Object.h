@@ -39,7 +39,7 @@ public:
 
 	const Vector2f& getPosition() const;
 	const Vector2f& getScale() const;
-	const float getOrientation() const;
+	float getOrientation() const;
 
 	const Matrix4f& getTransformationSOP() const;
 	const Matrix4f& getTransformationSO() const;

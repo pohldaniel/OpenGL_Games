@@ -61,12 +61,12 @@ public:
 	float angle();
 	Vector2f getNegativeReciprocal();
 	void translate(const Vector2f& rhs);
-	void translate(const float dx, const float dy);
+	void translate(float dx, float dy);
 	void scale(const Vector2f& rhs);
-	void scale(const float sx, const float sy);
+	void scale(float sx, float sy);
 
 	float &operator[](int index);
-	const float operator[](int index) const;
+	float operator[](int index) const;
 
 	Vector2f& operator=(const Vector2f& rhs);
 	Vector2f &operator=(Vector2f&& rhs);
@@ -126,14 +126,14 @@ public:
 
 	void set(float x_, float y_, float z_);
 	void translate(const Vector3f& rhs);
-	void translate(const float dx, const float dy, const float dz);
+	void translate(float dx, float dy, float dz);
 	void scale(const Vector3f& rhs);
-	void scale(const float sx, const float sy, const float sz);
+	void scale(float sx, float sy, float sz);
 	bool compare(const Vector3f& rhs, float precision) const;
 	bool compareXZ(const Vector3f &rhs, float precision) const;
 
 	float &operator[](int index);
-	const float operator[](int index) const;
+	float operator[](int index) const;
 
 	const float* getVec()const;
 	float* getVec();
@@ -201,7 +201,7 @@ public:
 	~Vector4f() = default;
 
 	float &operator[](int index);
-	const float operator[](int index) const;
+	float operator[](int index) const;
 
 	Vector4f &operator=(const Vector4f &rhs);
 	Vector4f &operator=(Vector4f&& rhs);
@@ -464,7 +464,7 @@ public:
 	~Quaternion() = default;
 
 	float &operator[](int index);
-	const float operator[](int index) const;
+	float operator[](int index) const;
 	bool operator==(const Quaternion &rhs) const;
 	bool operator!=(const Quaternion &rhs) const;
 

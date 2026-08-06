@@ -364,7 +364,7 @@ void Camera::lookAt(float distance, float pitch, float yaw, float roll) {
 	fillTranslationPart();
 }
 
-void Camera::pitchReflection(const float distance) {
+void Camera::pitchReflection(float distance) {
 	m_viewMatrix[1][1] = -m_viewMatrix[1][1];
 	m_viewMatrix[3][1] = 2 * distance + m_viewMatrix[3][1];
 }
@@ -404,15 +404,15 @@ const Vector3f Camera::getViewSpaceDirection(const Vector3f &direction) {
 					m_xAxis[2] * direction[0] + m_yAxis[2] * direction[1] + m_viewDir[2] * direction[2]);
 }
 
-const float Camera::getDistance() const {
+float Camera::getDistance() const {
 	return (m_target - m_eye).length();
 }
 
-const float Camera::getDistanceSq() const {
+float Camera::getDistanceSq() const {
 	return (m_target - m_eye).lengthSq();
 }
 
-/*const float Camera::getYawDeg() const {
+/*float Camera::getYawDeg() const {
 	return acosf(m_viewMatrix[2][2]) *  _180_ON_PI;
 }*/
 
@@ -497,71 +497,71 @@ void Camera::rotateFirstPerson(float yaw, float pitch){
 	}
 }
 
-const float Camera::getFar() const {
+float Camera::getFar() const {
 	return m_persMatrix[3][2] / (m_persMatrix[2][2] + 1);
 }
 
-const float Camera::getNear() const {
+float Camera::getNear() const {
 	return m_persMatrix[3][2] / (m_persMatrix[2][2] - 1);
 }
 
-const float Camera::getFovXDeg() const {
+float Camera::getFovXDeg() const {
 	return 2.0f * atanf(1.0f / m_persMatrix[1][1]) * _180_ON_PI;
 }
 
-const float Camera::getFovXRad() const {
+float Camera::getFovXRad() const {
 	return 2.0f * atanf(1.0f / m_persMatrix[1][1]);
 }
 
-const float Camera::getTanFov() const {
+float Camera::getTanFov() const {
 	//return 1.0f / m_persMatrix[1][1];
 	return m_invPersMatrix[1][1];
 }
 
-const float Camera::getAspect(bool ortho) const {
+float Camera::getAspect(bool ortho) const {
 	//return m_persMatrix[1][1] / m_persMatrix[0][0];
 	return ortho ? m_orthMatrix[0][0] / m_orthMatrix[1][1] : m_invPersMatrix[0][0] / m_invPersMatrix[1][1];
 }
 
-const float Camera::getLeftOrthographic() const {
+float Camera::getLeftOrthographic() const {
 	return -(1.0f / m_orthMatrix[0][0]) * (1.0f + m_orthMatrix[3][0]);
 }
 
-const float Camera::getRightOrthographic() const {
+float Camera::getRightOrthographic() const {
 	return (1.0f / m_orthMatrix[0][0]) * (1.0f - m_orthMatrix[3][0]);
 }
 
-const float Camera::getBottomOrthographic() const {
+float Camera::getBottomOrthographic() const {
 	return -(1.0f / m_orthMatrix[1][1]) * (1.0f + m_orthMatrix[3][1]);
 }
 
-const float Camera::getTopOrthographic() const {
+float Camera::getTopOrthographic() const {
 	return (1.0f / m_orthMatrix[1][1]) * (1.0f - m_orthMatrix[3][1]);
 }
 
-const float Camera::getNearOrthographic() const {
+float Camera::getNearOrthographic() const {
 	return (1.0f / m_orthMatrix[2][2]) * (1.0f - m_orthMatrix[3][2]);
 }
 
-const float Camera::getFarOrthographic() const {
+float Camera::getFarOrthographic() const {
 	return -(1.0f / m_orthMatrix[2][2]) * (1.0f + m_orthMatrix[3][2]);
 }
 
-const float Camera::getPitchDegrees() const {
+float Camera::getPitchDegrees() const {
 	return m_accumPitchDegrees;
 	//return -asinf(m_viewMatrix[2][1]) * _180_ON_PI;
 }
 
-const float Camera::getYawDegrees() const {
+float Camera::getYawDegrees() const {
 	return m_accumYawDegrees;
 	//return atan2f(m_zAxis[2], m_zAxis[0]) * _180_ON_PI - 90.0f;
 }
 
-const float Camera::getOffsetDistance() const {
+float Camera::getOffsetDistance() const {
 	return m_distance;
 }
 
-const float Camera::getRotationSpeed() const {
+float Camera::getRotationSpeed() const {
 	return m_rotationSpeed;
 }
 
@@ -1002,15 +1002,15 @@ const Vector3f &Camera::getPosition() const{
 	return m_eye;
 }
 
-const float Camera::getPositionX() const {
+float Camera::getPositionX() const {
 	return m_eye[0];
 }
 
-const float Camera::getPositionY() const {
+float Camera::getPositionY() const {
 	return m_eye[1];
 }
 
-const float Camera::getPositionZ() const {
+float Camera::getPositionZ() const {
 	return m_eye[2];
 }
 
@@ -1030,15 +1030,15 @@ const Vector3f &Camera::getViewDirection() const {
 	return m_viewDir;
 }
 
-const float Camera::getViewDirectionX() const {
+float Camera::getViewDirectionX() const {
 	return m_viewDir[0];
 }
 
-const float Camera::getViewDirectionY() const {
+float Camera::getViewDirectionY() const {
 	return m_viewDir[1];
 }
 
-const float Camera::getViewDirectionZ() const {
+float Camera::getViewDirectionZ() const {
 	return m_viewDir[2];
 }
 
@@ -1419,7 +1419,7 @@ int IsometricCamera::convertCoordinates(unsigned int x, unsigned int y, float &x
 	return 0;
 }
 
-const float IsometricCamera::getAngle() const {
+float IsometricCamera::getAngle() const {
 	return m_angle;
 }
 

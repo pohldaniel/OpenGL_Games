@@ -124,7 +124,7 @@ const Vector2f& Object2D::getScale() const {
 	return m_scale;
 }
 
-const float Object2D::getOrientation() const {
+float Object2D::getOrientation() const {
 	return m_orientation;
 }
 

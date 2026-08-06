@@ -13,11 +13,11 @@ const std::vector<Kerning>& CharacterSet::getKernings(const char c) const {
 	return kernings.at(c);
 }
 
-const bool CharacterSet::hasKernings() const {
+bool CharacterSet::hasKernings() const {
 	return !kernings.empty();
 }
 
-const bool CharacterSet::kerningsHasChar(const char c) const {
+bool CharacterSet::kerningsHasChar(const char c) const {
 	return kernings.count(c);
 }
 
@@ -117,7 +117,7 @@ void CharacterSet::loadMsdfBmFromFile(const std::string& pathJson, const std::st
 	m_texture.loadFromFile(pathTexture);
 }
 
-const float CharacterSet::getWidth(const std::string& text) const {
+float CharacterSet::getWidth(const std::string& text) const {
 	float sizeX = 0.0f;
 	std::string::const_iterator c;
 	for (c = text.begin(); c != text.end(); c++) {

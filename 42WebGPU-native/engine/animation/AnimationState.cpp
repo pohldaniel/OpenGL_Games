@@ -1,6 +1,6 @@
 #include "AnimationState.h"
 
-AnimationStateTrack::AnimationStateTrack() : m_track(nullptr), m_bone(nullptr), m_weight(1.0f), m_keyFrame(0) {
+AnimationStateTrack::AnimationStateTrack() : m_track(nullptr), m_bone(nullptr), m_weight(1.0f), m_keyFrame(0u) {
 
 }
 
@@ -200,8 +200,7 @@ void AnimationState::applyToModel() {
 				newScale = Math::Lerp(bone->m_scale, newScale, finalWeight);
 		}
 	
-		bone->setTransformSilent(newPosition, newRotation, newScale);
-		bone->OnTransformChanged();
+		bone->setTransform(newPosition, newRotation, newScale);
 	}
 }
 

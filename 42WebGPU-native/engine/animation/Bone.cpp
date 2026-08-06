@@ -92,10 +92,6 @@ const std::string& Bone::getName() const {
 	return m_name;
 }
 
-const Vector3f& Bone::getScale() const {
-	return m_scale;
-}
-
 void Bone::setPosition(const Vector3f& position) {
 	m_position = position;
 	OnTransformChanged();
@@ -141,7 +137,7 @@ void Bone::setIsRootBone(bool rootBone) {
 	m_isRootBone = rootBone;
 }
 
-const bool Bone::isRootBone() const {
+bool Bone::isRootBone() const {
 	return m_isRootBone;
 }
 
@@ -176,6 +172,10 @@ const Quaternion& Bone::getOrientation() const {
 	return m_orientation;
 }
 
+const Vector3f& Bone::getScale() const {
+	return m_scale;
+}
+
 void Bone::countChildBones() {
 	m_numChildBones = 0;
 	for (auto it = m_children.begin(); it != m_children.end(); ++it) {
@@ -184,7 +184,7 @@ void Bone::countChildBones() {
 	}
 }
 
-void Bone::rotate(const float pitch, const float yaw, const float roll) {
+void Bone::rotate(float pitch, float yaw, float roll) {
 	m_orientation.rotate(pitch, yaw, roll);
 	OnTransformChanged();
 }

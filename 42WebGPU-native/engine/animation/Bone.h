@@ -34,10 +34,11 @@ public:
 
 	const Vector3f& getPosition() const;
 	const Quaternion& getOrientation() const;
+	const Vector3f& getScale() const;
 
-	const bool isRootBone() const;
+	bool isRootBone() const;
 	void setHasParent(bool hasParent);
-	void rotate(const float pitch, const float yaw, const float roll);
+	void rotate(float pitch, float yaw, float roll);
 
 	const Matrix4f& getWorldTransformation() const;
 	const Matrix4f& getTransformationSOP() const;
@@ -46,8 +47,7 @@ protected:
 
 	void OnTransformChanged();	
 	const std::string& getName() const;
-	const Vector3f& getScale() const;
-
+	
 private:
 	
 	Bone* addChild(Bone* node);

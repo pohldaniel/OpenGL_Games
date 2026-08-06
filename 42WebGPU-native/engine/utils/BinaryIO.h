@@ -49,7 +49,7 @@ namespace Utils {
 		void animatedModelToMdlc(const char* out, const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, uint32_t stride, const std::vector<std::array<float, 4>>& weights, const std::vector<std::array<unsigned int, 4>>& joints, const std::vector<BoneDescription>& boneDescriptions);
 		void mdlcModelToBuffer(const char* in, std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, uint32_t& stride, std::vector<std::array<float, 4>>& weights, std::vector<std::array<unsigned int, 4>>& joints, std::vector<BoneDescription>& boneDescriptions);
 
-		void animationToAnic(const char* out, const std::string& animationName, const float length, const std::vector<AnimationTrack>& animationTracks);
+		void animationToAnic(const char* out, const std::string& animationName, float length, const std::vector<AnimationTrack>& animationTracks);
 		void anicToBuffer(const char* in, std::string& animationName, float& length, std::map<std::string, AnimationTrack>& animationTracks);
 	};
 

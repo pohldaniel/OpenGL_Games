@@ -121,7 +121,7 @@ public:
 	unsigned int getNumberOfTriangles() const;
 	void cleanup();
 
-	const bool hasMaterial() const;
+	bool hasMaterial() const;
 
 private:
 
