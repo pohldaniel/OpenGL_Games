@@ -83,7 +83,7 @@ void BulletStore::createBullets(const glm::vec3& position, const glm::quat& midO
       for (int i = iStart; i < iEnd; ++i) {
         const glm::quat yQuat = glm::rotate(
             midOri,
-            rotPerBullet * (i - spreadAmount / 2),
+            rotPerBullet * (i - spreadAmount / 2) - glm::pi<float>() * 0.5f,
             glm::vec3(0.0f, 1.0f, 0.0f));
         for (int j = 0; j < spreadAmount; ++j) {
             const glm::quat rotQuat = glm::rotate(

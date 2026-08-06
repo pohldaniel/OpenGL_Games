@@ -55,7 +55,7 @@ public:
 private:
 
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayouts();
-	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsTexture();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsFloor();
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsWiggly();
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsBullet();
 
@@ -66,31 +66,26 @@ private:
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 	bool getWorldPosition(int xPos, int yPos, const Vector3f& planeNormal, Vector3f& outIntersection);
 	float getLookAtYRotation(const Vector3f& objectPos, const Vector3f& targetPos);
-	float getLookAtYRotationR(const Vector3f& objectPos, const Vector3f& targetPos);
 
 	bool m_initUi = true;
 	bool m_drawUi = false;
 	bool m_isDeath = false;
 
 	Camera m_camera;
-	Uniforms m_uniforms;
-	Wiggly m_wiggly;
+	Uniforms m_uniforms;	
 	TrackBall m_trackball;
 	JoystickResult m_joystickResult;
 	RotationButtonResult m_rotationButtonResult;
-	Transform m_transform;
+	Wiggly m_wiggly;
 
 	AssimpModel m_enemy;
 	AnimatedModel m_player;
-
 	Shape m_floor, m_bullet;
 
 	WgpBuffer m_uniformBuffer, m_instanceBuffer, m_wigglyBuffer, m_skinBuffer, m_rotationBuffer, m_offsetBuffer;
 	WgpModel m_wgpPlayer, m_wgpFloor, m_wgpEnemy, m_wgpBullet;
 	WgpTexture m_wgpFloorD, m_wgpEnemyD, m_wgpBulletTexture;
-	
-	float m_weightRight = 0.5f;
-	float m_weightLeft = 0.5f;
+	BulletStore m_bulletStore;
 
 	float prev_idleWeight = 0.0f;
 	float prev_rightWeight = 0.0f;
@@ -99,12 +94,8 @@ private:
 	float prev_leftWeight = 0.0f;
 	const float animTransitionTime = 0.2f;
 	float deathTime = -1.0f;
-	float aimTheta = PI * 1.5f;
+	float aimTheta = 0.0f;
 	float lastFireTime = 0.0f;
-
-	//std::vector<glm::quat> m_rots;
-	//std::vector<glm::vec3> m_offsets;
-	BulletStore m_bulletStore;
 
 	static WGPUBindGroup CreateBindGroup(const WgpBuffer& uniformBuffer, const WgpBuffer& wigglyBuffer, const WgpTexture& texture);
 };

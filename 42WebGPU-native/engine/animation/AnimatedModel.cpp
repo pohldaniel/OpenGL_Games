@@ -74,6 +74,10 @@ void AnimatedModel::setHasAnimationController(bool hasAnimationController) {
 	m_hasAnimationController = hasAnimationController;
 }
 
+const Quaternion& AnimatedModel::getOrientation() const {
+	return static_cast<AnimatedMesh*>(m_meshes.front())->getRootBone()->getOrientation();
+}
+
 void AnimatedModel::OnAnimationOrderChanged() {
 	m_animationOrderDirty = true;
 }
@@ -356,9 +360,9 @@ void AnimatedModel::setScale(float sx, float sy, float sz) {
 	}
 }
 
-void AnimatedModel::setRotation(float pitch, float yaw, float roll) {
+void AnimatedModel::setOrientation(float pitch, float yaw, float roll) {
 	for (std::vector<Mesh*>::iterator mesh = m_meshes.begin(); mesh != m_meshes.end(); mesh++) {
-		static_cast<AnimatedMesh*>(*mesh)->setRotation(pitch, yaw, roll);
+		static_cast<AnimatedMesh*>(*mesh)->setOrientation(pitch, yaw, roll);
 	}
 }
 
@@ -635,7 +639,7 @@ void AnimatedMesh::setScale(float sx, float sy, float sz) {
 	}
 }
 
-void AnimatedMesh::setRotation(float pitch, float yaw, float roll) {
+void AnimatedMesh::setOrientation(float pitch, float yaw, float roll) {
 	for (size_t i = 0u; i < m_numBones; ++i) {
 		if (m_bones[i]->isRootBone()) {
 			m_boneDescriptions[i].initialRotation = Quaternion(pitch, yaw, roll);

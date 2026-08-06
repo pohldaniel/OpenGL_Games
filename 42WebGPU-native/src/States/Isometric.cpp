@@ -132,10 +132,10 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 	wgpContext.createRenderPipeline("ANIMATION", "RP_ANIMATION", VL_PTNWJ, std::bind(&Isometric::OnBindGroupLayouts, this));
 
 	wgpContext.addSahderModule("FLOOR", "res/shader/floor.wgsl");
-	wgpContext.createRenderPipeline("FLOOR", "RP_FLOOR", VL_PTN, std::bind(&Isometric::OnBindGroupLayoutsTexture, this));
+	wgpContext.createRenderPipeline("FLOOR", "RP_FLOOR", VL_PTN, std::bind(&Isometric::OnBindGroupLayoutsFloor, this));
 
-	wgpContext.addSahderModule("TEXTURE", "res/shader/wiggly.wgsl");
-	wgpContext.createRenderPipeline("TEXTURE", "RP_TEXTURE", VL_PTN, std::bind(&Isometric::OnBindGroupLayoutsWiggly, this));
+	wgpContext.addSahderModule("WIGGLY", "res/shader/wiggly.wgsl");
+	wgpContext.createRenderPipeline("WIGGLY", "RP_WIGGLY", VL_PTN, std::bind(&Isometric::OnBindGroupLayoutsWiggly, this));
 
 	wgpContext.addSahderModule("BULLET", "res/shader/bullet.wgsl");
 	wgpContext.createRenderPipeline("BULLET", "RP_BULLET", VL_PT, std::bind(&Isometric::OnBindGroupLayoutsBullet, this),
@@ -238,7 +238,11 @@ void Isometric::update() {
 	}
 
 	if ((m_rotationButtonResult.buttonDown || (mouse.buttonDown(Mouse::MouseButton::BUTTON_LEFT) && !m_rotationButtonResult.isActive && !m_joystickResult.isActive)) && (lastFireTime + 0.1f) < Globals::clock.getElapsedTimeSec()) {
-		const Quaternion orientation = Quaternion(0.0f, m_rotationButtonResult.degrees, 0.0f);
+		//const Quaternion orientation = Quaternion(0.0f, m_rotationButtonResult.degrees, 0.0f);
+		//const glm::quat midOri(orientation[3], orientation[0], orientation[1], orientation[2]);
+
+		const Quaternion orientation = m_player.getOrientation();
+
 		const glm::quat midOri(orientation[3], orientation[0], orientation[1], orientation[2]);
 
 		const Matrix4f trans = m_player.getWorldTransformation();
@@ -280,7 +284,7 @@ void Isometric::update() {
 			m_rotationButtonResult.degrees = aimTheta ;
 
 			if(m_rotationButtonResult.degrees)
-				m_player.setRotation(0.0f, m_rotationButtonResult.degrees + 90.0f, 0.0f);
+				m_player.setOrientation(0.0f, m_rotationButtonResult.degrees, 0.0f);
 		}
 	}
 
@@ -330,10 +334,6 @@ void Isometric::update() {
 		m_player.translate(playerDirection[0] * 2.0f * m_dt, playerDirection[1] * 2.0f * m_dt, playerDirection[2] * 2.0f * m_dt);
 	}
 
-	Vector3f coords;
-	getWorldPosition(mouse.xPos(), mouse.yPos(), Vector3f(0.0f, 1.0f, 0.0f), coords);
-	
-	const bool isPlayerMoving = direction.length() > 0.1f;
 	float movementTheta = std::atan2(-playerDirection[2], playerDirection[0]);
 
 	if (movementTheta < 0.0f)
@@ -426,7 +426,7 @@ void Isometric::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURende
 		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_FLOOR"));
 		m_wgpFloor.draw(renderPassEncoder);
 
-		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_TEXTURE"));
+		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_WIGGLY"));
 		m_wgpEnemy.draw(renderPassEncoder);
 
 		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_ANIMATION"));
@@ -558,13 +558,6 @@ void Isometric::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 	}
 
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-	if (ImGui::SliderFloat("Weight Right", &m_weightRight, 0.0f, 1.0f)) {
-		m_player.getAnimationState(0u)->setWeight(m_weightRight);
-	}
-
-	if (ImGui::SliderFloat("Weight Left", &m_weightLeft, 0.0f, 1.0f)) {
-		m_player.getAnimationState(1u)->setWeight(m_weightLeft);
-	}
 	ImGui::End();
 
 	ImGui::Render();
@@ -594,7 +587,7 @@ std::vector<WGPUBindGroupLayout> Isometric::OnBindGroupLayouts() {
 	return bindingLayouts;
 }
 
-std::vector<WGPUBindGroupLayout> Isometric::OnBindGroupLayoutsTexture() {
+std::vector<WGPUBindGroupLayout> Isometric::OnBindGroupLayoutsFloor() {
 	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
 
 	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(3);
@@ -795,7 +788,7 @@ WGPUBindGroup Isometric::CreateBindGroup(const WgpBuffer& uniformBuffer, const W
 	bindGroupEntries[3].textureView = texture.getTextureView();
 
 	WGPUBindGroupDescriptor bindGroupDesc = {};
-	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_TEXTURE"), 0u);
+	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_WIGGLY"), 0u);
 	bindGroupDesc.entryCount = (uint32_t)bindGroupEntries.size();
 	bindGroupDesc.entries = bindGroupEntries.data();
 
@@ -831,23 +824,5 @@ float Isometric::getLookAtYRotation(const Vector3f& objectPos, const Vector3f& t
 	if (abs(dx) < 0.01f && abs(dz) < 0.01f)
 		return 0.0f;
 
-	float radians = std::atan2(-dz, dx);
-	if (radians < 0.0f) 
-		radians += TWO_PI;
-
-	return radians * _180_ON_PI;
-}
-
-float Isometric::getLookAtYRotationR(const Vector3f& objectPos, const Vector3f& targetPos) {
-	float dx = targetPos[0] - objectPos[0];
-	float dz = targetPos[2] - objectPos[2];
-
-	if (abs(dx) < 0.01f && abs(dz) < 0.01f)
-		return 0.0f;
-
-	float radians = std::atan2(-dz, dx);
-	if (radians < 0.0f)
-		radians += TWO_PI;
-
-	return radians;
+	return std::atan2(dx, dz) * _180_ON_PI;
 }

@@ -270,8 +270,7 @@ void nk_virtual_rotation_button(struct nk_context* ctx, float size_px, RotationB
 		}
 
 		if (out.isRotating && distance > 5.0f) {
-			float angle_rad = std::atan2(-dy, dx);
-			if (angle_rad < 0.0f) angle_rad += 2.0f * M_PI;
+			float angle_rad = std::atan2(dx, dy);
 			out.degrees = angle_rad * (180.0f / M_PI);
 		}else if (out.buttonDown) {
 			out.buttonDown = (distance <= inner_radius);
@@ -287,8 +286,8 @@ void nk_virtual_rotation_button(struct nk_context* ctx, float size_px, RotationB
 	float current_rad = out.degrees * (M_PI / 180.0f);
 
 	struct nk_vec2 knob_pos;
-	knob_pos.x = center.x + outer_radius * std::cos(current_rad);
-	knob_pos.y = center.y - outer_radius * std::sin(current_rad);
+	knob_pos.x = center.x + outer_radius * std::sinf(current_rad);
+	knob_pos.y = center.y + outer_radius * std::cosf(current_rad);
 
 	struct nk_command_buffer* canvas = nk_window_get_canvas(ctx);
 	if (canvas) {
@@ -314,22 +313,9 @@ void nk_virtual_rotation_button(struct nk_context* ctx, float size_px, RotationB
 
 		for (int i = 0; i < 3; ++i) {
 			float wing_angle = current_rad + (i * 2.0f * M_PI / 3.0f);
-			float line_end_x = center.x + inner_radius * std::cos(wing_angle);
-			float line_end_y = center.y - inner_radius * std::sin(wing_angle);
+			float line_end_x = center.x + inner_radius * std::sinf(wing_angle);
+			float line_end_y = center.y + inner_radius * std::cosf(wing_angle);
 			nk_stroke_line(canvas, center.x, center.y, line_end_x, line_end_y, 3.0f, button_line_color);
 		}
-
-
-		/*const char* label = "A";
-		const struct nk_user_font* font = ctx->style.font;
-		float text_width = font->width(font->userdata, font->height, label, nk_strlen(label));
-
-		struct nk_vec2 text_pos;
-		text_pos.x = center.x - (text_width / 2.0f);
-		text_pos.y = center.y - (font->height / 2.0f);
-
-		struct nk_color text_color = out.buttonDown ? nk_rgb(255, 255, 255) : color_neon_green;
-		nk_draw_text(canvas, nk_rect(text_pos.x, text_pos.y, text_width, font->height),
-			label, nk_strlen(label), font, nk_rgba(0, 0, 0, 0), text_color);*/
 	}
 }

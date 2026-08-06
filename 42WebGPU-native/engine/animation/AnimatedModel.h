@@ -50,8 +50,10 @@ public:
 	void translateRelative(float dx, float dy, float dz);
 
 	void setScale(float sx, float sy, float sz);
-	void setRotation(float pitch, float yaw, float roll);
+	void setOrientation(float pitch, float yaw, float roll);
 	void setHasAnimationController(bool hasAnimationController);
+
+	const Quaternion& getOrientation() const;
 
 	AnimationState* findAnimationState(const Animation& animation) const;
 	AnimationState* findAnimationState(const std::string& name) const;
@@ -109,7 +111,7 @@ public:
 	void translateRelative(float dx, float dy, float dz);
 
 	void setScale(float sx, float sy, float sz);
-	void setRotation(float pitch, float yaw, float roll);
+	void setOrientation(float pitch, float yaw, float roll);
 
 	const std::vector<BoneDescription>& getBoneDescriptions() const;
 	const std::vector<std::array<float, 4>>& getWeights() const;
