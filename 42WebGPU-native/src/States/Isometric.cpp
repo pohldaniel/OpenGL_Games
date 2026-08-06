@@ -340,7 +340,7 @@ void Isometric::update() {
 		movementTheta += TWO_PI;
 
 	const float thetaDelta = movementTheta - aimTheta * PI_ON_180;
-	const Vector2f movementAnim = !playerMove ? Vector2f() : Vector2f(sinf(thetaDelta), cosf(thetaDelta));
+	const Vector2f movementAnim = !playerMove ? Vector2f() : Vector2f(cosf(thetaDelta), -sinf(thetaDelta));
 
 	prev_idleWeight = std::max(0.0f, prev_idleWeight - m_dt / animTransitionTime);
 	prev_rightWeight = std::max(0.0f, prev_rightWeight - m_dt / animTransitionTime);
