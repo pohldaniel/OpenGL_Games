@@ -22,11 +22,11 @@ VideoDecode::VideoDecode(StateMachine& machine) : State(machine, States::VIDEO_D
 	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm, Application::OnSurfaceChange);
 	wgpSetSurfaceDepthFormat(WGPUTextureFormat::WGPUTextureFormat_Depth24Plus, Application::OnSurfaceChange);
 
-	video_reader_open(&vr_state, "res/videos/sample.avi");
+	/*video_reader_open(&vr_state, "res/videos/sample.avi");
 	constexpr int ALIGNMENT = 128;
 	frame_width = vr_state.width;
 	frame_height = vr_state.height;
-	posix_memalign((void**)&frame_data, ALIGNMENT, frame_width * frame_height * 4u);
+	posix_memalign((void**)&frame_data, ALIGNMENT, frame_width * frame_height * 4u);*/
 
 	m_camera.perspective(30.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.5f, 100.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
@@ -39,22 +39,40 @@ VideoDecode::VideoDecode(StateMachine& machine) : State(machine, States::VIDEO_D
 	wgpContext.setClearColor({ 0.5f, 0.5f, 0.5f, 1.0f });
 	wgpContext.addSahderModule("VIDEO_2D", "res/shader/video_2d.wgsl");
 	wgpContext.createRenderPipeline("VIDEO_2D", "RP_VIDEO_2D", VL_NONE, std::bind(&VideoDecode::OnBindGroupLayouts, this));
-
-	m_texture.createEmpty(1280u, 720u, 1u, WGPUTextureUsage_CopyDst | WGPUTextureUsage_TextureBinding, WGPUTextureFormat_RGBA8Unorm);
-	m_bindGroup = createBindGroup();
-
 	wgpContext.OnDraw = std::bind(&VideoDecode::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
+
+	wgpContext.addSahderModule("VIDEO_360", "res/shader/video_360.wgsl");
+	wgpContext.createRenderPipeline("VIDEO_360", "RP_VIDEO_360", VL_NONE, std::bind(&VideoDecode::OnBindGroupLayouts360, this));
+	wgpContext.OnDraw = std::bind(&VideoDecode::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
+
+	m_audioSystem = std::make_unique<OpenALAudioSystem>();
+	m_audioSystem->init();
+
+	m_movieLeft.open("res/videos/big_buck_bunny.mp4");
+	m_movieRight.open("res/videos/underwater_diving_360degrees.mp4");
+
+	m_textureLeft.createEmpty(m_movieLeft.getWidth(), m_movieLeft.getHeight(), 1u, WGPUTextureUsage_CopyDst | WGPUTextureUsage_TextureBinding, WGPUTextureFormat_RGBA8Unorm);
+	m_textureRight.createEmpty(m_movieRight.getWidth(), m_movieRight.getHeight(), 1u, WGPUTextureUsage_CopyDst | WGPUTextureUsage_TextureBinding, WGPUTextureFormat_RGBA8Unorm);
+	m_cameraBuffer.createBuffer(sizeof(CameraUniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
+
+	m_openALStreamLeft.init();
+
+	m_rtAudioPlayer.init();
+	m_rtAudioPlayer.startHardwareStream();
+
+	m_bindGroupLeft = createBindGroupLeft();
+	m_bindGroupRight = createBindGroupRight360();
 }
 
 VideoDecode::~VideoDecode() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
-	m_texture.markForDelete();
-	wgpuBindGroupRelease(m_bindGroup);
+	m_textureLeft.markForDelete();
+	wgpuBindGroupRelease(m_bindGroupLeft);
 }
 
 void VideoDecode::fixedUpdate() {
-	upload();
+
 }
 
 void VideoDecode::update() {
@@ -96,6 +114,18 @@ void VideoDecode::update() {
 		move |= true;
 	}
 
+	if (keyboard.keyPressed(Keyboard::KEY_SPACE)) {
+		m_movieRight.togglePause();
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_RIGHT)) {
+		m_movieRight.seekTo(m_movieRight.getCurrentTime() + 5.0);
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_LEFT)) {
+		m_movieRight.seekTo(m_movieRight.getCurrentTime() - 5.0);
+	}
+
 	Mouse& mouse = Mouse::instance();
 
 	if (mouse.buttonDownInvisible(Mouse::MouseButton::BUTTON_RIGHT)) {
@@ -113,7 +143,14 @@ void VideoDecode::update() {
 		}
 	}
 	m_trackball.idle();
+
+	CameraUniforms ubo;
+	ubo.aspect = static_cast<float>(Application::Width) / static_cast<float>(Application::Height);
+	ubo.fov = m_camera.getFovXRad();
+	ubo.viewMatrix = m_camera.getViewMatrix();
+	wgpuQueueWriteBuffer(wgpContext.queue, m_cameraBuffer.getBuffer(), 0, &ubo, sizeof(CameraUniforms));
 	
+	//uploadNew(m_dt, m_video1);
 }
 
 void VideoDecode::render() {
@@ -122,13 +159,78 @@ void VideoDecode::render() {
 
 void VideoDecode::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor) {
 
-	WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDescriptor);
-	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
-	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_VIDEO_2D"));
-	wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_bindGroup, 0u, NULL);
-	wgpuRenderPassEncoderDraw(renderPassEncoder, 3u, 1u, 0u, 0u);
+	bool newFrameLeft = m_movieLeft.updateOpenAL(m_dt, m_pixelBufferLeft, m_audioBufferLeft);
+	bool newFrameRight = false;
+	if (!m_isUserDraggingTimeline) {
+		newFrameRight = m_movieRight.update(m_dt, m_pixelBufferRight, m_rtAudioPlayer.getRingBuffer());
+	}
 
-	if(m_drawUi)
+	if (!m_audioBufferLeft.empty())
+		m_openALStreamLeft.streamAudio(m_audioBufferLeft);
+
+	if (newFrameLeft) {
+		uint32_t width = static_cast<uint32_t>(m_movieLeft.getWidth());
+		uint32_t height = static_cast<uint32_t>(m_movieLeft.getHeight());
+
+		WGPUTexelCopyTextureInfo destination = {};
+		destination.texture = m_textureLeft.getTexture();
+		destination.mipLevel = 0u;
+		destination.origin = { 0u, 0u, 0u };
+		destination.aspect = WGPUTextureAspect_All;
+
+		WGPUTexelCopyBufferLayout source = {};
+		source.offset = 0u;
+		source.bytesPerRow = width * 4u;
+		source.rowsPerImage = height;
+
+		WGPUExtent3D size = { width, height, 1u };
+		wgpuQueueWriteTexture(wgpContext.queue, &destination, m_pixelBufferLeft.data(), m_pixelBufferLeft.size(), &source, &size);
+	}
+
+	if (newFrameRight) {
+		uint32_t width = static_cast<uint32_t>(m_movieRight.getWidth());
+		uint32_t height = static_cast<uint32_t>(m_movieRight.getHeight());
+
+		WGPUTexelCopyTextureInfo destination = {};
+		destination.texture = m_textureRight.getTexture();
+		destination.mipLevel = 0u;
+		destination.origin = { 0u, 0u, 0u };
+		destination.aspect = WGPUTextureAspect_All;
+
+		WGPUTexelCopyBufferLayout source = {};
+		source.offset = 0u;
+		source.bytesPerRow = width * 4u;
+		source.rowsPerImage = height;
+
+		WGPUExtent3D size = { width, height, 1u };
+		wgpuQueueWriteTexture(wgpContext.queue, &destination, m_pixelBufferRight.data(), m_pixelBufferRight.size(), &source, &size);
+	}
+
+	float screenWidth = static_cast<float>(Application::Width);
+	float screenHeight = static_cast<float>(Application::Height);
+	float halfWidth = screenWidth / 2.0f;
+
+	WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDescriptor);
+	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_VIDEO_2D"));
+
+	// ==========================================
+	// HÄLFTE 1: LINKES VIDEO RENDERN
+	// ==========================================
+	// Viewport auf die linke Bildschirmhälfte einschränken (von Pixel 0 bis halfWidth)
+	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, halfWidth, screenHeight, 0.0f, 1.0f);
+	wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_bindGroupLeft, 0u, NULL);
+	wgpuRenderPassEncoderDraw(renderPassEncoder, 3u, 1u, 0u, 0u); // Zeichnet das Quad links gestaucht
+
+	// ==========================================
+	// HÄLFTE 2: RECHTES VIDEO RENDERN
+	// ==========================================
+	// Viewport auf die rechte Bildschirmhälfte verschieben (startet bei halfWidth)
+	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_VIDEO_360"));
+	wgpuRenderPassEncoderSetViewport(renderPassEncoder, halfWidth, 0.0f, halfWidth, screenHeight, 0.0f, 1.0f);
+	wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_bindGroupRight, 0u, NULL);
+	wgpuRenderPassEncoderDraw(renderPassEncoder, 3u, 1u, 0u, 0u); // Zeichnet dasselbe Quad rechts gestaucht
+
+	if (m_drawUi)
 		renderUi(renderPassEncoder);
 
 	wgpuRenderPassEncoderEnd(renderPassEncoder);
@@ -221,6 +323,48 @@ void VideoDecode::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 	}
 
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+	std::string buttonText = m_movieRight.isPaused() ? "Play" : "Pause";
+	if (ImGui::Button(buttonText.c_str(), ImVec2(70, 0))) {
+		m_movieRight.togglePause();
+		m_movieLeft.togglePause();
+	}
+
+	ImGui::SameLine();
+
+	double currentSec = m_movieRight.getCurrentTime();
+	double totalSec = m_movieRight.getDuration();
+
+	static float sliderTime = 0.0f;
+	if (!m_isUserDraggingTimeline) {
+		sliderTime = static_cast<float>(currentSec);
+	}
+	float maxTime = static_cast<float>(totalSec);
+
+	// Zeit-Text formatieren
+	int curMin = static_cast<int>(sliderTime) / 60;
+	int curTimeSec = static_cast<int>(sliderTime) % 60;
+	int totMin = static_cast<int>(totalSec) / 60;
+	int totTimeSec = static_cast<int>(totalSec) % 60;
+
+	char timeString[64];
+	sprintf(timeString, "%02d:%02d / %02d:%02d", curMin, curTimeSec, totMin, totTimeSec);
+
+	ImGui::PushItemWidth(-ImGui::GetContentRegionAvail().x * 0.25f);
+	if (ImGui::SliderFloat("##Timeline", &sliderTime, 0.0f, maxTime, timeString)) {
+		m_isUserDraggingTimeline = true;
+	}
+
+	if (m_isUserDraggingTimeline && ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
+		m_movieRight.seekTo(static_cast<double>(sliderTime));
+		m_isUserDraggingTimeline = false;
+	}
+
+	float volRight = m_rtAudioPlayer.getMixer().getVolume();
+	if (ImGui::SliderFloat("Rechts (RtAudio)", &volRight, 0.0f, 1.0f, "%.2f")) {
+		m_rtAudioPlayer.getMixer().setVolume(volRight);
+	}
+
+	ImGui::PopItemWidth();
 	ImGui::End();
 
 	ImGui::Render();
@@ -249,14 +393,42 @@ std::vector<WGPUBindGroupLayout> VideoDecode::OnBindGroupLayouts() {
 	return bindingLayouts;
 }
 
-WGPUBindGroup VideoDecode::createBindGroup() {
+std::vector<WGPUBindGroupLayout> VideoDecode::OnBindGroupLayouts360() {
+	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
+
+	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(3);
+
+	bindingLayoutEntries[0].binding = 0u;
+	bindingLayoutEntries[0].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
+	bindingLayoutEntries[0].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
+	bindingLayoutEntries[0].buffer.minBindingSize = sizeof(CameraUniforms);
+
+	bindingLayoutEntries[1].binding = 1u;
+	bindingLayoutEntries[1].visibility = WGPUShaderStage_Fragment;
+	bindingLayoutEntries[1].sampler.type = WGPUSamplerBindingType_Filtering;
+
+	bindingLayoutEntries[2].binding = 2u;
+	bindingLayoutEntries[2].visibility = WGPUShaderStage_Fragment;
+	bindingLayoutEntries[2].texture.viewDimension = WGPUTextureViewDimension_2D;
+	bindingLayoutEntries[2].texture.sampleType = WGPUTextureSampleType_Float;
+
+	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
+	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
+	bindGroupLayoutDescriptor.entries = bindingLayoutEntries.data();
+
+	bindingLayouts[0] = wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor);
+
+	return bindingLayouts;
+}
+
+WGPUBindGroup VideoDecode::createBindGroupLeft() {
 	std::vector<WGPUBindGroupEntry> entries(2);
 
 	entries[0].binding = 0u;
 	entries[0].sampler = wgpContext.getSampler(SS_LINEAR_CLAMP);
 
 	entries[1].binding = 1u;
-	entries[1].textureView = m_texture.getTextureView();
+	entries[1].textureView = m_textureLeft.getTextureView();
 
 	WGPUBindGroupDescriptor bindGroupDesc = {};
 	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_VIDEO_2D"), 0u);
@@ -265,10 +437,56 @@ WGPUBindGroup VideoDecode::createBindGroup() {
 	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
 }
 
-void VideoDecode::upload() {
-	int64_t pts;
-	video_reader_read_frame(&vr_state, frame_data, &pts);
+WGPUBindGroup VideoDecode::createBindGroupRight() {
+	std::vector<WGPUBindGroupEntry> entries(2);
 
+	entries[0].binding = 0u;
+	entries[0].sampler = wgpContext.getSampler(SS_LINEAR_CLAMP);
+
+	entries[1].binding = 1u;
+	entries[1].textureView = m_textureRight.getTextureView();
+
+	WGPUBindGroupDescriptor bindGroupDesc = {};
+	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_VIDEO_2D"), 0u);
+	bindGroupDesc.entryCount = (uint32_t)entries.size();
+	bindGroupDesc.entries = (WGPUBindGroupEntry*)entries.data();
+	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
+}
+
+WGPUBindGroup VideoDecode::createBindGroupRight360() {
+	std::vector<WGPUBindGroupEntry> entries(3);
+
+	entries[0].binding = 0u;
+	entries[0].buffer = m_cameraBuffer.getBuffer();
+	entries[0].offset = 0u;
+	entries[0].size = sizeof(CameraUniforms);
+
+	entries[1].binding = 1u;
+	entries[1].sampler = wgpContext.getSampler(SS_LINEAR_CLAMP);
+
+	entries[2].binding = 2u;
+	entries[2].textureView = m_textureRight.getTextureView();
+
+	WGPUBindGroupDescriptor bindGroupDesc = {};
+	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_VIDEO_360"), 0u);
+	bindGroupDesc.entryCount = (uint32_t)entries.size();
+	bindGroupDesc.entries = (WGPUBindGroupEntry*)entries.data();
+	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
+}
+
+void VideoDecode::uploadNew(float deltaTime, VideoDecoder& decoder) {
+	/*bool hasNewFrame = decoder.update(deltaTime, m_pixels1);
+
+	// 2. PERFORMANCE-BOOST: Nur hochladen, wenn sich das Bild wirklich geändert hat!
+	// Bei 240 FPS bricht diese Funktion hier in 7 von 8 Frames sofort ab.
+	if (!hasNewFrame) {
+		return;
+	}
+
+	uint32_t width = static_cast<uint32_t>(decoder.getWidth());
+	uint32_t height = static_cast<uint32_t>(decoder.getHeight());
+
+	// 3. Dein bestehender WebGPU Upload (unverändert, nur mit den neuen Variablen)
 	WGPUTexelCopyTextureInfo destination = {};
 	destination.texture = m_texture.getTexture();
 	destination.mipLevel = 0u;
@@ -277,9 +495,18 @@ void VideoDecode::upload() {
 
 	WGPUTexelCopyBufferLayout source = {};
 	source.offset = 0u;
-	source.bytesPerRow = frame_width * 4u * sizeof(uint8_t);
-	source.rowsPerImage = frame_height;
+	source.bytesPerRow = width * 4u * sizeof(uint8_t); // 4 Kanäle (RGBA)
+	source.rowsPerImage = height;
 
-	WGPUExtent3D size = { frame_width , frame_height , 1u };
-	wgpuQueueWriteTexture(wgpContext.queue, &destination, frame_data, frame_width * frame_height * 4u * sizeof(uint8_t), &source, &size);
+	WGPUExtent3D size = { width, height, 1u };
+
+	// Wir nutzen m_frameBuffer.data() und die dynamische Größe aus dem Vektor
+	wgpuQueueWriteTexture(
+		wgpContext.queue,
+		&destination,
+		m_pixels1.data(),
+		m_pixels1.size(),
+		&source,
+		&size
+	);*/
 }

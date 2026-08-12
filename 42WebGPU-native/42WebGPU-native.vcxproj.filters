@@ -52,6 +52,9 @@
     <Filter Include="Physics">
       <UniqueIdentifier>{92175bee-f5f0-4c95-83c5-b071e6142785}</UniqueIdentifier>
     </Filter>
+    <Filter Include="engine\video">
+      <UniqueIdentifier>{0c314608-3a08-4973-adac-2b969c132df6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\input\ApplicationEventListener.cpp">
@@ -294,7 +297,7 @@
     <ClCompile Include="src\bullet_store.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="engine\sound\FFmpegDecoder.cpp">
+    <ClCompile Include="engine\sound\AudioDecoder.cpp">
       <Filter>engine\sound</Filter>
     </ClCompile>
     <ClCompile Include="engine\sound\SoundDevice.cpp">
@@ -305,6 +308,21 @@
     </ClCompile>
     <ClCompile Include="src\VideoReader.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\sound\OpenALPlayer.cpp">
+      <Filter>engine\sound</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\sound\RtAudioPlayer.cpp">
+      <Filter>engine\sound</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\sound\SoftwareMixer.cpp">
+      <Filter>engine\sound</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\video\VideoDecoder.cpp">
+      <Filter>engine\video</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\video\MediaDecoder.cpp">
+      <Filter>engine\video</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -575,7 +593,7 @@
     <ClInclude Include="src\ThreadPool.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="engine\sound\FFmpegDecoder.h">
+    <ClInclude Include="engine\sound\AudioDecoder.h">
       <Filter>engine\sound</Filter>
     </ClInclude>
     <ClInclude Include="engine\sound\SoundDevice.h">
@@ -586,6 +604,39 @@
     </ClInclude>
     <ClInclude Include="src\VideoReader.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\sound\OpenALPlayer.h">
+      <Filter>engine\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\sound\RtAudioPlayer.h">
+      <Filter>engine\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\sound\AudioRingBuffer.h">
+      <Filter>engine\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\sound\SoundCache.h">
+      <Filter>engine\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\sound\OpenALSFXPlayer.h">
+      <Filter>engine\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\sound\SoftwareMixer.h">
+      <Filter>engine\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\sound\AudioSystem.h">
+      <Filter>engine\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\sound\OpenALAudioSystem.h">
+      <Filter>engine\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\sound\RtAudioAudioSystem.h">
+      <Filter>engine\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\video\VideoDecoder.h">
+      <Filter>engine\video</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\video\MediaDecoder.h">
+      <Filter>engine\video</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

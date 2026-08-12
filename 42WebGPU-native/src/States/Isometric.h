@@ -9,6 +9,10 @@
 #include <engine/AssimpModel.h>
 #include <engine/TrackBall.h>
 #include <engine/Camera.h>
+#include <engine/sound/OpenALPlayer.h>
+#include <engine/sound/RtAudioPlayer.h>
+#include <engine/sound/RtAudioAudioSystem.h>
+#include <engine/sound/OpenALAudioSystem.h>
 
 #include <States/StateMachine.h>
 #include <Nuklear/NkJoystick.h>
@@ -96,6 +100,8 @@ private:
 	float deathTime = -1.0f;
 	float aimTheta = 0.0f;
 	float lastFireTime = 0.0f;
-
+	//OpenALPlayer m_openALPlayer;
+	//RtAudioPlayer m_rtAudioPlayer;
+	std::unique_ptr<AudioSystem> m_audio;
 	static WGPUBindGroup CreateBindGroup(const WgpBuffer& uniformBuffer, const WgpBuffer& wigglyBuffer, const WgpTexture& texture);
 };

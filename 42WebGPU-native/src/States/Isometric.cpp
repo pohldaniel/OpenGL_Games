@@ -12,8 +12,6 @@
 #include "Isometric.h"
 #include "Application.h"
 #include "Globals.h"
-#include <engine/sound/FFmpegDecoder.h>
-#include <engine/sound/SoundDevice.h>
 
 //For getting this matrices load the model with 
 // importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, true); 
@@ -36,11 +34,8 @@ Matrix4f invPivot = Matrix4f(1.0f, 0.0f, 0.0f, 0.0f,
 
 ThreadPool threadPool(4);
 const int spreadAmount = 10;
-AudioStreamer streamer;
 
 Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC), m_bulletStore(&threadPool) {
-	//SoundDevice::init();
-	streamer.init("res/sounds/ambient.mp3");
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
@@ -186,6 +181,22 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 	m_player.update(0.01f);
 
 	
+	bool useOpenAL = false;
+
+	if (useOpenAL) {
+		m_audio = std::make_unique<OpenALAudioSystem>();
+	}
+	else {
+		m_audio = std::make_unique<RtAudioAudioSystem>();
+	}
+
+	if (!m_audio->init()) {
+		// Fehlerbehandlung
+	}
+
+	// Hintergrundmusik direkt starten
+	m_audio->playMusic("res/sounds/ambient.mp3");
+	m_audio->getMixer().setFilter(1.0f);
 }
 
 Isometric::~Isometric() {
@@ -201,7 +212,10 @@ void Isometric::fixedUpdate() {
 }
 
 void Isometric::update() {
-	//streamer.update();
+	//m_openALPlayer.update();
+	//m_rtAudioPlayer.update();
+	m_audio->update();
+
 	Keyboard& keyboard = Keyboard::instance();
 	Mouse& mouse = Mouse::instance();
 
@@ -334,6 +348,34 @@ void Isometric::update() {
 
 	if (keyboard.keyPressed(Keyboard::KEY_T) ) {
 		m_isDeath = true;
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_R)) {
+		m_audio->playSFX("res/sounds/AR_Fired.wav");
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_1)) {
+		m_audio->getMixer().setFilter(1.0f);
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_2)) {
+		m_audio->getMixer().setFilter(0.75f);
+		std::cout << "Filter Aktiviert: Dumpf (0.75f)" << std::endl;
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_3)) {
+		m_audio->getMixer().setFilter(0.5f);
+		std::cout << "Filter Aktiviert: Extrem Dumpf (0.5f)" << std::endl;
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_4)) {
+		m_audio->getMixer().setFilter(0.35f);
+		std::cout << "Filter Aktiviert: Extrem Dumpf (0.35f)" << std::endl;
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_5)) {
+		m_audio->getMixer().setFilter(0.15f);
+		std::cout << "Filter Aktiviert: Extrem Dumpf (0.15f)" << std::endl;
 	}
 
 	playerMove = playerDirection.lengthSq() > 0.01f && !m_isDeath;

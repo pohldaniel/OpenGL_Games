@@ -13,9 +13,21 @@
 #include <WebGPU/WgpModel.h>
 #include <WebGPU/WgpData.h>
 
-#include "VideoReader.h"
+#include <engine/video/VideoDecoder.h>
+#include <engine/video/MediaDecoder.h>
+#include <engine/sound/RtAudioPlayer.h>
+#include <engine/sound/OpenALPlayer.h>
+#include <engine/sound/AudioSystem.h>
+#include <engine/sound/OpenALAudioSystem.h>
 
 class VideoDecode : public State, public MouseEventListener, public KeyboardEventListener {
+
+	struct CameraUniforms {
+		Matrix4f viewMatrix;   // 4x4 Matrix
+		float fov = 1.0f;       // Sichtfeld-Zoom (kleiner = näher ran)
+		float aspect = 1.6f;    // Bildschirm-Seitenverhältnis (Breite / Höhe)
+		float padding[2];       // WebGPU verlangt 16-Byte-Ausrichtung!
+	};
 
 public:
 
@@ -38,20 +50,31 @@ public:
 private:
 
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayouts();
-	WGPUBindGroup createBindGroup();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayouts360();
+
+	WGPUBindGroup createBindGroupLeft();
+	WGPUBindGroup createBindGroupRight();
+	WGPUBindGroup createBindGroupRight360();
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
-	void upload();
+	void uploadNew(float deltaTime, VideoDecoder& decoder);
 
 	bool m_initUi = true;
-	bool m_drawUi = false;
+	bool m_drawUi = true;
 
 	Camera m_camera;
 	TrackBall m_trackball;
-	int frame_width;
-	int frame_height;
-	VideoReaderState vr_state;
-	uint8_t* frame_data;
+	
+	WgpBuffer m_cameraBuffer;
+	WgpTexture m_textureLeft, m_textureRight;
+	WGPUBindGroup m_bindGroupLeft, m_bindGroupRight;
 
-	WgpTexture m_texture;
-	WGPUBindGroup m_bindGroup;
+	std::unique_ptr<AudioSystem> m_audioSystem;
+
+	MediaDecoder m_movieLeft, m_movieRight;
+	OpenALMovieStream m_openALStreamLeft;
+	RtAudioPlayer m_rtAudioPlayer;
+
+	std::vector<uint8_t> m_pixelBufferLeft, m_audioBufferLeft;
+	std::vector<uint8_t> m_pixelBufferRight;
+	bool m_isUserDraggingTimeline = false;
 };
