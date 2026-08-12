@@ -22,7 +22,7 @@ private:
 	SoundDevice();
 	~SoundDevice();
 
-	ALCdevice* m_alCDevice;
-	ALCcontext* m_alCContext;
+	ALCdevice* m_alCDevice = nullptr;
+	ALCcontext* m_alCContext = nullptr;
 };
 

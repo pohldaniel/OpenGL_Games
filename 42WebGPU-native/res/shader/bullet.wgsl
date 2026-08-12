@@ -38,25 +38,11 @@ struct Uniforms {
 @group(0) @binding(3) var smplr: sampler;
 @group(0) @binding(4) var texture: texture_2d<f32>;
 
-fn hamiltonProduct(q1: vec4f,  q2: vec4f) -> vec4f {
-  return vec4f(
-    q1.w * q2.x + q1.x * q2.w + q1.y * q2.z - q1.z * q2.y,
-    q1.w * q2.y - q1.x * q2.z + q1.y * q2.w + q1.z * q2.x,
-    q1.w * q2.z + q1.x * q2.y - q1.y * q2.x + q1.z * q2.w,
-    q1.w * q2.w - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z);
-}
-
 fn rotateByQuat(v: vec3f , q: vec4f ) -> vec3f {
-  let qPrime = vec4f(-q.x, -q.y, -q.z, q.w);
-  let vPrime = hamiltonProduct(hamiltonProduct(q, vec4f(v.x, v.y, v.z, 0.0)), qPrime);
-  return vec3f(vPrime.x, vPrime.y, vPrime.z);
-}
-
-fn rotateByQuat2(v: vec3f , q: vec4f ) -> vec3f {
   let u = vec3f(q.x, q.y, q.z);
   let s = q.w;
   
-  return 2.0f * dot(u, v) * u + (s*s - dot(u, u)) * v + 2.0f * s *  cross(v, u);
+  return 2.0f * dot(u, v) * u + (s*s - dot(u, u)) * v + 2.0f * s *  cross(u, v);
 }
 
 @vertex

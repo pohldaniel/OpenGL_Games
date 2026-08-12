@@ -49,6 +49,9 @@
     <Filter Include="Nuklear">
       <UniqueIdentifier>{9442c9c1-d3f2-42f9-b6b3-74a8f0310271}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Physics">
+      <UniqueIdentifier>{92175bee-f5f0-4c95-83c5-b071e6142785}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\input\ApplicationEventListener.cpp">
@@ -96,15 +99,6 @@
     <ClCompile Include="src\LoadingManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="engine\sound\MusicBuffer.cpp">
-      <Filter>engine\sound</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\sound\SoundBuffer.cpp">
-      <Filter>engine\sound</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\sound\SoundDevice.cpp">
-      <Filter>engine\sound</Filter>
-    </ClCompile>
     <ClCompile Include="src\States\StateMachine.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
@@ -140,9 +134,6 @@
     </ClCompile>
     <ClCompile Include="engine\Timer.cpp">
       <Filter>engine</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\input\GamePad.cpp">
-      <Filter>engine\input</Filter>
     </ClCompile>
     <ClCompile Include="WebGPU\WgpContext.cpp">
       <Filter>WebGPU</Filter>
@@ -270,12 +261,6 @@
     <ClCompile Include="src\States\OcclusionQuery.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
-    <ClCompile Include="src\VideoReader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\States\VideoDecode.cpp">
-      <Filter>Source Files\States</Filter>
-    </ClCompile>
     <ClCompile Include="src\States\RenderBundles.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
@@ -307,6 +292,18 @@
       <Filter>Nuklear</Filter>
     </ClCompile>
     <ClCompile Include="src\bullet_store.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\sound\FFmpegDecoder.cpp">
+      <Filter>engine\sound</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\sound\SoundDevice.cpp">
+      <Filter>engine\sound</Filter>
+    </ClCompile>
+    <ClCompile Include="src\States\VideoDecode.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VideoReader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -371,18 +368,6 @@
     <ClInclude Include="src\LoadingManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="engine\sound\Cache.h">
-      <Filter>engine\sound</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\sound\MusicBuffer.h">
-      <Filter>engine\sound</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\sound\SoundBuffer.h">
-      <Filter>engine\sound</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\sound\SoundDevice.h">
-      <Filter>engine\sound</Filter>
-    </ClInclude>
     <ClInclude Include="engine\AssimpModel.h">
       <Filter>engine</Filter>
     </ClInclude>
@@ -424,9 +409,6 @@
     </ClInclude>
     <ClInclude Include="engine\Timer.h">
       <Filter>engine</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\input\GamePad.h">
-      <Filter>engine\input</Filter>
     </ClInclude>
     <ClInclude Include="WebGPU\WgpContext.h">
       <Filter>WebGPU</Filter>
@@ -557,12 +539,6 @@
     <ClInclude Include="src\States\OcclusionQuery.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
-    <ClInclude Include="src\VideoReader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\States\VideoDecode.h">
-      <Filter>Source Files\States</Filter>
-    </ClInclude>
     <ClInclude Include="src\States\RenderBundles.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
@@ -598,6 +574,18 @@
     </ClInclude>
     <ClInclude Include="src\ThreadPool.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\sound\FFmpegDecoder.h">
+      <Filter>engine\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\sound\SoundDevice.h">
+      <Filter>engine\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\VideoDecode.h">
+      <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VideoReader.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

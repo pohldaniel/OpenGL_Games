@@ -47,7 +47,6 @@ private:
 	void initWebGPU();
 	void showWindow();
 	void initImGUI();
-	void initOpenAL();
 	void initStates();
 
 	MSG msg;

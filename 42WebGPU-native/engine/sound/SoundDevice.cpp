@@ -64,7 +64,7 @@ SoundDevice::SoundDevice(){
 	m_alCDevice = alcOpenDevice(nullptr); // nullptr = get default device
 	if (!m_alCDevice)
 		throw("failed to get sound device");
-
+	std::cout << m_alCDevice << "  " << m_alCContext << std::endl;
 	m_alCContext = alcCreateContext(m_alCDevice, nullptr);  // create context
 	if (!m_alCContext)
 		throw("Failed to set sound context");
@@ -77,6 +77,8 @@ SoundDevice::SoundDevice(){
 		name = alcGetString(m_alCDevice, ALC_ALL_DEVICES_SPECIFIER);
 	if (!name || alcGetError(m_alCDevice) != AL_NO_ERROR)
 		name = alcGetString(m_alCDevice, ALC_DEVICE_SPECIFIER);
+
+	
 }
 
 SoundDevice::~SoundDevice(){

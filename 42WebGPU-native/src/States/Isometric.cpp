@@ -12,6 +12,8 @@
 #include "Isometric.h"
 #include "Application.h"
 #include "Globals.h"
+#include <engine/sound/FFmpegDecoder.h>
+#include <engine/sound/SoundDevice.h>
 
 //For getting this matrices load the model with 
 // importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, true); 
@@ -34,9 +36,11 @@ Matrix4f invPivot = Matrix4f(1.0f, 0.0f, 0.0f, 0.0f,
 
 ThreadPool threadPool(4);
 const int spreadAmount = 10;
+AudioStreamer streamer;
 
 Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC), m_bulletStore(&threadPool) {
-
+	//SoundDevice::init();
+	streamer.init("res/sounds/ambient.mp3");
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
@@ -180,6 +184,8 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 	m_player.getAnimationState(5u)->setLooped(false);
 
 	m_player.update(0.01f);
+
+	
 }
 
 Isometric::~Isometric() {
@@ -195,6 +201,7 @@ void Isometric::fixedUpdate() {
 }
 
 void Isometric::update() {
+	//streamer.update();
 	Keyboard& keyboard = Keyboard::instance();
 	Mouse& mouse = Mouse::instance();
 
@@ -238,12 +245,13 @@ void Isometric::update() {
 	}
 
 	if ((m_rotationButtonResult.buttonDown || (mouse.buttonDown(Mouse::MouseButton::BUTTON_LEFT) && !m_rotationButtonResult.isActive && !m_joystickResult.isActive)) && (lastFireTime + 0.1f) < Globals::clock.getElapsedTimeSec()) {
-		//const Quaternion orientation = Quaternion(0.0f, m_rotationButtonResult.degrees, 0.0f);
-		//const glm::quat midOri(orientation[3], orientation[0], orientation[1], orientation[2]);
-
 		const Quaternion orientation = m_player.getOrientation();
 
-		const glm::quat midOri(orientation[3], orientation[0], orientation[1], orientation[2]);
+		glm::quat midOri;
+		midOri.x = orientation[0];
+		midOri.y = orientation[1];
+		midOri.z = orientation[2];
+		midOri.w = orientation[3];
 
 		const Matrix4f trans = m_player.getWorldTransformation();
 		const glm::mat4 playerModelTransform(trans[0][0], trans[0][1], trans[0][2], trans[0][3],
@@ -334,13 +342,9 @@ void Isometric::update() {
 		m_player.translate(playerDirection[0] * 2.0f * m_dt, playerDirection[1] * 2.0f * m_dt, playerDirection[2] * 2.0f * m_dt);
 	}
 
-	float movementTheta = std::atan2(-playerDirection[2], playerDirection[0]);
-
-	if (movementTheta < 0.0f)
-		movementTheta += TWO_PI;
-
+	float movementTheta = std::atan2(playerDirection[0], playerDirection[2]);
 	const float thetaDelta = movementTheta - aimTheta * PI_ON_180;
-	const Vector2f movementAnim = !playerMove ? Vector2f() : Vector2f(cosf(thetaDelta), -sinf(thetaDelta));
+	const Vector2f movementAnim = !playerMove ? Vector2f() : Vector2f(sinf(thetaDelta), cosf(thetaDelta));
 
 	prev_idleWeight = std::max(0.0f, prev_idleWeight - m_dt / animTransitionTime);
 	prev_rightWeight = std::max(0.0f, prev_rightWeight - m_dt / animTransitionTime);

@@ -6,7 +6,6 @@
 #include <imgui_internal.h>
 #include <chrono>
 #include <thread>
-#include <engine/sound/SoundDevice.h>
 
 #include <States/Wireframe.h>
 #include <States/Compute.h>
@@ -276,10 +275,6 @@ void Application::OnSurfaceChange() {
 	initInfo.PipelineMultisampleState.count = wgpContext.msaaSampleCount;
 
 	ImGui_ImplWGPU_Init(&initInfo);
-}
-
-void Application::initOpenAL() {
-	SoundDevice::init();
 }
 
 void Application::ToggleVerticalSync() {

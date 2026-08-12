@@ -1,8 +1,6 @@
 #pragma once
 #include <memory>
 
-#include <engine/sound/SoundBuffer.h>
-#include <engine/sound/MusicBuffer.h>
 #include <engine/Clock.h>
 
 #define WIDTH 1280
@@ -23,7 +21,4 @@ namespace Globals {
 
 	extern unsigned int lightUbo;
 	extern const unsigned int lightBinding;
-
-	extern float soundVolume;
-	extern float musicVolume;
 }
