@@ -54,3 +54,17 @@ strmiids.lib
 crypt32.lib
 ncrypt.lib
 --enable-libmp3lame
+
+
+CC=cl PKG_CONFIG_PATH="installed/lib/pkgconfig" ./configure --prefix=installed --toolchain=msvc --target-os=win64 --arch=x86_64 --disable-shared --disable-doc --disable-debug --enable-asm --enable-libx264 --enable-gpl --enable-nonfree --enable-stripping --enable-optimizations --enable-static --enable-vulkan --extra-ldflags="-LIBPATH:installed/lib /OPT:REF /OPT:ICF" --extra-cxxflags="-Iinstalled/include/ -MD -O2 -arch:AVX2" --extra-cflags="-Iinstalled/include/ -MD -O2 -arch:AVX2"
+
+prefix=C:/VulkanSDK/1.4.357.0
+exec_prefix=${prefix}
+libdir=${prefix}/Lib
+includedir=${prefix}/Include
+
+Name: Vulkan
+Description: Vulkan Loader
+Version: 11.4.357.0
+Libs: -L${libdir} -lvulkan-1
+Cflags: -I${includedir}
