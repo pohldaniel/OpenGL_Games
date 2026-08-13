@@ -3,6 +3,8 @@
 #include <vector>
 #include <cstdint>
 #include <atomic>
+#include <webgpu.h>
+
 
 extern "C" {
 #include <libavformat/avformat.h>
@@ -11,6 +13,7 @@ extern "C" {
 #include <libswresample/swresample.h>
 #include <libavutil/imgutils.h>
 #include <libavutil/opt.h>
+#include <libavutil/log.h>
 }
 
 // Der Ringbuffer aus unserem Audiosystem, den wir mit Audiodaten befüllen
@@ -38,7 +41,17 @@ public:
     double getCurrentTime() const { return m_currentTime; }
     double getDuration() const { return m_duration; }
     void seekTo(double seconds);
-private:
+    bool m_isPackedYuv = false;
+    AVBufferRef* m_hwDeviceContext = nullptr;
+    AVFrame* m_swFrame = nullptr;
+
+    WGPUSharedTextureMemory m_sharedMemory = nullptr;
+    WGPUTexture m_wgpuVideoTexture = nullptr;
+    WGPUTextureView m_wgpuVideoTextureView = nullptr;
+    WGPUTextureView m_wgpuVideoTextureViewY = nullptr;
+    WGPUTextureView m_wgpuVideoTextureViewUV = nullptr;
+
+    std::function<void(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor)> OnDraw = NULL;
     bool decodeVideoFrame();
     bool decodeAudioFrame(std::vector<uint8_t>& outPcmData);
 
@@ -72,7 +85,6 @@ private:
     bool m_isPaused = false;
     double m_currentTime = 0.0;
     double m_duration = 0.0;
-
-    // Wird benötigt, um die Zeitbasis (Timebase) von FFmpeg korrekt umzurechnen
+   
     double m_videoTimebase = 0.0;
 };

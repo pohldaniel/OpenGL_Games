@@ -23,10 +23,10 @@
 class VideoDecode : public State, public MouseEventListener, public KeyboardEventListener {
 
 	struct CameraUniforms {
-		Matrix4f viewMatrix;   // 4x4 Matrix
-		float fov = 1.0f;       // Sichtfeld-Zoom (kleiner = näher ran)
-		float aspect = 1.6f;    // Bildschirm-Seitenverhältnis (Breite / Höhe)
-		float padding[2];       // WebGPU verlangt 16-Byte-Ausrichtung!
+		Matrix4f viewMatrix;
+		float fov = 1.0f;
+		float aspect = 1.6f;
+		float padding[2];
 	};
 
 public:
@@ -38,6 +38,7 @@ public:
 	void update() override;
 	void render() override;
 	void OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor);
+	void OnPostDraw();
 
 	void resize(int deltaW, int deltaH) override;
 	void OnMouseMotion(const Event::MouseMoveEvent& event) override;
@@ -56,7 +57,6 @@ private:
 	WGPUBindGroup createBindGroupRight();
 	WGPUBindGroup createBindGroupRight360();
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
-	void uploadNew(float deltaTime, VideoDecoder& decoder);
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
@@ -66,7 +66,7 @@ private:
 	
 	WgpBuffer m_cameraBuffer;
 	WgpTexture m_textureLeft, m_textureRight;
-	WGPUBindGroup m_bindGroupLeft, m_bindGroupRight;
+	WGPUBindGroup m_bindGroupLeft = NULL, m_bindGroupRight = NULL;
 
 	std::unique_ptr<AudioSystem> m_audioSystem;
 

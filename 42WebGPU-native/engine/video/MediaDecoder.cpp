@@ -1,5 +1,8 @@
 #include <iostream>
 #include <algorithm>
+#include <thread>
+
+#include <WebGPU/WgpContext.h>
 
 #include "MediaDecoder.h"
 #include "../sound/AudioRingBuffer.h"
@@ -9,6 +12,7 @@ MediaDecoder::MediaDecoder() {
     m_videoFrame = av_frame_alloc();
     m_frameRgba = av_frame_alloc();
     m_audioFrame = av_frame_alloc();
+    //av_log_set_level(AV_LOG_DEBUG);
 }
 
 MediaDecoder::~MediaDecoder() {
@@ -17,6 +21,60 @@ MediaDecoder::~MediaDecoder() {
     av_frame_free(&m_videoFrame);
     av_frame_free(&m_frameRgba);
     av_frame_free(&m_audioFrame);
+}
+
+static enum AVPixelFormat get_hw_format_d3d12(AVCodecContext* ctx, const enum AVPixelFormat* pix_fmts) {
+    const enum AVPixelFormat target = AV_PIX_FMT_D3D12;
+    for (const enum AVPixelFormat* p = pix_fmts; *p != AV_PIX_FMT_NONE; p++) {
+        if (*p == target) {
+            if (!ctx->hw_frames_ctx) {
+                AVBufferRef* frames_ref = av_hwframe_ctx_alloc(ctx->hw_device_ctx);
+                if (!frames_ref) return AV_PIX_FMT_NONE;
+
+                AVHWFramesContext* frames_ctx = (AVHWFramesContext*)frames_ref->data;
+                frames_ctx->format = target;
+                frames_ctx->sw_format = ctx->sw_pix_fmt; // Meist NV12 oder YUV420P
+                frames_ctx->width = ctx->width;
+                frames_ctx->height = ctx->height;
+                frames_ctx->initial_pool_size = 20;
+
+                if (av_hwframe_ctx_init(frames_ref) < 0) {
+                    av_buffer_unref(&frames_ref);
+                    return AV_PIX_FMT_NONE;
+                }
+                ctx->hw_frames_ctx = frames_ref;
+            }
+            return target;
+        }
+    }
+    return AV_PIX_FMT_NONE;
+}
+
+static enum AVPixelFormat get_hw_format_vulkan(AVCodecContext* ctx, const enum AVPixelFormat* pix_fmts) {
+    const enum AVPixelFormat target = AV_PIX_FMT_VULKAN;
+    for (const enum AVPixelFormat* p = pix_fmts; *p != AV_PIX_FMT_NONE; p++) {
+        if (*p == target) {
+            if (!ctx->hw_frames_ctx) {
+                AVBufferRef* frames_ref = av_hwframe_ctx_alloc(ctx->hw_device_ctx);
+                if (!frames_ref) return AV_PIX_FMT_NONE;
+
+                AVHWFramesContext* frames_ctx = (AVHWFramesContext*)frames_ref->data;
+                frames_ctx->format = target;
+                frames_ctx->sw_format = ctx->sw_pix_fmt;
+                frames_ctx->width = ctx->width;
+                frames_ctx->height = ctx->height;
+                frames_ctx->initial_pool_size = 20;
+
+                if (av_hwframe_ctx_init(frames_ref) < 0) {
+                    av_buffer_unref(&frames_ref);
+                    return AV_PIX_FMT_NONE;
+                }
+                ctx->hw_frames_ctx = frames_ref;
+            }
+            return target;
+        }
+    }
+    return AV_PIX_FMT_NONE;
 }
 
 bool MediaDecoder::open(const std::string& filename) {
@@ -39,6 +97,15 @@ bool MediaDecoder::open(const std::string& filename) {
     const AVCodec* videoCodec = avcodec_find_decoder(m_formatContext->streams[m_videoStreamIndex]->codecpar->codec_id);
     m_videoCodecContext = avcodec_alloc_context3(videoCodec);
     avcodec_parameters_to_context(m_videoCodecContext, m_formatContext->streams[m_videoStreamIndex]->codecpar);
+
+    int numCores = std::min( std::thread::hardware_concurrency(), 16u);
+    m_videoCodecContext->thread_count = numCores;
+    m_videoCodecContext->thread_type = FF_THREAD_FRAME;
+    //int err = av_hwdevice_ctx_create(&m_hwDeviceContext, AV_HWDEVICE_TYPE_VULKAN, NULL, NULL, 0);
+    //m_videoCodecContext->sw_pix_fmt = AV_PIX_FMT_NV12;
+    //m_videoCodecContext->hw_device_ctx = av_buffer_ref(m_hwDeviceContext);
+    //m_videoCodecContext->get_format = get_hw_format_vulkan;
+
     if (avcodec_open2(m_videoCodecContext, videoCodec, nullptr) < 0) return false;
 
     m_width = m_videoCodecContext->width;
@@ -47,18 +114,21 @@ bool MediaDecoder::open(const std::string& filename) {
     m_fps = (streamFps.den > 0) ? av_q2d(streamFps) : 30.0;
     m_timePerFrame = 1.0 / m_fps;
 
-    //int yuvSize = av_image_get_buffer_size(AV_PIX_FMT_YUV420P, m_width, m_height, 1);
-    //m_currentFramePixels.resize(yuvSize, 0);
-
-    // Internen RGBA-Pixelbuffer allokieren
-    int rgbaSize = av_image_get_buffer_size(AV_PIX_FMT_RGBA, m_width, m_height, 1);
-    m_rgbaBufferInternal = (uint8_t*)av_malloc(rgbaSize * sizeof(uint8_t));
-    m_currentFramePixels.resize(rgbaSize, 0);
-    av_image_fill_arrays(m_frameRgba->data, m_frameRgba->linesize, m_rgbaBufferInternal, AV_PIX_FMT_RGBA, m_width, m_height, 1);
-
+    if (m_isPackedYuv) {
+        int yuvSize = av_image_get_buffer_size(AV_PIX_FMT_YUV420P, m_width, m_height, 1);
+        m_currentFramePixels.resize(yuvSize, 0);
+        m_rgbaBufferInternal = nullptr;
+    }else {
+        // Internen RGBA-Pixelbuffer allokieren
+        int rgbaSize = av_image_get_buffer_size(AV_PIX_FMT_RGBA, m_width, m_height, 1);
+        m_rgbaBufferInternal = (uint8_t*)av_malloc(rgbaSize * sizeof(uint8_t));
+        m_currentFramePixels.resize(rgbaSize, 0);
+        av_image_fill_arrays(m_frameRgba->data, m_frameRgba->linesize, m_rgbaBufferInternal, AV_PIX_FMT_RGBA, m_width, m_height, 1);
+    }
+    
     m_swsContext = sws_getContext(m_width, m_height, m_videoCodecContext->pix_fmt, m_width, m_height, AV_PIX_FMT_RGBA, SWS_BILINEAR, nullptr, nullptr, nullptr);
 
-    // 3. AUDIO-CODEC CONFIG (Optional, falls Film Sound hat)
+
     if (m_audioStreamIndex != -1) {
         const AVCodec* audioCodec = avcodec_find_decoder(m_formatContext->streams[m_audioStreamIndex]->codecpar->codec_id);
         if (audioCodec) {
@@ -81,24 +151,19 @@ bool MediaDecoder::open(const std::string& filename) {
             }
         }
     }
-
-    // Erstes Bild laden, damit wir direkt Pixel haben
+    m_swFrame = av_frame_alloc();
     decodeVideoFrame();
 
-    // Gesamtdauer der Datei in Sekunden auslesen
     if (m_formatContext->duration != AV_NOPTS_VALUE) {
         m_duration = static_cast<double>(m_formatContext->duration) / AV_TIME_BASE;
     }
 
-    // Zeitbasis des Videos sichern (wichtig für präzises Seeking)
     AVStream* videoStream = m_formatContext->streams[m_videoStreamIndex];
     m_videoTimebase = av_q2d(videoStream->time_base);
-
-    // ... (restlicher bestehender open-Code) ...
     m_isPaused = false;
     m_currentTime = 0.0;
-    return true;
 
+    
     return true;
 }
 
@@ -165,26 +230,82 @@ bool MediaDecoder::decodeVideoFrame() {
 
     if (response == AVERROR(EAGAIN) || response == AVERROR_EOF) {
         return false;
-    }
-    else if (response < 0) {
-        return false; // Echter Fehler
+    }else if (response < 0) {
+        return false;
     }
 
     if (m_videoFrame->pts != AV_NOPTS_VALUE) {
         m_currentTime = m_videoFrame->pts * m_videoTimebase;
-    }
-    else if (m_videoFrame->pkt_dts != AV_NOPTS_VALUE) {
-        // Fallback, falls PTS fehlt, nehmen wir den Decoding-Zeitstempel
+    }else if (m_videoFrame->pkt_dts != AV_NOPTS_VALUE) {
         m_currentTime = m_videoFrame->pkt_dts * m_videoTimebase;
     }
 
-    // --- ERFOLG: Frame erhalten! ---
-    sws_scale(m_swsContext, (uint8_t const* const*)m_videoFrame->data, m_videoFrame->linesize,
-        0, m_height, m_frameRgba->data, m_frameRgba->linesize);
+    AVFrame* workingFrame = m_videoFrame;
+    uint8_t* dst = m_currentFramePixels.data();
 
-    std::copy(m_rgbaBufferInternal, m_rgbaBufferInternal + m_currentFramePixels.size(),
-        m_currentFramePixels.begin());
+    /*if (workingFrame->format == AV_PIX_FMT_NV12) {
 
+        int w = m_width;
+        int h = m_height;
+        int uvH = h / 2;
+        int uvW = w / 2;
+
+        uint8_t* srcY = workingFrame->data[0];
+        for (int y = 0; y < h; y++) {
+            std::memcpy(dst + (y * w), srcY + (y * workingFrame->linesize[0]), w);
+        }
+        uint8_t* uDstStart = dst + (w * h);
+        uint8_t* vDstStart = uDstStart + (uvW * uvH);
+
+        uint8_t* srcUV = workingFrame->data[1];
+        int linesizeUV = workingFrame->linesize[1];
+
+        for (int y = 0; y < uvH; y++) {
+            uint8_t* srcRow = srcUV + (y * linesizeUV);
+            uint8_t* uRow = uDstStart + (y * uvW);
+            uint8_t* vRow = vDstStart + (y * uvW);
+            for (int x = 0; x < uvW; x++) {
+                    *uRow++ = *srcRow++;
+                    *vRow++ = *srcRow++;
+            }
+        }  
+
+    }else if(workingFrame->format == AV_PIX_FMT_YUV420P){*/
+    if (!m_isPackedYuv) {
+            sws_scale(m_swsContext, (uint8_t const* const*)m_videoFrame->data, m_videoFrame->linesize,
+                0, m_height, m_frameRgba->data, m_frameRgba->linesize);
+
+            std::copy(m_rgbaBufferInternal, m_rgbaBufferInternal + m_currentFramePixels.size(),
+                m_currentFramePixels.begin());
+     }else {
+
+        int w = m_width;
+        int h = m_height;
+        int uvW = w / 2;
+        int uvH = h / 2;
+
+        uint8_t* srcY = workingFrame->data[0];
+        int linesizeY = workingFrame->linesize[0];
+        for (int y = 0; y < h; y++) {
+            std::memcpy(dst + (y * w), srcY + (y * linesizeY), w);
+        }
+
+        uint8_t* uDstStart = dst + (w * h);
+        uint8_t* vDstStart = uDstStart + (uvW * uvH);
+
+        uint8_t* srcU = workingFrame->data[1];
+        int linesizeU = workingFrame->linesize[1];
+        for (int y = 0; y < uvH; y++) {
+            std::memcpy(uDstStart + (y * uvW), srcU + (y * linesizeU), uvW);
+        }
+
+        uint8_t* srcV = workingFrame->data[2];
+        int linesizeV = workingFrame->linesize[2];
+        for (int y = 0; y < uvH; y++) {
+            std::memcpy(vDstStart + (y * uvW), srcV + (y * linesizeV), uvW);
+        }
+     }
+ 
     return true;
 }
 
@@ -283,32 +404,48 @@ void MediaDecoder::seekTo(double seconds) {
     if (m_videoCodecContext) avcodec_flush_buffers(m_videoCodecContext);
     if (m_audioCodecContext) avcodec_flush_buffers(m_audioCodecContext);
 
-    // 3. --- SMART SEEKING LOOP ---
-    // Wir lesen die Datei im "Zeitraffer" intern so lange voraus,
-    // bis wir exakt an der vom User gewünschten Sekunde angekommen sind.
-    // Das eliminiert das Zurückspringen und Ruckeln komplett!
     while (av_read_frame(m_formatContext, m_packet) >= 0) {
 
         if (m_packet->stream_index == m_videoStreamIndex) {
-            // Schicke das Paket in den Decoder
             avcodec_send_packet(m_videoCodecContext, m_packet);
-
-            // Frame aus dem Decoder holen
             if (avcodec_receive_frame(m_videoCodecContext, m_videoFrame) >= 0) {
                 int64_t currentPts = m_videoFrame->pts;
-
-                // Haben wir die gewünschte Zeit erreicht oder überschritten?
                 if (currentPts >= targetVideoPts) {
-                    // Das ist unser neues, perfektes Startbild! Konvertieren und sichern
-                    sws_scale(m_swsContext, (uint8_t const* const*)m_videoFrame->data, m_videoFrame->linesize,
-                        0, m_height, m_frameRgba->data, m_frameRgba->linesize);
+                    if (!m_isPackedYuv) {
+                        sws_scale(m_swsContext, (uint8_t const* const*)m_videoFrame->data, m_videoFrame->linesize,
+                            0, m_height, m_frameRgba->data, m_frameRgba->linesize);
 
-                    std::copy(m_rgbaBufferInternal, m_rgbaBufferInternal + m_currentFramePixels.size(),
-                        m_currentFramePixels.begin());
+                        std::copy(m_rgbaBufferInternal, m_rgbaBufferInternal + m_currentFramePixels.size(),
+                            m_currentFramePixels.begin());
+                    }else {
+                        uint8_t* dst = m_currentFramePixels.data();
+                        int w = m_width;
+                        int h = m_height;
+                        int uvW = w / 2;
+                        int uvH = h / 2;
 
-                    m_currentTime = currentPts * m_videoTimebase;
-                    av_packet_unref(m_packet);
-                    break; // Ziel erreicht, wir beenden das Vorauslesen!
+                        uint8_t* srcY = m_videoFrame->data[0];
+                        int linesizeY = m_videoFrame->linesize[0];
+                        for (int y = 0; y < h; y++) {
+                            std::memcpy(dst + (y * w), srcY + (y * linesizeY), w);
+                        }
+
+                        uint8_t* uDstStart = dst + (w * h);
+                        uint8_t* vDstStart = uDstStart + (uvW * uvH);
+
+                        uint8_t* srcU = m_videoFrame->data[1];
+                        int linesizeU = m_videoFrame->linesize[1];
+                        for (int y = 0; y < uvH; y++) {
+                            std::memcpy(uDstStart + (y * uvW), srcU + (y * linesizeU), uvW);
+                        }
+
+                        uint8_t* srcV = m_videoFrame->data[2];
+                        int linesizeV = m_videoFrame->linesize[2];
+                        for (int y = 0; y < uvH; y++) {
+                            std::memcpy(vDstStart + (y * uvW), srcV + (y * linesizeV), uvW);
+                        }
+                    }
+                    break;
                 }
             }
         }

@@ -216,7 +216,9 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClCompile Include="engine\Timer.cpp" />
     <ClCompile Include="engine\utils\BinaryIO.cpp" />
     <ClCompile Include="engine\video\MediaDecoder.cpp" />
+    <ClCompile Include="engine\video\RGBADecoder.cpp" />
     <ClCompile Include="engine\video\VideoDecoder.cpp" />
+    <ClCompile Include="engine\video\YuvDcoder.cpp" />
     <ClCompile Include="Nuklear\NkCalculator.cpp" />
     <ClCompile Include="Nuklear\NkContext.cpp" />
     <ClCompile Include="Nuklear\NkJoystick.cpp" />
@@ -260,7 +262,6 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClCompile Include="engine\Vector.cpp" />
     <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\VideoReader.cpp" />
     <ClCompile Include="WebGPU\WgpBatchRenderer.cpp" />
     <ClCompile Include="WebGPU\WgpBuffer.cpp" />
     <ClCompile Include="WebGPU\WgpContext.cpp" />
@@ -331,7 +332,9 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClInclude Include="engine\utils\BinaryIO.h" />
     <ClInclude Include="engine\Vector.h" />
     <ClInclude Include="engine\video\MediaDecoder.h" />
+    <ClInclude Include="engine\video\RGBADecoder.h" />
     <ClInclude Include="engine\video\VideoDecoder.h" />
+    <ClInclude Include="engine\video\YuvDecoder.h" />
     <ClInclude Include="Nuklear\NkCalculator.h" />
     <ClInclude Include="Nuklear\NkContext.h" />
     <ClInclude Include="Nuklear\NkJoystick.h" />
@@ -365,7 +368,6 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClInclude Include="src\States\Wireframe.h" />
     <ClInclude Include="src\ThreadPool.h" />
     <ClInclude Include="src\Utils\Fade.h" />
-    <ClInclude Include="src\VideoReader.h" />
     <ClInclude Include="WebGPU\WgpBatchRenderer.h" />
     <ClInclude Include="WebGPU\WgpBuffer.h" />
     <ClInclude Include="WebGPU\WgpContext.h" />

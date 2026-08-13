@@ -22,12 +22,6 @@ VideoDecode::VideoDecode(StateMachine& machine) : State(machine, States::VIDEO_D
 	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm, Application::OnSurfaceChange);
 	wgpSetSurfaceDepthFormat(WGPUTextureFormat::WGPUTextureFormat_Depth24Plus, Application::OnSurfaceChange);
 
-	/*video_reader_open(&vr_state, "res/videos/sample.avi");
-	constexpr int ALIGNMENT = 128;
-	frame_width = vr_state.width;
-	frame_height = vr_state.height;
-	posix_memalign((void**)&frame_data, ALIGNMENT, frame_width * frame_height * 4u);*/
-
 	m_camera.perspective(30.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.5f, 100.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 	m_camera.lookAt(Vector3f(0.0f, 0.0f, 5.0f), Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
@@ -41,7 +35,7 @@ VideoDecode::VideoDecode(StateMachine& machine) : State(machine, States::VIDEO_D
 	wgpContext.createRenderPipeline("VIDEO_2D", "RP_VIDEO_2D", VL_NONE, std::bind(&VideoDecode::OnBindGroupLayouts, this));
 	wgpContext.OnDraw = std::bind(&VideoDecode::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
 
-	wgpContext.addSahderModule("VIDEO_360", "res/shader/video_360.wgsl");
+	wgpContext.addSahderModule("VIDEO_360", "res/shader/video_360_packed.wgsl");
 	wgpContext.createRenderPipeline("VIDEO_360", "RP_VIDEO_360", VL_NONE, std::bind(&VideoDecode::OnBindGroupLayouts360, this));
 	wgpContext.OnDraw = std::bind(&VideoDecode::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
 
@@ -49,10 +43,15 @@ VideoDecode::VideoDecode(StateMachine& machine) : State(machine, States::VIDEO_D
 	m_audioSystem->init();
 
 	m_movieLeft.open("res/videos/big_buck_bunny.mp4");
+	
+	m_movieRight.m_isPackedYuv = true;
 	m_movieRight.open("res/videos/underwater_diving_360degrees.mp4");
+	//m_movieRight.open("res/videos/360_example_30fps.mp4");
 
 	m_textureLeft.createEmpty(m_movieLeft.getWidth(), m_movieLeft.getHeight(), 1u, WGPUTextureUsage_CopyDst | WGPUTextureUsage_TextureBinding, WGPUTextureFormat_RGBA8Unorm);
-	m_textureRight.createEmpty(m_movieRight.getWidth(), m_movieRight.getHeight(), 1u, WGPUTextureUsage_CopyDst | WGPUTextureUsage_TextureBinding, WGPUTextureFormat_RGBA8Unorm);
+	//m_textureRight.createEmpty(m_movieRight.getWidth(), m_movieRight.getHeight(), 1u, WGPUTextureUsage_CopyDst | WGPUTextureUsage_TextureBinding, WGPUTextureFormat_RGBA8Unorm);
+	
+	m_textureRight.createEmpty(m_movieRight.getWidth(), m_movieRight.getHeight() + m_movieRight.getHeight()/2, 1u, WGPUTextureUsage_CopyDst | WGPUTextureUsage_TextureBinding, WGPUTextureFormat_R8Unorm);
 	m_cameraBuffer.createBuffer(sizeof(CameraUniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 
 	m_openALStreamLeft.init();
@@ -149,8 +148,6 @@ void VideoDecode::update() {
 	ubo.fov = m_camera.getFovXRad();
 	ubo.viewMatrix = m_camera.getViewMatrix();
 	wgpuQueueWriteBuffer(wgpContext.queue, m_cameraBuffer.getBuffer(), 0, &ubo, sizeof(CameraUniforms));
-	
-	//uploadNew(m_dt, m_video1);
 }
 
 void VideoDecode::render() {
@@ -190,6 +187,7 @@ void VideoDecode::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURen
 	if (newFrameRight) {
 		uint32_t width = static_cast<uint32_t>(m_movieRight.getWidth());
 		uint32_t height = static_cast<uint32_t>(m_movieRight.getHeight());
+		uint32_t atlasHeight = height + (height / 2u);
 
 		WGPUTexelCopyTextureInfo destination = {};
 		destination.texture = m_textureRight.getTexture();
@@ -199,11 +197,11 @@ void VideoDecode::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURen
 
 		WGPUTexelCopyBufferLayout source = {};
 		source.offset = 0u;
-		source.bytesPerRow = width * 4u;
-		source.rowsPerImage = height;
+		source.bytesPerRow = width * 1u;
+		source.rowsPerImage = atlasHeight;
 
-		WGPUExtent3D size = { width, height, 1u };
-		wgpuQueueWriteTexture(wgpContext.queue, &destination, m_pixelBufferRight.data(), m_pixelBufferRight.size(), &source, &size);
+		WGPUExtent3D size = { width, atlasHeight, 1u };
+		wgpuQueueWriteTexture(wgpContext.queue, &destination,m_pixelBufferRight.data(), m_pixelBufferRight.size(), &source, &size);
 	}
 
 	float screenWidth = static_cast<float>(Application::Width);
@@ -472,41 +470,4 @@ WGPUBindGroup VideoDecode::createBindGroupRight360() {
 	bindGroupDesc.entryCount = (uint32_t)entries.size();
 	bindGroupDesc.entries = (WGPUBindGroupEntry*)entries.data();
 	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
-}
-
-void VideoDecode::uploadNew(float deltaTime, VideoDecoder& decoder) {
-	/*bool hasNewFrame = decoder.update(deltaTime, m_pixels1);
-
-	// 2. PERFORMANCE-BOOST: Nur hochladen, wenn sich das Bild wirklich geändert hat!
-	// Bei 240 FPS bricht diese Funktion hier in 7 von 8 Frames sofort ab.
-	if (!hasNewFrame) {
-		return;
-	}
-
-	uint32_t width = static_cast<uint32_t>(decoder.getWidth());
-	uint32_t height = static_cast<uint32_t>(decoder.getHeight());
-
-	// 3. Dein bestehender WebGPU Upload (unverändert, nur mit den neuen Variablen)
-	WGPUTexelCopyTextureInfo destination = {};
-	destination.texture = m_texture.getTexture();
-	destination.mipLevel = 0u;
-	destination.origin = { 0u, 0u, 0u };
-	destination.aspect = WGPUTextureAspect_All;
-
-	WGPUTexelCopyBufferLayout source = {};
-	source.offset = 0u;
-	source.bytesPerRow = width * 4u * sizeof(uint8_t); // 4 Kanäle (RGBA)
-	source.rowsPerImage = height;
-
-	WGPUExtent3D size = { width, height, 1u };
-
-	// Wir nutzen m_frameBuffer.data() und die dynamische Größe aus dem Vektor
-	wgpuQueueWriteTexture(
-		wgpContext.queue,
-		&destination,
-		m_pixels1.data(),
-		m_pixels1.size(),
-		&source,
-		&size
-	);*/
 }
