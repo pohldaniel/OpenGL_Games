@@ -39,7 +39,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	Application application(deltaTime, fixedDeltaTime);
 
 	HWND hwnd = Application::GetWindow();
-	HDC hdc;
 
 	Clock deltaClock;
 	Clock fixedDeltaClock;
@@ -83,11 +82,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			frameTime = 0;
 			deltaClock.restart();
 		}
-#endif
-
-		hdc = GetDC(hwnd);
-		SwapBuffers(hdc);
-		ReleaseDC(hwnd, hdc);
+#endif	
 	}
 	return 0;
 }

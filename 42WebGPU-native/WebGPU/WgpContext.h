@@ -36,6 +36,7 @@ extern std::unordered_map<VertexLayoutSlot, std::vector<WGPUVertexBufferLayout>>
 extern "C" {
 	void wgpInit(void* window);
 	bool wgpCreateDevice(void* window);
+	void wgpLogAdapterProperties();
 
 	WGPUBuffer wgpCreateEmptyBuffer(uint32_t size, WGPUBufferUsage bufferUsage, bool mappedAtCreation = false);
 	WGPUBuffer wgpCreateBuffer(const void* data, uint32_t size, WGPUBufferUsage bufferUsage);
@@ -155,7 +156,7 @@ struct WgpContext {
 	WGPUSurfaceConfiguration config = {};
 	WGPUSurfaceCapabilities surfaceCapabilities;
 	WGPUTextureFormat depthFormat = WGPUTextureFormat::WGPUTextureFormat_Depth24PlusStencil8;
-	WGPUTextureFormat colorFormat = WGPUTextureFormat::WGPUTextureFormat_BGRA8UnormSrgb;
+	WGPUTextureFormat colorFormat = WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm;
 
 	std::unordered_map<std::string, WGPUComputePipeline> computePipelines;
 	std::unordered_map<std::string, WGPURenderPipeline> renderPipelines;

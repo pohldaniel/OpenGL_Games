@@ -30,6 +30,16 @@ void OnErrorDevice(const WGPUDevice* device, WGPUErrorType type, WGPUStringView 
 	std::cout << "Error: " << type << " - message: " << message.data << "\n";
 }
 
+void wgpLogAdapterProperties(WGPUAdapter adapter) {
+	WGPUAdapterInfo info = {};
+	wgpuAdapterGetInfo(adapter, &info);
+	std::cout << "--- Adapter Properties ---" << std::endl;
+	std::cout << "GPU Name: " << info.device.data << std::endl;
+	std::cout << "Treiber/Desc: " << info.description.data << std::endl;
+	std::cout << "--------------------------------------" << std::endl;
+	wgpuAdapterInfoFreeMembers(info);
+}
+
 void setDefault(WGPULimits& limits) {
 	limits.maxTextureDimension1D = WGPU_LIMIT_U32_UNDEFINED;
 	limits.maxTextureDimension2D = WGPU_LIMIT_U32_UNDEFINED;
@@ -131,10 +141,11 @@ bool wgpCreateDevice(void* window) {
 #endif
 	
 	WGPURequestAdapterOptions requestAdapterOptions = {};
-	requestAdapterOptions.compatibleSurface = wgpContext.surface;
+	requestAdapterOptions.compatibleSurface = NULL;
 	requestAdapterOptions.forceFallbackAdapter = false;
 	requestAdapterOptions.powerPreference = WGPUPowerPreference_HighPerformance;
-	requestAdapterOptions.backendType = WGPUBackendType_Vulkan;
+	requestAdapterOptions.backendType = WGPUBackendType_D3D12;
+	requestAdapterOptions.featureLevel = WGPUFeatureLevel_Core;
 
 	WGPURequestAdapterCallbackInfo requestAdapterCallbackInfo = {};
 	requestAdapterCallbackInfo.callback = OnRequestAdapter;
@@ -171,7 +182,6 @@ bool wgpCreateDevice(void* window) {
 	deviceDescriptor.uncapturedErrorCallbackInfo = errorCallbackInfo;
 	deviceDescriptor.requiredFeatures = deviceFeatures.data();
 	deviceDescriptor.requiredFeatureCount = deviceFeatures.size();
-
 	WGPUFuture futureDevice = wgpuAdapterRequestDevice(wgpContext.adapter, &deviceDescriptor, deviceCallbackInfo);
 
 #ifndef WEBGPU_NATIVE
@@ -192,7 +202,7 @@ bool wgpCreateDevice(void* window) {
 	wgpContext.surface = wgpuInstanceCreateSurface(wgpContext.instance, &surfaceDescriptor);
 	wgpContext.surfaceCapabilities = { 0 };
 	wgpuSurfaceGetCapabilities(wgpContext.surface, wgpContext.adapter, &wgpContext.surfaceCapabilities);
-	//wgpContext.colorformat = wgpContext.surfaceCapabilities.formats[0];
+	//wgpContext.colorFormat = wgpContext.surfaceCapabilities.formats[0];
 
 	wgpContext.queue = wgpuDeviceGetQueue(wgpContext.device);
 	wgpContext.depthTexture = wgpCreateTexture(static_cast<uint32_t>(Application::Width), static_cast<uint32_t>(Application::Height), 1u, WGPUTextureUsage_RenderAttachment, wgpContext.depthFormat, 1u, wgpContext.msaaSampleCount, wgpContext.depthFormat);
@@ -941,9 +951,9 @@ void wgpDraw() {
 	if (wgpContext.OnPostDraw)
 		wgpContext.OnPostDraw();
 
-#ifdef WEBGPU_DAWN
+
 	wgpuDeviceTick(wgpContext.device);
-#endif
+
 	wgpuInstanceProcessEvents(wgpContext.instance);
 }
 
