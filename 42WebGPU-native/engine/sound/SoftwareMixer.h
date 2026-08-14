@@ -46,7 +46,7 @@ public:
     SoftwareMixer() {
         m_channels.resize(32);
         m_filterCutoff.store(1.0f);
-        m_volume.store(0.5f);
+        m_volume.store(1.0f);
     }
 
     void playSFX(const std::string& file);

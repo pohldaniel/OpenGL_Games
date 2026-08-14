@@ -22,20 +22,29 @@ typedef struct SharedTextureMemoryD3D12ResourceDescriptor {
     ID3D12Resource* resource;
 } SharedTextureMemoryD3D12ResourceDescriptor;
 
-// Der Ringbuffer aus unserem Audiosystem, den wir mit Audiodaten befüllen
 class AudioRingBuffer; 
 
 class MediaDecoder {
+
 public:
+
+    WGPUTexture m_yTexture = nullptr;
+    WGPUTexture m_uvTexture = nullptr;
+
+    WGPUTexture m_videoTexture = nullptr;
+
+    WGPUBindGroup m_yBindgroup = nullptr;
+    WGPUBindGroup m_uvBindgroup = nullptr;
+
+    WGPUSharedTextureMemory m_sharedTextureMemory = nullptr;
+    WGPUTextureView m_textureViewY = nullptr;
+    WGPUTextureView m_textureViewUV = nullptr;
+
     MediaDecoder();
     ~MediaDecoder();
 
     bool open(const std::string& filename);
     void close();
-
-    // Das stupide Update für die Gameloop.
-    // Liest Pakete, konvertiert Audio live in den targetBuffer und 
-    // gibt TRUE zurück, sobald ein neues Videoframe für WebGPU bereitsteht.
     bool update(double deltaTime, std::vector<uint8_t>& outRgbaBuffer, AudioRingBuffer& targetBuffer);
     bool updateOpenAL(double deltaTime, std::vector<uint8_t>& outRgbaBuffer, std::vector<uint8_t>& outPcmAudio);
 
@@ -48,24 +57,20 @@ public:
     double getDuration() const { return m_duration; }
     void seekTo(double seconds);
     bool m_isPackedYuv = false;
+    bool m_isHardwareAccelerated = false;
+
+private:
+
     AVBufferRef* m_hwDeviceContext = nullptr;
     AVFrame* m_swFrame = nullptr;
-
-    /*WGPUSharedTextureMemory m_sharedMemory = nullptr;
-    WGPUTexture m_wgpuVideoTexture = nullptr;
-    WGPUTextureView m_wgpuVideoTextureView = nullptr;
-    WGPUTextureView m_wgpuVideoTextureViewY = nullptr;
-    WGPUTextureView m_wgpuVideoTextureViewUV = nullptr;*/
 
     std::function<void(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor)> OnDraw = NULL;
     bool decodeVideoFrame();
     bool decodeAudioFrame(std::vector<uint8_t>& outPcmData);
 
-    // FFmpeg Basis-Kontext
     AVFormatContext* m_formatContext = nullptr;
     AVPacket* m_packet = nullptr;
 
-    // Video-Kontext & Rescaler
     AVCodecContext* m_videoCodecContext = nullptr;
     SwsContext* m_swsContext = nullptr;
     AVFrame* m_videoFrame = nullptr;
@@ -73,13 +78,11 @@ public:
     uint8_t* m_rgbaBufferInternal = nullptr;
     int m_videoStreamIndex = -1;
 
-    // Audio-Kontext & Resampler
     AVCodecContext* m_audioCodecContext = nullptr;
     SwrContext* m_swrContext = nullptr;
     AVFrame* m_audioFrame = nullptr;
     int m_audioStreamIndex = -1;
 
-    // Video-Metadaten & Zeit-Tracking
     int m_width = 0;
     int m_height = 0;
     double m_timePerFrame = 0.0;
@@ -93,19 +96,4 @@ public:
     double m_duration = 0.0;
    
     double m_videoTimebase = 0.0;
-
-    ID3D12Resource* m_d3d12Resource = nullptr;
-    UINT64 m_subresourceIndex = 0;
-    bool m_hasNewHwFrame = false;
-    WGPUTexture videoTexture;
-
-    WGPUTexture m_yTexture = nullptr;
-    WGPUTexture m_uvTexture = nullptr;
-
-    WGPUTexture m_videoTexture = nullptr;
-
-    WGPUBindGroup m_yBindgroup = nullptr;
-
-    WGPUSharedTextureMemory m_sharedTextureMemory = nullptr;
-    WGPUTextureView m_textureViewY = nullptr;
 };

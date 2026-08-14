@@ -48,16 +48,16 @@ public:
 	void OnMouseButtonUp(const Event::MouseButtonEvent& event) override;
 	void OnKeyDown(const Event::KeyboardEvent& event) override;
 	void OnKeyUp(const Event::KeyboardEvent& event) override;
-	WGPUTexture createWebGpuTextureFromD3D12(WGPUDevice device, ID3D12Resource* d3d12Resource);
 
 private:
 
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayouts();
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayouts360();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayouts360HW();
 
-	WGPUBindGroup createBindGroupLeft();
-	WGPUBindGroup createBindGroupRight();
-	WGPUBindGroup createBindGroupRight360();
+	WGPUBindGroup createBindGroupRGBA();
+	WGPUBindGroup createBindGroupRight360Packed();
+
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 
 	bool m_initUi = true;
@@ -67,17 +67,16 @@ private:
 	TrackBall m_trackball;
 	
 	WgpBuffer m_cameraBuffer;
-	WgpTexture m_textureLeft, m_textureRight;
-	WGPUBindGroup m_bindGroupLeft = NULL, m_bindGroupRight = NULL;
+	WgpTexture m_textureRGBA, m_texturePacked;
+	WGPUBindGroup m_bindGroupRGBA = NULL, m_bindGroupPacked = NULL, m_bindGroupHw = NULL;
 
 	std::unique_ptr<AudioSystem> m_audioSystem;
 
-	MediaDecoder m_movieLeft, m_movieRight;
-	OpenALMovieStream m_openALStreamLeft;
+	MediaDecoder m_movieRGBA, m_movieHw, m_moviePacked;
+	OpenALMovieStream m_openALStreamRGBA, m_openALStreamPacked;
 	RtAudioPlayer m_rtAudioPlayer;
 
-	std::vector<uint8_t> m_pixelBufferLeft, m_audioBufferLeft;
-	std::vector<uint8_t> m_pixelBufferRight;
+	std::vector<uint8_t> m_pixelBufferRGBA, m_pixelBufferPacked, m_pixelBufferHw, m_audioBufferRGBA, m_audioBufferPacked;
 	bool m_isUserDraggingTimeline = false;
 	bool m_hasActiveAccess = false;
 };

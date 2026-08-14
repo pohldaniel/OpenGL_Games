@@ -43,6 +43,12 @@ public:
         }
     }
 
+    float getVolume() {
+        ALfloat volume;
+        alGetSourcef(m_source, AL_GAIN, &volume);
+        return volume;
+    }
+
     void streamAudio(const std::vector<uint8_t>& pcmData) {
         if (m_source == 0) return;
 
