@@ -10,6 +10,8 @@
 #include "Application.h"
 #include "Globals.h"
 
+
+
 #define posix_memalign(p, a, s) (((*(p)) = _aligned_malloc((s), (a))), *(p) ?0 :errno)
 
 VideoDecode::VideoDecode(StateMachine& machine) : State(machine, States::VIDEO_DECODE) {
@@ -38,6 +40,7 @@ VideoDecode::VideoDecode(StateMachine& machine) : State(machine, States::VIDEO_D
 	wgpContext.addSahderModule("VIDEO_360", "res/shader/video_360_packed.wgsl");
 	wgpContext.createRenderPipeline("VIDEO_360", "RP_VIDEO_360", VL_NONE, std::bind(&VideoDecode::OnBindGroupLayouts360, this));
 	wgpContext.OnDraw = std::bind(&VideoDecode::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
+	wgpContext.OnPostDraw = std::bind(&VideoDecode::OnPostDraw, this);
 
 	m_audioSystem = std::make_unique<OpenALAudioSystem>();
 	m_audioSystem->init();
@@ -45,8 +48,8 @@ VideoDecode::VideoDecode(StateMachine& machine) : State(machine, States::VIDEO_D
 	m_movieLeft.open("res/videos/big_buck_bunny.mp4");
 	
 	m_movieRight.m_isPackedYuv = true;
-	m_movieRight.open("res/videos/underwater_diving_360degrees.mp4");
-	//m_movieRight.open("res/videos/360_example_30fps.mp4");
+	//m_movieRight.open("res/videos/underwater_diving_360degrees.mp4");
+	m_movieRight.open("res/videos/360_example.mp4");
 
 	m_textureLeft.createEmpty(m_movieLeft.getWidth(), m_movieLeft.getHeight(), 1u, WGPUTextureUsage_CopyDst | WGPUTextureUsage_TextureBinding, WGPUTextureFormat_RGBA8Unorm);
 	//m_textureRight.createEmpty(m_movieRight.getWidth(), m_movieRight.getHeight(), 1u, WGPUTextureUsage_CopyDst | WGPUTextureUsage_TextureBinding, WGPUTextureFormat_RGBA8Unorm);
@@ -154,10 +157,49 @@ void VideoDecode::render() {
 	wgpDraw();
 }
 
+WGPUTexture VideoDecode::createWebGpuTextureFromD3D12(WGPUDevice device, ID3D12Resource* d3d12Resource) {
+
+	SharedTextureMemoryD3D12ResourceDescriptor d3d12Desc = {};
+	d3d12Desc.chain.next = NULL;
+	d3d12Desc.chain.sType = WGPUSType_SharedTextureMemoryD3D12ResourceDescriptor;
+	d3d12Desc.resource = m_movieRight.m_d3d12Resource;
+
+	WGPUSharedTextureMemoryDescriptor memoryDesc = {};
+	memoryDesc.nextInChain = (WGPUChainedStruct*)&d3d12Desc;
+	memoryDesc.label = WGPU_STR("FFmpeg Video Shared Memory");
+
+	WGPUSharedTextureMemory sharedMemory = wgpuDeviceImportSharedTextureMemory(device, &memoryDesc);
+	if (sharedMemory == NULL) {
+		std::cout << "FEHLER: " << std::endl;
+		return NULL;
+	}
+
+	WGPUTextureDescriptor textureDesc = {};
+	textureDesc.nextInChain = NULL;
+	textureDesc.label = WGPU_STR("FFmpeg Hardware Video Texture", );
+	textureDesc.usage = WGPUTextureUsage_TextureBinding;
+	textureDesc.dimension = WGPUTextureDimension::WGPUTextureDimension_2D;
+	textureDesc.size.width = m_movieRight.m_width;
+	textureDesc.size.height = m_movieRight.m_height;
+	textureDesc.size.depthOrArrayLayers = 1u;
+	textureDesc.format = WGPUTextureFormat_Undefined;
+	textureDesc.mipLevelCount = 1u;
+	textureDesc.sampleCount = 1u;
+	textureDesc.viewFormatCount = 0u;
+	textureDesc.viewFormats = NULL;
+
+	WGPUTexture videoTexture = wgpuSharedTextureMemoryCreateTexture(sharedMemory, &textureDesc);
+	wgpuSharedTextureMemoryRelease(sharedMemory);
+
+	return videoTexture;
+}
+
 void VideoDecode::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor) {
 
 	bool newFrameLeft = m_movieLeft.updateOpenAL(m_dt, m_pixelBufferLeft, m_audioBufferLeft);
 	bool newFrameRight = false;
+	m_hasActiveAccess = false;
+
 	if (!m_isUserDraggingTimeline) {
 		newFrameRight = m_movieRight.update(m_dt, m_pixelBufferRight, m_rtAudioPlayer.getRingBuffer());
 	}
@@ -185,23 +227,43 @@ void VideoDecode::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURen
 	}
 
 	if (newFrameRight) {
-		uint32_t width = static_cast<uint32_t>(m_movieRight.getWidth());
-		uint32_t height = static_cast<uint32_t>(m_movieRight.getHeight());
-		uint32_t atlasHeight = height + (height / 2u);
+		WGPUSharedTextureMemoryBeginAccessDescriptor accessDesc = {};
+		accessDesc.nextInChain = NULL;
+		accessDesc.initialized = true; // Textur enthält bereits die FFmpeg-Daten
+		accessDesc.fenceCount = 0;
+		accessDesc.fences = NULL;
+		//accessDesc.fenceSignaledValues = NULL;
 
-		WGPUTexelCopyTextureInfo destination = {};
-		destination.texture = m_textureRight.getTexture();
-		destination.mipLevel = 0u;
-		destination.origin = { 0u, 0u, 0u };
-		destination.aspect = WGPUTextureAspect_All;
+		WGPUStatus status = wgpuSharedTextureMemoryBeginAccess(m_movieRight.m_sharedTextureMemory, m_movieRight.m_videoTexture, &accessDesc);
+		if (status == WGPUStatus_Success) {
+			m_hasActiveAccess = true;
+		}
+		else {
+			std::cerr << "Fehler: BeginAccess fehlgeschlagen!" << std::endl;
+		}
 
-		WGPUTexelCopyBufferLayout source = {};
-		source.offset = 0u;
-		source.bytesPerRow = width * 1u;
-		source.rowsPerImage = atlasHeight;
+		if (m_bindGroupRight) {
+			wgpuBindGroupRelease(m_bindGroupRight);
+		}
 
-		WGPUExtent3D size = { width, atlasHeight, 1u };
-		wgpuQueueWriteTexture(wgpContext.queue, &destination,m_pixelBufferRight.data(), m_pixelBufferRight.size(), &source, &size);
+		std::vector<WGPUBindGroupEntry> entries(3);
+
+		entries[0].binding = 0u;
+		entries[0].buffer = m_cameraBuffer.getBuffer();
+		entries[0].offset = 0u;
+		entries[0].size = sizeof(CameraUniforms);
+
+		entries[1].binding = 1u;
+		entries[1].sampler = wgpContext.getSampler(SS_LINEAR_CLAMP);
+
+		entries[2].binding = 2u;
+		entries[2].textureView = m_movieRight.m_textureViewY;
+
+		WGPUBindGroupDescriptor bindGroupDesc = {};
+		bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_VIDEO_360"), 0u);
+		bindGroupDesc.entryCount = (uint32_t)entries.size();
+		bindGroupDesc.entries = (WGPUBindGroupEntry*)entries.data();
+		m_bindGroupRight =  wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
 	}
 
 	float screenWidth = static_cast<float>(Application::Width);
@@ -233,6 +295,29 @@ void VideoDecode::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURen
 
 	wgpuRenderPassEncoderEnd(renderPassEncoder);
 	wgpuRenderPassEncoderRelease(renderPassEncoder);
+
+	
+}
+
+void VideoDecode::OnPostDraw() {
+	if (m_hasActiveAccess) {
+		WGPUSharedTextureMemoryEndAccessState endState = {};
+		endState.nextInChain = NULL;
+
+		wgpuSharedTextureMemoryEndAccess(m_movieRight.m_sharedTextureMemory, m_movieRight.m_videoTexture, &endState);
+		if (m_movieRight.m_textureViewY) {
+			wgpuTextureViewRelease(m_movieRight.m_textureViewY);
+			m_movieRight.m_textureViewY = nullptr;
+		}
+		if (m_movieRight.m_videoTexture) {
+			wgpuTextureRelease(m_movieRight.m_videoTexture);
+			m_movieRight.m_videoTexture = nullptr;
+		}
+		if (m_movieRight.m_sharedTextureMemory) {
+			wgpuSharedTextureMemoryRelease(m_movieRight.m_sharedTextureMemory);
+			m_movieRight.m_sharedTextureMemory = nullptr;
+		}
+	}
 }
 
 void VideoDecode::OnMouseMotion(const Event::MouseMoveEvent& event) {

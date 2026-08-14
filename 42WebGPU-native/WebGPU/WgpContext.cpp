@@ -131,10 +131,23 @@ bool wgpCreateDevice(void* window) {
 	//instanceDescriptor.nextInChain = &instanceExtras.chain;
 	//instanceDescriptor.features.
 	wgpContext.instance = wgpuCreateInstance(&instanceDescriptor);
-#else	
+#else
+	const char* enabledToggles[] = {
+		"allow_unsafe_apis"
+	};
+
+	WGPUDawnTogglesDescriptor togglesDesc;
+	togglesDesc.chain.next = NULL;
+	togglesDesc.chain.sType = WGPUSType_DawnTogglesDescriptor;
+	togglesDesc.enabledToggleCount = 1;
+	togglesDesc.enabledToggles = enabledToggles;
+	togglesDesc.disabledToggleCount = 0;
+	togglesDesc.disabledToggles = NULL;
+
 	std::vector<WGPUInstanceFeatureName> instancefeatures;
 	instancefeatures.push_back(WGPUInstanceFeatureName::WGPUInstanceFeatureName_TimedWaitAny);
 	WGPUInstanceDescriptor instanceDescriptor = {};
+	instanceDescriptor.nextInChain = (WGPUChainedStruct*)&togglesDesc;
 	instanceDescriptor.requiredFeatureCount = instancefeatures.size();
 	instanceDescriptor.requiredFeatures = instancefeatures.data();
 	wgpContext.instance = wgpuCreateInstance(&instanceDescriptor);
@@ -176,7 +189,10 @@ bool wgpCreateDevice(void* window) {
 
 	std::vector<WGPUFeatureName> deviceFeatures;
 	deviceFeatures.push_back(WGPUFeatureName::WGPUFeatureName_PrimitiveIndex);
-
+	deviceFeatures.push_back(WGPUFeatureName::WGPUFeatureName_SharedTextureMemoryD3D12Resource);
+	deviceFeatures.push_back(WGPUFeatureName::WGPUFeatureName_DawnMultiPlanarFormats);
+	deviceFeatures.push_back(WGPUFeatureName::WGPUFeatureName_SharedTextureMemoryDXGISharedHandle);
+	
 	WGPUDeviceDescriptor deviceDescriptor = {};
 	deviceDescriptor.requiredLimits = &requiredLimits;
 	deviceDescriptor.uncapturedErrorCallbackInfo = errorCallbackInfo;

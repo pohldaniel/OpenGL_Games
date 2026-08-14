@@ -19,6 +19,7 @@
 #include <engine/sound/OpenALPlayer.h>
 #include <engine/sound/AudioSystem.h>
 #include <engine/sound/OpenALAudioSystem.h>
+#include <d3d12.h>
 
 class VideoDecode : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -47,6 +48,7 @@ public:
 	void OnMouseButtonUp(const Event::MouseButtonEvent& event) override;
 	void OnKeyDown(const Event::KeyboardEvent& event) override;
 	void OnKeyUp(const Event::KeyboardEvent& event) override;
+	WGPUTexture createWebGpuTextureFromD3D12(WGPUDevice device, ID3D12Resource* d3d12Resource);
 
 private:
 
@@ -77,4 +79,5 @@ private:
 	std::vector<uint8_t> m_pixelBufferLeft, m_audioBufferLeft;
 	std::vector<uint8_t> m_pixelBufferRight;
 	bool m_isUserDraggingTimeline = false;
+	bool m_hasActiveAccess = false;
 };

@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <atomic>
 #include <webgpu.h>
-
+#include <d3d12.h>
 
 extern "C" {
 #include <libavformat/avformat.h>
@@ -14,7 +14,13 @@ extern "C" {
 #include <libavutil/imgutils.h>
 #include <libavutil/opt.h>
 #include <libavutil/log.h>
+#include <libavutil/hwcontext_d3d12va.h>
 }
+
+typedef struct SharedTextureMemoryD3D12ResourceDescriptor {
+    WGPUChainedStruct chain;
+    ID3D12Resource* resource;
+} SharedTextureMemoryD3D12ResourceDescriptor;
 
 // Der Ringbuffer aus unserem Audiosystem, den wir mit Audiodaten befüllen
 class AudioRingBuffer; 
@@ -45,11 +51,11 @@ public:
     AVBufferRef* m_hwDeviceContext = nullptr;
     AVFrame* m_swFrame = nullptr;
 
-    WGPUSharedTextureMemory m_sharedMemory = nullptr;
+    /*WGPUSharedTextureMemory m_sharedMemory = nullptr;
     WGPUTexture m_wgpuVideoTexture = nullptr;
     WGPUTextureView m_wgpuVideoTextureView = nullptr;
     WGPUTextureView m_wgpuVideoTextureViewY = nullptr;
-    WGPUTextureView m_wgpuVideoTextureViewUV = nullptr;
+    WGPUTextureView m_wgpuVideoTextureViewUV = nullptr;*/
 
     std::function<void(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor)> OnDraw = NULL;
     bool decodeVideoFrame();
@@ -87,4 +93,19 @@ public:
     double m_duration = 0.0;
    
     double m_videoTimebase = 0.0;
+
+    ID3D12Resource* m_d3d12Resource = nullptr;
+    UINT64 m_subresourceIndex = 0;
+    bool m_hasNewHwFrame = false;
+    WGPUTexture videoTexture;
+
+    WGPUTexture m_yTexture = nullptr;
+    WGPUTexture m_uvTexture = nullptr;
+
+    WGPUTexture m_videoTexture = nullptr;
+
+    WGPUBindGroup m_yBindgroup = nullptr;
+
+    WGPUSharedTextureMemory m_sharedTextureMemory = nullptr;
+    WGPUTextureView m_textureViewY = nullptr;
 };
