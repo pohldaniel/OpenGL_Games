@@ -72,7 +72,8 @@ private:
 
 	std::unique_ptr<AudioSystem> m_audioSystem;
 
-	MediaDecoder m_movieRGBA, m_movieHw, m_moviePacked;
+	MediaDecoder m_movieRGBA, m_moviePacked;
+	MediaDecoder m_movieHw;
 	OpenALMovieStream m_openALStreamRGBA, m_openALStreamPacked;
 	RtAudioPlayer m_rtAudioPlayer;
 

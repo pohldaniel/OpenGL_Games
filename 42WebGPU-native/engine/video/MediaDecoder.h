@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <atomic>
 #include <webgpu.h>
+#include <d3d11.h>
 #include <d3d12.h>
 
 extern "C" {
@@ -14,7 +15,10 @@ extern "C" {
 #include <libavutil/imgutils.h>
 #include <libavutil/opt.h>
 #include <libavutil/log.h>
+#include <libavutil/hwcontext_d3d11va.h>
 #include <libavutil/hwcontext_d3d12va.h>
+
+#include <libavutil/hwcontext_vulkan.h >
 }
 
 typedef struct SharedTextureMemoryD3D12ResourceDescriptor {
@@ -22,12 +26,23 @@ typedef struct SharedTextureMemoryD3D12ResourceDescriptor {
     ID3D12Resource* resource;
 } SharedTextureMemoryD3D12ResourceDescriptor;
 
+typedef struct SharedTextureMemoryD3D11Texture2DDescriptor {
+    WGPUChainedStruct chain;
+    ID3D11Texture2D* texture;
+} SharedTextureMemoryD3D11Texture2DDescriptor;
+
 class AudioRingBuffer; 
+
+enum HardwareAcceleration {
+    HW_D3D12,
+    HW_D3D11,
+    HW_VULKAN,
+    HW_NONE
+};
 
 class MediaDecoder {
 
 public:
-
     WGPUTexture m_yTexture = nullptr;
     WGPUTexture m_uvTexture = nullptr;
 
@@ -57,12 +72,13 @@ public:
     double getDuration() const { return m_duration; }
     void seekTo(double seconds);
     bool m_isPackedYuv = false;
-    bool m_isHardwareAccelerated = false;
+    HardwareAcceleration m_hardwareAcceleration = HW_NONE;
 
 private:
 
     AVBufferRef* m_hwDeviceContext = nullptr;
     AVFrame* m_swFrame = nullptr;
+    AVDictionary* options = nullptr;
 
     std::function<void(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor)> OnDraw = NULL;
     bool decodeVideoFrame();
@@ -96,4 +112,8 @@ private:
     double m_duration = 0.0;
    
     double m_videoTimebase = 0.0;
+
+    ID3D11Device* m_d3d11_device = nullptr;
+    ID3D11DeviceContext* m_d3d11_context = nullptr;
+    ID3D11Texture2D* m_single_texture = nullptr;
 };

@@ -161,7 +161,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;FREEIMAGE_LIB;WEBGPU_DAWN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;src;..\libimgui;..\libassimp\include;..\rapidjson\include;..\Freeimage\libfreeimage\include;..\openal\include;..\sndfile\include;..\nuklear;..\SDKs\wgpu-dawn\include;..\SDKs\ffmpeg\include;..\SDKs\OpenAL\include;..\SDKs\rtaudio\include;..\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;src;..\libimgui;..\libassimp\include;..\rapidjson\include;..\Freeimage\libfreeimage\include;..\openal\include;..\sndfile\include;..\nuklear;..\SDKs\wgpu-dawn\include;..\SDKs\ffmpeg\include;..\SDKs\OpenAL\include;..\SDKs\rtaudio\include;..\glm;C:\VulkanSDK\1.4.357.0\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -171,8 +171,8 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\lib\x64;..\SDKs\wgpu-dawn\lib\x64;..\SDKs\ffmpeg\lib;..\SDKs\OpenAL\lib\x64;..\SDKs\rtaudio\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libfreeimage.lib;libjpeg.lib;libjxr.lib;libopenexr.lib;libopenjpeg.lib;libpng.lib;librawlite.lib;libtiff4.lib;libwebp.lib;libfreetype.lib;libimgui.lib;libassimp.lib;libzlib.lib;libopenal.lib;avrt.lib;libavutil.lib;libavcodec.lib;libswresample.lib;libavformat.lib;libswscale.lib;libx264.lib;strmiids.lib;mfuuid.lib;ws2_32.lib;secur32.lib;ncrypt.lib;crypt32.lib;wgpu.lib;onecore.lib;librtaudio.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\lib\x64;..\SDKs\wgpu-dawn\lib\x64;..\SDKs\ffmpeg\lib;..\SDKs\OpenAL\lib\x64;..\SDKs\rtaudio\lib\x64;C:\VulkanSDK\1.4.357.0\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libfreeimage.lib;libjpeg.lib;libjxr.lib;libopenexr.lib;libopenjpeg.lib;libpng.lib;librawlite.lib;libtiff4.lib;libwebp.lib;libfreetype.lib;libimgui.lib;libassimp.lib;libzlib.lib;libopenal.lib;avrt.lib;libavutil.lib;libavcodec.lib;libswresample.lib;libavformat.lib;libswscale.lib;libx264.lib;strmiids.lib;mfuuid.lib;ws2_32.lib;secur32.lib;ncrypt.lib;crypt32.lib;wgpu.lib;onecore.lib;librtaudio.lib;vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y "$(ProjectDir)..\SDKs\Vulkan\Bin\x64\vulkan-1.dll" "$(ProjectDir)..\x64\release\vulkan-1.dll"

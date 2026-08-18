@@ -7,6 +7,7 @@
 #include "MediaDecoder.h"
 #include "../sound/AudioRingBuffer.h"
 #include <dxgi.h>
+#include <dxgi1_2.h>
 
 MediaDecoder::MediaDecoder() {
     m_packet = av_packet_alloc();
@@ -35,14 +36,96 @@ static enum AVPixelFormat get_hw_format_d3d12(AVCodecContext* ctx, const enum AV
     return AV_PIX_FMT_NONE;
 }
 
-static enum AVPixelFormat get_hw_format_vulkan(AVCodecContext* ctx, const enum AVPixelFormat* pix_fmts) {
-    const enum AVPixelFormat target = AV_PIX_FMT_VULKAN;
+static enum AVPixelFormat get_hw_format_d3d11(AVCodecContext* ctx, const enum AVPixelFormat* pix_fmts) {
+    const enum AVPixelFormat target = AV_PIX_FMT_D3D11;
     for (const enum AVPixelFormat* p = pix_fmts; *p != AV_PIX_FMT_NONE; p++) {
-        if (*p == target) {           
+        if (*p == target) {
             return target;
         }
     }
     return AV_PIX_FMT_NONE;
+}
+
+static enum AVPixelFormat get_hw_format_vulkan(AVCodecContext* ctx, const enum AVPixelFormat* pix_fmts) {
+    for (const enum AVPixelFormat* p = pix_fmts; *p != AV_PIX_FMT_NONE; p++) {
+        if (*p == AV_PIX_FMT_VULKAN) {
+
+            if (!ctx->hw_frames_ctx) {
+                int err = avcodec_get_hw_frames_parameters(ctx, ctx->hw_device_ctx, AV_PIX_FMT_VULKAN, &ctx->hw_frames_ctx);
+                if (err < 0) {
+                    std::cerr << "[Vulkan-HW] Parameter-Abruf fehlgeschlagen." << std::endl;
+                    break;
+                }
+
+                AVHWFramesContext* frames_ctx = (AVHWFramesContext*)ctx->hw_frames_ctx->data;
+                AVVulkanFramesContext* vk_frames_ctx = (AVVulkanFramesContext*)frames_ctx->hwctx;
+
+                vk_frames_ctx->img_flags |= VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT;
+                vk_frames_ctx->usage = static_cast<VkImageUsageFlagBits>(vk_frames_ctx->usage | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
+                vk_frames_ctx->tiling = VK_IMAGE_TILING_OPTIMAL;
+
+                static SECURITY_ATTRIBUTES win32_security_attributes = {};
+                win32_security_attributes.nLength = sizeof(SECURITY_ATTRIBUTES);
+                win32_security_attributes.lpSecurityDescriptor = nullptr;
+                win32_security_attributes.bInheritHandle = TRUE;
+
+                static VkExportMemoryWin32HandleInfoKHR win32_handle_info = {};
+                win32_handle_info.sType = VK_STRUCTURE_TYPE_EXPORT_MEMORY_WIN32_HANDLE_INFO_KHR;
+                win32_handle_info.pNext = nullptr;
+                win32_handle_info.pAttributes = &win32_security_attributes;
+                win32_handle_info.dwAccess = DXGI_SHARED_RESOURCE_READ | DXGI_SHARED_RESOURCE_WRITE;
+
+                static VkExportMemoryAllocateInfoKHR win32_export_alloc_info = {};
+                win32_export_alloc_info.sType = VK_STRUCTURE_TYPE_EXPORT_MEMORY_ALLOCATE_INFO_KHR;
+                win32_export_alloc_info.pNext = &win32_handle_info;
+                win32_export_alloc_info.handleTypes = VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT;
+
+                static VkExternalMemoryImageCreateInfoKHR win32_ext_image_info = {};
+                win32_ext_image_info.sType = VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO_KHR;
+                win32_ext_image_info.pNext = nullptr;
+                win32_ext_image_info.handleTypes = VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT;
+
+                for (int i = 0; i < AV_NUM_DATA_POINTERS; i++) {
+                    if (vk_frames_ctx->alloc_pnext[i] == nullptr) {
+                        vk_frames_ctx->alloc_pnext[i] = &win32_export_alloc_info;
+                    }
+                    else {
+                        VkBaseOutStructure* current = reinterpret_cast<VkBaseOutStructure*>(vk_frames_ctx->alloc_pnext[i]);
+                        while (current->pNext != nullptr) {
+                            current = current->pNext;
+                        }
+                        current->pNext = reinterpret_cast<VkBaseOutStructure*>(&win32_export_alloc_info);
+                    }
+                }
+
+                if (vk_frames_ctx->create_pnext == nullptr) {
+                    vk_frames_ctx->create_pnext = &win32_ext_image_info;
+                }else {
+                    VkBaseOutStructure* current = reinterpret_cast<VkBaseOutStructure*>(vk_frames_ctx->create_pnext);
+                    while (current->pNext != nullptr) {
+                        current = current->pNext;
+                    }
+                    current->pNext = reinterpret_cast<VkBaseOutStructure*>(&win32_ext_image_info);
+                }
+
+                err = av_hwframe_ctx_init(ctx->hw_frames_ctx);
+                if (err < 0) {
+                    std::cerr << "av_hwframe_ctx_init fehlgeschlagen!" << std::endl;
+                    av_buffer_unref(&ctx->hw_frames_ctx);
+                    return AV_PIX_FMT_NONE;
+                }
+
+                std::cout << "[Vulkan-HW] Hardware-Frames erfolgreich initialisiert." << std::endl;
+                return AV_PIX_FMT_VULKAN;
+            }
+           
+          
+            
+            
+        }
+    }
+    std::cout << "[Vulkan-HW] Nutze Software-Fallback: " << av_get_pix_fmt_name(ctx->sw_pix_fmt) << std::endl;
+    return ctx->sw_pix_fmt;
 }
 
 bool MediaDecoder::open(const std::string& filename) {
@@ -59,7 +142,6 @@ bool MediaDecoder::open(const std::string& filename) {
 
     if (m_videoStreamIndex == -1) return false;
 
-
     const AVCodec* videoCodec = avcodec_find_decoder(m_formatContext->streams[m_videoStreamIndex]->codecpar->codec_id);
     m_videoCodecContext = avcodec_alloc_context3(videoCodec);
     avcodec_parameters_to_context(m_videoCodecContext, m_formatContext->streams[m_videoStreamIndex]->codecpar);
@@ -67,7 +149,12 @@ bool MediaDecoder::open(const std::string& filename) {
     int numCores = std::min( std::thread::hardware_concurrency(), 16u);
     m_videoCodecContext->thread_count = numCores;
     m_videoCodecContext->thread_type = FF_THREAD_FRAME;
-    if (m_isHardwareAccelerated) {
+    if (m_hardwareAcceleration == HW_VULKAN){
+        int err =  av_hwdevice_ctx_create(&m_hwDeviceContext, AV_HWDEVICE_TYPE_VULKAN, nullptr, options, 0);
+        m_videoCodecContext->get_format = get_hw_format_vulkan;
+        m_videoCodecContext->hw_device_ctx = av_buffer_ref(m_hwDeviceContext);
+
+    }else if (m_hardwareAcceleration == HW_D3D12) {
         int err = av_hwdevice_ctx_create(&m_hwDeviceContext, AV_HWDEVICE_TYPE_D3D12VA, NULL, NULL, 0);
         m_videoCodecContext->sw_pix_fmt = AV_PIX_FMT_NV12;
         m_videoCodecContext->hw_device_ctx = av_buffer_ref(m_hwDeviceContext);
@@ -75,9 +162,22 @@ bool MediaDecoder::open(const std::string& filename) {
 
         AVHWDeviceContext* device_ctx = (AVHWDeviceContext*)m_videoCodecContext->hw_device_ctx->data;
         AVD3D12VADeviceContext* d3d12_ctx = (AVD3D12VADeviceContext*)device_ctx->hwctx;
-
         d3d12_ctx->resource_flags |= D3D12_RESOURCE_FLAG_ALLOW_SIMULTANEOUS_ACCESS;
         m_videoCodecContext->hw_device_ctx = av_buffer_ref(m_hwDeviceContext);
+
+    }else if (m_hardwareAcceleration == HW_D3D11) {
+        int err = av_hwdevice_ctx_create(&m_hwDeviceContext, AV_HWDEVICE_TYPE_D3D11VA, NULL, NULL, 0);
+
+        AVHWDeviceContext* device_ctx = (AVHWDeviceContext*)(m_hwDeviceContext->data);
+        AVD3D11VADeviceContext* d3d11_device_ctx = (AVD3D11VADeviceContext*)device_ctx->hwctx;
+        d3d11_device_ctx->MiscFlags |= D3D11_RESOURCE_MISC_SHARED;
+
+        m_videoCodecContext->sw_pix_fmt = AV_PIX_FMT_NV12;
+        m_videoCodecContext->hw_device_ctx = av_buffer_ref(m_hwDeviceContext);
+        m_videoCodecContext->get_format = get_hw_format_d3d11;
+
+        m_d3d11_device = d3d11_device_ctx->device;
+        m_d3d11_context = d3d11_device_ctx->device_context;
     }
 
     if (avcodec_open2(m_videoCodecContext, videoCodec, nullptr) < 0) return false;
@@ -209,20 +309,89 @@ bool MediaDecoder::decodeVideoFrame() {
     }
 
     AVFrame* workingFrame = m_videoFrame;
-  
-    if (workingFrame->format == AV_PIX_FMT_D3D12) {
+
+    if (workingFrame->format == AV_PIX_FMT_VULKAN) {
+        AVVkFrame* ffmpegFrame = reinterpret_cast<AVVkFrame*>(m_videoFrame->data[0]);
+        VkImage vkImage = ffmpegFrame->img[0];
+        VkDeviceMemory vkMemory = ffmpegFrame->mem[0];
+
+        AVHWFramesContext* framesCtx = (AVHWFramesContext*)m_videoFrame->hw_frames_ctx->data;
+        AVHWDeviceContext* deviceCtx = framesCtx->device_ctx;
+        AVVulkanDeviceContext* vulkanDevCtx = (AVVulkanDeviceContext*)deviceCtx->hwctx;
+
+        VkDevice vkDevice = vulkanDevCtx->act_dev;
+        VkInstance vkInstance = vulkanDevCtx->inst;
+
+        VkMemoryRequirements memReq = {};
+        vkGetImageMemoryRequirements(vkDevice, vkImage, &memReq);
+
+        std::cout << "--- VULKAN FRAME INSPECION ---" << std::endl;
+        std::cout << "Speicherbedarf (Size): " << memReq.size << " Bytes" << std::endl;
+        std::cout << "Alignment: " << memReq.alignment << std::endl;
+        std::cout << "Memory Type Bits: " << memReq.memoryTypeBits << std::endl;
+
+        VkPhysicalDeviceExternalImageFormatInfo externalImageFormatInfo = {};
+        externalImageFormatInfo.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_IMAGE_FORMAT_INFO;
+        externalImageFormatInfo.handleType = VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT;
+
+        VkImageFormatProperties2 imageFormatProperties = {};
+        imageFormatProperties.sType = VK_STRUCTURE_TYPE_IMAGE_FORMAT_PROPERTIES_2;
+
+        VkExternalImageFormatProperties externalImageFormatProperties = {};
+        externalImageFormatProperties.sType = VK_STRUCTURE_TYPE_EXTERNAL_IMAGE_FORMAT_PROPERTIES;
+        imageFormatProperties.pNext = &externalImageFormatProperties;
+
+        VkPhysicalDeviceImageFormatInfo2 formatInfo = {};
+        formatInfo.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_FORMAT_INFO_2;
+        formatInfo.format = VK_FORMAT_G8_B8R8_2PLANE_420_UNORM; // Das typische NV12-Format in Vulkan
+        formatInfo.type = VK_IMAGE_TYPE_2D;
+        formatInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+        formatInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT;
+
+
+        VkResult checkResult = vkGetPhysicalDeviceImageFormatProperties2(
+            vulkanDevCtx->phys_dev,
+            &formatInfo,
+            &imageFormatProperties
+        );
+
+        if (checkResult == VK_SUCCESS) {
+            VkExternalMemoryFeatureFlags flags = externalImageFormatProperties.externalMemoryProperties.externalMemoryFeatures;
+            std::cout << "External Memory Flags: " << flags << std::endl;
+            if (flags & VK_EXTERNAL_MEMORY_FEATURE_EXPORTABLE_BIT) {
+                std::cout << "-> SPEICHER IST EXPORTIERBAR! (GetWin32Handle wird funktionieren)" << std::endl;
+            }
+            else {
+                std::cout << "-> FEHLER: FFmpeg hat diesen Speicher OHNE Export-Flags allokiert!" << std::endl;
+            }
+        }
+
+        VkMemoryGetWin32HandleInfoKHR getFdInfo = {};
+        getFdInfo.sType = VK_STRUCTURE_TYPE_MEMORY_GET_WIN32_HANDLE_INFO_KHR;
+        getFdInfo.pNext = NULL;
+        getFdInfo.memory = vkMemory;
+        getFdInfo.handleType = VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT;
+
+        PFN_vkGetDeviceProcAddr fpGetDeviceProcAddr =
+            (PFN_vkGetDeviceProcAddr)vulkanDevCtx->get_proc_addr(vkInstance, "vkGetDeviceProcAddr");
+        
+        PFN_vkGetMemoryWin32HandleKHR fpGetMemoryWin32HandleKHR =
+            (PFN_vkGetMemoryWin32HandleKHR)fpGetDeviceProcAddr(vkDevice, "vkGetMemoryWin32HandleKHR");
+        
+
+        HANDLE win32Handle = nullptr;
+        VkResult result = fpGetMemoryWin32HandleKHR(vkDevice, &getFdInfo, &win32Handle);
+        std::cout << win32Handle << "  " << result << std::endl;
+    }else if (workingFrame->format == AV_PIX_FMT_D3D12) {
+      
         AVD3D12VAFrame* ffmpegFrame = reinterpret_cast<AVD3D12VAFrame*>(m_videoFrame->data[0]);
         ID3D12Resource* d3d12Texture = ffmpegFrame->texture;
-        UINT64 subresourceIndex = ffmpegFrame->subresource_index;
-
-        ID3D12Device* ffmpegD3D12Device = nullptr;
-        HRESULT hr = d3d12Texture->GetDevice(__uuidof(ID3D12Device), (void**)&ffmpegD3D12Device);
-   
+ 
         SharedTextureMemoryD3D12ResourceDescriptor d3d12Desc = {};
         d3d12Desc.chain.next = NULL;
         d3d12Desc.chain.sType = WGPUSType_SharedTextureMemoryD3D12ResourceDescriptor;
         d3d12Desc.resource = d3d12Texture;
-
+  
         if (m_textureViewY) {
             wgpuTextureViewRelease(m_textureViewY);
             m_textureViewY = nullptr;
@@ -237,6 +406,7 @@ bool MediaDecoder::decodeVideoFrame() {
             wgpuTextureRelease(m_videoTexture);
             m_videoTexture = nullptr;
         }
+
         if (m_sharedTextureMemory) {
             wgpuSharedTextureMemoryRelease(m_sharedTextureMemory);
             m_sharedTextureMemory = nullptr;
@@ -246,7 +416,6 @@ bool MediaDecoder::decodeVideoFrame() {
         memoryDesc.nextInChain = (WGPUChainedStruct*)&d3d12Desc;
         memoryDesc.label = WGPU_STR("FFmpeg_Direct_D3D12_ZeroCopy");
         m_sharedTextureMemory = wgpuDeviceImportSharedTextureMemory(wgpContext.device, &memoryDesc);
-
 
         WGPUTextureDescriptor textureDesc = {};
         textureDesc.nextInChain = NULL;
@@ -282,9 +451,124 @@ bool MediaDecoder::decodeVideoFrame() {
         uvViewDesc.aspect = WGPUTextureAspect_Plane1Only;
         m_textureViewUV = wgpuTextureCreateView(m_videoTexture, &uvViewDesc);
 
+    }else if (workingFrame->format == AV_PIX_FMT_D3D11) {
+        //ID3D11Texture2D* hw_texture = (ID3D11Texture2D*)m_videoFrame->data[0];
+        //D3D11_TEXTURE2D_DESC texDesc;
+        //hw_texture->GetDesc(&texDesc);
+
+        //printf("Allokierte Textur Flags - Bind: %u, Misc: %u, ArraySize: %u\n",
+        //    texDesc.BindFlags, texDesc.MiscFlags, texDesc.ArraySize);
+        
+        
+        ID3D11Texture2D* d3d11Texture = reinterpret_cast<ID3D11Texture2D*>(m_videoFrame->data[0]);      
+        IDXGIResource1* dxgiResource = nullptr;
+        HRESULT hr = d3d11Texture->QueryInterface(__uuidof(IDXGIResource1), (void**)&dxgiResource);
+
+        HANDLE sharedHandle = nullptr;       
+        hr = dxgiResource->GetSharedHandle(&sharedHandle);
+        dxgiResource->Release();
+      
+        ID3D11Texture2D* ffmpeg_texture_array = nullptr;
+        hr = m_d3d11_device->OpenSharedResource(sharedHandle, __uuidof(ID3D11Texture2D), (void**)&ffmpeg_texture_array);
+
+        if (!m_single_texture) {
+            D3D11_TEXTURE2D_DESC single_desc = {};
+            single_desc.Width = m_width;
+            single_desc.Height = m_height;
+            single_desc.MipLevels = 1;
+            single_desc.ArraySize = 1;
+            single_desc.Format = DXGI_FORMAT_NV12;
+            single_desc.SampleDesc.Count = 1;
+            single_desc.SampleDesc.Quality = 0;
+            single_desc.Usage = D3D11_USAGE_DEFAULT;
+            single_desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+            single_desc.MiscFlags = D3D11_RESOURCE_MISC_SHARED | D3D11_RESOURCE_MISC_SHARED_NTHANDLE;
+            hr = m_d3d11_device->CreateTexture2D(&single_desc, nullptr, &m_single_texture);
+
+            IDXGIResource1* dxgi_res1 = nullptr;
+            hr = m_single_texture->QueryInterface(__uuidof(IDXGIResource1), (void**)&dxgi_res1);
+
+            HANDLE webgpu_compatible_handle = nullptr;
+            hr = dxgi_res1->CreateSharedHandle(nullptr, DXGI_SHARED_RESOURCE_READ, nullptr, &webgpu_compatible_handle);
+            dxgi_res1->Release();
+
+
+            WGPUSharedTextureMemoryDXGISharedHandleDescriptor desc = {};
+            desc.chain.next = nullptr;
+            desc.chain.sType = WGPUSType_SharedTextureMemoryDXGISharedHandleDescriptor;
+            desc.handle = webgpu_compatible_handle;
+
+            if (m_textureViewY) {
+                wgpuTextureViewRelease(m_textureViewY);
+                m_textureViewY = nullptr;
+            }
+
+            if (m_textureViewUV) {
+                wgpuTextureViewRelease(m_textureViewUV);
+                m_textureViewUV = nullptr;
+            }
+
+            if (m_videoTexture) {
+                wgpuTextureRelease(m_videoTexture);
+                m_videoTexture = nullptr;
+            }
+
+            if (m_sharedTextureMemory) {
+                wgpuSharedTextureMemoryRelease(m_sharedTextureMemory);
+                m_sharedTextureMemory = nullptr;
+            }
+
+            WGPUSharedTextureMemoryDescriptor memoryDesc = {};
+            memoryDesc.nextInChain = (WGPUChainedStruct*)&desc;
+            memoryDesc.label = WGPU_STR("FFmpeg Shared Frame Memory");
+            m_sharedTextureMemory = wgpuDeviceImportSharedTextureMemory(wgpContext.device, &memoryDesc);
+
+            WGPUTextureDescriptor textureDesc = {};
+            textureDesc.nextInChain = NULL;
+            textureDesc.label = WGPU_STR("FFmpeg_Hardware_Video_Texture");
+            textureDesc.usage = WGPUTextureUsage_TextureBinding;
+            textureDesc.dimension = WGPUTextureDimension_2D;
+            textureDesc.size.width = m_width;
+            textureDesc.size.height = m_height;
+            textureDesc.size.depthOrArrayLayers = 1;
+            textureDesc.format = WGPUTextureFormat_R8BG8Biplanar420Unorm;
+            textureDesc.mipLevelCount = 1;
+            textureDesc.sampleCount = 1;
+
+            m_videoTexture = wgpuSharedTextureMemoryCreateTexture(m_sharedTextureMemory, &textureDesc);
+
+            WGPUTextureViewDescriptor yViewDesc = {};
+            yViewDesc.format = WGPUTextureFormat_R8Unorm;
+            yViewDesc.dimension = WGPUTextureViewDimension_2D;
+            yViewDesc.baseMipLevel = 0u;
+            yViewDesc.mipLevelCount = 1u;
+            yViewDesc.baseArrayLayer = 0u;
+            yViewDesc.arrayLayerCount = 1u;
+            yViewDesc.aspect = WGPUTextureAspect_Plane0Only;
+            m_textureViewY = wgpuTextureCreateView(m_videoTexture, &yViewDesc);
+
+            WGPUTextureViewDescriptor uvViewDesc = {};
+            uvViewDesc.format = WGPUTextureFormat_RG8Unorm;
+            uvViewDesc.dimension = WGPUTextureViewDimension_2D;
+            uvViewDesc.baseMipLevel = 0u;
+            uvViewDesc.mipLevelCount = 1u;
+            uvViewDesc.baseArrayLayer = 0u;
+            uvViewDesc.arrayLayerCount = 1u;
+            uvViewDesc.aspect = WGPUTextureAspect_Plane1Only;
+            m_textureViewUV = wgpuTextureCreateView(m_videoTexture, &uvViewDesc);
+        }
+
+        int current_slice_index = (int)(intptr_t)m_videoFrame->data[1];
+        UINT src_subresource = D3D11CalcSubresource(0, current_slice_index, 1);
+
+        m_d3d11_context->CopySubresourceRegion(m_single_texture, 0, 0, 0, 0, ffmpeg_texture_array, src_subresource, nullptr);
+        m_d3d11_context->Flush();
+
+        ffmpeg_texture_array->Release();
+
     }else if (workingFrame->format == AV_PIX_FMT_YUV420P) {
         uint8_t* dst = m_currentFramePixels.data();
-
+      
         if (!m_isPackedYuv) {           
             sws_scale(m_swsContext, (uint8_t const* const*)m_videoFrame->data, m_videoFrame->linesize,
                 0, m_height, m_frameRgba->data, m_frameRgba->linesize);
@@ -292,6 +576,7 @@ bool MediaDecoder::decodeVideoFrame() {
             std::copy(m_rgbaBufferInternal, m_rgbaBufferInternal + m_currentFramePixels.size(),
                 m_currentFramePixels.begin());
         }else {
+
             int w = m_width;
             int h = m_height;
             int uvW = w / 2;

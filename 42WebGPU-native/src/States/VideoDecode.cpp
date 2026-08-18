@@ -47,7 +47,7 @@ VideoDecode::VideoDecode(StateMachine& machine) : State(machine, States::VIDEO_D
 
 	m_movieRGBA.open("res/videos/big_buck_bunny.mp4");
 	
-	m_movieHw.m_isHardwareAccelerated = true;
+	m_movieHw.m_hardwareAcceleration = HW_D3D12;
 	m_movieHw.open("res/videos/360_example.mp4");
 
 	m_moviePacked.m_isPackedYuv = true;
@@ -382,16 +382,16 @@ void VideoDecode::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 	}
 
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-	std::string buttonText = m_movieHw.isPaused() ? "Play" : "Pause";
+	std::string buttonText = m_movieRGBA.isPaused() ? "Play" : "Pause";
 	if (ImGui::Button(buttonText.c_str(), ImVec2(70, 0))) {
 		m_movieRGBA.togglePause();
 		m_moviePacked.togglePause();
-		m_movieHw.togglePause();	
+		//m_movieHw.togglePause();	
 	}
 
 	ImGui::SameLine();
 
-	double currentSec = m_movieHw.getCurrentTime();
+	/*double currentSec = m_movieHw.getCurrentTime();
 	double totalSec = m_movieHw.getDuration();
 
 	static float sliderTime = 0.0f;
@@ -417,7 +417,7 @@ void VideoDecode::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 	if (m_isUserDraggingTimeline && ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
 		m_movieHw.seekTo(static_cast<double>(sliderTime));
 		m_isUserDraggingTimeline = false;
-	}
+	}*/
 
 	float volLeft = m_openALStreamRGBA.getVolume();
 	if (ImGui::SliderFloat("Left", &volLeft, 0.0f, 1.0f, "%.2f")) {
@@ -434,7 +434,7 @@ void VideoDecode::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 		m_rtAudioPlayer.getMixer().setVolume(volRight);
 	}
 
-	ImGui::PopItemWidth();
+	//ImGui::PopItemWidth();
 	ImGui::End();
 
 	ImGui::Render();
