@@ -26,6 +26,123 @@ MediaDecoder::~MediaDecoder() {
     av_frame_free(&m_audioFrame);
 }
 
+VkImage        m_exportImage = VK_NULL_HANDLE;
+VkDeviceMemory m_exportMemory = VK_NULL_HANDLE;
+HANDLE         m_win32Handle = nullptr;
+
+void init_export_texture_vulkan(AVHWDeviceContext* vulkanDevCtx, int width, int height) {
+    if (m_exportImage != VK_NULL_HANDLE) return; // Bereits initialisiert
+
+    AVVulkanDeviceContext* vkctx = (AVVulkanDeviceContext*)vulkanDevCtx->hwctx;
+    VkDevice vkDevice = vkctx->act_dev;
+
+    VkExternalMemoryImageCreateInfoKHR extImageInfo = {};
+    extImageInfo.sType = VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO_KHR;
+    extImageInfo.handleTypes = VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT;
+
+    VkImageCreateInfo imgInfo = {};
+    imgInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+    imgInfo.pNext = &extImageInfo;
+    imgInfo.imageType = VK_IMAGE_TYPE_2D;
+    imgInfo.format = VK_FORMAT_G8_B8R8_2PLANE_420_UNORM;
+    imgInfo.extent = { (uint32_t)width, (uint32_t)height, 1 };
+    imgInfo.mipLevels = 1;
+    imgInfo.arrayLayers = 1;
+    imgInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+    imgInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+    imgInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+    imgInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    imgInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+
+    vkCreateImage(vkDevice, &imgInfo, nullptr, &m_exportImage);
+
+    VkMemoryRequirements memReq;
+    vkGetImageMemoryRequirements(vkDevice, m_exportImage, &memReq);
+
+    VkExportMemoryWin32HandleInfoKHR win32HandleInfo = {};
+    win32HandleInfo.sType = VK_STRUCTURE_TYPE_EXPORT_MEMORY_WIN32_HANDLE_INFO_KHR;
+    win32HandleInfo.dwAccess = DXGI_SHARED_RESOURCE_READ;
+
+    VkExportMemoryAllocateInfoKHR extAllocInfo = {};
+    extAllocInfo.sType = VK_STRUCTURE_TYPE_EXPORT_MEMORY_ALLOCATE_INFO_KHR;
+    extAllocInfo.pNext = &win32HandleInfo;
+    extAllocInfo.handleTypes = VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT;
+
+    VkMemoryAllocateInfo allocInfo = {};
+    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    allocInfo.pNext = &extAllocInfo; // <--- Speicher als exportierbar deklarieren!
+    allocInfo.allocationSize = memReq.size;
+    
+    // Passenden Memory-Typ finden (Typ 3 oder ähnlich aus Ihrem vorigen Test)
+    allocInfo.memoryTypeIndex = 0; // Hier m_videoFrame-Eigenschaften spiegeln
+    for (uint32_t i = 0; i < 32; i++) {
+        if ((memReq.memoryTypeBits & (1 << i))) {
+            allocInfo.memoryTypeIndex = i;
+            break;
+        }
+    }
+
+    vkAllocateMemory(vkDevice, &allocInfo, nullptr, &m_exportMemory);
+    vkBindImageMemory(vkDevice, m_exportImage, m_exportMemory, 0);
+
+    // 3. Das Win32-Handle für WebGPU extrahieren
+    PFN_vkGetMemoryWin32HandleKHR fpGetMemoryWin32HandleKHR = 
+        (PFN_vkGetMemoryWin32HandleKHR)vkctx->get_proc_addr(vkctx->inst, "vkGetMemoryWin32HandleKHR");
+    
+    VkMemoryGetWin32HandleInfoKHR getHandleInfo = {};
+    getHandleInfo.sType = VK_STRUCTURE_TYPE_MEMORY_GET_WIN32_HANDLE_INFO_KHR;
+    getHandleInfo.memory = m_exportMemory;
+    getHandleInfo.handleType = VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT;
+
+    fpGetMemoryWin32HandleKHR(vkDevice, &getHandleInfo, &m_win32Handle);
+    
+    std::cout << "HANDLE: " << m_win32Handle << std::endl;
+
+    VkMemoryRequirements memReq2 = {};
+    vkGetImageMemoryRequirements(vkDevice, m_exportImage, &memReq2);
+
+    std::cout << "--- VULKAN FRAME INSPECION NEW ---" << std::endl;
+    std::cout << "Speicherbedarf (Size): " << memReq2.size << " Bytes" << std::endl;
+    std::cout << "Alignment: " << memReq2.alignment << std::endl;
+    std::cout << "Memory Type Bits: " << memReq2.memoryTypeBits << std::endl;
+
+    VkPhysicalDeviceExternalImageFormatInfo externalImageFormatInfo = {};
+    externalImageFormatInfo.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_IMAGE_FORMAT_INFO;
+    externalImageFormatInfo.handleType = VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT;
+
+    VkImageFormatProperties2 imageFormatProperties = {};
+    imageFormatProperties.sType = VK_STRUCTURE_TYPE_IMAGE_FORMAT_PROPERTIES_2;
+
+    VkExternalImageFormatProperties externalImageFormatProperties = {};
+    externalImageFormatProperties.sType = VK_STRUCTURE_TYPE_EXTERNAL_IMAGE_FORMAT_PROPERTIES;
+    imageFormatProperties.pNext = &externalImageFormatProperties;
+
+    VkPhysicalDeviceImageFormatInfo2 formatInfo = {};
+    formatInfo.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_FORMAT_INFO_2;
+    formatInfo.format = VK_FORMAT_G8_B8R8_2PLANE_420_UNORM; // Das typische NV12-Format in Vulkan
+    formatInfo.type = VK_IMAGE_TYPE_2D;
+    formatInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+    formatInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT;
+
+
+    VkResult checkResult = vkGetPhysicalDeviceImageFormatProperties2(
+        vkctx->phys_dev,
+        &formatInfo,
+        &imageFormatProperties
+    );
+
+    if (checkResult == VK_SUCCESS) {
+        VkExternalMemoryFeatureFlags flags = externalImageFormatProperties.externalMemoryProperties.externalMemoryFeatures;
+        std::cout << "External Memory Flags: " << flags << std::endl;
+        if (flags & VK_EXTERNAL_MEMORY_FEATURE_EXPORTABLE_BIT) {
+            std::cout << "-> SPEICHER IST EXPORTIERBAR! (GetWin32Handle wird funktionieren)" << std::endl;
+        }
+        else {
+            std::cout << "-> FEHLER: FFmpeg hat diesen Speicher OHNE Export-Flags allokiert!" << std::endl;
+        }
+    }
+}
+
 static enum AVPixelFormat get_hw_format_d3d12(AVCodecContext* ctx, const enum AVPixelFormat* pix_fmts) {  
     const enum AVPixelFormat target = AV_PIX_FMT_D3D12;
     for (const enum AVPixelFormat* p = pix_fmts; *p != AV_PIX_FMT_NONE; p++) {
@@ -318,6 +435,8 @@ bool MediaDecoder::decodeVideoFrame() {
         AVHWFramesContext* framesCtx = (AVHWFramesContext*)m_videoFrame->hw_frames_ctx->data;
         AVHWDeviceContext* deviceCtx = framesCtx->device_ctx;
         AVVulkanDeviceContext* vulkanDevCtx = (AVVulkanDeviceContext*)deviceCtx->hwctx;
+
+        init_export_texture_vulkan(deviceCtx, m_width, m_height);
 
         VkDevice vkDevice = vulkanDevCtx->act_dev;
         VkInstance vkInstance = vulkanDevCtx->inst;
