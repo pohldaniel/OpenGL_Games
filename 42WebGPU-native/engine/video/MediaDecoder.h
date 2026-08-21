@@ -17,7 +17,6 @@ extern "C" {
 #include <libavutil/log.h>
 #include <libavutil/hwcontext_d3d11va.h>
 #include <libavutil/hwcontext_d3d12va.h>
-
 #include <libavutil/hwcontext_vulkan.h >
 }
 
@@ -30,6 +29,25 @@ typedef struct SharedTextureMemoryD3D11Texture2DDescriptor {
     WGPUChainedStruct chain;
     ID3D11Texture2D* texture;
 } SharedTextureMemoryD3D11Texture2DDescriptor;
+
+/*typedef struct WGPUSharedTextureMemoryVkDedicatedAllocationDescriptor {
+    WGPUChainedStruct chain;
+    WGPUBool dedicatedAllocation;
+} WGPUSharedTextureMemoryVkDedicatedAllocationDescriptor;
+
+typedef struct WGPUSharedTextureMemoryOpaqueFDDescriptor {
+    WGPUChainedStruct chain;
+    void const* vkImageCreateInfo;
+    int memoryFD;
+    uint32_t memoryTypeIndex;
+    uint64_t allocationSize;
+    WGPUBool dedicatedAllocation;
+} WGPUSharedTextureMemoryOpaqueFDDescriptor;*/
+
+typedef struct WGPUSharedTextureMemoryOpaqueWin32HandleDescriptor {
+    WGPUChainedStruct chain;
+    void* handle; // Das Win32-HANDLE auf die geteilte GPU-Ressource
+} WGPUSharedTextureMemoryOpaqueWin32HandleDescriptor;
 
 class AudioRingBuffer; 
 
@@ -83,6 +101,7 @@ private:
     std::function<void(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor)> OnDraw = NULL;
     bool decodeVideoFrame();
     bool decodeAudioFrame(std::vector<uint8_t>& outPcmData);
+    void init_export_texture_vulkan(AVHWDeviceContext* vulkanDevCtx, int width, int height);
 
     AVFormatContext* m_formatContext = nullptr;
     AVPacket* m_packet = nullptr;
@@ -116,4 +135,6 @@ private:
     ID3D11Device* m_d3d11_device = nullptr;
     ID3D11DeviceContext* m_d3d11_context = nullptr;
     ID3D11Texture2D* m_single_texture = nullptr;
+
+    ID3D12Device* m_d3d12_device = nullptr;
 };

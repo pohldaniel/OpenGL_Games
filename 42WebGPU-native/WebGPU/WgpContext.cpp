@@ -158,7 +158,7 @@ bool wgpCreateDevice(void* window) {
 	requestAdapterOptions.compatibleSurface = NULL;
 	requestAdapterOptions.forceFallbackAdapter = false;
 	requestAdapterOptions.powerPreference = WGPUPowerPreference_HighPerformance;
-	requestAdapterOptions.backendType = WGPUBackendType_D3D12;
+	requestAdapterOptions.backendType = WGPUBackendType_Vulkan;
 	requestAdapterOptions.featureLevel = WGPUFeatureLevel_Core;
 
 	WGPURequestAdapterCallbackInfo requestAdapterCallbackInfo = {};
@@ -191,10 +191,10 @@ bool wgpCreateDevice(void* window) {
 	std::vector<WGPUFeatureName> deviceFeatures;
 	deviceFeatures.push_back(WGPUFeatureName::WGPUFeatureName_PrimitiveIndex);
 	deviceFeatures.push_back(WGPUFeatureName::WGPUFeatureName_DawnMultiPlanarFormats);
-	deviceFeatures.push_back(WGPUFeatureName::WGPUFeatureName_SharedTextureMemoryD3D12Resource);
+	//deviceFeatures.push_back(WGPUFeatureName::WGPUFeatureName_SharedTextureMemoryD3D12Resource);
 	//deviceFeatures.push_back(WGPUFeatureName::WGPUFeatureName_SharedTextureMemoryD3D11Texture2D);
-	deviceFeatures.push_back(WGPUFeatureName::WGPUFeatureName_SharedTextureMemoryDXGISharedHandle);
-
+	//deviceFeatures.push_back(WGPUFeatureName::WGPUFeatureName_SharedTextureMemoryDXGISharedHandle);
+	
 	WGPUDeviceDescriptor deviceDescriptor = {};
 	deviceDescriptor.requiredLimits = &requiredLimits;
 	deviceDescriptor.uncapturedErrorCallbackInfo = errorCallbackInfo;

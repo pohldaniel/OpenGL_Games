@@ -47,7 +47,7 @@ VideoDecode::VideoDecode(StateMachine& machine) : State(machine, States::VIDEO_D
 
 	m_movieRGBA.open("res/videos/big_buck_bunny.mp4");
 	
-	m_movieHw.m_hardwareAcceleration = HW_D3D12;
+	m_movieHw.m_hardwareAcceleration = HW_VULKAN;
 	m_movieHw.open("res/videos/360_example.mp4");
 
 	m_moviePacked.m_isPackedYuv = true;
