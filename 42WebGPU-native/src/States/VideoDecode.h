@@ -67,15 +67,11 @@ private:
 	TrackBall m_trackball;
 	
 	WgpBuffer m_cameraBuffer;
-	WgpTexture m_textureRGBA, m_texturePacked;
 	WGPUBindGroup m_bindGroupRGBA = NULL, m_bindGroupPacked = NULL, m_bindGroupHw = NULL;
 
 	std::unique_ptr<AudioSystem> m_audioSystem;
 
-	MediaDecoder m_movieRGBA, m_moviePacked;
-	MediaDecoder m_movieHw;
-	OpenALMovieStream m_openALStreamRGBA, m_openALStreamPacked;
-	RtAudioPlayer m_rtAudioPlayer;
+	MediaDecoder m_movieRGBA, m_moviePacked, m_movieHw;
 
 	std::vector<uint8_t> m_pixelBufferRGBA, m_pixelBufferPacked, m_pixelBufferHw, m_audioBufferRGBA, m_audioBufferPacked;
 	bool m_isUserDraggingTimeline = false;

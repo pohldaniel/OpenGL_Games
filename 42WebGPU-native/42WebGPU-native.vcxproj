@@ -219,6 +219,8 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClCompile Include="engine\video\RGBADecoder.cpp" />
     <ClCompile Include="engine\video\VideoDecoder.cpp" />
     <ClCompile Include="engine\video\YuvDcoder.cpp" />
+    <ClCompile Include="engine\video_new\AudioDecoder_new.cpp" />
+    <ClCompile Include="engine\video_new\SoftwareTextureBridge.cpp" />
     <ClCompile Include="Nuklear\NkCalculator.cpp" />
     <ClCompile Include="Nuklear\NkContext.cpp" />
     <ClCompile Include="Nuklear\NkJoystick.cpp" />
@@ -335,6 +337,11 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClInclude Include="engine\video\RGBADecoder.h" />
     <ClInclude Include="engine\video\VideoDecoder.h" />
     <ClInclude Include="engine\video\YuvDecoder.h" />
+    <ClInclude Include="engine\video_new\AudioDecoder_new.h" />
+    <ClInclude Include="engine\video_new\D3D12TextureBridge.h" />
+    <ClInclude Include="engine\video_new\IAudioOutput.h" />
+    <ClInclude Include="engine\video_new\IVideoTextureBridge.h" />
+    <ClInclude Include="engine\video_new\SoftwareTextureBridge.h" />
     <ClInclude Include="Nuklear\NkCalculator.h" />
     <ClInclude Include="Nuklear\NkContext.h" />
     <ClInclude Include="Nuklear\NkJoystick.h" />

@@ -9,11 +9,12 @@
 #include <dxgi.h>
 #include <dxgi1_2.h>
 
-MediaDecoder::MediaDecoder() {
+MediaDecoder::MediaDecoder() : m_audioOutput(nullptr){
     m_packet = av_packet_alloc();
     m_videoFrame = av_frame_alloc();
     m_frameRgba = av_frame_alloc();
     m_audioFrame = av_frame_alloc();
+    
     //av_log_set_level(AV_LOG_DEBUG);
     //av_log_set_level(AV_LOG_ERROR);
 }
@@ -161,51 +162,6 @@ void MediaDecoder::init_export_texture_vulkan(AVHWDeviceContext* vulkanDevCtx, i
         std::cerr << "[Vulkan-HW] Allokation des Command-Buffers fehlgeschlagen." << std::endl;
         return;
     }
-
-
-    /*VkMemoryRequirements memReq2 = {};
-    vkGetImageMemoryRequirements(vkDevice, m_exportImage, &memReq2);
-
-    std::cout << "--- VULKAN FRAME INSPECION NEW ---" << std::endl;
-    std::cout << "Speicherbedarf (Size): " << memReq2.size << " Bytes" << std::endl;
-    std::cout << "Alignment: " << memReq2.alignment << std::endl;
-    std::cout << "Memory Type Bits: " << memReq2.memoryTypeBits << std::endl;
-
-    VkPhysicalDeviceExternalImageFormatInfo externalImageFormatInfo = {};
-    externalImageFormatInfo.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_IMAGE_FORMAT_INFO;
-    externalImageFormatInfo.handleType = VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT;
-
-    VkImageFormatProperties2 imageFormatProperties = {};
-    imageFormatProperties.sType = VK_STRUCTURE_TYPE_IMAGE_FORMAT_PROPERTIES_2;
-
-    VkExternalImageFormatProperties externalImageFormatProperties = {};
-    externalImageFormatProperties.sType = VK_STRUCTURE_TYPE_EXTERNAL_IMAGE_FORMAT_PROPERTIES;
-    imageFormatProperties.pNext = &externalImageFormatProperties;
-
-    VkPhysicalDeviceImageFormatInfo2 formatInfo = {};
-    formatInfo.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_FORMAT_INFO_2;
-    formatInfo.format = VK_FORMAT_G8_B8R8_2PLANE_420_UNORM; // Das typische NV12-Format in Vulkan
-    formatInfo.type = VK_IMAGE_TYPE_2D;
-    formatInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-    formatInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT;
-
-
-    VkResult checkResult = vkGetPhysicalDeviceImageFormatProperties2(
-        vkctx->phys_dev,
-        &formatInfo,
-        &imageFormatProperties
-    );
-
-    if (checkResult == VK_SUCCESS) {
-        VkExternalMemoryFeatureFlags flags = externalImageFormatProperties.externalMemoryProperties.externalMemoryFeatures;
-        std::cout << "External Memory Flags: " << flags << std::endl;
-        if (flags & VK_EXTERNAL_MEMORY_FEATURE_EXPORTABLE_BIT) {
-            std::cout << "-> SPEICHER IST EXPORTIERBAR! (GetWin32Handle wird funktionieren)" << std::endl;
-        }
-        else {
-            std::cout << "-> FEHLER: FFmpeg hat diesen Speicher OHNE Export-Flags allokiert!" << std::endl;
-        }
-    }*/
 }
 
 static enum AVPixelFormat get_hw_format_d3d12(AVCodecContext* ctx, const enum AVPixelFormat* pix_fmts) {  
@@ -313,6 +269,7 @@ bool MediaDecoder::open(const std::string& filename) {
         int err =  av_hwdevice_ctx_create(&m_hwDeviceContext, AV_HWDEVICE_TYPE_VULKAN, NULL, options, 0);
         m_videoCodecContext->get_format = get_hw_format_vulkan;
         m_videoCodecContext->hw_device_ctx = av_buffer_ref(m_hwDeviceContext);
+        avcodec_open2(m_videoCodecContext, videoCodec, nullptr);
     }else if (m_hardwareAcceleration == HW_D3D12) {
         int err = av_hwdevice_ctx_create(&m_hwDeviceContext, AV_HWDEVICE_TYPE_D3D12VA, NULL, NULL, 0);
         m_videoCodecContext->sw_pix_fmt = AV_PIX_FMT_NV12;
@@ -325,6 +282,8 @@ bool MediaDecoder::open(const std::string& filename) {
         m_videoCodecContext->hw_device_ctx = av_buffer_ref(m_hwDeviceContext);
 
         m_d3d12_device = d3d12_ctx->device;
+        avcodec_open2(m_videoCodecContext, videoCodec, nullptr);
+        m_textureBridge = std::make_unique<D3D12TextureBridge>(m_videoCodecContext->width, m_videoCodecContext->height);
 
     }else if (m_hardwareAcceleration == HW_D3D11) {
         int err = av_hwdevice_ctx_create(&m_hwDeviceContext, AV_HWDEVICE_TYPE_D3D11VA, NULL, NULL, 0);
@@ -339,9 +298,13 @@ bool MediaDecoder::open(const std::string& filename) {
 
         m_d3d11_device = d3d11_device_ctx->device;
         m_d3d11_context = d3d11_device_ctx->device_context;
+        avcodec_open2(m_videoCodecContext, videoCodec, nullptr);
+    }else {
+        avcodec_open2(m_videoCodecContext, videoCodec, nullptr);
+        m_textureBridge = std::make_unique<SoftwareTextureBridge>(m_videoCodecContext->width, m_videoCodecContext->height, m_isPackedYuv);
     }
 
-    if (avcodec_open2(m_videoCodecContext, videoCodec, nullptr) < 0) return false;
+    //if (avcodec_open2(m_videoCodecContext, videoCodec, nullptr) < 0) return false;
 
     m_width = m_videoCodecContext->width;
     m_height = m_videoCodecContext->height;
@@ -399,50 +362,34 @@ bool MediaDecoder::open(const std::string& filename) {
     return true;
 }
 
-bool MediaDecoder::update(double deltaTime, std::vector<uint8_t>& outRgbaBuffer, AudioRingBuffer& targetBuffer) {
+bool MediaDecoder::update(double deltaTime) {
+    if (m_isPaused) return false;
+
     m_accumulator += deltaTime;
     bool newFrameUploaded = false;
-    if (m_isPaused) {
-        outRgbaBuffer = m_currentFramePixels;
-        return false;
-    }
-    // --- DIE KORREKTE WEICHE ---
-    // Wir lesen so lange ununterbrochen Pakete aus der Datei, 
-    // bis wir das für diesen Frame fällige Video-Bild ERFOLGREICH aus dem Decoder extrahiert haben.
-    // Das bricht den Teufelskreis aus EAGAIN und vollem Audiobuffer!
-    while (m_accumulator >= m_timePerFrame && !newFrameUploaded) {
 
-        // Versuche, das nächste Paket aus der Datei zu lesen
+    while (m_accumulator >= m_timePerFrame && !newFrameUploaded) {
         if (av_read_frame(m_formatContext, m_packet) < 0) {
             av_seek_frame(m_formatContext, -1, 0, AVSEEK_FLAG_BACKWARD);
-            // Den internen Codec-Speicher leeren, um Bildartefakte beim Sprung zu verhindern
             if (m_videoCodecContext) avcodec_flush_buffers(m_videoCodecContext);
             if (m_audioCodecContext) avcodec_flush_buffers(m_audioCodecContext);
-            continue; // Schleife direkt mit dem ersten Paket von vorne fortsetzen
+            continue;
         }
 
-        // FALL A: Es ist ein VIDEO-Paket
         if (m_packet->stream_index == m_videoStreamIndex) {
-            // JEDES Paket wandert sofort in den Codec (kein POC Abreißen!)
             avcodec_send_packet(m_videoCodecContext, m_packet);
 
-            // Direkt versuchen, das Bild abzurufen
             if (decodeVideoFrame()) {
                 newFrameUploaded = true;
                 m_accumulator -= m_timePerFrame; // Ein Frame-Zeitfenster abziehen
             }
-        }
-        // FALL B: Es ist ein AUDIO-Paket
-        else if (m_packet->stream_index == m_audioStreamIndex && m_swrContext) {
+        }else if (m_packet->stream_index == m_audioStreamIndex && m_swrContext) {
             std::vector<uint8_t> pcmData;
-            if (decodeAudioFrame(pcmData)) {
-                // Nur schreiben, wenn Platz ist, um Überläufe im RAM zu verhindern
-                if (targetBuffer.getAvailableWrite() >= pcmData.size()) {
-                    targetBuffer.write(pcmData.data(), pcmData.size());
-                }
+            if (m_audioDecoder.decodeAudioFrame(m_audioCodecContext, m_swrContext, m_packet, pcmData)) {            
+                 m_audioOutput->enqueueData(pcmData);
+               
             }
         }
-
         av_packet_unref(m_packet);
     }
 
@@ -450,7 +397,6 @@ bool MediaDecoder::update(double deltaTime, std::vector<uint8_t>& outRgbaBuffer,
         m_accumulator = m_timePerFrame;
     }
 
-    outRgbaBuffer = m_currentFramePixels;
     return newFrameUploaded;
 }
 
@@ -467,6 +413,11 @@ bool MediaDecoder::decodeVideoFrame() {
         m_currentTime = m_videoFrame->pts * m_videoTimebase;
     }else if (m_videoFrame->pkt_dts != AV_NOPTS_VALUE) {
         m_currentTime = m_videoFrame->pkt_dts * m_videoTimebase;
+    }
+
+    if (m_textureBridge) {
+        m_textureBridge->updateTexture(m_videoFrame);
+        return true;
     }
 
     AVFrame* workingFrame = m_videoFrame; 
@@ -987,55 +938,6 @@ void MediaDecoder::close() {
     if (m_formatContext) { avformat_close_input(&m_formatContext); m_formatContext = nullptr; }
 }
 
-bool MediaDecoder::updateOpenAL(double deltaTime, std::vector<uint8_t>& outRgbaBuffer, std::vector<uint8_t>& outPcmAudio) {
-    m_accumulator += deltaTime;
-    bool newFrameUploaded = false;
-    outPcmAudio.clear(); // Alten Audio-Frame-Rest leeren
-
-    if (m_isPaused) {
-        outRgbaBuffer = m_currentFramePixels;
-        return false;
-    }
-
-    // Wir lesen Pakete, solange die Zeit für das Video es verlangt
-    while (m_accumulator >= m_timePerFrame && !newFrameUploaded) {
-
-        if (av_read_frame(m_formatContext, m_packet) < 0) {
-            av_seek_frame(m_formatContext, -1, 0, AVSEEK_FLAG_BACKWARD);
-            // Den internen Codec-Speicher leeren, um Bildartefakte beim Sprung zu verhindern
-            if (m_videoCodecContext) avcodec_flush_buffers(m_videoCodecContext);
-            if (m_audioCodecContext) avcodec_flush_buffers(m_audioCodecContext);
-            continue; // Schleife direkt mit dem ersten Paket von vorne fortsetzen
-        }
-
-        // VIDEO-PAKET
-        if (m_packet->stream_index == m_videoStreamIndex) {
-            avcodec_send_packet(m_videoCodecContext, m_packet);
-
-            if (decodeVideoFrame()) {
-                newFrameUploaded = true;
-                m_accumulator -= m_timePerFrame;
-            }
-        }
-        // AUDIO-PAKET: Wir sammeln den Ton dieses Frames direkt im Ausgabe-Vektor
-        else if (m_packet->stream_index == m_audioStreamIndex && m_swrContext) {
-            std::vector<uint8_t> pcmData;
-            if (decodeAudioFrame(pcmData)) {
-                // Audio-Daten für diesen Gameloop-Frame anhäufen
-                outPcmAudio.insert(outPcmAudio.end(), pcmData.begin(), pcmData.end());
-            }
-        }
-
-        av_packet_unref(m_packet);
-    }
-
-    if (m_accumulator > m_timePerFrame * 2.0) {
-        m_accumulator = m_timePerFrame;
-    }
-
-    outRgbaBuffer = m_currentFramePixels;
-    return newFrameUploaded;
-}
 
 void MediaDecoder::seekTo(double seconds) {
     if (!m_formatContext) return;

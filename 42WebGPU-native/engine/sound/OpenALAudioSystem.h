@@ -6,9 +6,26 @@
 class OpenALAudioSystem : public AudioSystem {
 public:
     bool init() override {
+
+        m_device = alcOpenDevice(nullptr);
+        if (!m_device) return false;
+
+        m_context = alcCreateContext(m_device, nullptr);
+        if (!m_context || !alcMakeContextCurrent(m_context)) return false;
+
         if (!m_musicPlayer.init()) return false;
         m_sfxPlayer.init(32); // 32 Soundkanäle bereitstellen
         return true;
+    }
+
+    void shutDown() {
+        if (m_context) {
+            alcMakeContextCurrent(nullptr);
+            alcDestroyContext(m_context);
+        }
+
+        if (m_device) 
+            alcCloseDevice(m_device);
     }
 
     void playMusic(const std::string& filename) override {
@@ -27,8 +44,11 @@ public:
         static SoftwareMixer dummyMixer;
         return dummyMixer;
     }
-
+   
 private:
     OpenALPlayer m_musicPlayer;
     OpenALSFXPlayer m_sfxPlayer;
+
+    ALCdevice* m_device = nullptr;
+    ALCcontext* m_context = nullptr;
 };

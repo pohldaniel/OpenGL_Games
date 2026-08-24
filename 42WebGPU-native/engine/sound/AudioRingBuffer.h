@@ -1,44 +1,63 @@
 #pragma once
+
 class AudioRingBuffer {
 public:
     void init(size_t capacity) {
-        buffer.resize(capacity);
-        head.store(0);
-        tail.store(0);
+        m_buffer.resize(capacity + 1);
+        m_head.store(0, std::memory_order_relaxed);
+        m_tail.store(0, std::memory_order_relaxed);
+    }
+
+    size_t getAvailableWrite() const {
+        size_t h = m_head.load(std::memory_order_relaxed);
+        size_t t = m_tail.load(std::memory_order_relaxed);
+        if (h >= t) {
+            return m_buffer.size() - 1 - (h - t);
+        }
+        return t - h - 1;
+    }
+
+    size_t getAvailableRead() const {
+        size_t h = m_head.load(std::memory_order_acquire);
+        size_t t = m_tail.load(std::memory_order_relaxed);
+        if (h >= t) {
+            return h - t;
+        }
+        return m_buffer.size() - (t - h);
     }
 
     size_t write(const uint8_t* data, size_t size) {
-        size_t h = head.load(std::memory_order_relaxed);
-        size_t t = tail.load(std::memory_order_acquire);
-        size_t available = buffer.size() - (h - t);
-        if (available < size) size = available;
+        size_t h = m_head.load(std::memory_order_relaxed);
+        size_t t = m_tail.load(std::memory_order_acquire);
 
-        for (size_t i = 0; i < size; ++i) {
-            buffer[(h + i) % buffer.size()] = data[i];
-        }
-        head.store(h + size, std::memory_order_release);
+        size_t available = (h >= t) ? (m_buffer.size() - 1 - (h - t)) : (t - h - 1);
+        if (size > available) size = available;
+
+        size_t firstPart = std::min(size, m_buffer.size() - h);
+        std::memcpy(&m_buffer[h], data, firstPart);
+        std::memcpy(&m_buffer[0], data + firstPart, size - firstPart);
+
+        m_head.store((h + size) % m_buffer.size(), std::memory_order_release);
         return size;
     }
 
     size_t read(uint8_t* data, size_t size) {
-        size_t h = head.load(std::memory_order_acquire);
-        size_t t = tail.load(std::memory_order_relaxed);
-        size_t available = h - t;
-        if (available < size) size = available;
+        size_t h = m_head.load(std::memory_order_acquire);
+        size_t t = m_tail.load(std::memory_order_relaxed);
 
-        for (size_t i = 0; i < size; ++i) {
-            data[i] = buffer[(t + i) % buffer.size()];
-        }
-        tail.store(t + size, std::memory_order_release);
+        size_t available = (h >= t) ? (h - t) : (m_buffer.size() - (t - h));
+        if (size > available) size = available;
+
+        size_t firstPart = std::min(size, m_buffer.size() - t);
+        std::memcpy(data, &m_buffer[t], firstPart);
+        std::memcpy(data + firstPart, &m_buffer[0], size - firstPart);
+
+        m_tail.store((t + size) % m_buffer.size(), std::memory_order_release);
         return size;
     }
 
-    size_t getAvailableWrite() const {
-        return buffer.size() - (head.load(std::memory_order_relaxed) - tail.load(std::memory_order_relaxed));
-    }
-
 private:
-    std::vector<uint8_t> buffer;
-    std::atomic<size_t> head{ 0 };
-    std::atomic<size_t> tail{ 0 };
+    std::vector<uint8_t> m_buffer;
+    std::atomic<size_t> m_head{ 0 };
+    std::atomic<size_t> m_tail{ 0 };
 };

@@ -29,53 +29,52 @@ VideoDecode::VideoDecode(StateMachine& machine) : State(machine, States::VIDEO_D
 	m_trackball.reshape(Application::Width, Application::Height);
 	
 	wgpContext.setClearColor({ 0.5f, 0.5f, 0.5f, 1.0f });
-	wgpContext.addSahderModule("VIDEO_2D", "res/shader/video_2d.wgsl");
-	wgpContext.createRenderPipeline("VIDEO_2D", "RP_VIDEO_2D", VL_NONE, std::bind(&VideoDecode::OnBindGroupLayouts, this));
-	wgpContext.OnDraw = std::bind(&VideoDecode::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
-
-	wgpContext.addSahderModule("VIDEO_360", "res/shader/video_360_packed.wgsl");
-	wgpContext.createRenderPipeline("VIDEO_360", "RP_VIDEO_360", VL_NONE, std::bind(&VideoDecode::OnBindGroupLayouts360, this));
 
 	wgpContext.addSahderModule("VIDEO_360_HW", "res/shader/video_360_hw.wgsl");
 	wgpContext.createRenderPipeline("VIDEO_360_HW", "RP_VIDEO_360_HW", VL_NONE, std::bind(&VideoDecode::OnBindGroupLayouts360HW, this));
-
-	wgpContext.OnDraw = std::bind(&VideoDecode::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
-	wgpContext.OnPostDraw = std::bind(&VideoDecode::OnPostDraw, this);
 
 	m_audioSystem = std::make_unique<OpenALAudioSystem>();
 	m_audioSystem->init();
 
 	m_movieRGBA.open("res/videos/big_buck_bunny.mp4");
 	
-	m_movieHw.m_hardwareAcceleration = HW_VULKAN;
+	m_movieHw.m_hardwareAcceleration = HW_D3D12;
 	m_movieHw.open("res/videos/360_example.mp4");
 
 	m_moviePacked.m_isPackedYuv = true;
 	m_moviePacked.open("res/videos/underwater_diving_360degrees.mp4");
 
-	m_textureRGBA.createEmpty(m_movieRGBA.getWidth(), m_movieRGBA.getHeight(), 1u, WGPUTextureUsage_CopyDst | WGPUTextureUsage_TextureBinding, WGPUTextureFormat_RGBA8Unorm);
-	m_texturePacked.createEmpty(m_moviePacked.getWidth(), m_moviePacked.getHeight() + m_moviePacked.getHeight() / 2, 1u, WGPUTextureUsage_CopyDst | WGPUTextureUsage_TextureBinding, WGPUTextureFormat_R8Unorm);
-
 	m_cameraBuffer.createBuffer(sizeof(CameraUniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 
-	m_openALStreamRGBA.init();
-	m_openALStreamPacked.init();
+	m_movieRGBA.m_audioOutput = new OpenALPlayer();
+	m_movieRGBA.m_audioOutput->init();
 
-	m_rtAudioPlayer.init();
-	m_rtAudioPlayer.startHardwareStream();
+	m_moviePacked.m_audioOutput = new OpenALPlayer();
+	m_moviePacked.m_audioOutput->init();
+
+	m_movieHw.m_audioOutput = new RtAudioPlayer();
+	m_movieHw.m_audioOutput->init();
+
+	m_movieRGBA.m_audioOutput->setVolume(0.5f);
+	m_moviePacked.m_audioOutput->setVolume(0.5f);
+	m_movieHw.m_audioOutput->setVolume(0.5f);
+
+	wgpContext.addSahderModule("VIDEO_2D", "res/shader/video_2d.wgsl");
+	wgpContext.createRenderPipeline("VIDEO_2D", "RP_VIDEO_2D", VL_NONE, std::bind(&VideoDecode::OnBindGroupLayouts, this));
+
+	wgpContext.addSahderModule("VIDEO_360", "res/shader/video_360_packed.wgsl");
+	wgpContext.createRenderPipeline("VIDEO_360", "RP_VIDEO_360", VL_NONE, std::bind(&VideoDecode::OnBindGroupLayouts360, this));
 
 	m_bindGroupRGBA = createBindGroupRGBA();
 	m_bindGroupPacked = createBindGroupRight360Packed();
 
-	m_openALStreamRGBA.setVolume(0.5f);
-	m_openALStreamPacked.setVolume(0.5f);
-	m_rtAudioPlayer.getMixer().setVolume(0.5f);
+	wgpContext.OnDraw = std::bind(&VideoDecode::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
+	wgpContext.OnPostDraw = std::bind(&VideoDecode::OnPostDraw, this);
 }
 
 VideoDecode::~VideoDecode() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
-	m_textureRGBA.markForDelete();
 	wgpuBindGroupRelease(m_bindGroupRGBA);
 }
 
@@ -164,63 +163,16 @@ void VideoDecode::render() {
 }
 
 void VideoDecode::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor) {
-
-	bool newFrameRGBA = m_movieRGBA.updateOpenAL(m_dt, m_pixelBufferRGBA, m_audioBufferRGBA);
-
-	bool newFramePacked = m_moviePacked.updateOpenAL(m_dt, m_pixelBufferPacked, m_audioBufferPacked);
-
+	m_movieRGBA.update(m_dt);
+	m_moviePacked.update(m_dt);
+	
 	bool newFrameHw = false;
 
 	if (!m_isUserDraggingTimeline) {
-		newFrameHw = m_movieHw.update(m_dt, m_pixelBufferHw, m_rtAudioPlayer.getRingBuffer());
+		newFrameHw = m_movieHw.update(m_dt);
 	}
 
-	if (!m_audioBufferRGBA.empty())
-		m_openALStreamRGBA.streamAudio(m_audioBufferRGBA);
-
-	if (!m_audioBufferPacked.empty())
-		m_openALStreamPacked.streamAudio(m_audioBufferPacked);
-
-	if (newFrameRGBA) {
-		uint32_t width = static_cast<uint32_t>(m_movieRGBA.getWidth());
-		uint32_t height = static_cast<uint32_t>(m_movieRGBA.getHeight());
-
-		WGPUTexelCopyTextureInfo destination = {};
-		destination.texture = m_textureRGBA.getTexture();
-		destination.mipLevel = 0u;
-		destination.origin = { 0u, 0u, 0u };
-		destination.aspect = WGPUTextureAspect_All;
-
-		WGPUTexelCopyBufferLayout source = {};
-		source.offset = 0u;
-		source.bytesPerRow = width * 4u;
-		source.rowsPerImage = height;
-
-		WGPUExtent3D size = { width, height, 1u };
-		wgpuQueueWriteTexture(wgpContext.queue, &destination, m_pixelBufferRGBA.data(), m_pixelBufferRGBA.size(), &source, &size);
-	}
-
-	if (newFramePacked) {
-		uint32_t width = static_cast<uint32_t>(m_moviePacked.getWidth());
-		uint32_t height = static_cast<uint32_t>(m_moviePacked.getHeight());
-		uint32_t atlasHeight = height + (height / 2u);
-
-		WGPUTexelCopyTextureInfo destination = {};
-		destination.texture = m_texturePacked.getTexture();
-		destination.mipLevel = 0u;
-		destination.origin = { 0u, 0u, 0u };
-		destination.aspect = WGPUTextureAspect_All;
-
-		WGPUTexelCopyBufferLayout source = {};
-		source.offset = 0u;
-		source.bytesPerRow = width * 1u;
-		source.rowsPerImage = atlasHeight;
-
-		WGPUExtent3D size = { width, atlasHeight, 1u };
-		wgpuQueueWriteTexture(wgpContext.queue, &destination, m_pixelBufferPacked.data(), m_pixelBufferPacked.size(), &source, &size);
-	}
-
-	if (m_movieHw.m_sharedTextureMemory && m_movieHw.m_videoTexture) {
+	if (m_movieHw.m_textureBridge->m_sharedTextureMemory && m_movieHw.m_textureBridge->m_videoTexture) {
 		WGPUSharedTextureMemoryBeginAccessDescriptor accessDesc = {};
 		accessDesc.nextInChain = NULL;
 		accessDesc.initialized = true;
@@ -228,7 +180,7 @@ void VideoDecode::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURen
 		accessDesc.fences = NULL;
 
 		WGPUStatus status = wgpuSharedTextureMemoryBeginAccess(
-			m_movieHw.m_sharedTextureMemory, m_movieHw.m_videoTexture, &accessDesc);
+			m_movieHw.m_textureBridge->m_sharedTextureMemory, m_movieHw.m_textureBridge->m_videoTexture, &accessDesc);
 		m_hasActiveAccess = WGPUStatus_Success;		
 	}
 
@@ -244,10 +196,10 @@ void VideoDecode::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURen
 		entries[1].sampler = wgpContext.getSampler(SS_LINEAR_CLAMP);
 
 		entries[2].binding = 2u;
-		entries[2].textureView = m_movieHw.m_textureViewY;
+		entries[2].textureView = m_movieHw.m_textureBridge->m_textureViewY;
 
 		entries[3].binding = 3u;
-		entries[3].textureView = m_movieHw.m_textureViewUV;
+		entries[3].textureView = m_movieHw.m_textureBridge->m_textureViewUV;
 
 		WGPUBindGroupDescriptor bindGroupDesc = {};
 		bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_VIDEO_360_HW"), 0u);
@@ -291,7 +243,7 @@ void VideoDecode::OnPostDraw() {
 		WGPUSharedTextureMemoryEndAccessState endState = {};
 		endState.nextInChain = NULL;
 
-		wgpuSharedTextureMemoryEndAccess(m_movieHw.m_sharedTextureMemory, m_movieHw.m_videoTexture, &endState);
+		wgpuSharedTextureMemoryEndAccess(m_movieHw.m_textureBridge->m_sharedTextureMemory, m_movieHw.m_textureBridge->m_videoTexture, &endState);
 		m_hasActiveAccess = false;		
 	}
 }
@@ -419,19 +371,19 @@ void VideoDecode::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 		m_isUserDraggingTimeline = false;
 	}*/
 
-	float volLeft = m_openALStreamRGBA.getVolume();
+	float volLeft = m_movieRGBA.m_audioOutput->getVolume();
 	if (ImGui::SliderFloat("Left", &volLeft, 0.0f, 1.0f, "%.2f")) {
-		m_openALStreamRGBA.setVolume(volLeft);
+		m_movieRGBA.m_audioOutput->setVolume(volLeft);
 	}
 
-	float volMiddle = m_openALStreamPacked.getVolume();
+	float volMiddle = m_moviePacked.m_audioOutput->getVolume();
 	if (ImGui::SliderFloat("Middle", &volMiddle, 0.0f, 1.0f, "%.2f")) {
-		m_openALStreamPacked.setVolume(volMiddle);
+		m_moviePacked.m_audioOutput->setVolume(volMiddle);
 	}
 
-	float volRight = m_rtAudioPlayer.getMixer().getVolume();
+	float volRight = m_movieHw.m_audioOutput->getVolume();
 	if (ImGui::SliderFloat("Right", &volRight, 0.0f, 1.0f, "%.2f")) {
-		m_rtAudioPlayer.getMixer().setVolume(volRight);
+		m_movieHw.m_audioOutput->setVolume(volRight);
 	}
 
 	//ImGui::PopItemWidth();
@@ -531,7 +483,7 @@ WGPUBindGroup VideoDecode::createBindGroupRGBA() {
 	entries[0].sampler = wgpContext.getSampler(SS_LINEAR_CLAMP);
 
 	entries[1].binding = 1u;
-	entries[1].textureView = m_textureRGBA.getTextureView();
+	entries[1].textureView = m_movieRGBA.m_textureBridge->m_textureViewY;
 
 	WGPUBindGroupDescriptor bindGroupDesc = {};
 	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_VIDEO_2D"), 0u);
@@ -552,8 +504,8 @@ WGPUBindGroup VideoDecode::createBindGroupRight360Packed() {
 	entries[1].sampler = wgpContext.getSampler(SS_LINEAR_CLAMP);
 
 	entries[2].binding = 2u;
-	entries[2].textureView = m_texturePacked.getTextureView();
-
+	entries[2].textureView = m_moviePacked.m_textureBridge->m_textureViewY;
+	
 	WGPUBindGroupDescriptor bindGroupDesc = {};
 	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_VIDEO_360"), 0u);
 	bindGroupDesc.entryCount = (uint32_t)entries.size();

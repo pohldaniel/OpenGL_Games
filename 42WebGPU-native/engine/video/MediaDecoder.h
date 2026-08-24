@@ -7,6 +7,11 @@
 #include <d3d11.h>
 #include <d3d12.h>
 
+#include "../video_new/AudioDecoder_new.h"
+#include "../video_new/IAudioOutput.h"
+#include "../video_new/D3D12TextureBridge.h"
+#include "../video_new/SoftwareTextureBridge.h"
+
 extern "C" {
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
@@ -30,23 +35,9 @@ typedef struct SharedTextureMemoryD3D11Texture2DDescriptor {
     ID3D11Texture2D* texture;
 } SharedTextureMemoryD3D11Texture2DDescriptor;
 
-/*typedef struct WGPUSharedTextureMemoryVkDedicatedAllocationDescriptor {
-    WGPUChainedStruct chain;
-    WGPUBool dedicatedAllocation;
-} WGPUSharedTextureMemoryVkDedicatedAllocationDescriptor;
-
-typedef struct WGPUSharedTextureMemoryOpaqueFDDescriptor {
-    WGPUChainedStruct chain;
-    void const* vkImageCreateInfo;
-    int memoryFD;
-    uint32_t memoryTypeIndex;
-    uint64_t allocationSize;
-    WGPUBool dedicatedAllocation;
-} WGPUSharedTextureMemoryOpaqueFDDescriptor;*/
-
 typedef struct WGPUSharedTextureMemoryOpaqueWin32HandleDescriptor {
     WGPUChainedStruct chain;
-    void* handle; // Das Win32-HANDLE auf die geteilte GPU-Ressource
+    void* handle;
 } WGPUSharedTextureMemoryOpaqueWin32HandleDescriptor;
 
 class AudioRingBuffer; 
@@ -61,14 +52,10 @@ enum HardwareAcceleration {
 class MediaDecoder {
 
 public:
+   
     WGPUTexture m_yTexture = nullptr;
     WGPUTexture m_uvTexture = nullptr;
-
     WGPUTexture m_videoTexture = nullptr;
-
-    WGPUBindGroup m_yBindgroup = nullptr;
-    WGPUBindGroup m_uvBindgroup = nullptr;
-
     WGPUSharedTextureMemory m_sharedTextureMemory = nullptr;
     WGPUTextureView m_textureViewY = nullptr;
     WGPUTextureView m_textureViewUV = nullptr;
@@ -78,8 +65,8 @@ public:
 
     bool open(const std::string& filename);
     void close();
-    bool update(double deltaTime, std::vector<uint8_t>& outRgbaBuffer, AudioRingBuffer& targetBuffer);
-    bool updateOpenAL(double deltaTime, std::vector<uint8_t>& outRgbaBuffer, std::vector<uint8_t>& outPcmAudio);
+    bool update(double deltaTime);
+
 
     int getWidth() const { return m_width; }
     int getHeight() const { return m_height; }
@@ -92,13 +79,17 @@ public:
     bool m_isPackedYuv = false;
     HardwareAcceleration m_hardwareAcceleration = HW_NONE;
 
+    AudioDecoderNew m_audioDecoder;
+    IAudioOutput* m_audioOutput;
+    std::unique_ptr<IVideoTextureBridge> m_textureBridge = nullptr;
+
 private:
 
     AVBufferRef* m_hwDeviceContext = nullptr;
     AVFrame* m_swFrame = nullptr;
     AVDictionary* options = nullptr;
 
-    std::function<void(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor)> OnDraw = NULL;
+   
     bool decodeVideoFrame();
     bool decodeAudioFrame(std::vector<uint8_t>& outPcmData);
     void init_export_texture_vulkan(AVHWDeviceContext* vulkanDevCtx, int width, int height);

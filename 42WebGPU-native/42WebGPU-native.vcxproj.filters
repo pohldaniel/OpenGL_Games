@@ -55,6 +55,9 @@
     <Filter Include="engine\video">
       <UniqueIdentifier>{0c314608-3a08-4973-adac-2b969c132df6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="engine\video_new">
+      <UniqueIdentifier>{089d8c24-b84e-4b14-956b-5751dab54728}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\input\ApplicationEventListener.cpp">
@@ -326,6 +329,12 @@
     </ClCompile>
     <ClCompile Include="engine\video\YuvDcoder.cpp">
       <Filter>engine\video</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\video_new\AudioDecoder_new.cpp">
+      <Filter>engine\video_new</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\video_new\SoftwareTextureBridge.cpp">
+      <Filter>engine\video_new</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -643,6 +652,21 @@
     </ClInclude>
     <ClInclude Include="engine\video\YuvDecoder.h">
       <Filter>engine\video</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\video_new\AudioDecoder_new.h">
+      <Filter>engine\video_new</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\video_new\IAudioOutput.h">
+      <Filter>engine\video_new</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\video_new\IVideoTextureBridge.h">
+      <Filter>engine\video_new</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\video_new\D3D12TextureBridge.h">
+      <Filter>engine\video_new</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\video_new\SoftwareTextureBridge.h">
+      <Filter>engine\video_new</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

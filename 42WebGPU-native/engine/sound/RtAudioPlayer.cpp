@@ -8,7 +8,7 @@ int rtaudio_callback_wrapper(void* outputBuffer, void* inputBuffer, unsigned int
 }
 
 RtAudioPlayer::RtAudioPlayer() {
-    ringBuffer.init(65536); // Gleiche Buffer-Größe wie bei Android
+    m_ringBuffer.init(65536); // Gleiche Buffer-Größe wie bei Android
 }
 
 RtAudioPlayer::~RtAudioPlayer() {
@@ -35,6 +35,8 @@ bool RtAudioPlayer::init() {
         std::cerr << "RtAudio Fehler: " << e.what() << std::endl;
         return false;
     }
+
+    startHardwareStream();
     return true;
 }
 
@@ -69,15 +71,21 @@ void RtAudioPlayer::startHardwareStream() {
 void RtAudioPlayer::update() {
     if (!isPlaying) return;
 
-    while (ringBuffer.getAvailableWrite() > 16384) {
+    while (m_ringBuffer.getAvailableWrite() > 16384) {
         std::vector<uint8_t> frameData;
         if (!decoder.decodeFrame(frameData)) {
             isPlaying = false;
             break;
         }
         if (!frameData.empty()) {
-            ringBuffer.write(frameData.data(), frameData.size());
+            m_ringBuffer.write(frameData.data(), frameData.size());
         }
+    }
+}
+
+void RtAudioPlayer::enqueueData(const std::vector<uint8_t>& pcmData) {
+    if (m_ringBuffer.getAvailableWrite() >= pcmData.size()) {
+        m_ringBuffer.write(pcmData.data(), pcmData.size());
     }
 }
 
@@ -91,7 +99,7 @@ int RtAudioPlayer::audioCallback(void* outputBuffer, void* inputBuffer, unsigned
     int16_t* out = static_cast<int16_t*>(outputBuffer);
 
     // 1. Musik aus dem Ringbuffer holen
-    size_t bytesRead = ringBuffer.read(reinterpret_cast<uint8_t*>(out), bytesNeeded);
+    size_t bytesRead = m_ringBuffer.read(reinterpret_cast<uint8_t*>(out), bytesNeeded);
 
     // Bei Lag oder Ende mit Stille füllen
     if (bytesRead < bytesNeeded) {
@@ -110,5 +118,5 @@ SoftwareMixer& RtAudioPlayer::getMixer() {
 }
 
 AudioRingBuffer& RtAudioPlayer::getRingBuffer() {
-    return ringBuffer;
+    return m_ringBuffer;
 }
