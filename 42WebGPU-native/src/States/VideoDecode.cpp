@@ -172,7 +172,7 @@ void VideoDecode::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURen
 		newFrameHw = m_movieHw.update(m_dt);
 	}
 
-	if (m_movieHw.m_textureBridge->m_sharedTextureMemory && m_movieHw.m_textureBridge->m_videoTexture) {
+	if (m_movieHw.m_textureBridge && m_movieHw.m_textureBridge->m_sharedTextureMemory && m_movieHw.m_textureBridge->m_videoTexture) {
 		WGPUSharedTextureMemoryBeginAccessDescriptor accessDesc = {};
 		accessDesc.nextInChain = NULL;
 		accessDesc.initialized = true;
@@ -181,10 +181,10 @@ void VideoDecode::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURen
 
 		WGPUStatus status = wgpuSharedTextureMemoryBeginAccess(
 			m_movieHw.m_textureBridge->m_sharedTextureMemory, m_movieHw.m_textureBridge->m_videoTexture, &accessDesc);
-		m_hasActiveAccess = WGPUStatus_Success;		
+		m_hasActiveAccess = status;
 	}
 
-	if (newFrameHw) {
+	if (m_movieHw.m_textureBridge && newFrameHw) {
 		std::vector<WGPUBindGroupEntry> entries(4);
 
 		entries[0].binding = 0u;
@@ -240,6 +240,7 @@ void VideoDecode::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURen
 
 void VideoDecode::OnPostDraw() {
 	if (m_hasActiveAccess) {
+		
 		WGPUSharedTextureMemoryEndAccessState endState = {};
 		endState.nextInChain = NULL;
 
@@ -338,12 +339,12 @@ void VideoDecode::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 	if (ImGui::Button(buttonText.c_str(), ImVec2(70, 0))) {
 		m_movieRGBA.togglePause();
 		m_moviePacked.togglePause();
-		//m_movieHw.togglePause();	
+		m_movieHw.togglePause();	
 	}
 
 	ImGui::SameLine();
 
-	/*double currentSec = m_movieHw.getCurrentTime();
+	double currentSec = m_movieHw.getCurrentTime();
 	double totalSec = m_movieHw.getDuration();
 
 	static float sliderTime = 0.0f;
@@ -368,8 +369,9 @@ void VideoDecode::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 
 	if (m_isUserDraggingTimeline && ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
 		m_movieHw.seekTo(static_cast<double>(sliderTime));
+		m_hasActiveAccess = false;
 		m_isUserDraggingTimeline = false;
-	}*/
+	}
 
 	float volLeft = m_movieRGBA.m_audioOutput->getVolume();
 	if (ImGui::SliderFloat("Left", &volLeft, 0.0f, 1.0f, "%.2f")) {
@@ -386,7 +388,7 @@ void VideoDecode::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 		m_movieHw.m_audioOutput->setVolume(volRight);
 	}
 
-	//ImGui::PopItemWidth();
+	ImGui::PopItemWidth();
 	ImGui::End();
 
 	ImGui::Render();

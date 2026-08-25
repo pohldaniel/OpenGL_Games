@@ -336,6 +336,15 @@
     <ClCompile Include="engine\video_new\SoftwareTextureBridge.cpp">
       <Filter>engine\video_new</Filter>
     </ClCompile>
+    <ClCompile Include="engine\video_new\VulkanTextureBridge.cpp">
+      <Filter>engine\video_new</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\video_new\D3D11TextureBridge.cpp">
+      <Filter>engine\video_new</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\video_new\D3D12TextureBridge.cpp">
+      <Filter>engine\video_new</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\input\ApplicationEventListener.h">
@@ -666,6 +675,12 @@
       <Filter>engine\video_new</Filter>
     </ClInclude>
     <ClInclude Include="engine\video_new\SoftwareTextureBridge.h">
+      <Filter>engine\video_new</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\video_new\VulkanTextureBridge.h">
+      <Filter>engine\video_new</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\video_new\D3D11TextureBridge.h">
       <Filter>engine\video_new</Filter>
     </ClInclude>
   </ItemGroup>

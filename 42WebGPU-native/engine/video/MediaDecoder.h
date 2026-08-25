@@ -10,6 +10,8 @@
 #include "../video_new/AudioDecoder_new.h"
 #include "../video_new/IAudioOutput.h"
 #include "../video_new/D3D12TextureBridge.h"
+#include "../video_new/D3D11TextureBridge.h"
+#include "../video_new/VulkanTextureBridge.h"
 #include "../video_new/SoftwareTextureBridge.h"
 
 extern "C" {
@@ -25,23 +27,6 @@ extern "C" {
 #include <libavutil/hwcontext_vulkan.h >
 }
 
-typedef struct SharedTextureMemoryD3D12ResourceDescriptor {
-    WGPUChainedStruct chain;
-    ID3D12Resource* resource;
-} SharedTextureMemoryD3D12ResourceDescriptor;
-
-typedef struct SharedTextureMemoryD3D11Texture2DDescriptor {
-    WGPUChainedStruct chain;
-    ID3D11Texture2D* texture;
-} SharedTextureMemoryD3D11Texture2DDescriptor;
-
-typedef struct WGPUSharedTextureMemoryOpaqueWin32HandleDescriptor {
-    WGPUChainedStruct chain;
-    void* handle;
-} WGPUSharedTextureMemoryOpaqueWin32HandleDescriptor;
-
-class AudioRingBuffer; 
-
 enum HardwareAcceleration {
     HW_D3D12,
     HW_D3D11,
@@ -53,13 +38,6 @@ class MediaDecoder {
 
 public:
    
-    WGPUTexture m_yTexture = nullptr;
-    WGPUTexture m_uvTexture = nullptr;
-    WGPUTexture m_videoTexture = nullptr;
-    WGPUSharedTextureMemory m_sharedTextureMemory = nullptr;
-    WGPUTextureView m_textureViewY = nullptr;
-    WGPUTextureView m_textureViewUV = nullptr;
-
     MediaDecoder();
     ~MediaDecoder();
 
@@ -88,12 +66,9 @@ private:
     AVBufferRef* m_hwDeviceContext = nullptr;
     AVFrame* m_swFrame = nullptr;
     AVDictionary* options = nullptr;
-
-   
+ 
     bool decodeVideoFrame();
-    bool decodeAudioFrame(std::vector<uint8_t>& outPcmData);
-    void init_export_texture_vulkan(AVHWDeviceContext* vulkanDevCtx, int width, int height);
-
+   
     AVFormatContext* m_formatContext = nullptr;
     AVPacket* m_packet = nullptr;
 
@@ -114,18 +89,9 @@ private:
     double m_timePerFrame = 0.0;
     double m_accumulator = 0.0;
     double m_fps = 30.0;
-
-    std::vector<uint8_t> m_currentFramePixels;
-
     bool m_isPaused = false;
     double m_currentTime = 0.0;
     double m_duration = 0.0;
    
     double m_videoTimebase = 0.0;
-
-    ID3D11Device* m_d3d11_device = nullptr;
-    ID3D11DeviceContext* m_d3d11_context = nullptr;
-    ID3D11Texture2D* m_single_texture = nullptr;
-
-    ID3D12Device* m_d3d12_device = nullptr;
 };

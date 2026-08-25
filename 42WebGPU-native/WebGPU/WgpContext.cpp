@@ -133,8 +133,7 @@ bool wgpCreateDevice(void* window) {
 	wgpContext.instance = wgpuCreateInstance(&instanceDescriptor);
 #else
 	const char* enabledToggles[] = {
-		"allow_unsafe_apis",
-		"disable_all_vulkan_extension_check"
+		"allow_unsafe_apis"
 	};
 
 	WGPUDawnTogglesDescriptor togglesDesc;
@@ -192,9 +191,8 @@ bool wgpCreateDevice(void* window) {
 	deviceFeatures.push_back(WGPUFeatureName::WGPUFeatureName_PrimitiveIndex);
 	deviceFeatures.push_back(WGPUFeatureName::WGPUFeatureName_DawnMultiPlanarFormats);
 	deviceFeatures.push_back(WGPUFeatureName::WGPUFeatureName_SharedTextureMemoryD3D12Resource);
-	//deviceFeatures.push_back(WGPUFeatureName::WGPUFeatureName_SharedTextureMemoryD3D11Texture2D);
-	//deviceFeatures.push_back(WGPUFeatureName::WGPUFeatureName_SharedTextureMemoryDXGISharedHandle);
-	
+	deviceFeatures.push_back(WGPUFeatureName::WGPUFeatureName_SharedTextureMemoryDXGISharedHandle);
+
 	WGPUDeviceDescriptor deviceDescriptor = {};
 	deviceDescriptor.requiredLimits = &requiredLimits;
 	deviceDescriptor.uncapturedErrorCallbackInfo = errorCallbackInfo;

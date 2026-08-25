@@ -17,6 +17,7 @@ public:
 
     void updateTexture(AVFrame* frame) override;
     void release() override;
+    void clearCache() override {}
 
 private:
     void initWebGPUEntities();
