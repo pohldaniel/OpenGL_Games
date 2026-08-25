@@ -1,8 +1,9 @@
 #pragma once
+
+#include <vector>
 #include <RtAudio.h>
 #include "AudioDecoder.h"
-#include "AudioRingBuffer.h" // Der exakt gleiche Ringbuffer aus dem Oboe-Beispiel
-#include <vector>
+#include "AudioRingBuffer.h"
 #include "SoftwareMixer.h"
 #include "../video_new/IAudioOutput.h"
 
@@ -30,7 +31,15 @@ public:
         return getMixer().getVolume();
     }
 
-   
+    void pause() override {
+        if(dac.isStreamRunning())
+            dac.stopStream();
+    }
+
+    void resume() override {
+        if(!dac.isStreamRunning()) 
+            dac.startStream();
+    }
 
 private:
     RtAudio dac;

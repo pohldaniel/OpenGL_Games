@@ -36,7 +36,7 @@ bool RtAudioPlayer::init() {
         return false;
     }
 
-    startHardwareStream();
+    //startHardwareStream();
     return true;
 }
 
@@ -87,6 +87,7 @@ void RtAudioPlayer::enqueueData(const std::vector<uint8_t>& pcmData) {
     if (m_ringBuffer.getAvailableWrite() >= pcmData.size()) {
         m_ringBuffer.write(pcmData.data(), pcmData.size());
     }
+    resume();
 }
 
 // Verhält sich EXAKT wie Oboes onAudioReady

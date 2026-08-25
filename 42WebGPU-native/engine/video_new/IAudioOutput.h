@@ -13,4 +13,6 @@ public:
     virtual void enqueueData(const std::vector<uint8_t>& pcmData) = 0;
     virtual void setVolume(float volume) = 0;
     virtual float getVolume() = 0;
+    virtual void pause() = 0;
+    virtual void resume() = 0;
 };

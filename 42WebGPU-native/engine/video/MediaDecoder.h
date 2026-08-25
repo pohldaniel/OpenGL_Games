@@ -57,8 +57,7 @@ public:
     bool m_isPackedYuv = false;
     HardwareAcceleration m_hardwareAcceleration = HW_NONE;
 
-    AudioDecoderNew m_audioDecoder;
-    IAudioOutput* m_audioOutput;
+    std::unique_ptr <IAudioOutput> m_audioOutput;
     std::unique_ptr<IVideoTextureBridge> m_textureBridge = nullptr;
 
 private:
@@ -68,7 +67,8 @@ private:
     AVDictionary* options = nullptr;
  
     bool decodeVideoFrame();
-   
+    bool decodeAudioFrame(std::vector<uint8_t>& outPcmData);
+
     AVFormatContext* m_formatContext = nullptr;
     AVPacket* m_packet = nullptr;
 

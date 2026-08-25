@@ -215,31 +215,32 @@ bool MediaDecoder::open(const std::string& filename) {
 }
 
 bool MediaDecoder::update(double deltaTime) {
-    if (m_isPaused) return false;
-
+    if (m_isPaused) {
+        m_audioOutput->pause();
+        return false;
+    }
+   
     m_accumulator += deltaTime;
     bool newFrameUploaded = false;
 
-    while (m_accumulator >= m_timePerFrame && !newFrameUploaded) {
-        if (av_read_frame(m_formatContext, m_packet) < 0) {
+    while(m_accumulator >= m_timePerFrame && !newFrameUploaded) {
+        if(av_read_frame(m_formatContext, m_packet) < 0) {
             av_seek_frame(m_formatContext, -1, 0, AVSEEK_FLAG_BACKWARD);
             if (m_videoCodecContext) avcodec_flush_buffers(m_videoCodecContext);
             if (m_audioCodecContext) avcodec_flush_buffers(m_audioCodecContext);
             continue;
         }
 
-        if (m_packet->stream_index == m_videoStreamIndex) {
-            avcodec_send_packet(m_videoCodecContext, m_packet);
-            
-            if (decodeVideoFrame()) {
+        if(m_packet->stream_index == m_videoStreamIndex) {
+                
+            if(decodeVideoFrame()) {
                 newFrameUploaded = true;
-                m_accumulator -= m_timePerFrame; // Ein Frame-Zeitfenster abziehen
+                m_accumulator -= m_timePerFrame;
             }
-        }else if (m_packet->stream_index == m_audioStreamIndex && m_swrContext) {
+        }else if(m_packet->stream_index == m_audioStreamIndex && m_swrContext) {
             std::vector<uint8_t> pcmData;
-            if (m_audioDecoder.decodeAudioFrame(m_audioCodecContext, m_swrContext, m_packet, pcmData)) {            
-                 m_audioOutput->enqueueData(pcmData);
-               
+            if(decodeAudioFrame(pcmData)) {   
+                 m_audioOutput->enqueueData(pcmData);              
             }
         }
         av_packet_unref(m_packet);
@@ -253,24 +254,45 @@ bool MediaDecoder::update(double deltaTime) {
 }
 
 bool MediaDecoder::decodeVideoFrame() {
-    int response = avcodec_receive_frame(m_videoCodecContext, m_videoFrame);
-
-    if (response == AVERROR(EAGAIN) || response == AVERROR_EOF) {
+    if(avcodec_send_packet(m_videoCodecContext, m_packet) < 0)
         return false;
-    }else if (response < 0) {
-        return false;
-    }
 
-    if (m_videoFrame->pts != AV_NOPTS_VALUE) {
+    if(avcodec_receive_frame(m_videoCodecContext, m_videoFrame) < 0)
+        return false;
+
+    if(m_videoFrame->pts != AV_NOPTS_VALUE) {
         m_currentTime = m_videoFrame->pts * m_videoTimebase;
-    }else if (m_videoFrame->pkt_dts != AV_NOPTS_VALUE) {
+    }else if(m_videoFrame->pkt_dts != AV_NOPTS_VALUE) {
         m_currentTime = m_videoFrame->pkt_dts * m_videoTimebase;
     }
     
-   
     m_textureBridge->updateTexture(m_videoFrame);
     av_frame_unref(m_videoFrame);
     return true;    
+}
+
+bool MediaDecoder::decodeAudioFrame(std::vector<uint8_t>& outPcmData) {
+    if (avcodec_send_packet(m_audioCodecContext, m_packet) < 0)
+        return false;
+
+    if (avcodec_receive_frame(m_audioCodecContext, m_audioFrame) < 0)
+        return false;
+
+    int outSamples = swr_get_out_samples(m_swrContext, m_audioFrame->nb_samples);
+
+    outPcmData.resize(outSamples * 2 * sizeof(int16_t));
+    uint8_t* outputBuffer = outPcmData.data();
+
+    int translated = swr_convert(m_swrContext, &outputBuffer, outSamples,
+        (const uint8_t**)m_audioFrame->data, m_audioFrame->nb_samples);
+
+    if (translated < 0)
+        return false;
+
+    outPcmData.resize(translated * 2 * sizeof(int16_t));
+
+    av_frame_unref(m_audioFrame);
+    return true;
 }
 
 void MediaDecoder::close() {

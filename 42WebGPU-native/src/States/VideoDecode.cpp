@@ -38,7 +38,7 @@ VideoDecode::VideoDecode(StateMachine& machine) : State(machine, States::VIDEO_D
 
 	m_movieRGBA.open("res/videos/big_buck_bunny.mp4");
 	
-	m_movieHw.m_hardwareAcceleration = HW_D3D12;
+	m_movieHw.m_hardwareAcceleration = HW_VULKAN;
 	m_movieHw.open("res/videos/360_example.mp4");
 
 	m_moviePacked.m_isPackedYuv = true;
@@ -46,17 +46,17 @@ VideoDecode::VideoDecode(StateMachine& machine) : State(machine, States::VIDEO_D
 
 	m_cameraBuffer.createBuffer(sizeof(CameraUniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 
-	m_movieRGBA.m_audioOutput = new OpenALPlayer();
+	m_movieRGBA.m_audioOutput = std::make_unique<OpenALPlayer>();
 	m_movieRGBA.m_audioOutput->init();
 
-	m_moviePacked.m_audioOutput = new OpenALPlayer();
+	m_moviePacked.m_audioOutput = std::make_unique<OpenALPlayer>();
 	m_moviePacked.m_audioOutput->init();
 
-	m_movieHw.m_audioOutput = new RtAudioPlayer();
+	m_movieHw.m_audioOutput = std::make_unique<RtAudioPlayer>();
 	m_movieHw.m_audioOutput->init();
 
-	m_movieRGBA.m_audioOutput->setVolume(0.5f);
-	m_moviePacked.m_audioOutput->setVolume(0.5f);
+	m_movieRGBA.m_audioOutput->setVolume(0.25f);
+	m_moviePacked.m_audioOutput->setVolume(0.1f);
 	m_movieHw.m_audioOutput->setVolume(0.5f);
 
 	wgpContext.addSahderModule("VIDEO_2D", "res/shader/video_2d.wgsl");

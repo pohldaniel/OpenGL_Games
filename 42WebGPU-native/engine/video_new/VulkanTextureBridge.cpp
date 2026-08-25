@@ -1,6 +1,7 @@
 #include <dxgi1_2.h>
 #include <WebGPU/WgpContext.h>
 #include "VulkanTextureBridge.h"
+#include <iostream>
 
 VkImage        m_exportImage = VK_NULL_HANDLE;
 VkDeviceMemory m_exportMemory = VK_NULL_HANDLE;
@@ -148,43 +149,97 @@ void VulkanTextureBridge::initWebGPUEntities() {
     uvViewDesc.arrayLayerCount = 1u;
     uvViewDesc.aspect = WGPUTextureAspect_All;
     m_textureViewUV = wgpuTextureCreateView(m_uvTexture, &uvViewDesc);
+  
+    AVPixelFormat pixFmt = AV_PIX_FMT_NV12; // Dein Ziel-CPU-Format
+    int linesizes[4] = { 0 };
+    av_image_fill_linesizes(linesizes, pixFmt, m_width);
+    int y_pitch = linesizes[0];
+    m_yBufferSize = y_pitch * m_height;
+    m_uvBufferSize = y_pitch * (m_height / 2);
+    uint32_t totalSize = m_yBufferSize + m_uvBufferSize;
+
+    WGPUBufferDescriptor bufferDesc = {};
+    bufferDesc.size = totalSize;
+    bufferDesc.usage = WGPUBufferUsage_MapWrite | WGPUBufferUsage_CopySrc;
+    bufferDesc.mappedAtCreation = false;
+
+    m_stagingBuffers[0] = wgpuDeviceCreateBuffer(wgpContext.device, &bufferDesc);
+    m_stagingBuffers[1] = wgpuDeviceCreateBuffer(wgpContext.device, &bufferDesc);
+
+    bool firstMapDone = false;
+    WGPUBufferMapCallbackInfo cbInfo = {};
+    cbInfo.nextInChain = nullptr;
+    cbInfo.mode = WGPUCallbackMode_AllowProcessEvents;
+    cbInfo.callback = [](WGPUMapAsyncStatus s, WGPUStringView m, void* u1, void* u2) {};
+    cbInfo.userdata1 = &firstMapDone;
+    cbInfo.userdata2 = nullptr;
+
+    wgpuBufferMapAsync(m_stagingBuffers[0], WGPUMapMode_Write, 0, totalSize, cbInfo);
+    wgpuInstanceProcessEvents(wgpContext.instance);
 }
 
 void VulkanTextureBridge::updateTexture(AVFrame* frame) {
-    AVFrame* cpuFrame = av_frame_alloc();
-    cpuFrame->width = frame->width;
-    cpuFrame->height = frame->height;
 
-    int bufferRet = av_frame_get_buffer(cpuFrame, 0);
-    int ret = av_hwframe_transfer_data(cpuFrame, frame, 0);
+    av_hwframe_transfer_data(m_cpuFrame, frame, 0);
 
-    uint8_t* y_data = cpuFrame->data[0];
-    int y_pitch = cpuFrame->linesize[0];
+    uint8_t* y_data = m_cpuFrame->data[0];
+    int y_pitch = m_cpuFrame->linesize[0];
+    uint8_t* uv_data = m_cpuFrame->data[1];
+    int uv_pitch = m_cpuFrame->linesize[1];
 
-    uint8_t* uv_data = y_data + (y_pitch * cpuFrame->height);
-    int uv_pitch = y_pitch;
+    WGPUBuffer activeBuffer = m_stagingBuffers[m_currentFrameIndex];
+    wgpuInstanceProcessEvents(wgpContext.instance);
+    uint8_t* mappedData = (uint8_t*)wgpuBufferGetMappedRange(activeBuffer, 0, m_yBufferSize + m_uvBufferSize);
+    std::memcpy(mappedData, y_data, m_yBufferSize);
+    std::memcpy(mappedData + m_yBufferSize, uv_data, m_uvBufferSize);
+    wgpuBufferUnmap(activeBuffer);
 
-    WGPUTexelCopyTextureInfo destination = {};
-    destination.texture = m_yTexture;
-    destination.mipLevel = 0;
-    destination.origin = { 0, 0, 0 };
-    destination.aspect = WGPUTextureAspect_All;
+    WGPUCommandEncoder encoder = wgpuDeviceCreateCommandEncoder(wgpContext.device, nullptr);
 
-    WGPUTexelCopyBufferLayout sourceLayout = {};
-    sourceLayout.offset = 0;
-    sourceLayout.bytesPerRow = y_pitch;
-    sourceLayout.rowsPerImage = cpuFrame->height;
+    WGPUTexelCopyBufferLayout yLayout = {};
+    yLayout.offset = 0;
+    yLayout.bytesPerRow = y_pitch;
+    yLayout.rowsPerImage = m_cpuFrame->height;
 
-    WGPUExtent3D writeSizeY = { (uint32_t)cpuFrame->width, (uint32_t)cpuFrame->height, 1 };
-    wgpuQueueWriteTexture(wgpContext.queue, &destination, y_data, y_pitch * cpuFrame->height, &sourceLayout, &writeSizeY);
+    WGPUTexelCopyBufferInfo yBufferInfo = {};
+    yBufferInfo.buffer = activeBuffer;
+    yBufferInfo.layout = yLayout;
 
-    destination.texture = m_uvTexture;
-    destination.aspect = WGPUTextureAspect_All;
-    sourceLayout.bytesPerRow = uv_pitch;
-    sourceLayout.rowsPerImage = cpuFrame->height / 2;
+    WGPUTexelCopyTextureInfo yDest = {};
+    yDest.texture = m_yTexture;
+    yDest.aspect = WGPUTextureAspect_All;
 
-    WGPUExtent3D writeSizeUV = { (uint32_t)cpuFrame->width / 2, (uint32_t)cpuFrame->height / 2, 1 };
-    wgpuQueueWriteTexture(wgpContext.queue, &destination, uv_data, uv_pitch * (cpuFrame->height / 2), &sourceLayout, &writeSizeUV);
+    WGPUExtent3D sizeY = { (uint32_t)m_cpuFrame->width, (uint32_t)m_cpuFrame->height, 1 };
+    wgpuCommandEncoderCopyBufferToTexture(encoder, &yBufferInfo, &yDest, &sizeY);
 
-    av_frame_free(&cpuFrame);
+    WGPUTexelCopyBufferLayout uvLayout = {};
+    uvLayout.offset = m_yBufferSize;
+    uvLayout.bytesPerRow = uv_pitch;
+    uvLayout.rowsPerImage = m_cpuFrame->height / 2;
+
+    WGPUTexelCopyBufferInfo uvBufferInfo = {};
+    uvBufferInfo.buffer = activeBuffer;
+    uvBufferInfo.layout = uvLayout;
+
+    WGPUTexelCopyTextureInfo uvDest = {};
+    uvDest.texture = m_uvTexture;
+    uvDest.aspect = WGPUTextureAspect_All;
+
+    WGPUExtent3D sizeUV = { (uint32_t)m_cpuFrame->width / 2, (uint32_t)m_cpuFrame->height / 2, 1 };
+    wgpuCommandEncoderCopyBufferToTexture(encoder, &uvBufferInfo, &uvDest, &sizeUV);
+
+    WGPUCommandBuffer commandBuffer = wgpuCommandEncoderFinish(encoder, nullptr);
+    wgpuQueueSubmit(wgpContext.queue, 1, &commandBuffer);
+
+    wgpuCommandBufferRelease(commandBuffer);
+    wgpuCommandEncoderRelease(encoder);
+    av_frame_unref(m_cpuFrame);
+
+    uint32_t nextFrameIndex = (m_currentFrameIndex + 1) % 2;
+    WGPUBuffer nextBuffer = m_stagingBuffers[nextFrameIndex];
+    WGPUBufferMapCallbackInfo callbackInfo = {};
+    callbackInfo.mode = WGPUCallbackMode_AllowProcessEvents;
+    callbackInfo.callback = [](WGPUMapAsyncStatus status, WGPUStringView message, void* u1, void* u2) {};
+    wgpuBufferMapAsync(nextBuffer, WGPUMapMode_Write, 0, m_yBufferSize + m_uvBufferSize, callbackInfo);
+    m_currentFrameIndex = nextFrameIndex;
 }

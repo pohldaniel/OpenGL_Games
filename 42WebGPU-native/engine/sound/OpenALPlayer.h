@@ -33,6 +33,18 @@ public:
         return volume;
     }
 
+    void pause() override {
+        alSourcePause(m_source);
+    }
+
+    void resume() override {
+        ALint state;
+        alGetSourcei(m_source, AL_SOURCE_STATE, &state);
+
+        if(state == AL_PAUSED) 
+            alSourcePlay(m_source);      
+    }
+
     AudioRingBuffer& getRingBuffer() override {
         return m_ringBuffer;
     }

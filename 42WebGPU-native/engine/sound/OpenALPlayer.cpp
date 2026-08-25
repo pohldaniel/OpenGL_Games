@@ -166,14 +166,10 @@ void OpenALPlayer::streamMovieAudio(const std::vector<uint8_t>& pcmData) {
 void OpenALPlayer::enqueueData(const std::vector<uint8_t>& pcmData) {
     if (m_source == 0) return;
 
-    // New frisch eingetroffene Daten am Ende unseres Sammlers anhängen
     if (!pcmData.empty()) {
         m_audioAccumulator.insert(m_audioAccumulator.end(), pcmData.begin(), pcmData.end());
     }
 
-    // BEHINDERT MICRO-RUCKELN: Erst abschicken, wenn genug "Fleisch" da ist!
-    // 4096 Bytes bei 44.1kHz Stereo entspricht einem lückenlosen Polster von ~23ms.
-    // Bei 240 FPS sammelt er ca. 5-6 Frames lang, bevor er OpenAL füttert.
     if (m_audioAccumulator.size() < 4096) {
         return;
     }
@@ -185,14 +181,11 @@ void OpenALPlayer::enqueueData(const std::vector<uint8_t>& pcmData) {
         ALuint unqueued;
         alSourceUnqueueBuffers(m_source, 1, &unqueued);
 
-        // Wir übergeben die gesammelten Daten aus dem Akkumulator
         alBufferData(unqueued, AL_FORMAT_STEREO16, m_audioAccumulator.data(), m_audioAccumulator.size(), 44100);
         alSourceQueueBuffers(m_source, 1, &unqueued);
 
-        // Den Sammler leeren, da die Daten erfolgreich bei der Soundkarte liegen
         m_audioAccumulator.clear();
-    }
-    else {
+    }else {
         ALint queued = 0;
         alGetSourcei(m_source, AL_BUFFERS_QUEUED, &queued);
 
@@ -203,8 +196,6 @@ void OpenALPlayer::enqueueData(const std::vector<uint8_t>& pcmData) {
 
             m_audioAccumulator.clear();
         }
-        // Falls beide Buffer voll sind und noch kein Buffer "processed" ist,
-        // behalten wir die Daten im m_audioAccumulator und warten auf den nächsten Frame!
     }
 
     // Stream-Sicherheitsschaltung gegen Stillstand
@@ -213,51 +204,4 @@ void OpenALPlayer::enqueueData(const std::vector<uint8_t>& pcmData) {
     if (state != AL_PLAYING) {
         alSourcePlay(m_source);
     }
-
-    /*if (pcmData.empty()) return;
-
-    ALint processedBuffers = 0;
-    alGetSourcei(source, AL_BUFFERS_PROCESSED, &processedBuffers);
-
-    // 1. Fall: Ein Buffer ist fertig -> Unqueue, neu befüllen, Re-queue
-    if (processedBuffers > 0) {
-        ALuint unqueuedBuffer;
-        alSourceUnqueueBuffers(source, 1, &unqueuedBuffer);
-
-        alBufferData(unqueuedBuffer, AL_FORMAT_STEREO16, pcmData.data(), pcmData.size(), 44100);
-        alSourceQueueBuffers(source, 1, &unqueuedBuffer);
-    }
-    // 2. Fall: Initiales Befüllen der ersten beiden Buffer
-    else {
-        ALint queuedBuffers = 0;
-        alGetSourcei(source, AL_BUFFERS_QUEUED, &queuedBuffers);
-
-        if (queuedBuffers < 2) {
-            ALuint targetBuffer = buffers[queuedBuffers];
-            alBufferData(targetBuffer, AL_FORMAT_STEREO16, pcmData.data(), pcmData.size(), 44100);
-            alSourceQueueBuffers(source, 1, &targetBuffer);
-        }
-        else {
-            // DAS WAR DER FEHLER IM ALTEN CODE: Wenn die Pipeline voll ist, 
-            // dürfen wir die Daten nicht verwerfen. Wir erzwingen das Freimachen eines Buffers!
-            // (Oder blockieren ganz kurz, bis die Soundkarte Platz hat)
-            ALuint forcedBuffer;
-
-            // Warte aktiv, bis OpenAL einen Buffer freigibt (passiert in Bruchteilen von Millisekunden)
-            while (processedBuffers == 0) {
-                alGetSourcei(source, AL_BUFFERS_PROCESSED, &processedBuffers);
-            }
-
-            alSourceUnqueueBuffers(source, 1, &forcedBuffer);
-            alBufferData(forcedBuffer, AL_FORMAT_STEREO16, pcmData.data(), pcmData.size(), 44100);
-            alSourceQueueBuffers(source, 1, &forcedBuffer);
-        }
-    }
-
-    // Sicherstellen, dass es läuft
-    ALint state;
-    alGetSourcei(source, AL_SOURCE_STATE, &state);
-    if (state != AL_PLAYING) {
-        alSourcePlay(source);
-    }*/
 }
