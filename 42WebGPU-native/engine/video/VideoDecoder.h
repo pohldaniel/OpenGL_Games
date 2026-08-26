@@ -1,49 +1,74 @@
 #pragma once
-#include <string>
 #include <vector>
-#include <cstdint>
+#include <string>
+#include <memory>
+
+#include "../sound/IAudioOutput.h"
+#include "IVideoTextureBridge.h"
 
 extern "C" {
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
-#include <libswscale/swscale.h>
-#include <libavutil/imgutils.h>
+#include <libswresample/swresample.h>
+#include <libavutil/opt.h>
 }
 
+enum HardwareAcceleration {
+    HW_D3D12,
+    HW_D3D11,
+    HW_VULKAN,
+    SW_RGBA,
+    SW_YUV,
+    HW_NONE
+};
+
 class VideoDecoder {
+
 public:
+   
     VideoDecoder();
     ~VideoDecoder();
 
-    bool open(const std::string& filename);
+    void open(const std::string& filename);
     void close();
+    void update(float deltaTime);
 
-    // Nimmt die deltaTime der Gameloop entgegen.
-    // Gibt TRUE zurück, wenn ein brandneues Bild decodiert wurde (Textur muss aktualisiert werden).
-    // Gibt FALSE zurück, wenn das Video-Frame noch aktuell ist (keine Arbeit für die GPU).
-    bool update(double deltaTime, std::vector<uint8_t>& outRgbaBuffer);
+    double getFps() const { return m_fps; }
+    void togglePause() { m_isPaused = !m_isPaused; }
+    bool isPaused() const { return m_isPaused; }
+    float getCurrentTime() const { return m_currentTime; }
+    float getDuration() const { return m_duration; }
+    void seekTo(float seconds);
 
-    int getWidth() const { return m_width; }
-    int getHeight() const { return m_height; }
+    std::unique_ptr<IAudioOutput> m_audioOutput;
+    std::unique_ptr<IVideoTextureBridge> m_textureBridge = nullptr;
+    HardwareAcceleration m_hardwareAcceleration = HW_NONE;
 
 private:
-    bool decodeNextFrame(); // Interne Hilfsfunktion
 
-    AVFormatContext* m_formatContext = nullptr;
-    AVCodecContext* m_codecContext = nullptr;
-    SwsContext* m_swsContext = nullptr;
-    int m_videoStreamIndex = -1;
+    bool decodeVideoFrame();
+    bool decodeAudioFrame(std::vector<uint8_t>& outPcmData);
+
+    AVBufferRef* m_hwDeviceContext = nullptr;
+    AVDictionary* options = nullptr;
 
     AVPacket* m_packet = nullptr;
-    AVFrame* m_frame = nullptr;
-    AVFrame* m_frameRgba = nullptr;
-    uint8_t* m_rgbaBufferInternal = nullptr;
+    AVFrame* m_videoFrame = nullptr;
+    AVFrame* m_audioFrame = nullptr;
 
-    int m_width = 0;
-    int m_height = 0;
+    AVFormatContext* m_formatContext = nullptr;
+    AVCodecContext* m_audioCodecContext = nullptr;
+    AVCodecContext* m_videoCodecContext = nullptr;
+    SwrContext* m_swrContext = nullptr;
 
-    // --- ZEIT-TRACKING NUN INTERN ---
-    double m_timePerFrame = 0.0;
-    double m_accumulator = 0.0;
-    std::vector<uint8_t> m_currentFramePixels; // Cache für das aktuelle Bild
+    bool m_isPaused = false;
+    float m_accumulator = 0.0f;
+    float m_timePerFrame = 0.0f;
+    float m_currentTime = 0.0f;
+    float m_videoTimebase = 0.0f;
+    float m_fps = 30.0f;
+    float m_duration = 0.0f;
+
+    int m_videoStreamIndex = -1;
+    int m_audioStreamIndex = -1;
 };

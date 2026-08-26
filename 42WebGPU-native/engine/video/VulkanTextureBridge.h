@@ -11,14 +11,18 @@ class VulkanTextureBridge : public IVideoTextureBridge {
 
 public:
 
-	VulkanTextureBridge(int width, int height) : m_width(width), m_height(height) {
-		initWebGPUEntities();
-		m_cpuFrame = av_frame_alloc();
+	VulkanTextureBridge() : m_width(0), m_height(0) {
+
 	}
+
 	~VulkanTextureBridge() override { 
 		av_frame_free(&m_cpuFrame);
 		release(); 
 	}
+
+	void configureContext(AVCodecContext* ctx, AVBufferRef* hwDeviceCtx) override;
+	void init(int width, int height) override;
+
 	void updateTexture(AVFrame* frame) override;
 	void initWebGPUEntities();
 	void clearCache() override {}
@@ -31,11 +35,13 @@ public:
 		if (m_sharedTextureMemory) { wgpuSharedTextureMemoryRelease(m_sharedTextureMemory); m_sharedTextureMemory = nullptr; }
 	}
 	void init_export_texture_vulkan(AVHWDeviceContext* vulkanDevCtx, int width, int height);
+
 private:
+
 	int m_width;
 	int m_height;
 
-	AVFrame* m_cpuFrame;
+	AVFrame* m_cpuFrame = nullptr;
 	WGPUBuffer m_stagingBuffers[2] = { nullptr, nullptr };
 	uint32_t m_currentFrameIndex = 0;
 	uint32_t m_yBufferSize = 0;

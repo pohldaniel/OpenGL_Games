@@ -3,6 +3,35 @@
 
 #include "D3D11TextureBridge.h"
 
+static enum AVPixelFormat get_hw_format_d3d11_(AVCodecContext* ctx, const enum AVPixelFormat* pix_fmts) {
+    const enum AVPixelFormat target = AV_PIX_FMT_D3D11;
+    for (const enum AVPixelFormat* p = pix_fmts; *p != AV_PIX_FMT_NONE; p++) {
+        if (*p == target) {
+            return target;
+        }
+    }
+    return AV_PIX_FMT_NONE;
+}
+
+void D3D11TextureBridge::configureContext(AVCodecContext* ctx, AVBufferRef* hwDeviceCtx) {
+    ctx->sw_pix_fmt = AV_PIX_FMT_NV12;
+    ctx->hw_device_ctx = av_buffer_ref(hwDeviceCtx);
+    ctx->get_format = get_hw_format_d3d11_;
+
+    AVHWDeviceContext* device_ctx = reinterpret_cast<AVHWDeviceContext*>(ctx->hw_device_ctx->data);
+    AVD3D11VADeviceContext* d3d11_device_ctx = reinterpret_cast<AVD3D11VADeviceContext*>(device_ctx->hwctx);
+    d3d11_device_ctx->MiscFlags |= D3D11_RESOURCE_MISC_SHARED;
+
+    m_d3d11_device = d3d11_device_ctx->device;
+    m_d3d11_context = d3d11_device_ctx->device_context;
+}
+
+void D3D11TextureBridge::init(int width, int height) {
+    m_width = width;
+    m_height = height;
+    initWebGPUEntities();
+}
+
 void D3D11TextureBridge::initWebGPUEntities() {
     D3D11_TEXTURE2D_DESC single_desc = {};
     single_desc.Width = m_width;

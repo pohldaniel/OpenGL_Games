@@ -12,6 +12,60 @@ VkQueue m_vulkanQueue = VK_NULL_HANDLE;
 WGPUSharedTextureMemoryOpaqueFDDescriptor opaqueDesc = {};
 WGPUSharedTextureMemoryDXGISharedHandleDescriptor dxgiDesc = {};
 
+static enum AVPixelFormat get_hw_format_vulkan_(AVCodecContext* ctx, const enum AVPixelFormat* pix_fmts) {
+    for (const enum AVPixelFormat* p = pix_fmts; *p != AV_PIX_FMT_NONE; p++) {
+        if (*p == AV_PIX_FMT_VULKAN) {
+
+            if (!ctx->hw_frames_ctx) {
+                int err = avcodec_get_hw_frames_parameters(ctx, ctx->hw_device_ctx, AV_PIX_FMT_VULKAN, &ctx->hw_frames_ctx);
+                if (err < 0) {
+                    std::cerr << "[Vulkan-HW] Parameter-Abruf fehlgeschlagen." << std::endl;
+                    break;
+                }
+
+                AVHWFramesContext* frames_ctx = (AVHWFramesContext*)ctx->hw_frames_ctx->data;
+                AVVulkanFramesContext* vk_frames_ctx = (AVVulkanFramesContext*)frames_ctx->hwctx;
+
+                vk_frames_ctx->img_flags |= VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT;
+                vk_frames_ctx->usage = static_cast<VkImageUsageFlagBits>(vk_frames_ctx->usage | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
+                vk_frames_ctx->tiling = VK_IMAGE_TILING_OPTIMAL;
+
+                static VkExternalMemoryImageCreateInfoKHR win32_ext_image_info = {};
+                win32_ext_image_info.sType = VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO_KHR;
+                win32_ext_image_info.pNext = vk_frames_ctx->create_pnext;
+                win32_ext_image_info.handleTypes = VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT;
+
+                vk_frames_ctx->create_pnext = &win32_ext_image_info;
+
+
+                static VkExportMemoryWin32HandleInfoKHR win32_handle_info = {};
+                win32_handle_info.sType = VK_STRUCTURE_TYPE_EXPORT_MEMORY_WIN32_HANDLE_INFO_KHR;
+                win32_handle_info.dwAccess = DXGI_SHARED_RESOURCE_READ | DXGI_SHARED_RESOURCE_WRITE;
+                win32_handle_info.pNext = nullptr;
+
+                static VkExportMemoryAllocateInfoKHR win32_export_alloc_info = {};
+                win32_export_alloc_info.sType = VK_STRUCTURE_TYPE_EXPORT_MEMORY_ALLOCATE_INFO_KHR;
+                win32_export_alloc_info.pNext = &win32_handle_info;
+                win32_export_alloc_info.handleTypes = VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT;
+
+                for (int i = 0; i < AV_NUM_DATA_POINTERS; i++) {
+                    win32_export_alloc_info.pNext = (vk_frames_ctx->alloc_pnext[i]) ? vk_frames_ctx->alloc_pnext[i] : &win32_handle_info;
+                    vk_frames_ctx->alloc_pnext[i] = &win32_export_alloc_info;
+                }
+
+                err = av_hwframe_ctx_init(ctx->hw_frames_ctx);
+                if (err < 0) {
+                    std::cerr << "[Vulkan-HW] av_hwframe_ctx_init fehlgeschlagen: " << err << std::endl;
+                    av_buffer_unref(&ctx->hw_frames_ctx); // Bereinigen bei Fehler
+                    break;
+                }
+                return AV_PIX_FMT_VULKAN;
+            }
+        }
+    }
+    return ctx->sw_pix_fmt;
+}
+
 void VulkanTextureBridge::init_export_texture_vulkan(AVHWDeviceContext* vulkanDevCtx, int width, int height) {
     if (m_exportImage != VK_NULL_HANDLE) return; // Bereits initialisiert
 
@@ -107,6 +161,18 @@ void VulkanTextureBridge::init_export_texture_vulkan(AVHWDeviceContext* vulkanDe
     memoryDesc.nextInChain = (WGPUChainedStruct*)&dxgiDesc;
     memoryDesc.label = WGPU_STR("FFmpeg Shared Frame Memory");
     //m_sharedTextureMemory = wgpuDeviceImportSharedTextureMemory(wgpContext.device, &memoryDesc);
+}
+
+void VulkanTextureBridge::configureContext(AVCodecContext* ctx, AVBufferRef* hwDeviceCtx) {
+    ctx->hw_device_ctx = av_buffer_ref(hwDeviceCtx);
+    ctx->get_format = get_hw_format_vulkan_;
+}
+
+void VulkanTextureBridge::init(int width, int height) {
+    m_width = width;
+    m_height = height;
+    initWebGPUEntities();
+    m_cpuFrame = av_frame_alloc();
 }
 
 void VulkanTextureBridge::initWebGPUEntities() {

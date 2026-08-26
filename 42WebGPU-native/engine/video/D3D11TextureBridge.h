@@ -17,13 +17,18 @@ class D3D11TextureBridge : public IVideoTextureBridge {
 
 public:
 
-	D3D11TextureBridge(int width, int height, ID3D11Device* d3d11_device, ID3D11DeviceContext* d3d11_context) : m_width(width), m_height(height), m_d3d11_device(d3d11_device), m_d3d11_context(d3d11_context){
-		initWebGPUEntities();
+	D3D11TextureBridge() : m_width(0), m_height(0) {
+		
 	}
-	~D3D11TextureBridge() override { release(); }
+
+	~D3D11TextureBridge() override { 
+		release(); 
+	}
 	void clearCache() override {}
 	void updateTexture(AVFrame* frame) override;
 	void initWebGPUEntities();
+	void configureContext(AVCodecContext* ctx, AVBufferRef* hwDeviceCtx) override;
+	void init(int width, int height) override;
 
 	void release() override {
 		if (m_textureViewY) { wgpuTextureViewRelease(m_textureViewY); m_textureViewY = nullptr; }

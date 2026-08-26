@@ -55,9 +55,6 @@
     <Filter Include="engine\video">
       <UniqueIdentifier>{0c314608-3a08-4973-adac-2b969c132df6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="engine\video_new">
-      <UniqueIdentifier>{089d8c24-b84e-4b14-956b-5751dab54728}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\input\ApplicationEventListener.cpp">
@@ -318,32 +315,23 @@
     <ClCompile Include="engine\sound\SoftwareMixer.cpp">
       <Filter>engine\sound</Filter>
     </ClCompile>
+    <ClCompile Include="engine\video\D3D11TextureBridge.cpp">
+      <Filter>engine\video</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\video\D3D12TextureBridge.cpp">
+      <Filter>engine\video</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\video\RGBATextureBridge.cpp">
+      <Filter>engine\video</Filter>
+    </ClCompile>
     <ClCompile Include="engine\video\VideoDecoder.cpp">
       <Filter>engine\video</Filter>
     </ClCompile>
-    <ClCompile Include="engine\video\MediaDecoder.cpp">
+    <ClCompile Include="engine\video\VulkanTextureBridge.cpp">
       <Filter>engine\video</Filter>
     </ClCompile>
-    <ClCompile Include="engine\video\RGBADecoder.cpp">
+    <ClCompile Include="engine\video\YUVTextureBridge.cpp">
       <Filter>engine\video</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\video\YuvDcoder.cpp">
-      <Filter>engine\video</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\video_new\AudioDecoder_new.cpp">
-      <Filter>engine\video_new</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\video_new\SoftwareTextureBridge.cpp">
-      <Filter>engine\video_new</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\video_new\VulkanTextureBridge.cpp">
-      <Filter>engine\video_new</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\video_new\D3D11TextureBridge.cpp">
-      <Filter>engine\video_new</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\video_new\D3D12TextureBridge.cpp">
-      <Filter>engine\video_new</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -650,38 +638,29 @@
     <ClInclude Include="engine\sound\RtAudioAudioSystem.h">
       <Filter>engine\sound</Filter>
     </ClInclude>
+    <ClInclude Include="engine\video\D3D11TextureBridge.h">
+      <Filter>engine\video</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\video\D3D12TextureBridge.h">
+      <Filter>engine\video</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\video\IVideoTextureBridge.h">
+      <Filter>engine\video</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\video\RGBATextureBridge.h">
+      <Filter>engine\video</Filter>
+    </ClInclude>
     <ClInclude Include="engine\video\VideoDecoder.h">
       <Filter>engine\video</Filter>
     </ClInclude>
-    <ClInclude Include="engine\video\MediaDecoder.h">
+    <ClInclude Include="engine\video\VulkanTextureBridge.h">
       <Filter>engine\video</Filter>
     </ClInclude>
-    <ClInclude Include="engine\video\RGBADecoder.h">
+    <ClInclude Include="engine\video\YUVTextureBridge.h">
       <Filter>engine\video</Filter>
     </ClInclude>
-    <ClInclude Include="engine\video\YuvDecoder.h">
-      <Filter>engine\video</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\video_new\AudioDecoder_new.h">
-      <Filter>engine\video_new</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\video_new\IAudioOutput.h">
-      <Filter>engine\video_new</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\video_new\IVideoTextureBridge.h">
-      <Filter>engine\video_new</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\video_new\D3D12TextureBridge.h">
-      <Filter>engine\video_new</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\video_new\SoftwareTextureBridge.h">
-      <Filter>engine\video_new</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\video_new\VulkanTextureBridge.h">
-      <Filter>engine\video_new</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\video_new\D3D11TextureBridge.h">
-      <Filter>engine\video_new</Filter>
+    <ClInclude Include="engine\sound\IAudioOutput.h">
+      <Filter>engine\sound</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

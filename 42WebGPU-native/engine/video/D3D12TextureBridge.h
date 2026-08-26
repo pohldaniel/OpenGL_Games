@@ -26,7 +26,7 @@ class D3D12TextureBridge : public IVideoTextureBridge {
 
 public:
 
-    D3D12TextureBridge(int width, int height) : m_width(width), m_height(height) {
+    D3D12TextureBridge() : m_width(0), m_height(0) {
 
     }
 
@@ -35,6 +35,8 @@ public:
         //clearCache(); 
     }
 
+    void configureContext(AVCodecContext* ctx, AVBufferRef* hwDeviceCtx) override;
+    void init(int width, int height) override;
     void updateTexture(AVFrame* frame) override;
    
     void release() override {

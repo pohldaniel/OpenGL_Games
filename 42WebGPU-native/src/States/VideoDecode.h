@@ -14,7 +14,7 @@
 #include <WebGPU/WgpData.h>
 
 #include <engine/video/VideoDecoder.h>
-#include <engine/video/MediaDecoder.h>
+
 #include <engine/sound/RtAudioPlayer.h>
 #include <engine/sound/OpenALPlayer.h>
 #include <engine/sound/AudioSystem.h>
@@ -71,7 +71,7 @@ private:
 
 	std::unique_ptr<AudioSystem> m_audioSystem;
 
-	MediaDecoder m_movieRGBA, m_moviePacked, m_movieHw;
+	VideoDecoder m_movieRGBA, m_moviePacked, m_movieHw;
 
 	std::vector<uint8_t> m_pixelBufferRGBA, m_pixelBufferPacked, m_pixelBufferHw, m_audioBufferRGBA, m_audioBufferPacked;
 	bool m_isUserDraggingTimeline = false;

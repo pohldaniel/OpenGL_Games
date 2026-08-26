@@ -1,6 +1,9 @@
 #pragma once
 
+#include <atomic>
+
 class AudioRingBuffer {
+
 public:
     void init(size_t capacity) {
         m_buffer.resize(capacity + 1);

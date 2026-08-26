@@ -4,7 +4,7 @@
 #include <AL/alc.h>
 #include <iostream>
 #include "AudioDecoder.h"
-#include "../video_new/IAudioOutput.h"
+#include "IAudioOutput.h"
 
 class OpenALPlayer : public IAudioOutput {
 public:

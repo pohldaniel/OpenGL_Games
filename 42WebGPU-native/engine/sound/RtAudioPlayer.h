@@ -5,7 +5,7 @@
 #include "AudioDecoder.h"
 #include "AudioRingBuffer.h"
 #include "SoftwareMixer.h"
-#include "../video_new/IAudioOutput.h"
+#include "IAudioOutput.h"
 
 class RtAudioPlayer : public IAudioOutput {
 public:

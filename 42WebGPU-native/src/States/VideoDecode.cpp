@@ -36,12 +36,13 @@ VideoDecode::VideoDecode(StateMachine& machine) : State(machine, States::VIDEO_D
 	m_audioSystem = std::make_unique<OpenALAudioSystem>();
 	m_audioSystem->init();
 
+	m_movieRGBA.m_hardwareAcceleration = SW_RGBA;
 	m_movieRGBA.open("res/videos/big_buck_bunny.mp4");
 	
 	m_movieHw.m_hardwareAcceleration = HW_VULKAN;
 	m_movieHw.open("res/videos/360_example.mp4");
 
-	m_moviePacked.m_isPackedYuv = true;
+	m_moviePacked.m_hardwareAcceleration = SW_YUV;
 	m_moviePacked.open("res/videos/underwater_diving_360degrees.mp4");
 
 	m_cameraBuffer.createBuffer(sizeof(CameraUniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
@@ -166,10 +167,8 @@ void VideoDecode::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURen
 	m_movieRGBA.update(m_dt);
 	m_moviePacked.update(m_dt);
 	
-	bool newFrameHw = false;
-
 	if (!m_isUserDraggingTimeline) {
-		newFrameHw = m_movieHw.update(m_dt);
+		m_movieHw.update(m_dt);
 	}
 
 	if (m_movieHw.m_textureBridge && m_movieHw.m_textureBridge->m_sharedTextureMemory && m_movieHw.m_textureBridge->m_videoTexture) {
@@ -184,7 +183,7 @@ void VideoDecode::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURen
 		m_hasActiveAccess = status;
 	}
 
-	if (m_movieHw.m_textureBridge && newFrameHw) {
+	if (m_movieHw.m_textureBridge) {
 		std::vector<WGPUBindGroupEntry> entries(4);
 
 		entries[0].binding = 0u;

@@ -1,5 +1,30 @@
 #include "D3D12TextureBridge.h"
 
+static enum AVPixelFormat get_hw_format_d3d12_(AVCodecContext* ctx, const enum AVPixelFormat* pix_fmts) {
+    const enum AVPixelFormat target = AV_PIX_FMT_D3D12;
+    for (const enum AVPixelFormat* p = pix_fmts; *p != AV_PIX_FMT_NONE; p++) {
+        if (*p == target) {
+            return target;
+        }
+    }
+    return AV_PIX_FMT_NONE;
+}
+
+void D3D12TextureBridge::configureContext(AVCodecContext* ctx, AVBufferRef* hwDeviceCtx) {
+    ctx->sw_pix_fmt = AV_PIX_FMT_NV12;
+    ctx->hw_device_ctx = av_buffer_ref(hwDeviceCtx);
+    ctx->get_format = get_hw_format_d3d12_;
+
+    AVHWDeviceContext* device_ctx = reinterpret_cast<AVHWDeviceContext*>(ctx->hw_device_ctx->data);
+    AVD3D12VADeviceContext* d3d12_ctx = reinterpret_cast<AVD3D12VADeviceContext*>(device_ctx->hwctx);
+    d3d12_ctx->resource_flags |= D3D12_RESOURCE_FLAG_ALLOW_SIMULTANEOUS_ACCESS;
+}
+
+void D3D12TextureBridge::init(int width, int height) {
+    m_width = width;
+    m_height = height;
+}
+
 void D3D12TextureBridge::updateTexture(AVFrame* frame) {
 
     if (!frame || frame->format != AV_PIX_FMT_D3D12) return;

@@ -10,24 +10,24 @@ extern "C" {
 
 #include "IVideoTextureBridge.h"
 
-class SoftwareTextureBridge : public IVideoTextureBridge {
+class RGBATextureBridge : public IVideoTextureBridge {
+
 public:
-    SoftwareTextureBridge(int width, int height, bool isPackedYuv);
-    ~SoftwareTextureBridge() override;
+
+    RGBATextureBridge();
+    ~RGBATextureBridge() override;
 
     void updateTexture(AVFrame* frame) override;
     void release() override;
     void clearCache() override {}
+    void configureContext(AVCodecContext* ctx, AVBufferRef* hwDeviceCtx) override {}
+    void init(int width, int height) override;
 
 private:
     void initWebGPUEntities();
-    void handleRgbaPath(AVFrame* frame);
-    void handleYuvPlanarPath(AVFrame* frame);
-
+    
     int m_width;
     int m_height;
-    bool m_isPackedYuv;
-
 
     SwsContext* m_swsContext = nullptr;
     AVFrame* m_frameRgba = nullptr;

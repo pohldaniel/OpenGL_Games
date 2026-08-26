@@ -30,16 +30,6 @@ void OnErrorDevice(const WGPUDevice* device, WGPUErrorType type, WGPUStringView 
 	std::cout << "Error: " << type << " - message: " << message.data << "\n";
 }
 
-void wgpLogAdapterProperties(WGPUAdapter adapter) {
-	WGPUAdapterInfo info = {};
-	wgpuAdapterGetInfo(adapter, &info);
-	std::cout << "--- Adapter Properties ---" << std::endl;
-	std::cout << "GPU Name: " << info.device.data << std::endl;
-	std::cout << "Treiber/Desc: " << info.description.data << std::endl;
-	std::cout << "--------------------------------------" << std::endl;
-	wgpuAdapterInfoFreeMembers(info);
-}
-
 void setDefault(WGPULimits& limits) {
 	limits.maxTextureDimension1D = WGPU_LIMIT_U32_UNDEFINED;
 	limits.maxTextureDimension2D = WGPU_LIMIT_U32_UNDEFINED;
@@ -157,7 +147,7 @@ bool wgpCreateDevice(void* window) {
 	requestAdapterOptions.compatibleSurface = NULL;
 	requestAdapterOptions.forceFallbackAdapter = false;
 	requestAdapterOptions.powerPreference = WGPUPowerPreference_HighPerformance;
-	requestAdapterOptions.backendType = WGPUBackendType_D3D12;
+	requestAdapterOptions.backendType = WGPUBackendType_Vulkan;
 	requestAdapterOptions.featureLevel = WGPUFeatureLevel_Core;
 
 	WGPURequestAdapterCallbackInfo requestAdapterCallbackInfo = {};
@@ -190,8 +180,8 @@ bool wgpCreateDevice(void* window) {
 	std::vector<WGPUFeatureName> deviceFeatures;
 	deviceFeatures.push_back(WGPUFeatureName::WGPUFeatureName_PrimitiveIndex);
 	deviceFeatures.push_back(WGPUFeatureName::WGPUFeatureName_DawnMultiPlanarFormats);
-	deviceFeatures.push_back(WGPUFeatureName::WGPUFeatureName_SharedTextureMemoryD3D12Resource);
-	deviceFeatures.push_back(WGPUFeatureName::WGPUFeatureName_SharedTextureMemoryDXGISharedHandle);
+	//deviceFeatures.push_back(WGPUFeatureName::WGPUFeatureName_SharedTextureMemoryD3D12Resource);
+	//deviceFeatures.push_back(WGPUFeatureName::WGPUFeatureName_SharedTextureMemoryDXGISharedHandle);
 
 	WGPUDeviceDescriptor deviceDescriptor = {};
 	deviceDescriptor.requiredLimits = &requiredLimits;
@@ -240,6 +230,16 @@ bool wgpCreateDevice(void* window) {
 	wgpContext.addSampler(wgpCreateSampler(WGPUFilterMode_Nearest, WGPUAddressMode_Repeat), SS_NEAREST_REPEAT);
 
 	return true;
+}
+
+void wgpLogAdapterProperties(WGPUAdapter adapter) {
+	WGPUAdapterInfo info = {};
+	wgpuAdapterGetInfo(adapter, &info);
+	std::cout << "--- Adapter Properties ---" << std::endl;
+	std::cout << "GPU Name: " << info.device.data << std::endl;
+	std::cout << "Treiber/Desc: " << info.description.data << std::endl;
+	std::cout << "--------------------------------------" << std::endl;
+	wgpuAdapterInfoFreeMembers(info);
 }
 
 void wgpConfigureSurface() {
