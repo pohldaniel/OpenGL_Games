@@ -18,6 +18,115 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="alc\alc.cpp" />
+    <ClCompile Include="alc\alconfig.cpp" />
+    <ClCompile Include="alc\alu.cpp" />
+    <ClCompile Include="alc\backends\base.cpp" />
+    <ClCompile Include="alc\backends\dsound.cpp" />
+    <ClCompile Include="alc\backends\loopback.cpp" />
+    <ClCompile Include="alc\backends\wasapi.cpp" />
+    <ClCompile Include="alc\backends\wave.cpp" />
+    <ClCompile Include="alc\backends\winmm.cpp" />
+    <ClCompile Include="alc\backends\__null.cpp" />
+    <ClCompile Include="alc\effects\_autowah.cpp" />
+    <ClCompile Include="alc\effects\_chorus.cpp" />
+    <ClCompile Include="alc\effects\_compressor.cpp" />
+    <ClCompile Include="alc\effects\_convolution.cpp" />
+    <ClCompile Include="alc\effects\_dedicated.cpp" />
+    <ClCompile Include="alc\effects\_distortion.cpp" />
+    <ClCompile Include="alc\effects\_echo.cpp" />
+    <ClCompile Include="alc\effects\_equalizer.cpp" />
+    <ClCompile Include="alc\effects\_fshifter.cpp" />
+    <ClCompile Include="alc\effects\_modulator.cpp" />
+    <ClCompile Include="alc\effects\_null.cpp" />
+    <ClCompile Include="alc\effects\_pshifter.cpp" />
+    <ClCompile Include="alc\effects\_reverb.cpp" />
+    <ClCompile Include="alc\effects\_vmorpher.cpp" />
+    <ClCompile Include="alc\events.cpp" />
+    <ClCompile Include="alc\panning.cpp" />
+    <ClCompile Include="alc\_context.cpp" />
+    <ClCompile Include="alc\_device.cpp" />
+    <ClCompile Include="al\auxeffectslot.cpp" />
+    <ClCompile Include="al\buffer.cpp" />
+    <ClCompile Include="al\debug.cpp" />
+    <ClCompile Include="al\eax.cpp" />
+    <ClCompile Include="al\eax\api.cpp" />
+    <ClCompile Include="al\eax\call.cpp" />
+    <ClCompile Include="al\eax\exception.cpp" />
+    <ClCompile Include="al\eax\fx_slots.cpp" />
+    <ClCompile Include="al\eax\fx_slot_index.cpp" />
+    <ClCompile Include="al\eax\utils.cpp" />
+    <ClCompile Include="al\effect.cpp" />
+    <ClCompile Include="al\effects\autowah.cpp" />
+    <ClCompile Include="al\effects\chorus.cpp" />
+    <ClCompile Include="al\effects\compressor.cpp" />
+    <ClCompile Include="al\effects\convolution.cpp" />
+    <ClCompile Include="al\effects\dedicated.cpp" />
+    <ClCompile Include="al\effects\distortion.cpp" />
+    <ClCompile Include="al\effects\echo.cpp" />
+    <ClCompile Include="al\effects\effects.cpp" />
+    <ClCompile Include="al\effects\equalizer.cpp" />
+    <ClCompile Include="al\effects\fshifter.cpp" />
+    <ClCompile Include="al\effects\modulator.cpp" />
+    <ClCompile Include="al\effects\null.cpp" />
+    <ClCompile Include="al\effects\pshifter.cpp" />
+    <ClCompile Include="al\effects\reverb.cpp" />
+    <ClCompile Include="al\effects\vmorpher.cpp" />
+    <ClCompile Include="al\error.cpp" />
+    <ClCompile Include="al\event.cpp" />
+    <ClCompile Include="al\extension.cpp" />
+    <ClCompile Include="al\filter.cpp" />
+    <ClCompile Include="al\listener.cpp" />
+    <ClCompile Include="al\source.cpp" />
+    <ClCompile Include="al\state.cpp" />
+    <ClCompile Include="common\alcomplex.cpp" />
+    <ClCompile Include="common\almalloc.cpp" />
+    <ClCompile Include="common\alstring.cpp" />
+    <ClCompile Include="common\althrd_setname.cpp" />
+    <ClCompile Include="common\altypes.cpp" />
+    <ClCompile Include="common\dynload.cpp" />
+    <ClCompile Include="common\filesystem.cpp" />
+    <ClCompile Include="common\pffft.cpp" />
+    <ClCompile Include="common\polyphase_resampler.cpp" />
+    <ClCompile Include="common\strutils.cpp" />
+    <ClCompile Include="core\ambdec.cpp" />
+    <ClCompile Include="core\ambidefs.cpp" />
+    <ClCompile Include="core\bformatdec.cpp" />
+    <ClCompile Include="core\bs2b.cpp" />
+    <ClCompile Include="core\bsinc_tables.cpp" />
+    <ClCompile Include="core\context.cpp" />
+    <ClCompile Include="core\converter.cpp" />
+    <ClCompile Include="core\cpu_caps.cpp" />
+    <ClCompile Include="core\cubic_tables.cpp" />
+    <ClCompile Include="core\devformat.cpp" />
+    <ClCompile Include="core\device.cpp" />
+    <ClCompile Include="core\effectslot.cpp" />
+    <ClCompile Include="core\except.cpp" />
+    <ClCompile Include="core\filters\biquad.cpp" />
+    <ClCompile Include="core\filters\nfc.cpp" />
+    <ClCompile Include="core\filters\splitter.cpp" />
+    <ClCompile Include="core\fpu_ctrl.cpp" />
+    <ClCompile Include="core\helpers.cpp" />
+    <ClCompile Include="core\hrtf.cpp" />
+    <ClCompile Include="core\hrtf_loader.cpp" />
+    <ClCompile Include="core\hrtf_resource.cpp" />
+    <ClCompile Include="core\logging.cpp" />
+    <ClCompile Include="core\mastering.cpp" />
+    <ClCompile Include="core\mixer.cpp" />
+    <ClCompile Include="core\mixer\mixer_c.cpp" />
+    <ClCompile Include="core\mixer\mixer_sse.cpp" />
+    <ClCompile Include="core\mixer\mixer_sse2.cpp" />
+    <ClCompile Include="core\mixer\mixer_sse3.cpp" />
+    <ClCompile Include="core\mixer\mixer_sse41.cpp" />
+    <ClCompile Include="core\storage_formats.cpp" />
+    <ClCompile Include="core\tsmefilter.cpp" />
+    <ClCompile Include="core\uhjfilter.cpp" />
+    <ClCompile Include="core\uiddefs.cpp" />
+    <ClCompile Include="core\voice.cpp" />
+    <ClCompile Include="fmt-11.2.0\src\format.cc" />
+    <ClCompile Include="fmt-11.2.0\src\os.cc" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{2960C69F-C728-452D-A08F-42A7436567FE}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
@@ -89,16 +198,19 @@
     <ClCompile>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;AL_BUILD_LIBRARY;AL_ALEXT_PROTOTYPES;_WIN32_WINNT=0x0502;_LARGEFILE_SOURCE;_LARGE_FILES;restrict=;HAVE_STRUCT_TIMESPEC;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;strcasecmp=_stricmp;strncasecmp=_strnicmp;OpenAL_EXPORTS</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;configx86;include;src\Include;Alc;common</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;AL_BUILD_LIBRARY;AL_ALEXT_PROTOTYPES;ALC_API=__declspec(dllexport);AL_API=__declspec(dllexport);_WIN32;NOMINMAX;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR;_MSVC_STL_HARDENING=1;OpenAL_EXPORTS</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;configx86;include;src\Include;Alc;common;gsl\include;fmt-11.2.0\include</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <DisableSpecificWarnings>4127;4324;4373</DisableSpecificWarnings>
+      <AdditionalOptions> /utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <OutputFile>..\libd\x86\openal.dll</OutputFile>
-      <AdditionalDependencies>winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>avrt.lib;winmm.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -109,16 +221,19 @@
     <ClCompile>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;AL_BUILD_LIBRARY;AL_ALEXT_PROTOTYPES;_WIN32_WINNT=0x0502;_LARGEFILE_SOURCE;_LARGE_FILES;restrict=;HAVE_STRUCT_TIMESPEC;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;strcasecmp=_stricmp;strncasecmp=_strnicmp;OpenAL_EXPORTS</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;configx64;include;src\Include;Alc;common</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;AL_BUILD_LIBRARY;AL_ALEXT_PROTOTYPES;ALC_API=__declspec(dllexport);AL_API=__declspec(dllexport);_WIN32;NOMINMAX;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR;_MSVC_STL_HARDENING=1;OpenAL_EXPORTS</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;configx64;include;src\Include;Alc;common;gsl\include;fmt-11.2.0\include</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <DisableSpecificWarnings>4127;4324;4373</DisableSpecificWarnings>
+      <AdditionalOptions> /utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <OutputFile>..\libd\x64\openal.dll</OutputFile>
-      <AdditionalDependencies>winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>avrt.lib;winmm.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -127,22 +242,25 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;AL_BUILD_LIBRARY;AL_ALEXT_PROTOTYPES;_WIN32_WINNT=0x0502;_LARGEFILE_SOURCE;_LARGE_FILES;restrict=;HAVE_STRUCT_TIMESPEC;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;strcasecmp=_stricmp;strncasecmp=_strnicmp;OpenAL_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;configx86;include;src\Include;Alc;common</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;AL_BUILD_LIBRARY;AL_ALEXT_PROTOTYPES;ALC_API=__declspec(dllexport);AL_API=__declspec(dllexport);_WIN32;NOMINMAX;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR;_MSVC_STL_HARDENING=1;OpenAL_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;configx86;include;src\Include;Alc;common;gsl\include;fmt-11.2.0\include</AdditionalIncludeDirectories>
       <WholeProgramOptimization>true</WholeProgramOptimization>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <DisableSpecificWarnings>4127;4324;4373</DisableSpecificWarnings>
+      <AdditionalOptions> /utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>avrt.lib;winmm.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>..\lib\x86\openal.dll</OutputFile>
     </Link>
     <PostBuildEvent>
@@ -152,16 +270,19 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;AL_BUILD_LIBRARY;AL_ALEXT_PROTOTYPES;_WIN32;_WIN32_WINNT=0x0502;_LARGEFILE_SOURCE;_LARGE_FILES;restrict=;HAVE_STRUCT_TIMESPEC;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;strcasecmp=_stricmp;strncasecmp=_strnicmp;CMAKE_INTDIR="Release";OpenAL_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;configx64;include;src\Include;Alc;common</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;AL_BUILD_LIBRARY;AL_ALEXT_PROTOTYPES;ALC_API=__declspec(dllexport);AL_API=__declspec(dllexport);_WIN32;NOMINMAX;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR;_MSVC_STL_HARDENING=1;OpenAL_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.\;configx64;include;src\Include;Alc;common;gsl\include;fmt-11.2.0\include</AdditionalIncludeDirectories>
       <WholeProgramOptimization>true</WholeProgramOptimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <DisableSpecificWarnings>4127;4324;4373</DisableSpecificWarnings>
+      <AdditionalOptions> /utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -169,73 +290,13 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <OutputFile>..\lib\x64\openal.dll</OutputFile>
-      <AdditionalDependencies>winmm.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>avrt.lib;winmm.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>
       </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="Alc\ALc.c" />
-    <ClCompile Include="Alc\alconfig.c" />
-    <ClCompile Include="Alc\ALu.c" />
-    <ClCompile Include="Alc\ambdec.c" />
-    <ClCompile Include="Alc\backends\base.c" />
-    <ClCompile Include="Alc\backends\dsound.c" />
-    <ClCompile Include="Alc\backends\loopback.c" />
-    <ClCompile Include="Alc\backends\wasapi.c" />
-    <ClCompile Include="Alc\backends\wave.c" />
-    <ClCompile Include="Alc\backends\winmm.c" />
-    <ClCompile Include="Alc\backends\_null.c" />
-    <ClCompile Include="Alc\bformatdec.c" />
-    <ClCompile Include="Alc\bs2b.c" />
-    <ClCompile Include="Alc\converter.c" />
-    <ClCompile Include="Alc\effects\autowah.c" />
-    <ClCompile Include="Alc\effects\chorus.c" />
-    <ClCompile Include="Alc\effects\compressor.c" />
-    <ClCompile Include="Alc\effects\dedicated.c" />
-    <ClCompile Include="Alc\effects\distortion.c" />
-    <ClCompile Include="Alc\effects\echo.c" />
-    <ClCompile Include="Alc\effects\equalizer.c" />
-    <ClCompile Include="Alc\effects\fshifter.c" />
-    <ClCompile Include="Alc\effects\modulator.c" />
-    <ClCompile Include="Alc\effects\null.c" />
-    <ClCompile Include="Alc\effects\pshifter.c" />
-    <ClCompile Include="Alc\effects\reverb.c" />
-    <ClCompile Include="Alc\filters\filter.c" />
-    <ClCompile Include="Alc\filters\nfc.c" />
-    <ClCompile Include="Alc\filters\splitter.c" />
-    <ClCompile Include="Alc\helpers.c" />
-    <ClCompile Include="Alc\hrtf.c" />
-    <ClCompile Include="Alc\mastering.c" />
-    <ClCompile Include="Alc\mixer\mixer_c.c" />
-    <ClCompile Include="Alc\mixer\mixer_sse.c" />
-    <ClCompile Include="Alc\mixer\mixer_sse2.c" />
-    <ClCompile Include="Alc\mixer\mixer_sse3.c" />
-    <ClCompile Include="Alc\mixer\mixer_sse41.c" />
-    <ClCompile Include="Alc\mixvoice.c" />
-    <ClCompile Include="Alc\panning.c" />
-    <ClCompile Include="Alc\ringbuffer.c" />
-    <ClCompile Include="Alc\uhjfilter.c" />
-    <ClCompile Include="common\alcomplex.c" />
-    <ClCompile Include="common\almalloc.c" />
-    <ClCompile Include="common\atomic.c" />
-    <ClCompile Include="common\rwlock.c" />
-    <ClCompile Include="common\threads.c" />
-    <ClCompile Include="common\uintmap.c" />
-    <ClCompile Include="src\alAuxEffectSlot.c" />
-    <ClCompile Include="src\alBuffer.c" />
-    <ClCompile Include="src\alEffect.c" />
-    <ClCompile Include="src\alError.c" />
-    <ClCompile Include="src\alExtension.c" />
-    <ClCompile Include="src\alFilter.c" />
-    <ClCompile Include="src\alListener.c" />
-    <ClCompile Include="src\alSource.c" />
-    <ClCompile Include="src\alState.c" />
-    <ClCompile Include="src\event.c" />
-    <ClCompile Include="src\sample_cvt.c" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

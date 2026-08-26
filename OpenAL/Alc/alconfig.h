@@ -1,17 +1,25 @@
 #ifndef ALCONFIG_H
 #define ALCONFIG_H
 
-void ReadALConfig(void);
-void FreeALConfig(void);
+#include <optional>
+#include <string>
+#include <string_view>
 
-int ConfigValueExists(const char *devName, const char *blockName, const char *keyName);
-const char *GetConfigValue(const char *devName, const char *blockName, const char *keyName, const char *def);
-int GetConfigValueBool(const char *devName, const char *blockName, const char *keyName, int def);
 
-int ConfigValueStr(const char *devName, const char *blockName, const char *keyName, const char **ret);
-int ConfigValueInt(const char *devName, const char *blockName, const char *keyName, int *ret);
-int ConfigValueUInt(const char *devName, const char *blockName, const char *keyName, unsigned int *ret);
-int ConfigValueFloat(const char *devName, const char *blockName, const char *keyName, float *ret);
-int ConfigValueBool(const char *devName, const char *blockName, const char *keyName, int *ret);
+void ReadALConfig();
+
+auto GetConfigValueBool(std::string_view devName, std::string_view blockName,
+    std::string_view keyName, bool def) -> bool;
+
+auto ConfigValueStr(std::string_view devName, std::string_view blockName, std::string_view keyName)
+    -> std::optional<std::string>;
+auto ConfigValueI32(std::string_view devName, std::string_view blockName, std::string_view keyName)
+    -> std::optional<int>;
+auto ConfigValueU32(std::string_view devName, std::string_view blockName, std::string_view keyName)
+    -> std::optional<unsigned>;
+auto ConfigValueF32(std::string_view devName, std::string_view blockName,
+    std::string_view keyName) -> std::optional<float>;
+auto ConfigValueBool(std::string_view devName, std::string_view blockName,
+    std::string_view keyName) -> std::optional<bool>;
 
 #endif /* ALCONFIG_H */

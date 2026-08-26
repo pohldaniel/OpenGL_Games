@@ -19,64 +19,113 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\OpenAL\Alc\ALc.c" />
-    <ClCompile Include="..\OpenAL\Alc\alconfig.c" />
-    <ClCompile Include="..\OpenAL\Alc\ALu.c" />
-    <ClCompile Include="..\OpenAL\Alc\ambdec.c" />
-    <ClCompile Include="..\OpenAL\Alc\backends\base.c" />
-    <ClCompile Include="..\OpenAL\Alc\backends\dsound.c" />
-    <ClCompile Include="..\OpenAL\Alc\backends\loopback.c" />
-    <ClCompile Include="..\OpenAL\Alc\backends\wasapi.c" />
-    <ClCompile Include="..\OpenAL\Alc\backends\wave.c" />
-    <ClCompile Include="..\OpenAL\Alc\backends\winmm.c" />
-    <ClCompile Include="..\OpenAL\Alc\backends\_null.c" />
-    <ClCompile Include="..\OpenAL\Alc\bformatdec.c" />
-    <ClCompile Include="..\OpenAL\Alc\bs2b.c" />
-    <ClCompile Include="..\OpenAL\Alc\converter.c" />
-    <ClCompile Include="..\OpenAL\Alc\effects\autowah.c" />
-    <ClCompile Include="..\OpenAL\Alc\effects\chorus.c" />
-    <ClCompile Include="..\OpenAL\Alc\effects\compressor.c" />
-    <ClCompile Include="..\OpenAL\Alc\effects\dedicated.c" />
-    <ClCompile Include="..\OpenAL\Alc\effects\distortion.c" />
-    <ClCompile Include="..\OpenAL\Alc\effects\echo.c" />
-    <ClCompile Include="..\OpenAL\Alc\effects\equalizer.c" />
-    <ClCompile Include="..\OpenAL\Alc\effects\fshifter.c" />
-    <ClCompile Include="..\OpenAL\Alc\effects\modulator.c" />
-    <ClCompile Include="..\OpenAL\Alc\effects\null.c" />
-    <ClCompile Include="..\OpenAL\Alc\effects\pshifter.c" />
-    <ClCompile Include="..\OpenAL\Alc\effects\reverb.c" />
-    <ClCompile Include="..\OpenAL\Alc\filters\filter.c" />
-    <ClCompile Include="..\OpenAL\Alc\filters\nfc.c" />
-    <ClCompile Include="..\OpenAL\Alc\filters\splitter.c" />
-    <ClCompile Include="..\OpenAL\Alc\helpers.c" />
-    <ClCompile Include="..\OpenAL\Alc\hrtf.c" />
-    <ClCompile Include="..\OpenAL\Alc\mastering.c" />
-    <ClCompile Include="..\OpenAL\Alc\mixer\mixer_c.c" />
-    <ClCompile Include="..\OpenAL\Alc\mixer\mixer_sse.c" />
-    <ClCompile Include="..\OpenAL\Alc\mixer\mixer_sse2.c" />
-    <ClCompile Include="..\OpenAL\Alc\mixer\mixer_sse3.c" />
-    <ClCompile Include="..\OpenAL\Alc\mixer\mixer_sse41.c" />
-    <ClCompile Include="..\OpenAL\Alc\mixvoice.c" />
-    <ClCompile Include="..\OpenAL\Alc\panning.c" />
-    <ClCompile Include="..\OpenAL\Alc\ringbuffer.c" />
-    <ClCompile Include="..\OpenAL\Alc\uhjfilter.c" />
-    <ClCompile Include="..\OpenAL\common\alcomplex.c" />
-    <ClCompile Include="..\OpenAL\common\almalloc.c" />
-    <ClCompile Include="..\OpenAL\common\atomic.c" />
-    <ClCompile Include="..\OpenAL\common\rwlock.c" />
-    <ClCompile Include="..\OpenAL\common\threads.c" />
-    <ClCompile Include="..\OpenAL\common\uintmap.c" />
-    <ClCompile Include="..\OpenAL\src\alAuxEffectSlot.c" />
-    <ClCompile Include="..\OpenAL\src\alBuffer.c" />
-    <ClCompile Include="..\OpenAL\src\alEffect.c" />
-    <ClCompile Include="..\OpenAL\src\alError.c" />
-    <ClCompile Include="..\OpenAL\src\alExtension.c" />
-    <ClCompile Include="..\OpenAL\src\alFilter.c" />
-    <ClCompile Include="..\OpenAL\src\alListener.c" />
-    <ClCompile Include="..\OpenAL\src\alSource.c" />
-    <ClCompile Include="..\OpenAL\src\alState.c" />
-    <ClCompile Include="..\OpenAL\src\event.c" />
-    <ClCompile Include="..\OpenAL\src\sample_cvt.c" />
+    <ClCompile Include="..\OpenAL\alc\alc.cpp" />
+    <ClCompile Include="..\OpenAL\alc\alconfig.cpp" />
+    <ClCompile Include="..\OpenAL\alc\alu.cpp" />
+    <ClCompile Include="..\OpenAL\alc\backends\base.cpp" />
+    <ClCompile Include="..\OpenAL\alc\backends\dsound.cpp" />
+    <ClCompile Include="..\OpenAL\alc\backends\loopback.cpp" />
+    <ClCompile Include="..\OpenAL\alc\backends\wasapi.cpp" />
+    <ClCompile Include="..\OpenAL\alc\backends\wave.cpp" />
+    <ClCompile Include="..\OpenAL\alc\backends\winmm.cpp" />
+    <ClCompile Include="..\OpenAL\alc\backends\__null.cpp" />
+    <ClCompile Include="..\OpenAL\alc\effects\_autowah.cpp" />
+    <ClCompile Include="..\OpenAL\alc\effects\_chorus.cpp" />
+    <ClCompile Include="..\OpenAL\alc\effects\_compressor.cpp" />
+    <ClCompile Include="..\OpenAL\alc\effects\_convolution.cpp" />
+    <ClCompile Include="..\OpenAL\alc\effects\_dedicated.cpp" />
+    <ClCompile Include="..\OpenAL\alc\effects\_distortion.cpp" />
+    <ClCompile Include="..\OpenAL\alc\effects\_echo.cpp" />
+    <ClCompile Include="..\OpenAL\alc\effects\_equalizer.cpp" />
+    <ClCompile Include="..\OpenAL\alc\effects\_fshifter.cpp" />
+    <ClCompile Include="..\OpenAL\alc\effects\_modulator.cpp" />
+    <ClCompile Include="..\OpenAL\alc\effects\_null.cpp" />
+    <ClCompile Include="..\OpenAL\alc\effects\_pshifter.cpp" />
+    <ClCompile Include="..\OpenAL\alc\effects\_reverb.cpp" />
+    <ClCompile Include="..\OpenAL\alc\effects\_vmorpher.cpp" />
+    <ClCompile Include="..\OpenAL\alc\events.cpp" />
+    <ClCompile Include="..\OpenAL\alc\panning.cpp" />
+    <ClCompile Include="..\OpenAL\alc\_context.cpp" />
+    <ClCompile Include="..\OpenAL\alc\_device.cpp" />
+    <ClCompile Include="..\OpenAL\al\auxeffectslot.cpp" />
+    <ClCompile Include="..\OpenAL\al\buffer.cpp" />
+    <ClCompile Include="..\OpenAL\al\debug.cpp" />
+    <ClCompile Include="..\OpenAL\al\eax.cpp" />
+    <ClCompile Include="..\OpenAL\al\eax\api.cpp" />
+    <ClCompile Include="..\OpenAL\al\eax\call.cpp" />
+    <ClCompile Include="..\OpenAL\al\eax\exception.cpp" />
+    <ClCompile Include="..\OpenAL\al\eax\fx_slots.cpp" />
+    <ClCompile Include="..\OpenAL\al\eax\fx_slot_index.cpp" />
+    <ClCompile Include="..\OpenAL\al\eax\utils.cpp" />
+    <ClCompile Include="..\OpenAL\al\effect.cpp" />
+    <ClCompile Include="..\OpenAL\al\effects\autowah.cpp" />
+    <ClCompile Include="..\OpenAL\al\effects\chorus.cpp" />
+    <ClCompile Include="..\OpenAL\al\effects\compressor.cpp" />
+    <ClCompile Include="..\OpenAL\al\effects\convolution.cpp" />
+    <ClCompile Include="..\OpenAL\al\effects\dedicated.cpp" />
+    <ClCompile Include="..\OpenAL\al\effects\distortion.cpp" />
+    <ClCompile Include="..\OpenAL\al\effects\echo.cpp" />
+    <ClCompile Include="..\OpenAL\al\effects\effects.cpp" />
+    <ClCompile Include="..\OpenAL\al\effects\equalizer.cpp" />
+    <ClCompile Include="..\OpenAL\al\effects\fshifter.cpp" />
+    <ClCompile Include="..\OpenAL\al\effects\modulator.cpp" />
+    <ClCompile Include="..\OpenAL\al\effects\null.cpp" />
+    <ClCompile Include="..\OpenAL\al\effects\pshifter.cpp" />
+    <ClCompile Include="..\OpenAL\al\effects\reverb.cpp" />
+    <ClCompile Include="..\OpenAL\al\effects\vmorpher.cpp" />
+    <ClCompile Include="..\OpenAL\al\error.cpp" />
+    <ClCompile Include="..\OpenAL\al\event.cpp" />
+    <ClCompile Include="..\OpenAL\al\extension.cpp" />
+    <ClCompile Include="..\OpenAL\al\filter.cpp" />
+    <ClCompile Include="..\OpenAL\al\listener.cpp" />
+    <ClCompile Include="..\OpenAL\al\source.cpp" />
+    <ClCompile Include="..\OpenAL\al\state.cpp" />
+    <ClCompile Include="..\OpenAL\common\alcomplex.cpp" />
+    <ClCompile Include="..\OpenAL\common\almalloc.cpp" />
+    <ClCompile Include="..\OpenAL\common\alstring.cpp" />
+    <ClCompile Include="..\OpenAL\common\althrd_setname.cpp" />
+    <ClCompile Include="..\OpenAL\common\altypes.cpp" />
+    <ClCompile Include="..\OpenAL\common\dynload.cpp" />
+    <ClCompile Include="..\OpenAL\common\filesystem.cpp" />
+    <ClCompile Include="..\OpenAL\common\pffft.cpp" />
+    <ClCompile Include="..\OpenAL\common\polyphase_resampler.cpp" />
+    <ClCompile Include="..\OpenAL\common\strutils.cpp" />
+    <ClCompile Include="..\OpenAL\core\ambdec.cpp" />
+    <ClCompile Include="..\OpenAL\core\ambidefs.cpp" />
+    <ClCompile Include="..\OpenAL\core\bformatdec.cpp" />
+    <ClCompile Include="..\OpenAL\core\bs2b.cpp" />
+    <ClCompile Include="..\OpenAL\core\bsinc_tables.cpp" />
+    <ClCompile Include="..\OpenAL\core\context.cpp" />
+    <ClCompile Include="..\OpenAL\core\converter.cpp" />
+    <ClCompile Include="..\OpenAL\core\cpu_caps.cpp" />
+    <ClCompile Include="..\OpenAL\core\cubic_tables.cpp" />
+    <ClCompile Include="..\OpenAL\core\devformat.cpp" />
+    <ClCompile Include="..\OpenAL\core\device.cpp" />
+    <ClCompile Include="..\OpenAL\core\effectslot.cpp" />
+    <ClCompile Include="..\OpenAL\core\except.cpp" />
+    <ClCompile Include="..\OpenAL\core\filters\biquad.cpp" />
+    <ClCompile Include="..\OpenAL\core\filters\nfc.cpp" />
+    <ClCompile Include="..\OpenAL\core\filters\splitter.cpp" />
+    <ClCompile Include="..\OpenAL\core\fpu_ctrl.cpp" />
+    <ClCompile Include="..\OpenAL\core\helpers.cpp" />
+    <ClCompile Include="..\OpenAL\core\hrtf.cpp" />
+    <ClCompile Include="..\OpenAL\core\hrtf_loader.cpp" />
+    <ClCompile Include="..\OpenAL\core\hrtf_resource.cpp" />
+    <ClCompile Include="..\OpenAL\core\logging.cpp" />
+    <ClCompile Include="..\OpenAL\core\mastering.cpp" />
+    <ClCompile Include="..\OpenAL\core\mixer.cpp" />
+    <ClCompile Include="..\OpenAL\core\mixer\mixer_c.cpp" />
+    <ClCompile Include="..\OpenAL\core\mixer\mixer_sse.cpp" />
+    <ClCompile Include="..\OpenAL\core\mixer\mixer_sse2.cpp" />
+    <ClCompile Include="..\OpenAL\core\mixer\mixer_sse3.cpp" />
+    <ClCompile Include="..\OpenAL\core\mixer\mixer_sse41.cpp" />
+    <ClCompile Include="..\OpenAL\core\storage_formats.cpp" />
+    <ClCompile Include="..\OpenAL\core\tsmefilter.cpp" />
+    <ClCompile Include="..\OpenAL\core\uhjfilter.cpp" />
+    <ClCompile Include="..\OpenAL\core\uiddefs.cpp" />
+    <ClCompile Include="..\OpenAL\core\voice.cpp" />
+    <ClCompile Include="..\OpenAL\fmt-11.2.0\src\format.cc" />
+    <ClCompile Include="..\OpenAL\fmt-11.2.0\src\os.cc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{897C5FC6-9EF7-4EE9-BAF8-BDACA2827BC1}</ProjectGuid>
@@ -147,8 +196,10 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;AL_BUILD_LIBRARY;AL_ALEXT_PROTOTYPES;_WIN32_WINNT=0x0502;_LARGEFILE_SOURCE;_LARGE_FILES;HAVE_STRUCT_TIMESPEC;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;strcasecmp=_stricmp;strncasecmp=_strnicmp;restrict=;AL_LIBTYPE_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\openal;..\openal\configx86;..\openal\include;..\openal\src\Include;..\openal\Alc;..\openal\common</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;AL_LIBTYPE_STATIC;AL_BUILD_LIBRARY;AL_ALEXT_PROTOTYPES;ALC_API=;AL_API=;_WIN32;NOMINMAX;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR;_MSVC_STL_HARDENING=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\openal;..\openal\configx86;..\openal\include;..\openal\src\Include;..\openal\Alc;..\openal\common;..\openal\gsl\include;..\openal\fmt-11.2.0\include</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalOptions> /utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -160,8 +211,10 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;AL_BUILD_LIBRARY;AL_ALEXT_PROTOTYPES;_WIN32_WINNT=0x0502;_LARGEFILE_SOURCE;_LARGE_FILES;HAVE_STRUCT_TIMESPEC;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;strcasecmp=_stricmp;strncasecmp=_strnicmp;restrict=;AL_LIBTYPE_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\openal;..\openal\configx64;..\openal\include;..\openal\src\Include;..\openal\Alc;..\openal\common</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;AL_LIBTYPE_STATIC;AL_BUILD_LIBRARY;AL_ALEXT_PROTOTYPES;ALC_API=;AL_API=;_WIN32;NOMINMAX;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR;_MSVC_STL_HARDENING=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\openal;..\openal\configx64;..\openal\include;..\openal\src\Include;..\openal\Alc;..\openal\common;..\openal\gsl\include;..\openal\fmt-11.2.0\include</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalOptions> /utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -175,8 +228,10 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;AL_BUILD_LIBRARY;AL_ALEXT_PROTOTYPES;_WIN32_WINNT=0x0502;_LARGEFILE_SOURCE;_LARGE_FILES;HAVE_STRUCT_TIMESPEC;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;strcasecmp=_stricmp;strncasecmp=_strnicmp;restrict=;AL_LIBTYPE_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\openal;..\openal\configx86;..\openal\include;..\openal\src\Include;..\openal\Alc;..\openal\common</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;AL_LIBTYPE_STATIC;AL_BUILD_LIBRARY;AL_ALEXT_PROTOTYPES;ALC_API=;AL_API=;_WIN32;NOMINMAX;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR;_MSVC_STL_HARDENING=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\openal;..\openal\configx86;..\openal\include;..\openal\src\Include;..\openal\Alc;..\openal\common;..\openal\gsl\include;..\openal\fmt-11.2.0\include</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalOptions> /utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -192,8 +247,10 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;AL_BUILD_LIBRARY;AL_ALEXT_PROTOTYPES;_WIN32;_WIN32_WINNT=0x0502;_LARGEFILE_SOURCE;_LARGE_FILES;HAVE_STRUCT_TIMESPEC;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;strcasecmp=_stricmp;strncasecmp=_strnicmp;restrict=;AL_LIBTYPE_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\openal;..\openal\configx64;..\openal\include;..\openal\src\Include;..\openal\Alc;..\openal\common</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;AL_LIBTYPE_STATIC;AL_BUILD_LIBRARY;AL_ALEXT_PROTOTYPES;ALC_API=;AL_API=;_WIN32;NOMINMAX;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR;_MSVC_STL_HARDENING=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\openal;..\openal\configx64;..\openal\include;..\openal\src\Include;..\openal\Alc;..\openal\common;..\openal\gsl\include;..\openal\fmt-11.2.0\include</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalOptions> /utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

@@ -34,7 +34,6 @@ public:
 		if (m_uvTexture) { wgpuTextureRelease(m_uvTexture); m_uvTexture = nullptr; }
 		if (m_sharedTextureMemory) { wgpuSharedTextureMemoryRelease(m_sharedTextureMemory); m_sharedTextureMemory = nullptr; }
 	}
-	void init_export_texture_vulkan(AVHWDeviceContext* vulkanDevCtx, int width, int height);
 
 private:
 
