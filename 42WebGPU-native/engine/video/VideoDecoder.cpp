@@ -1,12 +1,13 @@
 #include <algorithm>
 #include <thread>
+#include <iostream>
 
 #include "VideoDecoder.h"
-#include "VulkanTextureBridge.h"
-#include "D3D12TextureBridge.h"
-#include "D3D11TextureBridge.h"
-#include "YUVTextureBridge.h"
-#include "RGBATextureBridge.h"
+#include "VulkanDecoder.h"
+#include "D3D12Decoder.h"
+#include "D3D11Decoder.h"
+#include "YUVDecoder.h"
+#include "RGBADecoder.h"
 
 VideoDecoder::VideoDecoder() : m_audioOutput(nullptr){
     m_packet = av_packet_alloc();
@@ -23,18 +24,18 @@ VideoDecoder::~VideoDecoder() {
     av_frame_free(&m_audioFrame);
 }
 
-static std::unique_ptr<IVideoTextureBridge> create(HardwareAcceleration type) {
+static std::unique_ptr<IVideoDecoder> create(HardwareAcceleration type) {
     switch (type) {
     case HW_VULKAN:
-        return std::make_unique<VulkanTextureBridge>();
+        return std::make_unique<VulkanDecoder>();
     case HW_D3D12:
-        return std::make_unique<D3D12TextureBridge>();
+        return std::make_unique<D3D12Decoder>();
     case HW_D3D11:
-        return std::make_unique<D3D11TextureBridge>();
+        return std::make_unique<D3D11Decoder>();
     case SW_YUV:
-        return std::make_unique<YUVTextureBridge>();
+        return std::make_unique<YUVDecoder>();
     case SW_RGBA:
-        return std::make_unique<RGBATextureBridge>();
+        return std::make_unique<RGBADecoder>();
     default:
         return nullptr;
     }
@@ -74,10 +75,10 @@ void VideoDecoder::open(const std::string& filename) {
     int err = av_hwdevice_ctx_create(&m_hwDeviceContext, avType, nullptr, options, 0);
     if (options) av_dict_free(&options);
 
-    m_textureBridge = create(m_hardwareAcceleration);
-    m_textureBridge->configureContext(m_videoCodecContext, m_hwDeviceContext);
+    m_decoder = create(m_hardwareAcceleration);
+    m_decoder->configureContext(m_videoCodecContext, m_hwDeviceContext);
     avcodec_open2(m_videoCodecContext, videoCodec, nullptr);
-    m_textureBridge->init(m_videoCodecContext->width, m_videoCodecContext->height);
+    m_decoder->init(m_videoCodecContext->width, m_videoCodecContext->height);
 
     AVRational streamFps = m_formatContext->streams[m_videoStreamIndex]->r_frame_rate;
     m_fps = (streamFps.den > 0) ? av_q2d(streamFps) : 30.0;
@@ -90,14 +91,13 @@ void VideoDecoder::open(const std::string& filename) {
             avcodec_parameters_to_context(m_audioCodecContext, m_formatContext->streams[m_audioStreamIndex]->codecpar);
             if (avcodec_open2(m_audioCodecContext, audioCodec, nullptr) >= 0) {
                 
-                // Resampler auf Standard Stereo i16 44.1kHz fixieren
                 m_swrContext = swr_alloc();
                 av_opt_set_chlayout(m_swrContext, "in_chlayout", &m_audioCodecContext->ch_layout, 0);
                 av_opt_set_int(m_swrContext, "in_sample_rate", m_audioCodecContext->sample_rate, 0);
                 av_opt_set_sample_fmt(m_swrContext, "in_sample_fmt", m_audioCodecContext->sample_fmt, 0);
 
                 AVChannelLayout outLayout;
-                av_channel_layout_default(&outLayout, 2); // Stereo
+                av_channel_layout_default(&outLayout, 2);
                 av_opt_set_chlayout(m_swrContext, "out_chlayout", &outLayout, 0);
                 av_opt_set_int(m_swrContext, "out_sample_rate", 44100, 0);
                 av_opt_set_sample_fmt(m_swrContext, "out_sample_fmt", AV_SAMPLE_FMT_S16, 0);
@@ -105,9 +105,7 @@ void VideoDecoder::open(const std::string& filename) {
             }
         }
     }
-
-    decodeVideoFrame();
-
+ 
     if (m_formatContext->duration != AV_NOPTS_VALUE) {
         m_duration = static_cast<double>(m_formatContext->duration) / AV_TIME_BASE;
     }
@@ -116,6 +114,21 @@ void VideoDecoder::open(const std::string& filename) {
     m_videoTimebase = av_q2d(videoStream->time_base);
     m_isPaused = false;
     m_currentTime = 0.0f;
+}
+
+void VideoDecoder::queryFirstFrame() {
+    bool newFrameUploaded = false;
+    while (!newFrameUploaded) {
+        if (av_read_frame(m_formatContext, m_packet) < 0) {
+            continue;
+        }
+
+        if (m_packet->stream_index == m_videoStreamIndex) {
+            if (decodeVideoFrame()) {
+                newFrameUploaded = true;
+            }
+        }
+    }
 }
 
 void VideoDecoder::update(float deltaTime) {
@@ -153,6 +166,17 @@ void VideoDecoder::update(float deltaTime) {
     if (m_accumulator > m_timePerFrame * 2.0) {
         m_accumulator = m_timePerFrame;
     }
+
+    if(!m_wantSeek)
+        m_decoder->beginMemoryAccess();
+}
+
+void VideoDecoder::OnPostDraw() {
+    if (m_isPaused && m_wantSeek)
+        return;
+
+    m_decoder->endMemoryAccess();
+    m_wantSeek = false;
 }
 
 bool VideoDecoder::decodeVideoFrame() {
@@ -168,7 +192,7 @@ bool VideoDecoder::decodeVideoFrame() {
         m_currentTime = m_videoFrame->pkt_dts * m_videoTimebase;
     }
     
-    m_textureBridge->updateTexture(m_videoFrame);
+    m_decoder->updateTexture(m_videoFrame);
     av_frame_unref(m_videoFrame);
     return true;    
 }
@@ -205,6 +229,7 @@ void VideoDecoder::close() {
 }
 
 void VideoDecoder::seekTo(float seconds) {
+    m_wantSeek = true;
     if (!m_formatContext || !m_videoCodecContext) return;
 
     m_currentTime = std::clamp(seconds, 0.0f, m_duration);
@@ -225,9 +250,10 @@ void VideoDecoder::seekTo(float seconds) {
 
    
     avcodec_flush_buffers(m_videoCodecContext);
-    if (m_audioCodecContext) avcodec_flush_buffers(m_audioCodecContext);
+    if (m_audioCodecContext) 
+        avcodec_flush_buffers(m_audioCodecContext);
 
-    if (m_textureBridge) m_textureBridge->clearCache();
+    m_decoder->clearCache();
 
     m_videoCodecContext->skip_frame = AVDISCARD_NONREF;
 
@@ -266,9 +292,37 @@ void VideoDecoder::seekTo(float seconds) {
     }
 
     if (seekDone && finalFrame->format != -1) {
-        m_textureBridge->updateTexture(finalFrame);
+       m_decoder->updateTexture(finalFrame);
     }
 
     av_frame_free(&finalFrame);
     m_accumulator = 0.0;
+}
+
+const WGPUBindGroup& VideoDecoder::getBindGroup() {
+    return m_decoder->m_bindGroup;
+}
+
+const WGPUBuffer& VideoDecoder::getBuffer() {
+    return m_decoder->m_buffer;
+}
+
+const WGPUTextureView& VideoDecoder::getTextureViewY() {
+    return m_decoder->m_textureViewY;
+}
+
+const WGPUTextureView& VideoDecoder::getTextureViewUV() {
+    return m_decoder->m_textureViewUV;
+}
+
+void VideoDecoder::setBindGroup(const WGPUBindGroup& bindgroup) {
+    m_decoder->m_bindGroup = bindgroup;
+}
+
+void VideoDecoder::setBuffer(const WGPUBuffer& buffer) {
+    m_decoder->m_buffer = buffer;
+}
+
+void VideoDecoder::setBindGroupLayout(const WGPUBindGroupLayout& bindGroupLayout) {
+    m_decoder->m_bindGroupLayout = bindGroupLayout;
 }

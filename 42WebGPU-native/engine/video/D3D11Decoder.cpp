@@ -1,7 +1,7 @@
 
 #include <WebGPU/WgpContext.h>
 
-#include "D3D11TextureBridge.h"
+#include "D3D11Decoder.h"
 
 static enum AVPixelFormat get_hw_format_d3d11_(AVCodecContext* ctx, const enum AVPixelFormat* pix_fmts) {
     const enum AVPixelFormat target = AV_PIX_FMT_D3D11;
@@ -13,7 +13,15 @@ static enum AVPixelFormat get_hw_format_d3d11_(AVCodecContext* ctx, const enum A
     return AV_PIX_FMT_NONE;
 }
 
-void D3D11TextureBridge::configureContext(AVCodecContext* ctx, AVBufferRef* hwDeviceCtx) {
+D3D11Decoder::D3D11Decoder() {
+
+}
+
+D3D11Decoder::~D3D11Decoder() {
+    release();
+}
+
+void D3D11Decoder::configureContext(AVCodecContext* ctx, AVBufferRef* hwDeviceCtx) {
     ctx->sw_pix_fmt = AV_PIX_FMT_NV12;
     ctx->hw_device_ctx = av_buffer_ref(hwDeviceCtx);
     ctx->get_format = get_hw_format_d3d11_;
@@ -26,13 +34,13 @@ void D3D11TextureBridge::configureContext(AVCodecContext* ctx, AVBufferRef* hwDe
     m_d3d11_context = d3d11_device_ctx->device_context;
 }
 
-void D3D11TextureBridge::init(int width, int height) {
+void D3D11Decoder::init(int width, int height) {
     m_width = width;
     m_height = height;
     initWebGPUEntities();
 }
 
-void D3D11TextureBridge::initWebGPUEntities() {
+void D3D11Decoder::initWebGPUEntities() {
     D3D11_TEXTURE2D_DESC single_desc = {};
     single_desc.Width = m_width;
     single_desc.Height = m_height;
@@ -101,7 +109,7 @@ void D3D11TextureBridge::initWebGPUEntities() {
     m_textureViewUV = wgpuTextureCreateView(m_videoTexture, &uvViewDesc);
 }
 
-void D3D11TextureBridge::updateTexture(AVFrame* frame) {
+void D3D11Decoder::updateTexture(AVFrame* frame) {
     ID3D11Texture2D* d3d11Texture = reinterpret_cast<ID3D11Texture2D*>(frame->data[0]);
     IDXGIResource1* dxgiResource = nullptr;
     HRESULT hr = d3d11Texture->QueryInterface(__uuidof(IDXGIResource1), (void**)&dxgiResource);
@@ -120,4 +128,26 @@ void D3D11TextureBridge::updateTexture(AVFrame* frame) {
     m_d3d11_context->Flush();
 
     ffmpeg_texture_array->Release();
+}
+
+void D3D11Decoder::beginMemoryAccess() {
+    if (!m_hasActiveAccess) {
+        WGPUSharedTextureMemoryBeginAccessDescriptor accessDesc = {};
+        accessDesc.nextInChain = NULL;
+        accessDesc.initialized = true;
+        accessDesc.fenceCount = 0;
+        accessDesc.fences = NULL;
+
+        WGPUStatus status = wgpuSharedTextureMemoryBeginAccess(m_sharedTextureMemory, m_videoTexture, &accessDesc);
+        m_hasActiveAccess = status & WGPUStatus_Success;
+    }
+}
+
+void D3D11Decoder::endMemoryAccess() {
+    if (m_hasActiveAccess) {
+        WGPUSharedTextureMemoryEndAccessState endState = {};
+        endState.nextInChain = NULL;
+        wgpuSharedTextureMemoryEndAccess(m_sharedTextureMemory, m_videoTexture, &endState);
+        m_hasActiveAccess = false;
+    }
 }

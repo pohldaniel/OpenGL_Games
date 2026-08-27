@@ -315,22 +315,22 @@
     <ClCompile Include="engine\sound\SoftwareMixer.cpp">
       <Filter>engine\sound</Filter>
     </ClCompile>
-    <ClCompile Include="engine\video\D3D11TextureBridge.cpp">
-      <Filter>engine\video</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\video\D3D12TextureBridge.cpp">
-      <Filter>engine\video</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\video\RGBATextureBridge.cpp">
-      <Filter>engine\video</Filter>
-    </ClCompile>
     <ClCompile Include="engine\video\VideoDecoder.cpp">
       <Filter>engine\video</Filter>
     </ClCompile>
-    <ClCompile Include="engine\video\VulkanTextureBridge.cpp">
+    <ClCompile Include="engine\video\D3D11Decoder.cpp">
       <Filter>engine\video</Filter>
     </ClCompile>
-    <ClCompile Include="engine\video\YUVTextureBridge.cpp">
+    <ClCompile Include="engine\video\D3D12Decoder.cpp">
+      <Filter>engine\video</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\video\RGBADecoder.cpp">
+      <Filter>engine\video</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\video\VulkanDecoder.cpp">
+      <Filter>engine\video</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\video\YUVDecoder.cpp">
       <Filter>engine\video</Filter>
     </ClCompile>
   </ItemGroup>
@@ -638,29 +638,29 @@
     <ClInclude Include="engine\sound\RtAudioAudioSystem.h">
       <Filter>engine\sound</Filter>
     </ClInclude>
-    <ClInclude Include="engine\video\D3D11TextureBridge.h">
-      <Filter>engine\video</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\video\D3D12TextureBridge.h">
-      <Filter>engine\video</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\video\IVideoTextureBridge.h">
-      <Filter>engine\video</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\video\RGBATextureBridge.h">
-      <Filter>engine\video</Filter>
-    </ClInclude>
     <ClInclude Include="engine\video\VideoDecoder.h">
-      <Filter>engine\video</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\video\VulkanTextureBridge.h">
-      <Filter>engine\video</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\video\YUVTextureBridge.h">
       <Filter>engine\video</Filter>
     </ClInclude>
     <ClInclude Include="engine\sound\IAudioOutput.h">
       <Filter>engine\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\video\D3D11Decoder.h">
+      <Filter>engine\video</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\video\D3D12Decoder.h">
+      <Filter>engine\video</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\video\IVideoDecoder.h">
+      <Filter>engine\video</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\video\RGBADecoder.h">
+      <Filter>engine\video</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\video\VulkanDecoder.h">
+      <Filter>engine\video</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\video\YUVDecoder.h">
+      <Filter>engine\video</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

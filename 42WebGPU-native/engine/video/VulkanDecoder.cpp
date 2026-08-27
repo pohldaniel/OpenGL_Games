@@ -1,7 +1,6 @@
 #include <iostream>
 #include <dxgi1_2.h>
-#include <WebGPU/WgpContext.h>
-#include "VulkanTextureBridge.h"
+#include "VulkanDecoder.h"
 
 static enum AVPixelFormat get_hw_format_vulkan_(AVCodecContext* ctx, const enum AVPixelFormat* pix_fmts) {
     for (const enum AVPixelFormat* p = pix_fmts; *p != AV_PIX_FMT_NONE; p++) {
@@ -57,19 +56,40 @@ static enum AVPixelFormat get_hw_format_vulkan_(AVCodecContext* ctx, const enum 
     return ctx->sw_pix_fmt;
 }
 
-void VulkanTextureBridge::configureContext(AVCodecContext* ctx, AVBufferRef* hwDeviceCtx) {
+VulkanDecoder::VulkanDecoder() {
+
+}
+
+VulkanDecoder::~VulkanDecoder() {
+    av_frame_free(&m_cpuFrame);
+    release();
+
+    if (m_stagingBuffers[0]) {
+        wgpuBufferDestroy(m_stagingBuffers[0]);
+        wgpuBufferRelease(m_stagingBuffers[0]);
+        m_stagingBuffers[0] = nullptr;
+    }
+
+    if (m_stagingBuffers[1]) {
+        wgpuBufferDestroy(m_stagingBuffers[1]);
+        wgpuBufferRelease(m_stagingBuffers[1]);
+        m_stagingBuffers[1] = nullptr;
+    }
+}
+
+void VulkanDecoder::configureContext(AVCodecContext* ctx, AVBufferRef* hwDeviceCtx) {
     ctx->hw_device_ctx = av_buffer_ref(hwDeviceCtx);
     ctx->get_format = get_hw_format_vulkan_;
 }
 
-void VulkanTextureBridge::init(int width, int height) {
+void VulkanDecoder::init(int width, int height) {
     m_width = width;
     m_height = height;
     initWebGPUEntities();
     m_cpuFrame = av_frame_alloc();
 }
 
-void VulkanTextureBridge::initWebGPUEntities() {
+void VulkanDecoder::initWebGPUEntities() {
     WGPUTextureDescriptor texDescY = {};
     texDescY.dimension = WGPUTextureDimension_2D;
     texDescY.usage = WGPUTextureUsage_CopyDst | WGPUTextureUsage_TextureBinding;
@@ -138,7 +158,7 @@ void VulkanTextureBridge::initWebGPUEntities() {
     wgpuInstanceProcessEvents(wgpContext.instance);
 }
 
-void VulkanTextureBridge::updateTexture(AVFrame* frame) {
+void VulkanDecoder::updateTexture(AVFrame* frame) {
 
     av_hwframe_transfer_data(m_cpuFrame, frame, 0);
 

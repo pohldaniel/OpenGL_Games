@@ -3,20 +3,26 @@
 #include <iostream>
 
 #include <WebGPU/WgpContext.h>
-#include "RGBATextureBridge.h"
+#include "RGBADecoder.h"
 
-RGBATextureBridge::RGBATextureBridge() : m_width(0), m_height(0) {
+RGBADecoder::RGBADecoder(){
     
 }
 
-RGBATextureBridge::~RGBATextureBridge() {
+RGBADecoder::~RGBADecoder() {
     release();
-    if (m_swsContext) sws_freeContext(m_swsContext);
-    if (m_frameRgba) av_frame_free(&m_frameRgba);
-    if (m_rgbaBufferInternal) av_free(m_rgbaBufferInternal);
+
+    if (m_swsContext) 
+        sws_freeContext(m_swsContext);
+
+    if (m_frameRgba) 
+        av_frame_free(&m_frameRgba);
+
+    if (m_rgbaBufferInternal) 
+        av_free(m_rgbaBufferInternal);
 }
 
-void RGBATextureBridge::init(int width, int height) {
+void RGBADecoder::init(int width, int height) {
     m_width = width;
     m_height = height;
 
@@ -30,7 +36,7 @@ void RGBATextureBridge::init(int width, int height) {
     initWebGPUEntities();
 }
 
-void RGBATextureBridge::initWebGPUEntities() {
+void RGBADecoder::initWebGPUEntities() {
     if (m_videoTexture) return;
 
     WGPUTextureDescriptor textureDesc = {};
@@ -49,9 +55,36 @@ void RGBATextureBridge::initWebGPUEntities() {
     viewDesc.arrayLayerCount = 1;
     viewDesc.aspect = WGPUTextureAspect_All;
     m_textureViewY = wgpuTextureCreateView(m_videoTexture, &viewDesc);
+
+    std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(4);
+
+    bindingLayoutEntries[0].binding = 0u;
+    bindingLayoutEntries[0].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
+    bindingLayoutEntries[0].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
+    bindingLayoutEntries[0].buffer.minBindingSize = 80u;
+
+    bindingLayoutEntries[1].binding = 1u;
+    bindingLayoutEntries[1].visibility = WGPUShaderStage_Fragment;
+    bindingLayoutEntries[1].sampler.type = WGPUSamplerBindingType_Filtering;
+
+    bindingLayoutEntries[2].binding = 2u;
+    bindingLayoutEntries[2].visibility = WGPUShaderStage_Fragment;
+    bindingLayoutEntries[2].texture.viewDimension = WGPUTextureViewDimension_2D;
+    bindingLayoutEntries[2].texture.sampleType = WGPUTextureSampleType_Float;
+
+    bindingLayoutEntries[3].binding = 3u;
+    bindingLayoutEntries[3].visibility = WGPUShaderStage_Fragment;
+    bindingLayoutEntries[3].texture.viewDimension = WGPUTextureViewDimension_2D;
+    bindingLayoutEntries[3].texture.sampleType = WGPUTextureSampleType_Float;
+
+    WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
+    bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
+    bindGroupLayoutDescriptor.entries = bindingLayoutEntries.data();
+
+    m_bindGroupLayout = wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor);
 }
 
-void RGBATextureBridge::updateTexture(AVFrame* frame) {
+void RGBADecoder::updateTexture(AVFrame* frame) {
     if (!frame) return;
 
     sws_scale(m_swsContext, (uint8_t const* const*)frame->data, frame->linesize,
@@ -70,9 +103,4 @@ void RGBATextureBridge::updateTexture(AVFrame* frame) {
     WGPUExtent3D writeSize = { static_cast<uint32_t>(m_width), static_cast<uint32_t>(m_height), 1 };
 
     wgpuQueueWriteTexture(wgpContext.queue, &destination, m_cpuUploadBuffer.data(), m_cpuUploadBuffer.size(), &source, &writeSize);
-}
-
-void RGBATextureBridge::release() {
-    if (m_textureViewY) { wgpuTextureViewRelease(m_textureViewY); m_textureViewY = nullptr; }
-    if (m_videoTexture) { wgpuTextureRelease(m_videoTexture); m_videoTexture = nullptr; }
 }

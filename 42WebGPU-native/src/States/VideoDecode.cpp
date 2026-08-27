@@ -10,6 +10,8 @@
 #include "Application.h"
 #include "Globals.h"
 
+#include <engine/video/D3D12Decoder.h>
+
 VideoDecode::VideoDecode(StateMachine& machine) : State(machine, States::VIDEO_DECODE) {
 
 	Application::SetCursorIcon(IDC_ARROW);
@@ -33,19 +35,34 @@ VideoDecode::VideoDecode(StateMachine& machine) : State(machine, States::VIDEO_D
 	wgpContext.addSahderModule("VIDEO_360_HW", "res/shader/video_360_hw.wgsl");
 	wgpContext.createRenderPipeline("VIDEO_360_HW", "RP_VIDEO_360_HW", VL_NONE, std::bind(&VideoDecode::OnBindGroupLayouts360HW, this));
 
+	wgpContext.addSahderModule("VIDEO_2D", "res/shader/video_2d.wgsl");
+	wgpContext.createRenderPipeline("VIDEO_2D", "RP_VIDEO_2D", VL_NONE, std::bind(&VideoDecode::OnBindGroupLayouts, this));
+
+	wgpContext.addSahderModule("VIDEO_360", "res/shader/video_360_packed.wgsl");
+	wgpContext.createRenderPipeline("VIDEO_360", "RP_VIDEO_360", VL_NONE, std::bind(&VideoDecode::OnBindGroupLayouts360, this));
+
+
+	m_cameraBuffer.createBuffer(sizeof(CameraUniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
+
 	m_audioSystem = std::make_unique<OpenALAudioSystem>();
 	m_audioSystem->init();
 
 	m_movieRGBA.m_hardwareAcceleration = SW_RGBA;
-	m_movieRGBA.open("res/videos/big_buck_bunny.mp4");
-	
-	m_movieHw.m_hardwareAcceleration = HW_VULKAN;
-	m_movieHw.open("res/videos/360_example.mp4");
+	m_movieRGBA.open("res/videos/big_buck_bunny.mp4");	
+	m_movieRGBA.queryFirstFrame();
+	m_movieRGBA.setBindGroup(createBindGroupRGBA());
 
 	m_moviePacked.m_hardwareAcceleration = SW_YUV;
-	m_moviePacked.open("res/videos/underwater_diving_360degrees.mp4");
+	m_moviePacked.open("res/videos/underwater_diving_360degrees.mp4");	
+	m_moviePacked.queryFirstFrame();
+	m_moviePacked.setBindGroup(createBindGroup360Packed());
 
-	m_cameraBuffer.createBuffer(sizeof(CameraUniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
+	m_movieHw.m_hardwareAcceleration = HW_VULKAN;
+	m_movieHw.open("res/videos/360_example.mp4");
+	m_movieHw.setBuffer(m_cameraBuffer.getBuffer());
+	m_movieHw.setBindGroupLayout(wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_VIDEO_360_HW"), 0u));
+	m_movieHw.queryFirstFrame();
+	m_movieHw.setBindGroup(createBindGroup360HW());
 
 	m_movieRGBA.m_audioOutput = std::make_unique<OpenALPlayer>();
 	m_movieRGBA.m_audioOutput->init();
@@ -60,23 +77,14 @@ VideoDecode::VideoDecode(StateMachine& machine) : State(machine, States::VIDEO_D
 	m_moviePacked.m_audioOutput->setVolume(0.1f);
 	m_movieHw.m_audioOutput->setVolume(0.5f);
 
-	wgpContext.addSahderModule("VIDEO_2D", "res/shader/video_2d.wgsl");
-	wgpContext.createRenderPipeline("VIDEO_2D", "RP_VIDEO_2D", VL_NONE, std::bind(&VideoDecode::OnBindGroupLayouts, this));
-
-	wgpContext.addSahderModule("VIDEO_360", "res/shader/video_360_packed.wgsl");
-	wgpContext.createRenderPipeline("VIDEO_360", "RP_VIDEO_360", VL_NONE, std::bind(&VideoDecode::OnBindGroupLayouts360, this));
-
-	m_bindGroupRGBA = createBindGroupRGBA();
-	m_bindGroupPacked = createBindGroupRight360Packed();
-
 	wgpContext.OnDraw = std::bind(&VideoDecode::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
 	wgpContext.OnPostDraw = std::bind(&VideoDecode::OnPostDraw, this);
+
 }
 
 VideoDecode::~VideoDecode() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
-	wgpuBindGroupRelease(m_bindGroupRGBA);
 }
 
 void VideoDecode::fixedUpdate() {
@@ -157,6 +165,7 @@ void VideoDecode::update() {
 	ubo.fov = m_camera.getFovXRad();
 	ubo.viewMatrix = m_camera.getViewMatrix();
 	wgpuQueueWriteBuffer(wgpContext.queue, m_cameraBuffer.getBuffer(), 0, &ubo, sizeof(CameraUniforms));
+	wgpuQueueWriteBuffer(wgpContext.queue, m_movieHw.getBuffer(), 0, &ubo, sizeof(CameraUniforms));
 }
 
 void VideoDecode::render() {
@@ -164,49 +173,14 @@ void VideoDecode::render() {
 }
 
 void VideoDecode::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor) {
+
 	m_movieRGBA.update(m_dt);
 	m_moviePacked.update(m_dt);
 	
-	if (!m_isUserDraggingTimeline) {
+	//if (!m_isUserDraggingTimeline) {
 		m_movieHw.update(m_dt);
-	}
-
-	if (m_movieHw.m_textureBridge && m_movieHw.m_textureBridge->m_sharedTextureMemory && m_movieHw.m_textureBridge->m_videoTexture) {
-		WGPUSharedTextureMemoryBeginAccessDescriptor accessDesc = {};
-		accessDesc.nextInChain = NULL;
-		accessDesc.initialized = true;
-		accessDesc.fenceCount = 0;
-		accessDesc.fences = NULL;
-
-		WGPUStatus status = wgpuSharedTextureMemoryBeginAccess(
-			m_movieHw.m_textureBridge->m_sharedTextureMemory, m_movieHw.m_textureBridge->m_videoTexture, &accessDesc);
-		m_hasActiveAccess = status;
-	}
-
-	if (m_movieHw.m_textureBridge) {
-		std::vector<WGPUBindGroupEntry> entries(4);
-
-		entries[0].binding = 0u;
-		entries[0].buffer = m_cameraBuffer.getBuffer();
-		entries[0].offset = 0u;
-		entries[0].size = sizeof(CameraUniforms);
-
-		entries[1].binding = 1u;
-		entries[1].sampler = wgpContext.getSampler(SS_LINEAR_CLAMP);
-
-		entries[2].binding = 2u;
-		entries[2].textureView = m_movieHw.m_textureBridge->m_textureViewY;
-
-		entries[3].binding = 3u;
-		entries[3].textureView = m_movieHw.m_textureBridge->m_textureViewUV;
-
-		WGPUBindGroupDescriptor bindGroupDesc = {};
-		bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_VIDEO_360_HW"), 0u);
-		bindGroupDesc.entryCount = (uint32_t)entries.size();
-		bindGroupDesc.entries = (WGPUBindGroupEntry*)entries.data();
-		m_bindGroupHw =  wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
-	}
-
+	//}
+	
 	float screenWidth = static_cast<float>(Application::Width);
 	float screenHeight = static_cast<float>(Application::Height);
 	float thirdWidth = screenWidth / 3.0f;
@@ -215,20 +189,18 @@ void VideoDecode::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURen
 	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_VIDEO_2D"));
 
 	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, thirdWidth, screenHeight, 0.0f, 1.0f);
-	wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_bindGroupRGBA, 0u, NULL);
+	wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_movieRGBA.getBindGroup(), 0u, NULL);
 	wgpuRenderPassEncoderDraw(renderPassEncoder, 3u, 1u, 0u, 0u);
 
 	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_VIDEO_360"));
 	wgpuRenderPassEncoderSetViewport(renderPassEncoder, thirdWidth, 0.0f, thirdWidth, screenHeight, 0.0f, 1.0f);
-	wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_bindGroupPacked, 0u, NULL);
+	wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_moviePacked.getBindGroup(), 0u, NULL);
 	wgpuRenderPassEncoderDraw(renderPassEncoder, 3u, 1u, 0u, 0u);
 
-	if (m_bindGroupHw) {
-		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_VIDEO_360_HW"));
-		wgpuRenderPassEncoderSetViewport(renderPassEncoder, thirdWidth * 2.0f, 0.0f, thirdWidth, screenHeight, 0.0f, 1.0f);
-		wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_bindGroupHw, 0u, NULL);
-		wgpuRenderPassEncoderDraw(renderPassEncoder, 3u, 1u, 0u, 0u);
-	}
+	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_VIDEO_360_HW"));
+	wgpuRenderPassEncoderSetViewport(renderPassEncoder, thirdWidth * 2.0f, 0.0f, thirdWidth, screenHeight, 0.0f, 1.0f);
+	wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_movieHw.getBindGroup(), 0u, NULL);
+	wgpuRenderPassEncoderDraw(renderPassEncoder, 3u, 1u, 0u, 0u);
 
 	if (m_drawUi)
 		renderUi(renderPassEncoder);
@@ -238,14 +210,7 @@ void VideoDecode::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURen
 }
 
 void VideoDecode::OnPostDraw() {
-	if (m_hasActiveAccess) {
-		
-		WGPUSharedTextureMemoryEndAccessState endState = {};
-		endState.nextInChain = NULL;
-
-		wgpuSharedTextureMemoryEndAccess(m_movieHw.m_textureBridge->m_sharedTextureMemory, m_movieHw.m_textureBridge->m_videoTexture, &endState);
-		m_hasActiveAccess = false;		
-	}
+	m_movieHw.OnPostDraw();
 }
 
 void VideoDecode::OnMouseMotion(const Event::MouseMoveEvent& event) {
@@ -260,7 +225,6 @@ void VideoDecode::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
 
 	if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT)
 		Mouse::instance().attach(Application::GetWindow(), true, true, true);
-
 }
 
 void VideoDecode::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
@@ -368,7 +332,6 @@ void VideoDecode::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 
 	if (m_isUserDraggingTimeline && ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
 		m_movieHw.seekTo(static_cast<double>(sliderTime));
-		m_hasActiveAccess = false;
 		m_isUserDraggingTimeline = false;
 	}
 
@@ -484,7 +447,7 @@ WGPUBindGroup VideoDecode::createBindGroupRGBA() {
 	entries[0].sampler = wgpContext.getSampler(SS_LINEAR_CLAMP);
 
 	entries[1].binding = 1u;
-	entries[1].textureView = m_movieRGBA.m_textureBridge->m_textureViewY;
+	entries[1].textureView = m_movieRGBA.getTextureViewY();
 
 	WGPUBindGroupDescriptor bindGroupDesc = {};
 	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_VIDEO_2D"), 0u);
@@ -493,7 +456,7 @@ WGPUBindGroup VideoDecode::createBindGroupRGBA() {
 	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
 }
 
-WGPUBindGroup VideoDecode::createBindGroupRight360Packed() {
+WGPUBindGroup VideoDecode::createBindGroup360Packed() {
 	std::vector<WGPUBindGroupEntry> entries(3);
 
 	entries[0].binding = 0u;
@@ -505,10 +468,34 @@ WGPUBindGroup VideoDecode::createBindGroupRight360Packed() {
 	entries[1].sampler = wgpContext.getSampler(SS_LINEAR_CLAMP);
 
 	entries[2].binding = 2u;
-	entries[2].textureView = m_moviePacked.m_textureBridge->m_textureViewY;
+	entries[2].textureView = m_moviePacked.getTextureViewY();
 	
 	WGPUBindGroupDescriptor bindGroupDesc = {};
 	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_VIDEO_360"), 0u);
+	bindGroupDesc.entryCount = (uint32_t)entries.size();
+	bindGroupDesc.entries = (WGPUBindGroupEntry*)entries.data();
+	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
+}
+
+WGPUBindGroup VideoDecode::createBindGroup360HW() {
+	std::vector<WGPUBindGroupEntry> entries(4u);
+
+	entries[0].binding = 0u;
+	entries[0].buffer = m_cameraBuffer.getBuffer();
+	entries[0].offset = 0u;
+	entries[0].size = sizeof(CameraUniforms);
+
+	entries[1].binding = 1u;
+	entries[1].sampler = wgpContext.getSampler(SS_LINEAR_CLAMP);
+
+	entries[2].binding = 2u;
+	entries[2].textureView = m_movieHw.getTextureViewY();
+
+	entries[3].binding = 3u;
+	entries[3].textureView = m_movieHw.getTextureViewUV();
+
+	WGPUBindGroupDescriptor bindGroupDesc = {};
+	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_VIDEO_360_HW"), 0u);
 	bindGroupDesc.entryCount = (uint32_t)entries.size();
 	bindGroupDesc.entries = (WGPUBindGroupEntry*)entries.data();
 	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);

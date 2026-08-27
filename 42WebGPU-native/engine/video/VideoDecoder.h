@@ -4,7 +4,7 @@
 #include <memory>
 
 #include "../sound/IAudioOutput.h"
-#include "IVideoTextureBridge.h"
+#include "IVideoDecoder.h"
 
 extern "C" {
 #include <libavformat/avformat.h>
@@ -32,6 +32,7 @@ public:
     void open(const std::string& filename);
     void close();
     void update(float deltaTime);
+    void OnPostDraw();
 
     double getFps() const { return m_fps; }
     void togglePause() { m_isPaused = !m_isPaused; }
@@ -40,15 +41,25 @@ public:
     float getDuration() const { return m_duration; }
     void seekTo(float seconds);
 
+    const WGPUBindGroup& getBindGroup();
+    const WGPUBuffer& getBuffer();
+    const WGPUTextureView& getTextureViewY();
+    const WGPUTextureView& getTextureViewUV();
+
+    void setBindGroup(const WGPUBindGroup& bindgroup);
+    void setBuffer(const WGPUBuffer& buffer);
+    void setBindGroupLayout(const WGPUBindGroupLayout& bindGroupLayout);
+    void queryFirstFrame();
+
     std::unique_ptr<IAudioOutput> m_audioOutput;
-    std::unique_ptr<IVideoTextureBridge> m_textureBridge = nullptr;
+    std::unique_ptr<IVideoDecoder> m_decoder = nullptr;
     HardwareAcceleration m_hardwareAcceleration = HW_NONE;
 
 private:
 
     bool decodeVideoFrame();
     bool decodeAudioFrame(std::vector<uint8_t>& outPcmData);
-
+   
     AVBufferRef* m_hwDeviceContext = nullptr;
     AVDictionary* options = nullptr;
 
@@ -68,7 +79,8 @@ private:
     float m_videoTimebase = 0.0f;
     float m_fps = 30.0f;
     float m_duration = 0.0f;
-
+   
     int m_videoStreamIndex = -1;
     int m_audioStreamIndex = -1;
+    bool m_wantSeek = false;
 };

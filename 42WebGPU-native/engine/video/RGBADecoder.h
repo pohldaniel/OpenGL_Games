@@ -8,27 +8,22 @@ extern "C" {
 #include <libavutil/imgutils.h>
 }
 
-#include "IVideoTextureBridge.h"
+#include "IVideoDecoder.h"
 
-class RGBATextureBridge : public IVideoTextureBridge {
+class RGBADecoder : public IVideoDecoder {
 
 public:
 
-    RGBATextureBridge();
-    ~RGBATextureBridge() override;
+    RGBADecoder();
+    ~RGBADecoder() override;
 
     void updateTexture(AVFrame* frame) override;
-    void release() override;
-    void clearCache() override {}
-    void configureContext(AVCodecContext* ctx, AVBufferRef* hwDeviceCtx) override {}
     void init(int width, int height) override;
 
 private:
+
     void initWebGPUEntities();
     
-    int m_width;
-    int m_height;
-
     SwsContext* m_swsContext = nullptr;
     AVFrame* m_frameRgba = nullptr;
     uint8_t* m_rgbaBufferInternal = nullptr;

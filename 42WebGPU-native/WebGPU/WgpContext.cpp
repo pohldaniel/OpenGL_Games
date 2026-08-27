@@ -957,7 +957,6 @@ void wgpDraw() {
 	WGPUCommandBuffer commandBuffer = wgpuCommandEncoderFinish(wgpContext.commandEncoder, &commandBufferDescriptor);
 
 	wgpuQueueSubmit(wgpContext.queue, 1u, &commandBuffer);
-
 	wgpuSurfacePresent(wgpContext.surface);
 
 	wgpuCommandBufferRelease(commandBuffer);
@@ -967,9 +966,7 @@ void wgpDraw() {
 	if (wgpContext.OnPostDraw)
 		wgpContext.OnPostDraw();
 
-
 	wgpuDeviceTick(wgpContext.device);
-
 	wgpuInstanceProcessEvents(wgpContext.instance);
 }
 

@@ -3,17 +3,17 @@
 #include <iostream>
 
 #include <WebGPU/WgpContext.h>
-#include "YUVTextureBridge.h"
+#include "YUVDecoder.h"
 
-YUVTextureBridge::YUVTextureBridge() : m_width(0), m_height(0) {
+YUVDecoder::YUVDecoder() {
     
 }
 
-YUVTextureBridge::~YUVTextureBridge() {
+YUVDecoder::~YUVDecoder() {
     release();
 }
 
-void YUVTextureBridge::init(int width, int height) {
+void YUVDecoder::init(int width, int height) {
     m_width = width;
     m_height = height;
     int yuvSize = av_image_get_buffer_size(AV_PIX_FMT_YUV420P, m_width, m_height, 1);
@@ -21,7 +21,7 @@ void YUVTextureBridge::init(int width, int height) {
     initWebGPUEntities();
 }
 
-void YUVTextureBridge::initWebGPUEntities() {
+void YUVDecoder::initWebGPUEntities() {
     if (m_videoTexture) return;
 
     WGPUTextureDescriptor textureDesc = {};
@@ -42,7 +42,7 @@ void YUVTextureBridge::initWebGPUEntities() {
     m_textureViewY = wgpuTextureCreateView(m_videoTexture, &viewDesc);
 }
 
-void YUVTextureBridge::updateTexture(AVFrame* frame) {
+void YUVDecoder::updateTexture(AVFrame* frame) {
     if (!frame) return;
 
     uint8_t* dst = m_cpuUploadBuffer.data();
@@ -83,9 +83,4 @@ void YUVTextureBridge::updateTexture(AVFrame* frame) {
     WGPUExtent3D writeSize = { static_cast<uint32_t>(m_width), dataLayout.rowsPerImage, 1u };
 
     wgpuQueueWriteTexture(wgpContext.queue, &destination, m_cpuUploadBuffer.data(), m_cpuUploadBuffer.size(), &dataLayout, &writeSize);
-}
-
-void YUVTextureBridge::release() {
-    if (m_textureViewY) { wgpuTextureViewRelease(m_textureViewY); m_textureViewY = nullptr; }
-    if (m_videoTexture) { wgpuTextureRelease(m_videoTexture); m_videoTexture = nullptr; }
 }
