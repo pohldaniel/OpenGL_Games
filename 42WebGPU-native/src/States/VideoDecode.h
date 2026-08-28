@@ -3,6 +3,7 @@
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
 #include <engine/video/VideoDecoder.h>
+#include <engine/sound/OpenALAudioSystem.h>
 #include <engine/shape/Shape.h>
 #include <engine/AssimpModel.h>
 #include <engine/TrackBall.h>
@@ -10,6 +11,8 @@
 
 #include <States/StateMachine.h>
 #include <WebGPU/WgpBuffer.h>
+
+
 
 class VideoDecode : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -55,6 +58,7 @@ private:
 	WGPUBindGroup createBindGroup360HW();
 
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
+	void renderVideoTimeline(const char* label, VideoDecoder& movie, SliderState& state);
 
 	bool m_initUi = true;
 	bool m_drawUi = true;

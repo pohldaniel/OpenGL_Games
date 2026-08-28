@@ -10,15 +10,6 @@
 #include "Application.h"
 #include "Globals.h"
 
-struct SliderState {
-	float sliderTime = 0.0f;
-	bool isUserDragging = false;
-};
-
-SliderState m_stateHw;
-SliderState m_stateRGBA;
-SliderState m_stateYUV;
-
 VideoDecode::VideoDecode(StateMachine& machine) : State(machine, States::VIDEO_DECODE) {
 
 	Application::SetCursorIcon(IDC_ARROW);
@@ -260,7 +251,7 @@ void VideoDecode::resize(int deltaW, int deltaH) {
 	m_trackball.reshape(Application::Width, Application::Height);
 }
 
-void renderVideoTimeline(const char* label, VideoDecoder& movie, SliderState& state) {
+void VideoDecode::renderVideoTimeline(const char* label, VideoDecoder& movie, SliderState& state) {
 	double currentSec = movie.getCurrentTime();
 	double totalSec = movie.getDuration();
 
