@@ -55,33 +55,6 @@ void RGBADecoder::initWebGPUEntities() {
     viewDesc.arrayLayerCount = 1;
     viewDesc.aspect = WGPUTextureAspect_All;
     m_textureViewY = wgpuTextureCreateView(m_videoTexture, &viewDesc);
-
-    std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(4);
-
-    bindingLayoutEntries[0].binding = 0u;
-    bindingLayoutEntries[0].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
-    bindingLayoutEntries[0].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
-    bindingLayoutEntries[0].buffer.minBindingSize = 80u;
-
-    bindingLayoutEntries[1].binding = 1u;
-    bindingLayoutEntries[1].visibility = WGPUShaderStage_Fragment;
-    bindingLayoutEntries[1].sampler.type = WGPUSamplerBindingType_Filtering;
-
-    bindingLayoutEntries[2].binding = 2u;
-    bindingLayoutEntries[2].visibility = WGPUShaderStage_Fragment;
-    bindingLayoutEntries[2].texture.viewDimension = WGPUTextureViewDimension_2D;
-    bindingLayoutEntries[2].texture.sampleType = WGPUTextureSampleType_Float;
-
-    bindingLayoutEntries[3].binding = 3u;
-    bindingLayoutEntries[3].visibility = WGPUShaderStage_Fragment;
-    bindingLayoutEntries[3].texture.viewDimension = WGPUTextureViewDimension_2D;
-    bindingLayoutEntries[3].texture.sampleType = WGPUTextureSampleType_Float;
-
-    WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
-    bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
-    bindGroupLayoutDescriptor.entries = bindingLayoutEntries.data();
-
-    m_bindGroupLayout = wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor);
 }
 
 void RGBADecoder::updateTexture(AVFrame* frame) {
@@ -103,4 +76,8 @@ void RGBADecoder::updateTexture(AVFrame* frame) {
     WGPUExtent3D writeSize = { static_cast<uint32_t>(m_width), static_cast<uint32_t>(m_height), 1 };
 
     wgpuQueueWriteTexture(wgpContext.queue, &destination, m_cpuUploadBuffer.data(), m_cpuUploadBuffer.size(), &source, &writeSize);
+}
+
+void RGBADecoder::setBindGroup(const WGPUBindGroup& bindgroup) {
+    m_bindGroup = bindgroup;
 }

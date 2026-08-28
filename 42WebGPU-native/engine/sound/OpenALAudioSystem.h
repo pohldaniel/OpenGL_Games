@@ -18,7 +18,7 @@ public:
         return true;
     }
 
-    void shutDown() {
+    void shutDown() override {
         if (m_context) {
             alcMakeContextCurrent(nullptr);
             alcDestroyContext(m_context);

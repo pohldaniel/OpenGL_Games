@@ -26,6 +26,7 @@ public:
 
 	void beginMemoryAccess() override;
 	void endMemoryAccess() override;
+	void setBindGroup(const WGPUBindGroup& bindgroup);
 
 private:
 

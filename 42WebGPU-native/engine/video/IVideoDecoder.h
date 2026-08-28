@@ -30,6 +30,26 @@ struct IVideoDecoder {
     int m_width = 0;
     int m_height = 0;
 
+    const WGPUBindGroup& getBindGroup() {
+        return m_bindGroup;
+    }
+
+    const WGPUBuffer& getBuffer() {
+        return m_buffer;
+    }
+
+    const WGPUTextureView& getTextureViewY() {
+        return m_textureViewY;
+    }
+
+    const WGPUTextureView& getTextureViewUV() {
+        return m_textureViewUV;
+    }
+
+    void setBuffer(const WGPUBuffer& buffer) {
+        m_buffer = buffer;
+    }
+
     void release() {
 
         if (m_sharedTextureMemory) {
@@ -69,5 +89,5 @@ struct IVideoDecoder {
             wgpuBindGroupRelease(m_bindGroup);
             m_bindGroup = nullptr;
         }     
-    }   
+    }
 };

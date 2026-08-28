@@ -18,7 +18,8 @@ public:
 	void configureContext(AVCodecContext* ctx, AVBufferRef* hwDeviceCtx) override;
 	void init(int width, int height) override;
 	void updateTexture(AVFrame* frame) override;
-	
+	void setBindGroup(const WGPUBindGroup& bindgroup);
+
 private:
 
 	void initWebGPUEntities();

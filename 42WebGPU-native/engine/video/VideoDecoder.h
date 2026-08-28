@@ -4,7 +4,15 @@
 #include <memory>
 
 #include "../sound/IAudioOutput.h"
+#include "../sound/OpenALPlayer.h"
+#include "../sound/RtAudioPlayer.h"
+
 #include "IVideoDecoder.h"
+#include "VulkanDecoder.h"
+#include "D3D12Decoder.h"
+#include "D3D11Decoder.h"
+#include "YUVDecoder.h"
+#include "RGBADecoder.h"
 
 extern "C" {
 #include <libavformat/avformat.h>
@@ -13,15 +21,6 @@ extern "C" {
 #include <libavutil/opt.h>
 }
 
-enum HardwareAcceleration {
-    HW_D3D12,
-    HW_D3D11,
-    HW_VULKAN,
-    SW_RGBA,
-    SW_YUV,
-    HW_NONE
-};
-
 class VideoDecoder {
 
 public:
@@ -29,7 +28,23 @@ public:
     VideoDecoder();
     ~VideoDecoder();
 
-    void open(const std::string& filename);
+    template <typename VideoImpl = VulkanDecoder, typename AudioImpl = OpenALPlayer>
+    void open(const std::string& filename) {
+        auto decoder = std::make_unique<VideoImpl>();
+        auto audio = std::make_unique<AudioImpl>();
+        open(filename, std::move(decoder), std::move(audio));
+    }
+
+    template <class VideoImpl = IVideoDecoder>
+    VideoImpl* getDecoder() {
+        return static_cast<VideoImpl*>(m_decoder.get());
+    }
+
+    template <class AudioImpl = IAudioOutput>
+    AudioImpl* getAudioOutput() {
+        return static_cast<AudioImpl*>(m_audioOutput.get());
+    }
+
     void close();
     void update(float deltaTime);
     void OnPostDraw();
@@ -40,22 +55,13 @@ public:
     float getCurrentTime() const { return m_currentTime; }
     float getDuration() const { return m_duration; }
     void seekTo(float seconds);
-
-    const WGPUBindGroup& getBindGroup();
-    const WGPUBuffer& getBuffer();
-    const WGPUTextureView& getTextureViewY();
-    const WGPUTextureView& getTextureViewUV();
-
-    void setBindGroup(const WGPUBindGroup& bindgroup);
-    void setBuffer(const WGPUBuffer& buffer);
-    void setBindGroupLayout(const WGPUBindGroupLayout& bindGroupLayout);
+    void setVolume(float volume);
+    float getVolume();
     void queryFirstFrame();
 
-    std::unique_ptr<IAudioOutput> m_audioOutput;
-    std::unique_ptr<IVideoDecoder> m_decoder = nullptr;
-    HardwareAcceleration m_hardwareAcceleration = HW_NONE;
-
 private:
+
+    void open(const std::string& filename, std::unique_ptr<IVideoDecoder> videoDecoder, std::unique_ptr<IAudioOutput> audioOutput);
 
     bool decodeVideoFrame();
     bool decodeAudioFrame(std::vector<uint8_t>& outPcmData);
@@ -83,4 +89,7 @@ private:
     int m_videoStreamIndex = -1;
     int m_audioStreamIndex = -1;
     bool m_wantSeek = false;
+
+    std::unique_ptr<IAudioOutput> m_audioOutput = nullptr;
+    std::unique_ptr<IVideoDecoder> m_decoder = nullptr;
 };

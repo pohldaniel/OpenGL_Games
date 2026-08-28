@@ -3,11 +3,6 @@
 #include <iostream>
 
 #include "VideoDecoder.h"
-#include "VulkanDecoder.h"
-#include "D3D12Decoder.h"
-#include "D3D11Decoder.h"
-#include "YUVDecoder.h"
-#include "RGBADecoder.h"
 
 VideoDecoder::VideoDecoder() : m_audioOutput(nullptr){
     m_packet = av_packet_alloc();
@@ -24,24 +19,7 @@ VideoDecoder::~VideoDecoder() {
     av_frame_free(&m_audioFrame);
 }
 
-static std::unique_ptr<IVideoDecoder> create(HardwareAcceleration type) {
-    switch (type) {
-    case HW_VULKAN:
-        return std::make_unique<VulkanDecoder>();
-    case HW_D3D12:
-        return std::make_unique<D3D12Decoder>();
-    case HW_D3D11:
-        return std::make_unique<D3D11Decoder>();
-    case SW_YUV:
-        return std::make_unique<YUVDecoder>();
-    case SW_RGBA:
-        return std::make_unique<RGBADecoder>();
-    default:
-        return nullptr;
-    }
-}
-
-void VideoDecoder::open(const std::string& filename) {
+void VideoDecoder::open(const std::string& filename, std::unique_ptr<IVideoDecoder> videoDecoder, std::unique_ptr<IAudioOutput> audioOutput) {
     if (avformat_open_input(&m_formatContext, filename.c_str(), nullptr, nullptr) < 0) return;
     if (avformat_find_stream_info(m_formatContext, nullptr) < 0) return;
 
@@ -62,20 +40,22 @@ void VideoDecoder::open(const std::string& filename) {
     int numCores = std::min( std::thread::hardware_concurrency(), 16u);
     m_videoCodecContext->thread_count = numCores;
     m_videoCodecContext->thread_type = FF_THREAD_FRAME;
-
+    m_decoder = std::move(videoDecoder);
+   
     AVDictionary* options = nullptr;
-    if (m_hardwareAcceleration == HW_VULKAN) {
+
+    if (dynamic_cast<VulkanDecoder*>(m_decoder.get())) {
         av_dict_set(&options, "extensions", "VK_KHR_external_memory_win32", 0);
     }
-    AVHWDeviceType avType = m_hardwareAcceleration == HW_VULKAN ? AV_HWDEVICE_TYPE_VULKAN : 
-                            m_hardwareAcceleration == HW_D3D12 ? AV_HWDEVICE_TYPE_D3D12VA :
-                            m_hardwareAcceleration == HW_D3D11 ? AV_HWDEVICE_TYPE_D3D11VA : 
-                            AV_HWDEVICE_TYPE_NONE;
 
+    AVHWDeviceType avType = dynamic_cast<VulkanDecoder*>(m_decoder.get()) ? AV_HWDEVICE_TYPE_VULKAN
+                          : dynamic_cast<D3D12Decoder*>(m_decoder.get()) ? AV_HWDEVICE_TYPE_D3D12VA
+                          : dynamic_cast<D3D11Decoder*>(m_decoder.get()) ? AV_HWDEVICE_TYPE_D3D11VA
+                          : AV_HWDEVICE_TYPE_NONE;
+ 
     int err = av_hwdevice_ctx_create(&m_hwDeviceContext, avType, nullptr, options, 0);
     if (options) av_dict_free(&options);
 
-    m_decoder = create(m_hardwareAcceleration);
     m_decoder->configureContext(m_videoCodecContext, m_hwDeviceContext);
     avcodec_open2(m_videoCodecContext, videoCodec, nullptr);
     m_decoder->init(m_videoCodecContext->width, m_videoCodecContext->height);
@@ -104,6 +84,8 @@ void VideoDecoder::open(const std::string& filename) {
                 swr_init(m_swrContext);
             }
         }
+        m_audioOutput = std::move(audioOutput);
+        m_audioOutput->init();
     }
  
     if (m_formatContext->duration != AV_NOPTS_VALUE) {
@@ -117,15 +99,14 @@ void VideoDecoder::open(const std::string& filename) {
 }
 
 void VideoDecoder::queryFirstFrame() {
-    bool newFrameUploaded = false;
-    while (!newFrameUploaded) {
+    for (;;) {
         if (av_read_frame(m_formatContext, m_packet) < 0) {
             continue;
         }
 
         if (m_packet->stream_index == m_videoStreamIndex) {
             if (decodeVideoFrame()) {
-                newFrameUploaded = true;
+                return;
             }
         }
     }
@@ -299,30 +280,10 @@ void VideoDecoder::seekTo(float seconds) {
     m_accumulator = 0.0;
 }
 
-const WGPUBindGroup& VideoDecoder::getBindGroup() {
-    return m_decoder->m_bindGroup;
+void VideoDecoder::setVolume(float volume) {
+    m_audioOutput->setVolume(volume);
 }
 
-const WGPUBuffer& VideoDecoder::getBuffer() {
-    return m_decoder->m_buffer;
-}
-
-const WGPUTextureView& VideoDecoder::getTextureViewY() {
-    return m_decoder->m_textureViewY;
-}
-
-const WGPUTextureView& VideoDecoder::getTextureViewUV() {
-    return m_decoder->m_textureViewUV;
-}
-
-void VideoDecoder::setBindGroup(const WGPUBindGroup& bindgroup) {
-    m_decoder->m_bindGroup = bindgroup;
-}
-
-void VideoDecoder::setBuffer(const WGPUBuffer& buffer) {
-    m_decoder->m_buffer = buffer;
-}
-
-void VideoDecoder::setBindGroupLayout(const WGPUBindGroupLayout& bindGroupLayout) {
-    m_decoder->m_bindGroupLayout = bindGroupLayout;
+float VideoDecoder::getVolume() {
+    return m_audioOutput->getVolume();
 }

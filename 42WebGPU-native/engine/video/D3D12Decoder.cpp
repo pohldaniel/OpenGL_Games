@@ -156,3 +156,7 @@ void D3D12Decoder::clearCache() {
     m_sharedTextureMemory = nullptr;
     m_hasActiveAccess = false;
 }
+
+void D3D12Decoder::setBindGroupLayout(const WGPUBindGroupLayout& bindGroupLayout) {
+    m_bindGroupLayout = bindGroupLayout;
+}

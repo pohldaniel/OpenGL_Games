@@ -84,3 +84,7 @@ void YUVDecoder::updateTexture(AVFrame* frame) {
 
     wgpuQueueWriteTexture(wgpContext.queue, &destination, m_cpuUploadBuffer.data(), m_cpuUploadBuffer.size(), &dataLayout, &writeSize);
 }
+
+void YUVDecoder::setBindGroup(const WGPUBindGroup& bindgroup) {
+    m_bindGroup = bindgroup;
+}

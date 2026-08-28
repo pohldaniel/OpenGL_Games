@@ -6,6 +6,7 @@ public:
     virtual ~AudioSystem() = default;
 
     virtual bool init() = 0;
+    virtual void shutDown(){}
     virtual void playMusic(const std::string& filename) = 0;
     virtual void playSFX(const std::string& filename) = 0;
     virtual void update() = 0;

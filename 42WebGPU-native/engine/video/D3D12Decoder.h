@@ -35,10 +35,11 @@ public:
     void updateTexture(AVFrame* frame) override;
     void beginMemoryAccess() override;
     void endMemoryAccess() override;
-     
+
+    void setBindGroupLayout(const WGPUBindGroupLayout& bindGroupLayout);
+
 private:
 
     void clearCache() override;
-
     std::unordered_map<ID3D12Resource*, CachedWebGPUTexture> m_textureCache;
 };

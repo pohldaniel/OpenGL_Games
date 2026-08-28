@@ -223,3 +223,7 @@ void VulkanDecoder::updateTexture(AVFrame* frame) {
     wgpuBufferMapAsync(nextBuffer, WGPUMapMode_Write, 0, m_yBufferSize + m_uvBufferSize, callbackInfo);
     m_currentFrameIndex = nextFrameIndex;
 }
+
+void VulkanDecoder::setBindGroup(const WGPUBindGroup& bindgroup) {
+    m_bindGroup = bindgroup;
+}

@@ -18,6 +18,7 @@ public:
 
     void updateTexture(AVFrame* frame) override;
     void init(int width, int height) override;
+    void setBindGroup(const WGPUBindGroup& bindgroup);
 
 private:
 

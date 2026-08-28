@@ -2,24 +2,14 @@
 #include <vector>
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
+#include <engine/video/VideoDecoder.h>
 #include <engine/shape/Shape.h>
 #include <engine/AssimpModel.h>
 #include <engine/TrackBall.h>
 #include <engine/Camera.h>
 
 #include <States/StateMachine.h>
-
 #include <WebGPU/WgpBuffer.h>
-#include <WebGPU/WgpModel.h>
-#include <WebGPU/WgpData.h>
-
-#include <engine/video/VideoDecoder.h>
-
-#include <engine/sound/RtAudioPlayer.h>
-#include <engine/sound/OpenALPlayer.h>
-#include <engine/sound/AudioSystem.h>
-#include <engine/sound/OpenALAudioSystem.h>
-#include <d3d12.h>
 
 class VideoDecode : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -28,6 +18,11 @@ class VideoDecode : public State, public MouseEventListener, public KeyboardEven
 		float fov = 1.0f;
 		float aspect = 1.6f;
 		float padding[2];
+	};
+
+	struct SliderState {
+		float sliderTime = 0.0f;
+		bool isUserDragging = false;
 	};
 
 public:
@@ -56,7 +51,7 @@ private:
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayouts360HW();
 
 	WGPUBindGroup createBindGroupRGBA();
-	WGPUBindGroup createBindGroup360Packed();
+	WGPUBindGroup createBindGroup360YUV();
 	WGPUBindGroup createBindGroup360HW();
 
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
@@ -69,7 +64,11 @@ private:
 	
 	WgpBuffer m_cameraBuffer;
 	std::unique_ptr<AudioSystem> m_audioSystem;
-	VideoDecoder m_movieRGBA, m_moviePacked, m_movieHw;
+	VideoDecoder m_movieRGBA, m_movieYUV, m_movieHw;
 	bool m_isUserDraggingTimeline = false;
 	float m_sliderTime = 0.0f;
+
+	SliderState m_stateHw;
+	SliderState m_stateRGBA;
+	SliderState m_stateYUV;
 };

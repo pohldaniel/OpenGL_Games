@@ -151,3 +151,7 @@ void D3D11Decoder::endMemoryAccess() {
         m_hasActiveAccess = false;
     }
 }
+
+void D3D11Decoder::setBindGroup(const WGPUBindGroup& bindgroup) {
+    m_bindGroup = bindgroup;
+}
