@@ -181,22 +181,15 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 	m_player.update(0.01f);
 
 	
-	bool useOpenAL = false;
+	m_audioSystem = std::make_unique<OpenALAudioSystem>();
+	m_audioSystem->init();
+	m_effectPlayer.init();
 
-	if (useOpenAL) {
-		m_audio = std::make_unique<OpenALAudioSystem>();
-	}
-	else {
-		m_audio = std::make_unique<RtAudioAudioSystem>();
-	}
-
-	if (!m_audio->init()) {
-		// Fehlerbehandlung
-	}
+	//m_audioDecoder.open<OpenALPlayer>("res/sounds/ambient.mp3");
 
 	// Hintergrundmusik direkt starten
-	m_audio->playMusic("res/sounds/ambient.mp3");
-	m_audio->getMixer().setFilter(1.0f);
+	//m_audioSystem->playMusic("res/sounds/ambient.mp3");
+	//m_audioSystem->getMixer().setFilter(1.0f);
 }
 
 Isometric::~Isometric() {
@@ -214,7 +207,7 @@ void Isometric::fixedUpdate() {
 void Isometric::update() {
 	//m_openALPlayer.update();
 	//m_rtAudioPlayer.update();
-	m_audio->update();
+	m_audioDecoder.update();
 
 	Keyboard& keyboard = Keyboard::instance();
 	Mouse& mouse = Mouse::instance();
@@ -350,11 +343,19 @@ void Isometric::update() {
 		m_isDeath = true;
 	}
 
-	if (keyboard.keyDown(Keyboard::KEY_R)) {
-		m_audio->playSFX("res/sounds/AR_Fired.wav");
+	if (keyboard.keyPressed(Keyboard::KEY_1)) {
+		m_audioDecoder.switchTrack("res/sounds/ambient.mp3");
 	}
 
-	if (keyboard.keyPressed(Keyboard::KEY_1)) {
+	if (keyboard.keyPressed(Keyboard::KEY_2)) {
+		m_audioDecoder.switchTrack("res/sounds/menu.wav");
+	}
+
+	if (keyboard.keyDown(Keyboard::KEY_R)) {
+		m_effectPlayer.play("res/sounds/AR_Fired.wav");
+	}
+
+	/*if (keyboard.keyPressed(Keyboard::KEY_1)) {
 		m_audio->getMixer().setFilter(1.0f);
 	}
 
@@ -376,7 +377,7 @@ void Isometric::update() {
 	if (keyboard.keyPressed(Keyboard::KEY_5)) {
 		m_audio->getMixer().setFilter(0.15f);
 		std::cout << "Filter Aktiviert: Extrem Dumpf (0.15f)" << std::endl;
-	}
+	}*/
 
 	playerMove = playerDirection.lengthSq() > 0.01f && !m_isDeath;
 

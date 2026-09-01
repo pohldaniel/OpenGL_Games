@@ -40,7 +40,7 @@ bool RtAudioPlayer::init() {
     return true;
 }
 
-void RtAudioPlayer::play(const std::string& filename) {
+/*void RtAudioPlayer::play(const std::string& filename) {
     if (!decoder.open(filename)) return;
 
     update(); // Vorab-Befüllung des Ringbuffers (wichtig!)
@@ -81,7 +81,7 @@ void RtAudioPlayer::update() {
             m_ringBuffer.write(frameData.data(), frameData.size());
         }
     }
-}
+}*/
 
 void RtAudioPlayer::enqueueData(const std::vector<uint8_t>& pcmData) {
     if (m_ringBuffer.getAvailableWrite() >= pcmData.size()) {
@@ -118,6 +118,6 @@ SoftwareMixer& RtAudioPlayer::getMixer() {
     return m_softwareMixer;
 }
 
-AudioRingBuffer& RtAudioPlayer::getRingBuffer() {
+/*AudioRingBuffer& RtAudioPlayer::getRingBuffer() {
     return m_ringBuffer;
-}
+}*/

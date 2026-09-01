@@ -10,7 +10,7 @@ public:
     }
 
     void playMusic(const std::string& filename) override {
-        m_player.play(filename);
+        //m_player.play(filename);
     }
 
     void playSFX(const std::string& filename) override {
@@ -19,7 +19,7 @@ public:
     }
 
     void update() override {
-        m_player.update(); // Füllt die Musik in den Ringbuffer nach
+       // m_player.update(); // Füllt die Musik in den Ringbuffer nach
     }
 
     virtual SoftwareMixer& getMixer() override {

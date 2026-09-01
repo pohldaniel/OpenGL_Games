@@ -333,6 +333,9 @@
     <ClCompile Include="engine\video\YUVDecoder.cpp">
       <Filter>engine\video</Filter>
     </ClCompile>
+    <ClCompile Include="engine\sound\OpenALEffect.cpp">
+      <Filter>engine\sound</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\input\ApplicationEventListener.h">
@@ -661,6 +664,15 @@
     </ClInclude>
     <ClInclude Include="engine\video\YUVDecoder.h">
       <Filter>engine\video</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\sound\ISoundEffect.h">
+      <Filter>engine\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\sound\Cache.h">
+      <Filter>engine\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\sound\OpenALEffect.h">
+      <Filter>engine\sound</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

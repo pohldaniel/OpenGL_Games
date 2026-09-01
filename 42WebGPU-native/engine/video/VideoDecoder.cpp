@@ -122,15 +122,15 @@ void VideoDecoder::update(float deltaTime) {
     bool newFrameUploaded = false;
 
     while(m_accumulator >= m_timePerFrame && !newFrameUploaded) {
-        if(av_read_frame(m_formatContext, m_packet) < 0) {
+        int ret = av_read_frame(m_formatContext, m_packet);
+        if(ret == AVERROR_EOF) {
             av_seek_frame(m_formatContext, -1, 0, AVSEEK_FLAG_BACKWARD);
             if (m_videoCodecContext) avcodec_flush_buffers(m_videoCodecContext);
             if (m_audioCodecContext) avcodec_flush_buffers(m_audioCodecContext);
             continue;
         }
 
-        if(m_packet->stream_index == m_videoStreamIndex) {
-                
+        if(m_packet->stream_index == m_videoStreamIndex) {               
             if(decodeVideoFrame()) {
                 newFrameUploaded = true;
                 m_accumulator -= m_timePerFrame;
@@ -175,6 +175,7 @@ bool VideoDecoder::decodeVideoFrame() {
     
     m_decoder->updateTexture(m_videoFrame);
     av_frame_unref(m_videoFrame);
+    av_packet_unref(m_packet);
     return true;    
 }
 
@@ -203,10 +204,24 @@ bool VideoDecoder::decodeAudioFrame(std::vector<uint8_t>& outPcmData) {
 }
 
 void VideoDecoder::close() {
-    if (m_swrContext) { swr_free(&m_swrContext); m_swrContext = nullptr; }
-    if (m_videoCodecContext) { avcodec_free_context(&m_videoCodecContext); m_videoCodecContext = nullptr; }
-    if (m_audioCodecContext) { avcodec_free_context(&m_audioCodecContext); m_audioCodecContext = nullptr; }
-    if (m_formatContext) { avformat_close_input(&m_formatContext); m_formatContext = nullptr; }
+    if (m_swrContext) {
+        swr_free(&m_swrContext); m_swrContext = nullptr; 
+    }
+
+    if (m_videoCodecContext) { 
+        avcodec_free_context(&m_videoCodecContext); 
+        m_videoCodecContext = nullptr; 
+    }
+
+    if (m_audioCodecContext) { 
+        avcodec_free_context(&m_audioCodecContext); 
+        m_audioCodecContext = nullptr;
+    }
+
+    if (m_formatContext) { 
+        avformat_close_input(&m_formatContext); 
+        m_formatContext = nullptr; 
+    }
 }
 
 void VideoDecoder::seekTo(float seconds) {

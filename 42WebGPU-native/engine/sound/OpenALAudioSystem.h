@@ -29,7 +29,7 @@ public:
     }
 
     void playMusic(const std::string& filename) override {
-        m_musicPlayer.play(filename);
+        //m_musicPlayer.play(filename);
     }
 
     void playSFX(const std::string& filename) override {
@@ -37,7 +37,7 @@ public:
     }
 
     void update() override {
-        m_musicPlayer.update(); // Streamt MP3-Frames nach
+        //m_musicPlayer.update(); // Streamt MP3-Frames nach
     }
 
     SoftwareMixer& getMixer() override {

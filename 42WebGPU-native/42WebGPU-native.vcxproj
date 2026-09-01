@@ -204,6 +204,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClCompile Include="engine\shape\Torus.cpp" />
     <ClCompile Include="engine\shape\TorusKnot.cpp" />
     <ClCompile Include="engine\sound\AudioDecoder.cpp" />
+    <ClCompile Include="engine\sound\OpenALEffect.cpp" />
     <ClCompile Include="engine\sound\OpenALPlayer.cpp" />
     <ClCompile Include="engine\sound\RtAudioPlayer.cpp" />
     <ClCompile Include="engine\sound\SoftwareMixer.cpp" />
@@ -315,8 +316,11 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClInclude Include="engine\sound\AudioDecoder.h" />
     <ClInclude Include="engine\sound\AudioRingBuffer.h" />
     <ClInclude Include="engine\sound\AudioSystem.h" />
+    <ClInclude Include="engine\sound\Cache.h" />
     <ClInclude Include="engine\sound\IAudioOutput.h" />
+    <ClInclude Include="engine\sound\ISoundEffect.h" />
     <ClInclude Include="engine\sound\OpenALAudioSystem.h" />
+    <ClInclude Include="engine\sound\OpenALEffect.h" />
     <ClInclude Include="engine\sound\OpenALPlayer.h" />
     <ClInclude Include="engine\sound\OpenALSFXPlayer.h" />
     <ClInclude Include="engine\sound\RtAudioAudioSystem.h" />

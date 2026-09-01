@@ -13,11 +13,11 @@ public:
     ~RtAudioPlayer();
 
     bool init() override;
-    void play(const std::string& filename);
-    void update();
+    //void play(const std::string& filename);
+    //void update();
     SoftwareMixer& getMixer();
-    AudioRingBuffer& getRingBuffer() override;
-    void startHardwareStream();
+
+    //void startHardwareStream();
 
     int audioCallback(void* outputBuffer, void* inputBuffer, unsigned int nBufferFrames, double streamTime, RtAudioStreamStatus status);
 
@@ -40,7 +40,7 @@ public:
         if(!dac.isStreamRunning()) 
             dac.startStream();
     }
-
+    void flush() override {}
 private:
     RtAudio dac;
     AudioDecoder decoder;

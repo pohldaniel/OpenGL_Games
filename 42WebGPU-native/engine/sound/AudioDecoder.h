@@ -9,27 +9,37 @@ extern "C" {
 #include <libavutil/opt.h>
 }
 
+#include "OpenALPlayer.h"
+
 class AudioDecoder {
+
 public:
+
     AudioDecoder();
     ~AudioDecoder();
 
-    bool open(const std::string& filename);
+    template <typename AudioImpl = OpenALPlayer>
+    void open(const std::string& filename) {
+        auto audio = std::make_unique<AudioImpl>();
+        open(filename, std::move(audio));
+    }
+    void switchTrack(const std::string& filename);
     void close();
-
-    // Liest den nächsten Schwung PCM-Daten für die Gameloop
-    // Gibt fals zurück, wenn das Ende der Datei erreicht ist
-    bool decodeFrame(std::vector<uint8_t>& outBuffer);
-
-    int getSampleRate() const { return 44100; } // Ziel-Format fixiert für Einfachheit
-    int getChannels() const { return 2; }
+    void update();
 
 private:
-    AVFormatContext* formatContext = nullptr;
-    AVCodecContext* codecContext = nullptr;
-    SwrContext* swrContext = nullptr;
-    int audioStreamIndex = -1;
 
-    AVPacket* packet = nullptr;
-    AVFrame* frame = nullptr;
+    void open(const std::string& filename, std::unique_ptr<IAudioOutput> audioOutput);
+    void queryFirstFrame();
+    bool decodeAudioFrame(std::vector<uint8_t>& outPcmData);
+
+    AVFormatContext* m_formatContext = nullptr;
+    AVCodecContext* m_codecContext = nullptr;
+    SwrContext* m_swrContext = nullptr;
+    int m_audioStreamIndex = -1;
+
+    AVPacket* m_packet = nullptr;
+    AVFrame* m_frame = nullptr;
+
+    std::unique_ptr<IAudioOutput> m_audioOutput = nullptr;
 };
