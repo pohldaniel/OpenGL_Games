@@ -16,7 +16,15 @@ class OpenALEffect : public ISoundEffect {
 
     struct CacheEntry {      
         CacheEntry(const std::string& file);
-        ALuint buffer = 0u;
+        ~CacheEntry();
+
+        CacheEntry(const CacheEntry&) = delete;
+        CacheEntry& operator=(const CacheEntry&) = delete;
+
+        CacheEntry(CacheEntry&& other) noexcept;
+        CacheEntry& operator=(CacheEntry&& other) noexcept;
+
+        ALuint buffer;
     };
 
 public:

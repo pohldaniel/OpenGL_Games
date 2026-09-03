@@ -8,7 +8,7 @@ OpenALEffect::OpenALEffect() {
 }
 
 OpenALEffect::~OpenALEffect() {
-
+    Cache.Clear();
 }
 
 void OpenALEffect::init() {
@@ -18,7 +18,6 @@ void OpenALEffect::init() {
 }
 
 void OpenALEffect::play(const std::string& file) {
-    Cache.Put(file);
     const CacheEntry& entry = Cache.Get(file);
 
     ALuint sourceToUse = m_sources[m_nextSourceIndex];
@@ -37,7 +36,7 @@ void OpenALEffect::play(const std::string& file) {
     m_nextSourceIndex = (m_nextSourceIndex + 1) % m_sources.size();
 }
 
-OpenALEffect::CacheEntry::CacheEntry(const std::string& file) {
+OpenALEffect::CacheEntry::CacheEntry(const std::string& file) : buffer(0u){
     AVFormatContext* formatCtx = nullptr;
     avformat_open_input(&formatCtx, file.c_str(), nullptr, nullptr);
     avformat_find_stream_info(formatCtx, nullptr);
@@ -118,4 +117,25 @@ OpenALEffect::CacheEntry::CacheEntry(const std::string& file) {
 
     alGenBuffers(1, &buffer);
     alBufferData(buffer, AL_FORMAT_STEREO16, pcmData.data(), static_cast<ALsizei>(pcmData.size()), 44100);
+}
+
+OpenALEffect::CacheEntry::~CacheEntry() {
+    if (buffer != 0) {
+        alDeleteBuffers(1, &buffer);
+    }
+}
+
+OpenALEffect::CacheEntry::CacheEntry(OpenALEffect::CacheEntry&& other) noexcept : buffer(other.buffer) {
+    other.buffer = 0;
+}
+
+OpenALEffect::CacheEntry& OpenALEffect::CacheEntry::operator=(CacheEntry&& other) noexcept {
+    if (this != &other) {
+        if (buffer != 0) {
+            alDeleteBuffers(1, &buffer);
+        }
+        buffer = other.buffer;
+        other.buffer = 0;
+    }
+    return *this;
 }
