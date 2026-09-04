@@ -206,6 +206,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClCompile Include="engine\sound\AudioDecoder.cpp" />
     <ClCompile Include="engine\sound\OpenALEffect.cpp" />
     <ClCompile Include="engine\sound\OpenALPlayer.cpp" />
+    <ClCompile Include="engine\sound\RtAudioEffect.cpp" />
     <ClCompile Include="engine\sound\RtAudioPlayer.cpp" />
     <ClCompile Include="engine\sound\SoftwareMixer.cpp" />
     <ClCompile Include="engine\sound\SoundDevice.cpp" />
@@ -315,18 +316,14 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClInclude Include="engine\shape\TorusKnot.h" />
     <ClInclude Include="engine\sound\AudioDecoder.h" />
     <ClInclude Include="engine\sound\AudioRingBuffer.h" />
-    <ClInclude Include="engine\sound\AudioSystem.h" />
     <ClInclude Include="engine\sound\Cache.h" />
     <ClInclude Include="engine\sound\IAudioOutput.h" />
     <ClInclude Include="engine\sound\ISoundEffect.h" />
-    <ClInclude Include="engine\sound\OpenALAudioSystem.h" />
     <ClInclude Include="engine\sound\OpenALEffect.h" />
     <ClInclude Include="engine\sound\OpenALPlayer.h" />
-    <ClInclude Include="engine\sound\OpenALSFXPlayer.h" />
-    <ClInclude Include="engine\sound\RtAudioAudioSystem.h" />
+    <ClInclude Include="engine\sound\RtAudioEffect.h" />
     <ClInclude Include="engine\sound\RtAudioPlayer.h" />
     <ClInclude Include="engine\sound\SoftwareMixer.h" />
-    <ClInclude Include="engine\sound\SoundCache.h" />
     <ClInclude Include="engine\sound\SoundDevice.h" />
     <ClInclude Include="engine\thread\CThread.h" />
     <ClInclude Include="engine\thread\EventClass.h" />

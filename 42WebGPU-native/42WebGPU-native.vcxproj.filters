@@ -300,9 +300,6 @@
     <ClCompile Include="engine\sound\AudioDecoder.cpp">
       <Filter>engine\sound</Filter>
     </ClCompile>
-    <ClCompile Include="engine\sound\SoundDevice.cpp">
-      <Filter>engine\sound</Filter>
-    </ClCompile>
     <ClCompile Include="src\States\VideoDecode.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
@@ -334,6 +331,12 @@
       <Filter>engine\video</Filter>
     </ClCompile>
     <ClCompile Include="engine\sound\OpenALEffect.cpp">
+      <Filter>engine\sound</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\sound\SoundDevice.cpp">
+      <Filter>engine\sound</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\sound\RtAudioEffect.cpp">
       <Filter>engine\sound</Filter>
     </ClCompile>
   </ItemGroup>
@@ -608,9 +611,6 @@
     <ClInclude Include="engine\sound\AudioDecoder.h">
       <Filter>engine\sound</Filter>
     </ClInclude>
-    <ClInclude Include="engine\sound\SoundDevice.h">
-      <Filter>engine\sound</Filter>
-    </ClInclude>
     <ClInclude Include="src\States\VideoDecode.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
@@ -623,22 +623,7 @@
     <ClInclude Include="engine\sound\AudioRingBuffer.h">
       <Filter>engine\sound</Filter>
     </ClInclude>
-    <ClInclude Include="engine\sound\SoundCache.h">
-      <Filter>engine\sound</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\sound\OpenALSFXPlayer.h">
-      <Filter>engine\sound</Filter>
-    </ClInclude>
     <ClInclude Include="engine\sound\SoftwareMixer.h">
-      <Filter>engine\sound</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\sound\AudioSystem.h">
-      <Filter>engine\sound</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\sound\OpenALAudioSystem.h">
-      <Filter>engine\sound</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\sound\RtAudioAudioSystem.h">
       <Filter>engine\sound</Filter>
     </ClInclude>
     <ClInclude Include="engine\video\VideoDecoder.h">
@@ -672,6 +657,12 @@
       <Filter>engine\sound</Filter>
     </ClInclude>
     <ClInclude Include="engine\sound\OpenALEffect.h">
+      <Filter>engine\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\sound\SoundDevice.h">
+      <Filter>engine\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\sound\RtAudioEffect.h">
       <Filter>engine\sound</Filter>
     </ClInclude>
   </ItemGroup>

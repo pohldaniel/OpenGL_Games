@@ -3,7 +3,6 @@
 #include <engine/input/MouseEventListener.h>
 #include <engine/input/KeyboardEventListener.h>
 #include <engine/video/VideoDecoder.h>
-#include <engine/sound/OpenALAudioSystem.h>
 #include <engine/shape/Shape.h>
 #include <engine/AssimpModel.h>
 #include <engine/TrackBall.h>
@@ -11,8 +10,6 @@
 
 #include <States/StateMachine.h>
 #include <WebGPU/WgpBuffer.h>
-
-
 
 class VideoDecode : public State, public MouseEventListener, public KeyboardEventListener {
 
@@ -67,7 +64,6 @@ private:
 	TrackBall m_trackball;
 	
 	WgpBuffer m_cameraBuffer;
-	std::unique_ptr<AudioSystem> m_audioSystem;
 	VideoDecoder m_movieRGBA, m_movieYUV, m_movieHw;
 	bool m_isUserDraggingTimeline = false;
 	float m_sliderTime = 0.0f;

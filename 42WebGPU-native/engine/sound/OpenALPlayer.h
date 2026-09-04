@@ -1,8 +1,9 @@
 #pragma once
 #include <algorithm>
+#include <vector>
+
 #include <AL/al.h>
 #include <AL/alc.h>
-#include <iostream>
 
 #include "IAudioOutput.h"
 
@@ -31,7 +32,5 @@ private:
     ALuint m_buffers[2] = { 0u, 0u };
 
     bool m_isPlaying = false;
-
-
     std::vector<uint8_t> m_audioAccumulator;
 };

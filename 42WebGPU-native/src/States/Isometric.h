@@ -9,11 +9,10 @@
 #include <engine/AssimpModel.h>
 #include <engine/TrackBall.h>
 #include <engine/Camera.h>
+
+#include <engine/sound/AudioDecoder.h>
 #include <engine/sound/OpenALPlayer.h>
 #include <engine/sound/RtAudioPlayer.h>
-#include <engine/sound/RtAudioAudioSystem.h>
-#include <engine/sound/OpenALAudioSystem.h>
-#include <engine/sound/AudioDecoder.h>
 #include <engine/sound/OpenALEffect.h>
 
 #include <States/StateMachine.h>
@@ -102,9 +101,8 @@ private:
 	float deathTime = -1.0f;
 	float aimTheta = 0.0f;
 	float lastFireTime = 0.0f;
-	//OpenALPlayer m_openALPlayer;
-	//RtAudioPlayer m_rtAudioPlayer;
-	std::unique_ptr<AudioSystem> m_audioSystem;
+
+	
 	AudioDecoder m_audioDecoder;
 	OpenALEffect m_effectPlayer;
 

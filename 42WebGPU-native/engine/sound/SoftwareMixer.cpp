@@ -1,8 +1,8 @@
 #include "SoftwareMixer.h"
-#include "SoundCache.h"
+
 
 void SoftwareMixer::playSFX(const std::string& file) {
-    SoundEffect& sfx = SFXCache::get(file);
+   /* SoundEffect& sfx = SFXCache::get(file);
     if (sfx.pcmData.empty()) return;
 
     for (auto& channel : m_channels) {
@@ -31,7 +31,7 @@ void SoftwareMixer::playSFX(const std::string& file) {
         oldestChannel->pcmData = &sfx.pcmData;
         oldestChannel->progress = 0;
         oldestChannel->status.store(1);
-    }
+    }*/
 }
 
 void SoftwareMixer::mixAudio(int16_t* outputBuffer, int32_t numSamples) {

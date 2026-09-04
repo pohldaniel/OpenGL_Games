@@ -3,8 +3,6 @@
 #include <vector>
 #include <cstdint>
 
-#include "AudioRingBuffer.h"
-
 class IAudioOutput {
 
 public:

@@ -1,41 +1,24 @@
-#include "OpenALEffect.h"
+#include "RtAudioEffect.h"
 
-CacheLRU<std::string, OpenALEffect::CacheEntry> OpenALEffect::Cache;
+CacheLRU<std::string, RtAudioEffect::CacheEntry> RtAudioEffect::Cache;
 
-OpenALEffect::OpenALEffect() : m_next(0u){
+RtAudioEffect::RtAudioEffect() : m_next(0u){
     Cache.Init(5u);
 }
 
-OpenALEffect::~OpenALEffect() {
+RtAudioEffect::~RtAudioEffect() {
     Cache.Clear();
 }
 
-void OpenALEffect::init() {
-    int maxChannels = 32;
-    m_sources.resize(maxChannels);
-    alGenSources(maxChannels, m_sources.data());
+void RtAudioEffect::init() {
+   
 }
 
-void OpenALEffect::play(const std::string& file) {
-    const CacheEntry& entry = Cache.Get(file);
-
-    ALuint sourceToUse = m_sources[m_next];
-    for (ALuint source : m_sources) {
-        ALint state;
-        alGetSourcei(source, AL_SOURCE_STATE, &state);
-        if (state != AL_PLAYING) {
-            sourceToUse = source;
-            break;
-        }
-    }
-
-    alSourceStop(sourceToUse);
-    alSourcei(sourceToUse, AL_BUFFER, entry.buffer);
-    alSourcePlay(sourceToUse);
-    m_next = (m_next + 1) % m_sources.size();
+void RtAudioEffect::play(const std::string& file) {
+    
 }
 
-OpenALEffect::CacheEntry::CacheEntry(const std::string& file) : buffer(0u){
+RtAudioEffect::CacheEntry::CacheEntry(const std::string& file) {
     AVFormatContext* formatCtx = nullptr;
     avformat_open_input(&formatCtx, file.c_str(), nullptr, nullptr);
     avformat_find_stream_info(formatCtx, nullptr);
@@ -114,27 +97,17 @@ OpenALEffect::CacheEntry::CacheEntry(const std::string& file) : buffer(0u){
     avcodec_free_context(&codecCtx);
     avformat_close_input(&formatCtx);
 
-    alGenBuffers(1, &buffer);
-    alBufferData(buffer, AL_FORMAT_STEREO16, pcmData.data(), static_cast<ALsizei>(pcmData.size()), 44100);
+   
 }
 
-OpenALEffect::CacheEntry::~CacheEntry() {
-    if (buffer != 0) {
-        alDeleteBuffers(1, &buffer);
-    }
+RtAudioEffect::CacheEntry::~CacheEntry() {
+    
 }
 
-OpenALEffect::CacheEntry::CacheEntry(OpenALEffect::CacheEntry&& other) noexcept : buffer(other.buffer) {
-    other.buffer = 0;
+RtAudioEffect::CacheEntry::CacheEntry(RtAudioEffect::CacheEntry&& other) noexcept  {
+
 }
 
-OpenALEffect::CacheEntry& OpenALEffect::CacheEntry::operator=(CacheEntry&& other) noexcept {
-    if (this != &other) {
-        if (buffer != 0) {
-            alDeleteBuffers(1, &buffer);
-        }
-        buffer = other.buffer;
-        other.buffer = 0;
-    }
+RtAudioEffect::CacheEntry& RtAudioEffect::CacheEntry::operator=(CacheEntry&& other) noexcept {
     return *this;
 }

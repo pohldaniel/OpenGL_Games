@@ -9,12 +9,11 @@ extern "C" {
 #include <libavutil/opt.h>
 }
 
-#include <AL/al.h>
 
 #include "ISoundEffect.h"
 #include "Cache.h"
 
-class OpenALEffect : public ISoundEffect {
+class RtAudioEffect : public ISoundEffect {
 
     struct CacheEntry {      
         CacheEntry(const std::string& file);
@@ -26,21 +25,21 @@ class OpenALEffect : public ISoundEffect {
         CacheEntry(CacheEntry&& other) noexcept;
         CacheEntry& operator=(CacheEntry&& other) noexcept;
 
-        ALuint buffer;
+
     };
 
 public:
 
-    OpenALEffect();
-    ~OpenALEffect();
+    RtAudioEffect();
+    ~RtAudioEffect();
 
     void init() override;
     void play(const std::string& file) override;
 
 private:
 
-    std::vector<ALuint> m_sources;
+
     size_t m_next;
 
-    static CacheLRU<std::string, OpenALEffect::CacheEntry> Cache;
+    static CacheLRU<std::string, RtAudioEffect::CacheEntry> Cache;
 };

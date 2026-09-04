@@ -1,7 +1,5 @@
 #pragma once
 
-#include <atomic>
-
 class AudioRingBuffer {
 
 public:
@@ -57,6 +55,11 @@ public:
 
         m_tail.store((t + size) % m_buffer.size(), std::memory_order_release);
         return size;
+    }
+
+    void clear() {
+        m_head.store(0, std::memory_order_seq_cst);
+        m_tail.store(0, std::memory_order_seq_cst);
     }
 
 private:

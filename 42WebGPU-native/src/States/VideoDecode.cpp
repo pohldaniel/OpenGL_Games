@@ -6,6 +6,8 @@
 #include <WebGPU/WgpContext.h>
 #include <WebGPU/WgpRenderer.h>
 
+#include <engine/sound/SoundDevice.h>
+
 #include "VideoDecode.h"
 #include "Application.h"
 #include "Globals.h"
@@ -16,6 +18,8 @@ VideoDecode::VideoDecode(StateMachine& machine) : State(machine, States::VIDEO_D
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
 	Mouse::instance().attach(Application::GetWindow(), false, true);
+
+	SoundDevice::Init();
 
 	//wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm, Application::OnSurfaceChange);
 	//wgpSetSurfaceDepthFormat(WGPUTextureFormat::WGPUTextureFormat_Depth24Plus, Application::OnSurfaceChange);
@@ -40,9 +44,6 @@ VideoDecode::VideoDecode(StateMachine& machine) : State(machine, States::VIDEO_D
 	wgpContext.createRenderPipeline("VIDEO_360", "RP_VIDEO_360", VL_NONE, std::bind(&VideoDecode::OnBindGroupLayouts360, this));
 
 	m_cameraBuffer.createBuffer(sizeof(CameraUniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
-
-	m_audioSystem = std::make_unique<OpenALAudioSystem>();
-	m_audioSystem->init();
 
 	m_movieRGBA.open<RGBADecoder, OpenALPlayer>("res/videos/big_buck_bunny.mp4");	
 	m_movieRGBA.getDecoder<RGBADecoder>()->setBindGroup(createBindGroupRGBA());
@@ -74,7 +75,7 @@ VideoDecode::~VideoDecode() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 	m_cameraBuffer.markForDelete();
-	m_audioSystem->shutDown();
+	SoundDevice::ShutDown();
 }
 
 void VideoDecode::fixedUpdate() {

@@ -9,6 +9,8 @@
 #include <Nuklear/NkContext.h>
 #include <Nuklear/NkStyle.h>
 
+#include <engine/sound/SoundDevice.h>
+
 #include "Isometric.h"
 #include "Application.h"
 #include "Globals.h"
@@ -40,6 +42,8 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
 	Mouse::instance().attach(Application::GetWindow(), false, true);
+
+	SoundDevice::Init();
 
 	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm, Application::OnSurfaceChange);
 	wgpSetSurfaceDepthFormat(WGPUTextureFormat::WGPUTextureFormat_Depth24Plus, Application::OnSurfaceChange);
@@ -180,16 +184,10 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 
 	m_player.update(0.01f);
 
-	
-	m_audioSystem = std::make_unique<OpenALAudioSystem>();
-	m_audioSystem->init();
 	m_effectPlayer.init();
 
-	//m_audioDecoder.open<OpenALPlayer>("res/sounds/ambient.mp3");
+	m_audioDecoder.open<RtAudioPlayer>("res/sounds/ambient.mp3");
 
-	// Hintergrundmusik direkt starten
-	//m_audioSystem->playMusic("res/sounds/ambient.mp3");
-	//m_audioSystem->getMixer().setFilter(1.0f);
 }
 
 Isometric::~Isometric() {
@@ -198,6 +196,8 @@ Isometric::~Isometric() {
 	nkShutDown();
 	m_uniformBuffer.markForDelete();
 	m_skinBuffer.markForDelete();
+
+	SoundDevice::ShutDown();
 }
 
 void Isometric::fixedUpdate() {
