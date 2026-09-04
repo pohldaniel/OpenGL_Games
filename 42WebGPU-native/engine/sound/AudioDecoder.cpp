@@ -63,7 +63,7 @@ void AudioDecoder::update() {
     int ret = av_read_frame(m_formatContext, m_packet);
 
     if(ret == AVERROR_EOF) {
-        av_seek_frame(m_formatContext, -1, 0, AVSEEK_FLAG_BACKWARD);
+        av_seek_frame(m_formatContext, m_audioStreamIndex, 0, AVSEEK_FLAG_BYTE);
         avcodec_flush_buffers(m_codecContext);
         ret = av_read_frame(m_formatContext, m_packet);
     }
