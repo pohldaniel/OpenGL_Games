@@ -2,14 +2,12 @@
 
 #include <vector>
 #include <RtAudio.h>
-#include "AudioDecoder.h"
+
 #include "AudioRingBuffer.h"
 #include "SoftwareMixer.h"
 #include "IAudioOutput.h"
 
 class RtAudioPlayer : public IAudioOutput {
-
-    friend int rtaudio_callback_wrapper(void* outputBuffer, void* inputBuffer, unsigned int nBufferFrames, double streamTime, RtAudioStreamStatus status, void* userData);
 
 public:
 
@@ -30,11 +28,11 @@ private:
     void flush() override;
     int audioCallback(void* outputBuffer, void* inputBuffer, unsigned int nBufferFrames, double streamTime, RtAudioStreamStatus status);
   
-    RtAudio dac;
-    AudioDecoder decoder;
+    RtAudio m_dac;
     AudioRingBuffer m_ringBuffer;
-    bool isPlaying = false;
 
     SoftwareMixer m_softwareMixer;
-    std::vector<uint8_t> m_audioAccumulator;
+    std::vector<uint8_t> m_accumulator;
+
+    static int RtAudioCallback(void* outputBuffer, void* inputBuffer, unsigned int nBufferFrames, double streamTime, RtAudioStreamStatus status, void* userData);
 };

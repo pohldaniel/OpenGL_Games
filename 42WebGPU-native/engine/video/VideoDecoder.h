@@ -61,6 +61,7 @@ public:
 
 private:
 
+    void init(std::unique_ptr<IVideoDecoder> videoDecoder, std::unique_ptr<IAudioOutput> audioOutput);
     void open(const std::string& filename, std::unique_ptr<IVideoDecoder> videoDecoder, std::unique_ptr<IAudioOutput> audioOutput);
 
     bool decodeVideoFrame();

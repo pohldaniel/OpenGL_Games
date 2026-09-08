@@ -205,8 +205,6 @@ void Isometric::fixedUpdate() {
 }
 
 void Isometric::update() {
-	//m_openALPlayer.update();
-	//m_rtAudioPlayer.update();
 	m_audioDecoder.update();
 
 	Keyboard& keyboard = Keyboard::instance();
@@ -270,6 +268,7 @@ void Isometric::update() {
 
 		m_bulletStore.createBullets(projectileSpawnPoint, midOri, spreadAmount);
 		lastFireTime = Globals::clock.getElapsedTimeSec();
+		m_effectPlayer.play("res/sounds/AR_Fired.wav");
 	}
 
 	if (mouse.buttonDownInvisible(Mouse::MouseButton::BUTTON_RIGHT)) {
@@ -343,17 +342,7 @@ void Isometric::update() {
 		m_isDeath = true;
 	}
 
-	if (keyboard.keyPressed(Keyboard::KEY_1)) {
-		m_audioDecoder.switchTrack("res/sounds/ambient.mp3");
-	}
 
-	if (keyboard.keyPressed(Keyboard::KEY_2)) {
-		m_audioDecoder.switchTrack("res/sounds/menu.wav");
-	}
-
-	if (keyboard.keyDown(Keyboard::KEY_R)) {
-		m_effectPlayer.play("res/sounds/AR_Fired.wav");
-	}
 
 	/*if (keyboard.keyPressed(Keyboard::KEY_1)) {
 		m_audio->getMixer().setFilter(1.0f);

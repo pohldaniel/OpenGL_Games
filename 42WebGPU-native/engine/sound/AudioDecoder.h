@@ -20,16 +20,23 @@ public:
     ~AudioDecoder();
 
     template <typename AudioImpl = OpenALPlayer>
+    void init() {
+        auto audio = std::make_unique<AudioImpl>();
+        init(std::move(audio));
+    }
+
+    template <typename AudioImpl = OpenALPlayer>
     void open(const std::string& filename) {
         auto audio = std::make_unique<AudioImpl>();
         open(filename, std::move(audio));
     }
-    void switchTrack(const std::string& filename);
+    void playTrack(const std::string& filename);
     void close();
     void update();
 
 private:
 
+    void init(std::unique_ptr<IAudioOutput> audioOutput = nullptr);
     void open(const std::string& filename, std::unique_ptr<IAudioOutput> audioOutput);
     void queryFirstFrame();
     bool decodeAudioFrame(std::vector<uint8_t>& outPcmData);

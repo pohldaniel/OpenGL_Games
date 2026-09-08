@@ -1,7 +1,6 @@
-#include <iostream>
 #include "RtAudioPlayer.h"
 
-int rtaudio_callback_wrapper(void* outputBuffer, void* inputBuffer, unsigned int nBufferFrames,
+int RtAudioPlayer::RtAudioCallback(void* outputBuffer, void* inputBuffer, unsigned int nBufferFrames,
     double streamTime, RtAudioStreamStatus status, void* userData) {
     return static_cast<RtAudioPlayer*>(userData)->audioCallback(outputBuffer, inputBuffer, nBufferFrames, streamTime, status);
 }
@@ -11,54 +10,44 @@ RtAudioPlayer::RtAudioPlayer() {
 }
 
 RtAudioPlayer::~RtAudioPlayer() {
-    if (dac.isStreamOpen()) dac.closeStream();
+    if (m_dac.isStreamOpen()) m_dac.closeStream();
 }
 
 bool RtAudioPlayer::init() {
-    if (dac.getDeviceCount() < 1) {
-        std::cerr << "Keine Soundkarte gefunden!" << std::endl;
+    if (m_dac.getDeviceCount() < 1) {
         return false;
     }
 
     RtAudio::StreamParameters parameters;
-    parameters.deviceId = dac.getDefaultOutputDevice();
-    parameters.nChannels = 2; // Stereo
+    parameters.deviceId = m_dac.getDefaultOutputDevice();
+    parameters.nChannels = 2;
     parameters.firstChannel = 0;
 
-    unsigned int bufferFrames = 256; // Entspricht numFrames bei Oboe (Low Latency)
-
-    try {
-        dac.openStream(&parameters, nullptr, RTAUDIO_SINT16, 44100, &bufferFrames, &rtaudio_callback_wrapper, this);
-    }
-    catch (const std::exception& e) {
-        std::cerr << "RtAudio Fehler: " << e.what() << std::endl;
-        return false;
-    }
-
+    unsigned int bufferFrames = 256;
+    m_dac.openStream(&parameters, nullptr, RTAUDIO_SINT16, 44100, &bufferFrames, &RtAudioCallback, this);
     return true;
 }
 
 void RtAudioPlayer::enqueueData(const std::vector<uint8_t>& pcmData) {
 
     if (!pcmData.empty()) {
-        m_audioAccumulator.insert(m_audioAccumulator.end(), pcmData.begin(), pcmData.end());
+        m_accumulator.insert(m_accumulator.end(), pcmData.begin(), pcmData.end());
     }
 
-    if (m_audioAccumulator.size() < 4096) {
+    if (m_accumulator.size() < 4096) {
         return;
     }
 
     size_t availableWrite = m_ringBuffer.getAvailableWrite();
 
-    if (availableWrite > 0 && !m_audioAccumulator.empty()) {
-        size_t toWrite = std::min(availableWrite, m_audioAccumulator.size());
-        m_ringBuffer.write(m_audioAccumulator.data(), toWrite);
-        m_audioAccumulator.erase(m_audioAccumulator.begin(), m_audioAccumulator.begin() + toWrite);
+    if (availableWrite > 0 && !m_accumulator.empty()) {
+        size_t toWrite = std::min(availableWrite, m_accumulator.size());
+        m_ringBuffer.write(m_accumulator.data(), toWrite);
+        m_accumulator.erase(m_accumulator.begin(), m_accumulator.begin() + toWrite);
     }
 
     resume();
 }
-
 
 int RtAudioPlayer::audioCallback(void* outputBuffer, void* inputBuffer, unsigned int nBufferFrames,
     double streamTime, RtAudioStreamStatus status) {
@@ -82,13 +71,13 @@ SoftwareMixer& RtAudioPlayer::getMixer() {
 }
 
 void RtAudioPlayer::pause() {
-    if (dac.isStreamRunning())
-        dac.stopStream();
+    if (m_dac.isStreamRunning())
+        m_dac.stopStream();
 }
 
 void RtAudioPlayer::resume() {
-    if (!dac.isStreamRunning())
-        dac.startStream();
+    if (!m_dac.isStreamRunning())
+        m_dac.startStream();
 }
 
 void RtAudioPlayer::setVolume(float volume) {
@@ -99,15 +88,10 @@ float RtAudioPlayer::getVolume() {
     return getMixer().getVolume();
 }
 
-void RtAudioPlayer::flush() {
-    try {
-        if (dac.isStreamRunning()) {
-            dac.abortStream();
-        }
-    }catch (const std::exception& e) {
-        std::cerr << "Fehler beim Stoppen von RtAudio: " << e.what() << std::endl;
-    }
-
-    m_audioAccumulator.clear();
+void RtAudioPlayer::flush() {   
+    if (m_dac.isStreamRunning()) 
+        m_dac.abortStream();
+       
+    m_accumulator.clear();
     m_ringBuffer.clear();
 }

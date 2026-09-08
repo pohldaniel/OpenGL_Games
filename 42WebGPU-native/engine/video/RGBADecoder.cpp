@@ -37,7 +37,7 @@ void RGBADecoder::init(int width, int height) {
 }
 
 void RGBADecoder::initWebGPUEntities() {
-    if (m_videoTexture) return;
+    if (m_yTexture) return;
 
     WGPUTextureDescriptor textureDesc = {};
     textureDesc.usage = WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst;
@@ -46,7 +46,7 @@ void RGBADecoder::initWebGPUEntities() {
     textureDesc.mipLevelCount = 1;
     textureDesc.sampleCount = 1;
     textureDesc.format = WGPUTextureFormat_RGBA8Unorm;
-    m_videoTexture = wgpuDeviceCreateTexture(wgpContext.device, &textureDesc);
+    m_yTexture = wgpuDeviceCreateTexture(wgpContext.device, &textureDesc);
 
     WGPUTextureViewDescriptor viewDesc = {};
     viewDesc.format = WGPUTextureFormat_RGBA8Unorm;
@@ -54,7 +54,7 @@ void RGBADecoder::initWebGPUEntities() {
     viewDesc.mipLevelCount = 1;
     viewDesc.arrayLayerCount = 1;
     viewDesc.aspect = WGPUTextureAspect_All;
-    m_textureViewY = wgpuTextureCreateView(m_videoTexture, &viewDesc);
+    m_textureViewY = wgpuTextureCreateView(m_yTexture, &viewDesc);
 }
 
 void RGBADecoder::updateTexture(AVFrame* frame) {
@@ -66,7 +66,7 @@ void RGBADecoder::updateTexture(AVFrame* frame) {
     std::copy(m_rgbaBufferInternal, m_rgbaBufferInternal + m_cpuUploadBuffer.size(), m_cpuUploadBuffer.begin());
 
     WGPUTexelCopyTextureInfo destination = {};
-    destination.texture = m_videoTexture;
+    destination.texture = m_yTexture;
     destination.aspect = WGPUTextureAspect_All;
 
     WGPUTexelCopyBufferLayout source = {};

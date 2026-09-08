@@ -19,6 +19,17 @@ VideoDecoder::~VideoDecoder() {
     av_frame_free(&m_audioFrame);
 }
 
+void VideoDecoder::init(std::unique_ptr<IVideoDecoder> videoDecoder, std::unique_ptr<IAudioOutput> audioOutput) {
+    if (videoDecoder) {
+        m_decoder = std::move(videoDecoder);
+    }
+
+    if (audioOutput) {
+        m_audioOutput = std::move(audioOutput);
+        m_audioOutput->init();
+    }
+}
+
 void VideoDecoder::open(const std::string& filename, std::unique_ptr<IVideoDecoder> videoDecoder, std::unique_ptr<IAudioOutput> audioOutput) {
     if (avformat_open_input(&m_formatContext, filename.c_str(), nullptr, nullptr) < 0) return;
     if (avformat_find_stream_info(m_formatContext, nullptr) < 0) return;
@@ -40,10 +51,10 @@ void VideoDecoder::open(const std::string& filename, std::unique_ptr<IVideoDecod
     int numCores = std::min( std::thread::hardware_concurrency(), 16u);
     m_videoCodecContext->thread_count = numCores;
     m_videoCodecContext->thread_type = FF_THREAD_FRAME;
-    m_decoder = std::move(videoDecoder);
+
+    init(std::move(videoDecoder), std::move(audioOutput));
    
     AVDictionary* options = nullptr;
-
     if (dynamic_cast<VulkanDecoder*>(m_decoder.get())) {
         av_dict_set(&options, "extensions", "VK_KHR_external_memory_win32", 0);
     }
@@ -84,8 +95,6 @@ void VideoDecoder::open(const std::string& filename, std::unique_ptr<IVideoDecod
                 swr_init(m_swrContext);
             }
         }
-        m_audioOutput = std::move(audioOutput);
-        m_audioOutput->init();
     }
  
     if (m_formatContext->duration != AV_NOPTS_VALUE) {

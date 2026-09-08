@@ -1,37 +1,9 @@
 #include "SoftwareMixer.h"
 
-
-void SoftwareMixer::playSFX(const std::string& file) {
-   /* SoundEffect& sfx = SFXCache::get(file);
-    if (sfx.pcmData.empty()) return;
-
-    for (auto& channel : m_channels) {
-        int expected = 0;
-        if (channel.status.compare_exchange_strong(expected, 1)) {
-            channel.pcmData = &sfx.pcmData;
-            channel.progress = 0;
-            channel.status.store(1);
-            //channel.pitchFactor = 0.95f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (1.05f - 0.95f)));
-            channel.pitchFactor = 1.0f;
-            return;
-        }
-    }
-
-    // Force-Override falls voll
-    size_t maxProgress = 0;
-    ActiveSound* oldestChannel = nullptr;
-    for (auto& channel : m_channels) {
-        if (channel.progress > maxProgress) {
-            maxProgress = channel.progress;
-            oldestChannel = &channel;
-        }
-    }
-    if (oldestChannel) {
-        oldestChannel->status.store(0);
-        oldestChannel->pcmData = &sfx.pcmData;
-        oldestChannel->progress = 0;
-        oldestChannel->status.store(1);
-    }*/
+SoftwareMixer::SoftwareMixer() {
+    m_channels.resize(32u);
+    m_filterCutoff.store(1.0f);
+    m_volume.store(1.0f);
 }
 
 void SoftwareMixer::mixAudio(int16_t* outputBuffer, int32_t numSamples) {
@@ -111,4 +83,16 @@ void SoftwareMixer::mixAudio(int16_t* outputBuffer, int32_t numSamples) {
         outputBuffer[i] = std::clamp(static_cast<int32_t>(totalL), -32768, 32767);
         outputBuffer[i + 1] = std::clamp(static_cast<int32_t>(totalR), -32768, 32767);
     }
+}
+
+void SoftwareMixer::setVolume(float volume) {
+    m_volume.store(std::clamp(volume, 0.0f, 1.0f));
+}
+
+float SoftwareMixer::getVolume() const {
+    return m_volume.load();
+}
+
+void SoftwareMixer::setFilter(float cutoff) { 
+    m_filterCutoff.store(std::clamp(cutoff, 0.01f, 1.0f)); 
 }

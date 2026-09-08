@@ -42,26 +42,21 @@ struct ActiveSound {
 };
 
 class SoftwareMixer {
+
+    friend class RtAudioEffect;
+
 public:
-    SoftwareMixer() {
-        m_channels.resize(32);
-        m_filterCutoff.store(1.0f);
-        m_volume.store(1.0f);
-    }
 
-    void playSFX(const std::string& file);
+    SoftwareMixer();
+    ~SoftwareMixer() = default;
+
     void mixAudio(int16_t* outputBuffer, int32_t numSamples);
-    void setFilter(float cutoff) { m_filterCutoff.store(std::clamp(cutoff, 0.01f, 1.0f)); }
-
-    void setVolume(float volume) {
-        m_volume.store(std::clamp(volume, 0.0f, 1.0f));
-    }
-
-    float getVolume() const {
-        return m_volume.load();
-    }
+    void setFilter(float cutoff);
+    void setVolume(float volume);
+    float getVolume() const;
 
 private:
+
     std::vector<ActiveSound> m_channels;
     std::atomic<float> m_filterCutoff;
     std::atomic<float> m_volume;

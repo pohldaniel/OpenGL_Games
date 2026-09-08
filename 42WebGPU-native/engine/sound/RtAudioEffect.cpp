@@ -2,20 +2,89 @@
 
 CacheLRU<std::string, RtAudioEffect::CacheEntry> RtAudioEffect::Cache;
 
-RtAudioEffect::RtAudioEffect() : m_next(0u){
+int RtAudioEffect::RtAudioCallback(void* outputBuffer, void* inputBuffer, unsigned int nBufferFrames,
+    double streamTime, RtAudioStreamStatus status, void* userData) {
+    return static_cast<RtAudioEffect*>(userData)->audioCallback(outputBuffer, inputBuffer, nBufferFrames, streamTime, status);
+}
+
+RtAudioEffect::RtAudioEffect() {
+    m_ringBuffer.init(65536);
     Cache.Init(5u);
 }
 
 RtAudioEffect::~RtAudioEffect() {
+    if(m_dac.isStreamOpen())
+        m_dac.closeStream();
     Cache.Clear();
 }
 
 void RtAudioEffect::init() {
-   
+    if (m_dac.getDeviceCount() < 1) {
+        return;
+    }
+
+    RtAudio::StreamParameters parameters;
+    parameters.deviceId = m_dac.getDefaultOutputDevice();
+    parameters.nChannels = 2;
+    parameters.firstChannel = 0;
+
+    unsigned int bufferFrames = 256;
+    m_dac.openStream(&parameters, nullptr, RTAUDIO_SINT16, 44100, &bufferFrames, &RtAudioCallback, this);
+    return;
 }
 
 void RtAudioEffect::play(const std::string& file) {
-    
+    const CacheEntry& entry = Cache.Get(file);
+    if (entry.m_samples.empty()) return;
+
+    for (auto& channel : m_softwareMixer.m_channels) {
+        int expected = 0;
+        if (channel.status.compare_exchange_strong(expected, 1)) {
+            channel.pcmData = &entry.m_samples;
+            channel.progress = 0;
+            channel.status.store(1);
+            channel.pitchFactor = 1.0f;
+            return;
+        }
+    }
+
+    size_t maxProgress = 0;
+    ActiveSound* oldestChannel = nullptr;
+    for (auto& channel : m_softwareMixer.m_channels) {
+        if (channel.progress > maxProgress) {
+            maxProgress = channel.progress;
+            oldestChannel = &channel;
+        }
+    }
+
+    if (oldestChannel) {
+        oldestChannel->status.store(0);
+        oldestChannel->pcmData = &entry.m_samples;
+        oldestChannel->progress = 0;
+        oldestChannel->status.store(1);
+    }
+
+    resume();
+}
+
+int RtAudioEffect::audioCallback(void* outputBuffer, void* inputBuffer, unsigned int nBufferFrames, double streamTime, RtAudioStreamStatus status) {
+    size_t samplesNeeded = nBufferFrames * 2;
+    size_t bytesNeeded = samplesNeeded * sizeof(int16_t);
+    int16_t* out = static_cast<int16_t*>(outputBuffer);
+    size_t bytesRead = m_ringBuffer.read(reinterpret_cast<uint8_t*>(out), bytesNeeded);
+
+    if (bytesRead < bytesNeeded) {
+        std::fill_n(reinterpret_cast<uint8_t*>(out) + bytesRead, bytesNeeded - bytesRead, 0);
+    }
+
+    m_softwareMixer.mixAudio(out, static_cast<int32_t>(samplesNeeded));
+
+    return 0;
+}
+
+void RtAudioEffect::resume() {
+    if (!m_dac.isStreamRunning())
+        m_dac.startStream();
 }
 
 RtAudioEffect::CacheEntry::CacheEntry(const std::string& file) {
@@ -97,17 +166,24 @@ RtAudioEffect::CacheEntry::CacheEntry(const std::string& file) {
     avcodec_free_context(&codecCtx);
     avformat_close_input(&formatCtx);
 
-   
+    m_samples.resize(pcmData.size() / sizeof(int16_t));
+    std::memcpy(m_samples.data(), pcmData.data(), pcmData.size());
+    m_totalSamples = m_samples.size();
 }
 
 RtAudioEffect::CacheEntry::~CacheEntry() {
     
 }
 
-RtAudioEffect::CacheEntry::CacheEntry(RtAudioEffect::CacheEntry&& other) noexcept  {
-
+RtAudioEffect::CacheEntry::CacheEntry(CacheEntry&& other) noexcept : m_samples(std::move(other.m_samples)), m_totalSamples(other.m_totalSamples){
+    other.m_totalSamples = 0u;
 }
 
 RtAudioEffect::CacheEntry& RtAudioEffect::CacheEntry::operator=(CacheEntry&& other) noexcept {
+    if (this != &other) {
+        m_samples = std::move(other.m_samples);
+        m_totalSamples = other.m_totalSamples;
+        other.m_totalSamples = 0u;
+    }
     return *this;
 }

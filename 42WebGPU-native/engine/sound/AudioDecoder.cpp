@@ -11,6 +11,14 @@ AudioDecoder::~AudioDecoder() {
     close();
     av_packet_free(&m_packet);
     av_frame_free(&m_frame);
+
+}
+
+void AudioDecoder::init(std::unique_ptr<IAudioOutput> audioOutput) {
+    if (audioOutput) {
+        m_audioOutput = std::move(audioOutput);
+        m_audioOutput->init();
+    }
 }
 
 void AudioDecoder::open(const std::string& filename, std::unique_ptr<IAudioOutput> audioOutput) {
@@ -42,14 +50,11 @@ void AudioDecoder::open(const std::string& filename, std::unique_ptr<IAudioOutpu
     av_opt_set_sample_fmt(m_swrContext, "out_sample_fmt", AV_SAMPLE_FMT_S16, 0);
     swr_init(m_swrContext);
 
-    if (audioOutput) {
-        m_audioOutput = std::move(audioOutput);
-        m_audioOutput->init();
-    }
+    init(std::move(audioOutput));
     queryFirstFrame();
 }
 
-void AudioDecoder::switchTrack(const std::string& filename) {
+void AudioDecoder::playTrack(const std::string& filename) {
     close();
     m_audioOutput->flush();
     m_audioStreamIndex = -1;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <RtAudio.h>
 
 extern "C" {
 #include <libavformat/avformat.h>
@@ -9,7 +10,8 @@ extern "C" {
 #include <libavutil/opt.h>
 }
 
-
+#include "AudioRingBuffer.h"
+#include "SoftwareMixer.h"
 #include "ISoundEffect.h"
 #include "Cache.h"
 
@@ -25,7 +27,8 @@ class RtAudioEffect : public ISoundEffect {
         CacheEntry(CacheEntry&& other) noexcept;
         CacheEntry& operator=(CacheEntry&& other) noexcept;
 
-
+        std::vector<int16_t> m_samples;
+        uint32_t m_totalSamples;
     };
 
 public:
@@ -35,11 +38,17 @@ public:
 
     void init() override;
     void play(const std::string& file) override;
+    void resume();
 
 private:
 
+    int audioCallback(void* outputBuffer, void* inputBuffer, unsigned int nBufferFrames, double streamTime, RtAudioStreamStatus status);
 
-    size_t m_next;
+    RtAudio m_dac;
+    AudioRingBuffer m_ringBuffer;
+    SoftwareMixer m_softwareMixer;
+
+    static int RtAudioCallback(void* outputBuffer, void* inputBuffer, unsigned int nBufferFrames, double streamTime, RtAudioStreamStatus status, void* userData);
 
     static CacheLRU<std::string, RtAudioEffect::CacheEntry> Cache;
 };
