@@ -47,7 +47,7 @@ void AudioDecoder::open(const std::string& filename, std::unique_ptr<IAudioOutpu
     av_channel_layout_default(&outLayout, 2);
     av_opt_set_chlayout(m_swrContext, "out_chlayout", &outLayout, 0);
     av_opt_set_int(m_swrContext, "out_sample_rate", 44100, 0);
-    av_opt_set_sample_fmt(m_swrContext, "out_sample_fmt", AV_SAMPLE_FMT_S16, 0);
+    av_opt_set_sample_fmt(m_swrContext, "out_sample_fmt", AV_SAMPLE_FMT_FLT, 0);
     swr_init(m_swrContext);
 
     init(std::move(audioOutput));
@@ -75,7 +75,7 @@ void AudioDecoder::update() {
 
     if(ret >= 0) {
         if (m_packet->stream_index == m_audioStreamIndex && m_swrContext) {
-            std::vector<uint8_t> pcmData;
+            std::vector<float> pcmData;
             if (decodeAudioFrame(pcmData)) {
                 m_audioOutput->enqueueData(pcmData);
             }
@@ -107,7 +107,7 @@ void AudioDecoder::queryFirstFrame() {
     }
 }
 
-bool AudioDecoder::decodeAudioFrame(std::vector<uint8_t>& outPcmData) {
+bool AudioDecoder::decodeAudioFrame(std::vector<float>& outPcmData) {
 
     int ret = avcodec_send_packet(m_codecContext, m_packet);
     if (ret < 0) {
@@ -124,14 +124,14 @@ bool AudioDecoder::decodeAudioFrame(std::vector<uint8_t>& outPcmData) {
         //int64_t outSamples = av_rescale_rnd(delay + m_frame->nb_samples, m_codecContext->sample_rate, m_frame->sample_rate, AV_ROUND_UP);
         int outSamples = swr_get_out_samples(m_swrContext, m_frame->nb_samples);
         
-        int maxFrameSize = outSamples * 2u * sizeof(int16_t);
+        int maxFrameSize = outSamples * 2u;
         size_t oldSize = outPcmData.size();
         outPcmData.resize(oldSize + maxFrameSize);
-        uint8_t* buffer = outPcmData.data() + oldSize;
+        uint8_t* buffer = reinterpret_cast<uint8_t*>(outPcmData.data() + oldSize);
       
         int convertedSamples = swr_convert(m_swrContext, &buffer, outSamples,(const uint8_t**)m_frame->data, m_frame->nb_samples);
         if (convertedSamples >= 0) {
-            int actualFrameSize = convertedSamples * 2u * sizeof(int16_t);
+            int actualFrameSize = convertedSamples * 2u;
             outPcmData.resize(oldSize + actualFrameSize);
         }else {
             outPcmData.resize(oldSize);

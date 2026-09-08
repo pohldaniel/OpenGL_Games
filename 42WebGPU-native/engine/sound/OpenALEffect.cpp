@@ -35,7 +35,13 @@ void OpenALEffect::play(const std::string& file) {
     m_next = (m_next + 1) % m_sources.size();
 }
 
-OpenALEffect::CacheEntry::CacheEntry(const std::string& file) : buffer(0u){
+void OpenALEffect::setVolume(float volume) {
+    for (ALuint source : m_sources) {
+        alSourcef(source, AL_GAIN, std::clamp(volume, 0.0f, 1.0f));
+    }
+}
+
+OpenALEffect::CacheEntry::CacheEntry(const std::string& file) : buffer(0u) {
     AVFormatContext* formatCtx = nullptr;
     avformat_open_input(&formatCtx, file.c_str(), nullptr, nullptr);
     avformat_find_stream_info(formatCtx, nullptr);
@@ -62,12 +68,13 @@ OpenALEffect::CacheEntry::CacheEntry(const std::string& file) : buffer(0u){
     av_channel_layout_default(&outLayout, 2);
     av_opt_set_chlayout(swr, "out_chlayout", &outLayout, 0);
     av_opt_set_int(swr, "out_sample_rate", 44100, 0);
-    av_opt_set_sample_fmt(swr, "out_sample_fmt", AV_SAMPLE_FMT_S16, 0);
+    av_opt_set_sample_fmt(swr, "out_sample_fmt", AV_SAMPLE_FMT_FLT, 0);
     swr_init(swr);
 
     AVPacket* packet = av_packet_alloc();
     AVFrame* frame = av_frame_alloc();
-    std::vector<uint8_t> pcmData;
+
+    std::vector<float> pcmData;
 
     while (av_read_frame(formatCtx, packet) >= 0) {
         if (packet->stream_index == streamIdx) {
@@ -77,9 +84,7 @@ OpenALEffect::CacheEntry::CacheEntry(const std::string& file) : buffer(0u){
                 while (true) {
                     ret = avcodec_receive_frame(codecCtx, frame);
 
-                    if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
-                        break;
-                    }else if (ret < 0) {
+                    if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF || ret < 0) {
                         break;
                     }
 
@@ -89,16 +94,17 @@ OpenALEffect::CacheEntry::CacheEntry(const std::string& file) : buffer(0u){
                         continue;
                     }
 
-                    int maxFrameSize = outSamples * 2 * sizeof(int16_t);
+                    int maxSamplesNeeded = outSamples * 2;
                     size_t oldSize = pcmData.size();
-                    pcmData.resize(oldSize + maxFrameSize);
-                    uint8_t* buffer = pcmData.data() + oldSize;
+                    pcmData.resize(oldSize + maxSamplesNeeded);
+                    uint8_t* buffer = reinterpret_cast<uint8_t*>(pcmData.data() + oldSize);
 
                     int convertedSamples = swr_convert(swr, &buffer, outSamples, (const uint8_t**)frame->data, frame->nb_samples);
                     if (convertedSamples >= 0) {
-                        int actualFrameSize = convertedSamples * 2 * sizeof(int16_t);
-                        pcmData.resize(oldSize + actualFrameSize);
-                    }else {
+                        int actualSamplesConverted = convertedSamples * 2;
+                        pcmData.resize(oldSize + actualSamplesConverted);
+                    }
+                    else {
                         pcmData.resize(oldSize);
                     }
                     av_frame_unref(frame);
@@ -113,9 +119,11 @@ OpenALEffect::CacheEntry::CacheEntry(const std::string& file) : buffer(0u){
     swr_free(&swr);
     avcodec_free_context(&codecCtx);
     avformat_close_input(&formatCtx);
-
     alGenBuffers(1, &buffer);
-    alBufferData(buffer, AL_FORMAT_STEREO16, pcmData.data(), static_cast<ALsizei>(pcmData.size()), 44100);
+
+
+    ALsizei bufferSizeInBytes = static_cast<ALsizei>(pcmData.size() * sizeof(float));
+    alBufferData(buffer, AL_FORMAT_STEREO_FLOAT32, pcmData.data(), bufferSizeInBytes, 44100);
 }
 
 OpenALEffect::CacheEntry::~CacheEntry() {

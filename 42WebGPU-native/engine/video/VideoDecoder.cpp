@@ -91,7 +91,7 @@ void VideoDecoder::open(const std::string& filename, std::unique_ptr<IVideoDecod
                 av_channel_layout_default(&outLayout, 2);
                 av_opt_set_chlayout(m_swrContext, "out_chlayout", &outLayout, 0);
                 av_opt_set_int(m_swrContext, "out_sample_rate", 44100, 0);
-                av_opt_set_sample_fmt(m_swrContext, "out_sample_fmt", AV_SAMPLE_FMT_S16, 0);
+                av_opt_set_sample_fmt(m_swrContext, "out_sample_fmt", AV_SAMPLE_FMT_FLT, 0);
                 swr_init(m_swrContext);
             }
         }
@@ -145,9 +145,9 @@ void VideoDecoder::update(float deltaTime) {
                 m_accumulator -= m_timePerFrame;
             }
         }else if(m_packet->stream_index == m_audioStreamIndex && m_swrContext) {
-            std::vector<uint8_t> pcmData;
-            if(decodeAudioFrame(pcmData)) {   
-                 m_audioOutput->enqueueData(pcmData);              
+            std::vector<float> pcmData;
+            if (decodeAudioFrame(pcmData)) {
+                m_audioOutput->enqueueData(pcmData);
             }
         }
         av_packet_unref(m_packet);
@@ -188,7 +188,7 @@ bool VideoDecoder::decodeVideoFrame() {
     return true;    
 }
 
-bool VideoDecoder::decodeAudioFrame(std::vector<uint8_t>& outPcmData) {
+bool VideoDecoder::decodeAudioFrame(std::vector<float>& outPcmData) {
     if (avcodec_send_packet(m_audioCodecContext, m_packet) < 0)
         return false;
 
@@ -197,8 +197,8 @@ bool VideoDecoder::decodeAudioFrame(std::vector<uint8_t>& outPcmData) {
 
     int outSamples = swr_get_out_samples(m_swrContext, m_audioFrame->nb_samples);
 
-    outPcmData.resize(outSamples * 2 * sizeof(int16_t));
-    uint8_t* outputBuffer = outPcmData.data();
+    outPcmData.resize(outSamples * 2);
+    uint8_t* outputBuffer = reinterpret_cast<uint8_t*>(outPcmData.data());
 
     int translated = swr_convert(m_swrContext, &outputBuffer, outSamples,
         (const uint8_t**)m_audioFrame->data, m_audioFrame->nb_samples);
@@ -206,7 +206,7 @@ bool VideoDecoder::decodeAudioFrame(std::vector<uint8_t>& outPcmData) {
     if (translated < 0)
         return false;
 
-    outPcmData.resize(translated * 2 * sizeof(int16_t));
+    outPcmData.resize(translated * 2);
 
     av_frame_unref(m_audioFrame);
     return true;

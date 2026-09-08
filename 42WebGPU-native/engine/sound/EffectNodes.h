@@ -13,7 +13,7 @@ public:
     }
 
     virtual ~AudioNode() = default;
-    virtual void process(int16_t* buffer, int32_t numSamples) = 0;
+    virtual void process(float* buffer, int32_t numSamples) = 0;
 
     std::string getId() const {
         return m_id;
@@ -41,7 +41,7 @@ private:
 public:
     LowPassFilterNode(const std::string& id) : AudioNode(id) {}
 
-    void process(int16_t* buffer, int32_t numSamples) override {
+    void process(float* buffer, int32_t numSamples) override {
         for (int32_t i = 0; i < numSamples; i += 2) {
             float musicL = static_cast<float>(buffer[i]);
             float musicR = static_cast<float>(buffer[i + 1]);
@@ -76,7 +76,7 @@ public:
             wantDisable = true;
     }
 
-    void process(int16_t* buffer, int32_t numSamples) override {
+    void process(float* buffer, int32_t numSamples) override {
 
         if (m_enabled && !wantDisable) {
             if (m_timeline < 1.0f) {
@@ -140,7 +140,7 @@ public:
         m_delayBufferR.resize(bufferSize, 0);
     }
 
-    void process(int16_t* buffer, int32_t numSamples) override {
+    void process(float* buffer, int32_t numSamples) override {
         size_t delaySamples = static_cast<size_t>((m_delayMs / 1000.0f) * m_sampleRate);
 
         // Sicherheitscheck, damit wir nicht über den Puffer hinauslesen
@@ -196,7 +196,7 @@ public:
         m_delayBufferR.resize(bufferSize, 0.0f);
     }
 
-    void process(int16_t* buffer, int32_t numSamples) override {
+    void process(float* buffer, int32_t numSamples) override {
         for (int32_t i = 0; i < numSamples; i += 2) {
             float inL = static_cast<float>(buffer[i]);
             float inR = static_cast<float>(buffer[i + 1]);

@@ -3,6 +3,7 @@
 #include <vector>
 
 #include <AL/al.h>
+#include <AL/alext.h>
 #include <AL/alc.h>
 
 #include "IAudioOutput.h"
@@ -17,7 +18,7 @@ public:
     ~OpenALPlayer();
 
     bool init() override;
-    void enqueueData(const std::vector<uint8_t>& pcmData) override;
+    void enqueueData(const std::vector<float>& pcmData) override;
     void pause() override;
     void resume() override;
 
@@ -32,5 +33,5 @@ private:
     ALuint m_buffers[2] = { 0u, 0u };
 
     bool m_isPlaying = false;
-    std::vector<uint8_t> m_audioAccumulator;
+    std::vector<float> m_audioAccumulator;
 };

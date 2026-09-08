@@ -15,14 +15,15 @@ public:
     ~RtAudioPlayer();
 
     bool init() override;
-    void enqueueData(const std::vector<uint8_t>& pcmData) override;
+    void enqueueData(const std::vector<float>& pcmData) override;
     void pause() override;
     void resume() override;
     void setVolume(float volume) override;
     float getVolume() override;
 
     SoftwareMixer& getMixer();
-   
+    AudioEffectProcessor* m_activeEffect = nullptr;
+
 private:
 
     void flush() override;
@@ -32,7 +33,7 @@ private:
     AudioRingBuffer m_ringBuffer;
 
     SoftwareMixer m_softwareMixer;
-    std::vector<uint8_t> m_accumulator;
-
+    std::vector<float> m_accumulator;
+    
     static int RtAudioCallback(void* outputBuffer, void* inputBuffer, unsigned int nBufferFrames, double streamTime, RtAudioStreamStatus status, void* userData);
 };

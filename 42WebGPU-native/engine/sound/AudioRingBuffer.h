@@ -1,8 +1,14 @@
 #pragma once
 
+#include <vector>
+#include <atomic>
+#include <algorithm>
+#include <cstring>
+
 class AudioRingBuffer {
 
 public:
+
     void init(size_t capacity) {
         m_buffer.resize(capacity + 1);
         m_head.store(0, std::memory_order_relaxed);
@@ -27,34 +33,36 @@ public:
         return m_buffer.size() - (t - h);
     }
 
-    size_t write(const uint8_t* data, size_t size) {
+    size_t write(const float* data, size_t sampleCount) {
         size_t h = m_head.load(std::memory_order_relaxed);
         size_t t = m_tail.load(std::memory_order_acquire);
 
         size_t available = (h >= t) ? (m_buffer.size() - 1 - (h - t)) : (t - h - 1);
-        if (size > available) size = available;
+        if (sampleCount > available) sampleCount = available;
 
-        size_t firstPart = std::min(size, m_buffer.size() - h);
-        std::memcpy(&m_buffer[h], data, firstPart);
-        std::memcpy(&m_buffer[0], data + firstPart, size - firstPart);
+        size_t firstPart = std::min(sampleCount, m_buffer.size() - h);
 
-        m_head.store((h + size) % m_buffer.size(), std::memory_order_release);
-        return size;
+        std::memcpy(&m_buffer[h], data, firstPart * sizeof(float));
+        std::memcpy(&m_buffer[0], data + firstPart, (sampleCount - firstPart) * sizeof(float));
+
+        m_head.store((h + sampleCount) % m_buffer.size(), std::memory_order_release);
+        return sampleCount;
     }
 
-    size_t read(uint8_t* data, size_t size) {
+    size_t read(float* data, size_t sampleCount) {
         size_t h = m_head.load(std::memory_order_acquire);
         size_t t = m_tail.load(std::memory_order_relaxed);
 
         size_t available = (h >= t) ? (h - t) : (m_buffer.size() - (t - h));
-        if (size > available) size = available;
+        if (sampleCount > available) sampleCount = available;
 
-        size_t firstPart = std::min(size, m_buffer.size() - t);
-        std::memcpy(data, &m_buffer[t], firstPart);
-        std::memcpy(data + firstPart, &m_buffer[0], size - firstPart);
+        size_t firstPart = std::min(sampleCount, m_buffer.size() - t);
 
-        m_tail.store((t + size) % m_buffer.size(), std::memory_order_release);
-        return size;
+        std::memcpy(data, &m_buffer[t], firstPart * sizeof(float));
+        std::memcpy(data + firstPart, &m_buffer[0], (sampleCount - firstPart) * sizeof(float));
+
+        m_tail.store((t + sampleCount) % m_buffer.size(), std::memory_order_release);
+        return sampleCount;
     }
 
     void clear() {
@@ -63,7 +71,7 @@ public:
     }
 
 private:
-    std::vector<uint8_t> m_buffer;
+    std::vector<float> m_buffer;
     std::atomic<size_t> m_head{ 0 };
     std::atomic<size_t> m_tail{ 0 };
 };

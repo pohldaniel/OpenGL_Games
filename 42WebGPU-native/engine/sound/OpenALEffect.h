@@ -10,6 +10,7 @@ extern "C" {
 }
 
 #include <AL/al.h>
+#include <AL/alext.h>
 
 #include "ISoundEffect.h"
 #include "Cache.h"
@@ -36,6 +37,7 @@ public:
 
     void init() override;
     void play(const std::string& file) override;
+    void setVolume(float volume);
 
 private:
 

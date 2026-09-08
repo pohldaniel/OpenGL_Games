@@ -27,11 +27,11 @@ bool RtAudioPlayer::init() {
     parameters.firstChannel = 0;
 
     unsigned int bufferFrames = 256;
-    m_dac.openStream(&parameters, nullptr, RTAUDIO_SINT16, 44100, &bufferFrames, &RtAudioCallback, this);
+    m_dac.openStream(&parameters, nullptr, RTAUDIO_FLOAT32, 44100, &bufferFrames, &RtAudioCallback, this);
     return true;
 }
 
-void RtAudioPlayer::enqueueData(const std::vector<uint8_t>& pcmData) {
+void RtAudioPlayer::enqueueData(const std::vector<float>& pcmData) {
 
     if (!pcmData.empty()) {
         m_accumulator.insert(m_accumulator.end(), pcmData.begin(), pcmData.end());
@@ -52,19 +52,16 @@ void RtAudioPlayer::enqueueData(const std::vector<uint8_t>& pcmData) {
     resume();
 }
 
-int RtAudioPlayer::audioCallback(void* outputBuffer, void* inputBuffer, unsigned int nBufferFrames,
-    double streamTime, RtAudioStreamStatus status) {
+int RtAudioPlayer::audioCallback(void* outputBuffer, void* inputBuffer, unsigned int nBufferFrames, double streamTime, RtAudioStreamStatus status) {
 
     size_t samplesNeeded = nBufferFrames * 2;
-    size_t bytesNeeded = samplesNeeded * sizeof(int16_t);
-    int16_t* out = static_cast<int16_t*>(outputBuffer);
-    size_t bytesRead = m_ringBuffer.read(reinterpret_cast<uint8_t*>(out), bytesNeeded);
-
-    if (bytesRead < bytesNeeded) {
-        std::fill_n(reinterpret_cast<uint8_t*>(out) + bytesRead, bytesNeeded - bytesRead, 0);
+    float* out = static_cast<float*>(outputBuffer);
+    size_t samplesRead = m_ringBuffer.read(out, samplesNeeded);
+    if (samplesRead < samplesNeeded) {
+        std::fill_n(out + samplesRead, samplesNeeded - samplesRead, 0.0f);
     }
 
-    m_softwareMixer.mixAudio(out, static_cast<int32_t>(samplesNeeded));
+    m_softwareMixer.mixAudio(out, static_cast<int32_t>(samplesNeeded), m_activeEffect);
 
     return 0;
 }
@@ -84,11 +81,11 @@ void RtAudioPlayer::resume() {
 }
 
 void RtAudioPlayer::setVolume(float volume) {
-    getMixer().setVolume(volume);
+    m_softwareMixer.setVolume(volume);
 }
 
 float RtAudioPlayer::getVolume() {
-    return getMixer().getVolume();
+    return m_softwareMixer.getVolume();
 }
 
 void RtAudioPlayer::flush() {   

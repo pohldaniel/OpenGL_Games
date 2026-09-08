@@ -47,7 +47,7 @@ private:
     void init(std::unique_ptr<IAudioOutput> audioOutput = nullptr);
     void open(const std::string& filename, std::unique_ptr<IAudioOutput> audioOutput);
     void queryFirstFrame();
-    bool decodeAudioFrame(std::vector<uint8_t>& outPcmData);
+    bool decodeAudioFrame(std::vector<float>& outPcmData);
 
     AVFormatContext* m_formatContext = nullptr;
     AVCodecContext* m_codecContext = nullptr;

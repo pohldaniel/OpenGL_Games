@@ -21,7 +21,7 @@ bool OpenALPlayer::init() {
     return true;
 }
 
-void OpenALPlayer::enqueueData(const std::vector<uint8_t>& pcmData) {
+void OpenALPlayer::enqueueData(const std::vector<float>& pcmData) {
     if (m_source == 0) return;
 
     if (!pcmData.empty()) {
@@ -39,7 +39,7 @@ void OpenALPlayer::enqueueData(const std::vector<uint8_t>& pcmData) {
         ALuint unqueued;
         alSourceUnqueueBuffers(m_source, 1, &unqueued);
 
-        alBufferData(unqueued, AL_FORMAT_STEREO16, m_audioAccumulator.data(), m_audioAccumulator.size(), 44100);
+        alBufferData(unqueued, AL_FORMAT_STEREO_FLOAT32, m_audioAccumulator.data(), m_audioAccumulator.size() * sizeof(float), 44100);
         alSourceQueueBuffers(m_source, 1, &unqueued);
 
         m_audioAccumulator.clear();
@@ -49,7 +49,7 @@ void OpenALPlayer::enqueueData(const std::vector<uint8_t>& pcmData) {
 
         if (queued < 2) {
             ALuint targetBuffer = m_buffers[queued];
-            alBufferData(targetBuffer, AL_FORMAT_STEREO16, m_audioAccumulator.data(), m_audioAccumulator.size(), 44100);
+            alBufferData(targetBuffer, AL_FORMAT_STEREO_FLOAT32, m_audioAccumulator.data(), m_audioAccumulator.size() * sizeof(float), 44100);
             alSourceQueueBuffers(m_source, 1, &targetBuffer);
 
             m_audioAccumulator.clear();

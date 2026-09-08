@@ -27,7 +27,7 @@ class RtAudioEffect : public ISoundEffect {
         CacheEntry(CacheEntry&& other) noexcept;
         CacheEntry& operator=(CacheEntry&& other) noexcept;
 
-        std::vector<int16_t> m_samples;
+        std::vector<float> m_samples;
         uint32_t m_totalSamples;
     };
 
@@ -47,7 +47,6 @@ private:
     int audioCallback(void* outputBuffer, void* inputBuffer, unsigned int nBufferFrames, double streamTime, RtAudioStreamStatus status);
 
     RtAudio m_dac;
-    AudioRingBuffer m_ringBuffer;
     SoftwareMixer m_softwareMixer;
 
     static int RtAudioCallback(void* outputBuffer, void* inputBuffer, unsigned int nBufferFrames, double streamTime, RtAudioStreamStatus status, void* userData);
