@@ -671,5 +671,8 @@
     <ClInclude Include="engine\sound\SoundEffect.h">
       <Filter>engine\sound</Filter>
     </ClInclude>
+    <ClInclude Include="engine\sound\EffectNodes.h">
+      <Filter>engine\sound</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

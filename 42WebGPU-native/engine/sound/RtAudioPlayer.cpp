@@ -10,7 +10,10 @@ RtAudioPlayer::RtAudioPlayer() {
 }
 
 RtAudioPlayer::~RtAudioPlayer() {
-    if (m_dac.isStreamOpen()) m_dac.closeStream();
+    if (m_dac.isStreamOpen()) {
+        m_dac.abortStream();
+        m_dac.closeStream();
+    }
 }
 
 bool RtAudioPlayer::init() {

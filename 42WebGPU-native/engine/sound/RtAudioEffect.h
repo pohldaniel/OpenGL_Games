@@ -40,6 +40,8 @@ public:
     void play(const std::string& file) override;
     void resume();
 
+    SoftwareMixer& getMixer();
+
 private:
 
     int audioCallback(void* outputBuffer, void* inputBuffer, unsigned int nBufferFrames, double streamTime, RtAudioStreamStatus status);

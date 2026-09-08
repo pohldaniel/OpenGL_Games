@@ -19,6 +19,11 @@ public:
         init(std::move(audio));
     }
 
+    template <class EffectImpl = OpenALEffect>
+    EffectImpl* getAudioOutput() {
+        return static_cast<EffectImpl*>(m_soundEffect.get());
+    }
+
     void play(const std::string& file);
 
 private:

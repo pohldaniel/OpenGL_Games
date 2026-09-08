@@ -41,10 +41,10 @@ void RtAudioEffect::play(const std::string& file) {
     bool channelFound = false;
     for (auto& channel : m_softwareMixer.m_channels) {
         int expected = 0;
-        if (channel.status.compare_exchange_strong(expected, 1)) {
+        if (channel.status = 1) {
             channel.pcmData = &entry.m_samples;
             channel.progress = 0;
-            channel.status.store(1);
+            //channel.status = 1;
             channel.pitchFactor = 1.0f;
             channelFound = true;
             break;
@@ -62,10 +62,9 @@ void RtAudioEffect::play(const std::string& file) {
         }
 
         if (oldestChannel) {
-            oldestChannel->status.store(0);
             oldestChannel->pcmData = &entry.m_samples;
             oldestChannel->progress = 0;
-            oldestChannel->status.store(1);
+            oldestChannel->status = 1;
         }
     }
 
@@ -90,6 +89,10 @@ int RtAudioEffect::audioCallback(void* outputBuffer, void* inputBuffer, unsigned
 void RtAudioEffect::resume() {
     if (!m_dac.isStreamRunning())
         m_dac.startStream();
+}
+
+SoftwareMixer& RtAudioEffect::getMixer() {
+    return m_softwareMixer;
 }
 
 RtAudioEffect::CacheEntry::CacheEntry(const std::string& file) {

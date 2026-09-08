@@ -318,6 +318,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClInclude Include="engine\sound\AudioDecoder.h" />
     <ClInclude Include="engine\sound\AudioRingBuffer.h" />
     <ClInclude Include="engine\sound\Cache.h" />
+    <ClInclude Include="engine\sound\EffectNodes.h" />
     <ClInclude Include="engine\sound\IAudioOutput.h" />
     <ClInclude Include="engine\sound\ISoundEffect.h" />
     <ClInclude Include="engine\sound\OpenALEffect.h" />

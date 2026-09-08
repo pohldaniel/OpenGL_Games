@@ -10,6 +10,7 @@
 #include <Nuklear/NkStyle.h>
 
 #include <engine/sound/SoundDevice.h>
+#include <engine/sound/EffectNodes.h>
 
 #include "Isometric.h"
 #include "Application.h"
@@ -185,8 +186,12 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 	m_player.update(0.01f);
 
 	m_audioDecoder.open<RtAudioPlayer>("res/sounds/ambient.mp3");
+	m_audioDecoder.getAudioOutput<RtAudioPlayer>()->getMixer().addMusicEffect(std::make_unique<VinylScratchNode>("tape_stop_fx"));
+	m_audioDecoder.getAudioOutput<RtAudioPlayer>()->getMixer().addMusicEffect(std::make_unique<LowPassFilterNode>("underwater_fx"));
+	m_audioDecoder.getAudioOutput<RtAudioPlayer>()->setVolume(0.25f);
+
 	m_soundEffect.init<RtAudioEffect>();
-	//m_soundEffect.init<OpenALEffect>();
+	m_soundEffect.getAudioOutput<RtAudioEffect>()->getMixer().setEnabled("space_delay", true);
 }
 
 Isometric::~Isometric() {
@@ -246,6 +251,30 @@ void Isometric::update() {
 	if (keyboard.keyDown(Keyboard::KEY_E)) {
 		direction += Vector3f(0.0f, 1.0f, 0.0f);
 		move |= true;
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_1)) {
+		m_soundEffect.getAudioOutput<RtAudioEffect>()->getMixer().setEnabled("space_delay", false);
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_2)) {
+		m_soundEffect.getAudioOutput<RtAudioEffect>()->getMixer().setEnabled("space_delay", true);
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_3)) {
+		m_audioDecoder.getAudioOutput<RtAudioPlayer>()->getMixer().setEnabled("underwater_fx", true);
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_4)) {
+		m_audioDecoder.getAudioOutput<RtAudioPlayer>()->getMixer().setEnabled("underwater_fx", false);
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_5)) {
+		m_audioDecoder.getAudioOutput<RtAudioPlayer>()->getMixer().setEnabled("tape_stop_fx", true);
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_6)) {
+		m_audioDecoder.getAudioOutput<RtAudioPlayer>()->getMixer().setEnabled("tape_stop_fx", false);
 	}
 
 	if ((m_rotationButtonResult.buttonDown || (mouse.buttonDown(Mouse::MouseButton::BUTTON_LEFT) && !m_rotationButtonResult.isActive && !m_joystickResult.isActive)) && (lastFireTime + 0.1f) < Globals::clock.getElapsedTimeSec()) {
