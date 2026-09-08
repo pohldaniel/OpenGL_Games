@@ -210,6 +210,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClCompile Include="engine\sound\RtAudioPlayer.cpp" />
     <ClCompile Include="engine\sound\SoftwareMixer.cpp" />
     <ClCompile Include="engine\sound\SoundDevice.cpp" />
+    <ClCompile Include="engine\sound\SoundEffect.cpp" />
     <ClCompile Include="engine\thread\CThread.cpp" />
     <ClCompile Include="engine\thread\EventClass.cpp" />
     <ClCompile Include="engine\thread\MutexClass.cpp" />
@@ -325,6 +326,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClInclude Include="engine\sound\RtAudioPlayer.h" />
     <ClInclude Include="engine\sound\SoftwareMixer.h" />
     <ClInclude Include="engine\sound\SoundDevice.h" />
+    <ClInclude Include="engine\sound\SoundEffect.h" />
     <ClInclude Include="engine\thread\CThread.h" />
     <ClInclude Include="engine\thread\EventClass.h" />
     <ClInclude Include="engine\thread\MutexClass.h" />

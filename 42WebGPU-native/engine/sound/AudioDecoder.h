@@ -1,4 +1,5 @@
 #pragma once
+
 #include <string>
 #include <vector>
 #include <memory>
@@ -11,6 +12,7 @@ extern "C" {
 }
 
 #include "OpenALPlayer.h"
+#include "RtAudioPlayer.h"
 
 class AudioDecoder {
 

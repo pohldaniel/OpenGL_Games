@@ -11,9 +11,7 @@
 #include <engine/Camera.h>
 
 #include <engine/sound/AudioDecoder.h>
-#include <engine/sound/OpenALPlayer.h>
-#include <engine/sound/RtAudioPlayer.h>
-#include <engine/sound/OpenALEffect.h>
+#include <engine/sound/SoundEffect.h>
 
 #include <States/StateMachine.h>
 #include <Nuklear/NkJoystick.h>
@@ -104,7 +102,7 @@ private:
 
 	
 	AudioDecoder m_audioDecoder;
-	OpenALEffect m_effectPlayer;
+	SoundEffect m_soundEffect;
 
 	static WGPUBindGroup CreateBindGroup(const WgpBuffer& uniformBuffer, const WgpBuffer& wigglyBuffer, const WgpTexture& texture);
 };

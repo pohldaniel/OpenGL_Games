@@ -184,10 +184,9 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 
 	m_player.update(0.01f);
 
-	m_effectPlayer.init();
-
 	m_audioDecoder.open<RtAudioPlayer>("res/sounds/ambient.mp3");
-
+	m_soundEffect.init<RtAudioEffect>();
+	//m_soundEffect.init<OpenALEffect>();
 }
 
 Isometric::~Isometric() {
@@ -268,7 +267,7 @@ void Isometric::update() {
 
 		m_bulletStore.createBullets(projectileSpawnPoint, midOri, spreadAmount);
 		lastFireTime = Globals::clock.getElapsedTimeSec();
-		m_effectPlayer.play("res/sounds/AR_Fired.wav");
+		m_soundEffect.play("res/sounds/AR_Fired.wav");
 	}
 
 	if (mouse.buttonDownInvisible(Mouse::MouseButton::BUTTON_RIGHT)) {

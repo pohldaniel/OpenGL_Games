@@ -8,8 +8,8 @@ SoftwareMixer::SoftwareMixer() {
 
 void SoftwareMixer::mixAudio(int16_t* outputBuffer, int32_t numSamples) {
     const float kFilter = m_filterCutoff.load();
-    const float kVolumeCenter = 0.707f; // -3dB Panning-Gesetz
-    const float kCrossfeed = 0.12f;     // Kompaktheits-Fokus
+    const float kVolumeCenter = 0.707f;
+    const float kCrossfeed = 0.12f;
     const float currentVolume = m_volume.load();
 
     for (int32_t i = 0; i < numSamples; i += 2) {

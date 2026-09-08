@@ -35,8 +35,10 @@ void RtAudioEffect::init() {
 
 void RtAudioEffect::play(const std::string& file) {
     const CacheEntry& entry = Cache.Get(file);
-    if (entry.m_samples.empty()) return;
+    if (entry.m_samples.empty()) 
+        return;
 
+    bool channelFound = false;
     for (auto& channel : m_softwareMixer.m_channels) {
         int expected = 0;
         if (channel.status.compare_exchange_strong(expected, 1)) {
@@ -44,24 +46,27 @@ void RtAudioEffect::play(const std::string& file) {
             channel.progress = 0;
             channel.status.store(1);
             channel.pitchFactor = 1.0f;
-            return;
+            channelFound = true;
+            break;
         }
     }
 
-    size_t maxProgress = 0;
-    ActiveSound* oldestChannel = nullptr;
-    for (auto& channel : m_softwareMixer.m_channels) {
-        if (channel.progress > maxProgress) {
-            maxProgress = channel.progress;
-            oldestChannel = &channel;
+    if (!channelFound) {
+        size_t maxProgress = 0;
+        ActiveSound* oldestChannel = nullptr;
+        for (auto& channel : m_softwareMixer.m_channels) {
+            if (channel.progress > maxProgress) {
+                maxProgress = channel.progress;
+                oldestChannel = &channel;
+            }
         }
-    }
 
-    if (oldestChannel) {
-        oldestChannel->status.store(0);
-        oldestChannel->pcmData = &entry.m_samples;
-        oldestChannel->progress = 0;
-        oldestChannel->status.store(1);
+        if (oldestChannel) {
+            oldestChannel->status.store(0);
+            oldestChannel->pcmData = &entry.m_samples;
+            oldestChannel->progress = 0;
+            oldestChannel->status.store(1);
+        }
     }
 
     resume();
