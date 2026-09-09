@@ -4,6 +4,10 @@
 #include "Mesh.h"
 #include "Model.h"
 
+const std::vector<Mesh*>& Model::getMeshes() const {
+	return m_meshes;
+}
+
 void Model::GenerateColors(std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, unsigned int& stride, ModelColor modelColor) {
 	if (stride < 8)
 		return;

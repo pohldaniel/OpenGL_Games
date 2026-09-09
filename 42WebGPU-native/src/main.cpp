@@ -8,9 +8,7 @@
 #include "Globals.h"
 
 extern Clock Globals::clock = Clock();
-
-extern unsigned int Globals::lightUbo = 0;
-extern const unsigned int Globals::lightBinding = 0;
+extern std::unique_ptr<Physics> Globals::physics = nullptr;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
 
@@ -33,6 +31,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	float frameTime = 0;
 #endif
 
+	Globals::physics = std::make_unique<Physics>();
+
 	float deltaTime = 0.0f;
 	float fixedDeltaTime = 0.0f;
 	float physicsElapsedTime = 0.0;
@@ -41,16 +41,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	HWND hwnd = Application::GetWindow();
 
 	Clock deltaClock;
-	Clock fixedDeltaClock;
 	Globals::clock.restart();
 
 	while (application.isRunning()) {
 		physicsElapsedTime += deltaTime;
 		while (physicsElapsedTime > PHYSICS_STEP) {
-			fixedDeltaTime = fixedDeltaClock.resetSec();
-			if (fixedDeltaTime > PHYSICS_STEP)
-				fixedDeltaTime = PHYSICS_STEP;
-
+			fixedDeltaTime = PHYSICS_STEP;			
 			application.fixedUpdate();
 			physicsElapsedTime -= PHYSICS_STEP;
 		}

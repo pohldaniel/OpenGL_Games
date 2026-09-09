@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 
+#include <Physics/Physics.h>
 #include <engine/Clock.h>
 
 #define WIDTH 1280
@@ -18,7 +19,5 @@
 
 namespace Globals {
 	extern Clock clock;
-
-	extern unsigned int lightUbo;
-	extern const unsigned int lightBinding;
+	extern std::unique_ptr<Physics> physics;
 }
