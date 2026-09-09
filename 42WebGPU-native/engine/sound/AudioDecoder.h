@@ -34,7 +34,7 @@ public:
     }
 
     template <class AudioImpl = OpenALPlayer>
-    AudioImpl* getAudioOutput() {
+    AudioImpl* get() {
         return static_cast<AudioImpl*>(m_audioOutput.get());
     }
 

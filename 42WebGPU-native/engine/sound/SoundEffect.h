@@ -20,7 +20,7 @@ public:
     }
 
     template <class EffectImpl = OpenALEffect>
-    EffectImpl* getAudioOutput() {
+    EffectImpl* get() {
         return static_cast<EffectImpl*>(m_soundEffect.get());
     }
 

@@ -42,9 +42,8 @@ void RtAudioEffect::play(const std::string& file) {
         int expected = 0;
         if (channel.status == 0) {
             channel.pcmData = &entry.m_samples;
-            channel.progress = 0;
+            channel.progress = 0.0f;
             channel.status = 1;
-            channel.pitchFactor = 1.0f;
             channelFound = true;
             break;
         }
@@ -62,7 +61,7 @@ void RtAudioEffect::play(const std::string& file) {
 
         if (oldestChannel) {
             oldestChannel->pcmData = &entry.m_samples;
-            oldestChannel->progress = 0;
+            oldestChannel->progress = 0.0f;
             oldestChannel->status = 1;
         }
     }

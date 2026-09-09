@@ -22,7 +22,6 @@ public:
     float getVolume() override;
 
     SoftwareMixer& getMixer();
-    AudioEffectProcessor* m_activeEffect = nullptr;
 
 private:
 

@@ -6,14 +6,9 @@ SoftwareMixer::SoftwareMixer() {
     m_volume = 1.0f;
 }
 
-void SoftwareMixer::mixAudio(float* outputBuffer, int32_t numSamples, AudioEffectProcessor* effect) {
+void SoftwareMixer::mixAudio(float* outputBuffer, int32_t numSamples) {
 
     const float kFilter = m_filterCutoff;
-    const float kVolumeCenter = 0.707f;
-    const float kCrossfeed = 0.12f;
-    const float kSfxGain = 0.5f;
-    const float currentVolume = m_volume;
-
     for (auto& channel : m_channels) {
         int currentStatus = channel.status;
         if (currentStatus == 0) continue;
@@ -47,18 +42,12 @@ void SoftwareMixer::mixAudio(float* outputBuffer, int32_t numSamples, AudioEffec
                 float interpolatedL = (sampleA_L * weightA) + (sampleB_L * weightB);
                 float interpolatedR = (sampleA_R * weightA) + (sampleB_R * weightB);
 
-                float currentRawL = interpolatedL * kVolumeCenter;
-                float currentRawR = interpolatedR * kVolumeCenter;
-
-                channel.lastSampleL = channel.lastSampleL + kFilter * (currentRawL - channel.lastSampleL);
-                channel.lastSampleR = channel.lastSampleR + kFilter * (currentRawR - channel.lastSampleR);
-
-                float focusedL = channel.lastSampleL * (1.0f - kCrossfeed) + channel.lastSampleR * kCrossfeed;
-                float focusedR = channel.lastSampleR * (1.0f - kCrossfeed) + channel.lastSampleL * kCrossfeed;
-
-                outputBuffer[i] += focusedL * kSfxGain;
-                outputBuffer[i + 1] += focusedR * kSfxGain;
-
+                // Glatterer Einpol-Filter
+                channel.lastSampleL = channel.lastSampleL + kFilter * (interpolatedL - channel.lastSampleL);
+                channel.lastSampleR = channel.lastSampleR + kFilter * (interpolatedR - channel.lastSampleR);
+                outputBuffer[i] += channel.lastSampleL;
+                outputBuffer[i + 1] += channel.lastSampleR;
+   
                 channel.progress += channel.pitchFactor;
             }else {
                 channel.status = 0;
@@ -68,12 +57,14 @@ void SoftwareMixer::mixAudio(float* outputBuffer, int32_t numSamples, AudioEffec
     }
 
     for (int32_t i = 0; i < numSamples; i += 2) {
-        outputBuffer[i] *= currentVolume;
-        outputBuffer[i + 1] *= currentVolume;
+        outputBuffer[i] *= m_volume;
+        outputBuffer[i + 1] *= m_volume;
     }
 
-    if (effect != nullptr) {
-        effect->process(outputBuffer, numSamples);
+    for (auto& effect : m_audioEffects) {
+        if (effect->isEnabled()) {
+            effect->process(outputBuffer, numSamples);
+        }
     }
 
     for (int32_t i = 0; i < numSamples; i++) {
@@ -82,7 +73,7 @@ void SoftwareMixer::mixAudio(float* outputBuffer, int32_t numSamples, AudioEffec
 }
 
 void SoftwareMixer::setVolume(float volume) {
-    m_volume = std::clamp(volume, 0.0f, 1.0f);
+    m_volume = volume;
 }
 
 float SoftwareMixer::getVolume() const {
@@ -93,23 +84,15 @@ void SoftwareMixer::setFilter(float cutoff) {
     m_filterCutoff = std::clamp(cutoff, 0.01f, 1.0f); 
 }
 
-void SoftwareMixer::addEffect(std::unique_ptr<AudioNode> effect) {
-    m_globalEffects.push_back(std::move(effect));
+void SoftwareMixer::addAudioEffect(std::unique_ptr<AudioEffect> effect, bool enabled) {
+    m_audioEffects.push_back(std::move(effect));
+    if(enabled)
+        m_audioEffects.back()->setEnabled(true);
 }
 
-void SoftwareMixer::addMusicEffect(std::unique_ptr<AudioNode> fx) {
-    m_musicEffects.push_back(std::move(fx)); 
-}
-
-void SoftwareMixer::setEnabled(const std::string& id, bool enabled) {
-    for (auto& fx : m_musicEffects) {
-        if (fx->getId() == id) {
-            fx->setEnabled(enabled);           
-            return;
-        }
-    }
-    for (auto& effect : m_globalEffects) {
-        if (effect->getId() == id) {
+void SoftwareMixer::setEnabled(const std::string& name, bool enabled) {
+    for (auto& effect : m_audioEffects) {
+        if (effect->getName() == name) {
             effect->setEnabled(enabled);
             return;
         }

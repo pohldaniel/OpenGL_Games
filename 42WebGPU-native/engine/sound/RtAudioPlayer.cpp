@@ -61,7 +61,7 @@ int RtAudioPlayer::audioCallback(void* outputBuffer, void* inputBuffer, unsigned
         std::fill_n(out + samplesRead, samplesNeeded - samplesRead, 0.0f);
     }
 
-    m_softwareMixer.mixAudio(out, static_cast<int32_t>(samplesNeeded), m_activeEffect);
+    m_softwareMixer.mixAudio(out, static_cast<int32_t>(samplesNeeded));
 
     return 0;
 }

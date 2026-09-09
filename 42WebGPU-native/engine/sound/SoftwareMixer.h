@@ -8,17 +8,13 @@
 #include <cstdlib>
 #include <memory>
 
-
-#include "EffectNodes.h"
-#include "AudioEffectProcessor.h"
+#include "AudioEffect.h"
 
 struct ActiveSound {
     const std::vector<float>* pcmData = nullptr;
     float progress = 0.0f;
     float pitchFactor = 1.0f;
     int status = 0;
-
-
     float lastSampleL = 0.0f;
     float lastSampleR = 0.0f;
 
@@ -55,19 +51,17 @@ public:
     SoftwareMixer();
     ~SoftwareMixer() = default;
 
-    void mixAudio(float* outputBuffer, int32_t numSamples, AudioEffectProcessor* effect = nullptr);
+    void mixAudio(float* outputBuffer, int32_t numSamples);
     void setFilter(float cutoff);
     void setVolume(float volume);
     float getVolume() const;
-    void addEffect(std::unique_ptr<AudioNode> effect);
-    void addMusicEffect(std::unique_ptr<AudioNode> fx);
-    void setEnabled(const std::string& id, bool enabled);
+
+    void addAudioEffect(std::unique_ptr<AudioEffect> effect, bool enabled = false);
+    void setEnabled(const std::string& name, bool enabled);
 
 private:
 
-    std::vector<std::unique_ptr<AudioNode>> m_globalEffects;
-    std::vector<std::unique_ptr<AudioNode>> m_musicEffects;
-
+    std::vector<std::unique_ptr<AudioEffect>> m_audioEffects;
     std::vector<ActiveSound> m_channels;
     float m_filterCutoff;
     float m_volume;
