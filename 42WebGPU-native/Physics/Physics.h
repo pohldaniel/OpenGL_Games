@@ -11,6 +11,7 @@
 #include <BulletCollision/CollisionDispatch/btCollisionObject.h>
 #include <BulletDynamics/Character/btKinematicCharacterController.h>
 #include <engine/Vector.h>
+#include "DebugDrawer.h"
 
 #define MAX_SIMULATION_SUBSTEPS   0
 
@@ -124,6 +125,7 @@ public:
 
 	static void PreTickCallback(btDynamicsWorld* world, btScalar timeStep);
 	static void PostTickCallback(btDynamicsWorld* world, btScalar timeStep);
+	static void TickCallback(btDynamicsWorld* world, btScalar timeStep);
 	static void DebugDrawWorld();
 	static void SetDebugMode(unsigned int mode);
 	static void DeleteAllCollisionObjects();
@@ -135,4 +137,5 @@ public:
 	btDefaultCollisionConfiguration* m_collisionConfiguration;
 
 	static btDiscreteDynamicsWorld* DynamicsWorld;
+	static DebugDrawer DebugDrawer;
 };

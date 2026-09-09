@@ -351,6 +351,9 @@
     <ClCompile Include="Physics\Physics.cpp">
       <Filter>Physics</Filter>
     </ClCompile>
+    <ClCompile Include="Physics\DebugDrawer.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\input\ApplicationEventListener.h">
@@ -687,6 +690,9 @@
       <Filter>Source Files\States</Filter>
     </ClInclude>
     <ClInclude Include="Physics\Physics.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\DebugDrawer.h">
       <Filter>Physics</Filter>
     </ClInclude>
   </ItemGroup>

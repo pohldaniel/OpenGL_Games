@@ -14,7 +14,16 @@ void Physics::PostTickCallback(btDynamicsWorld* world, btScalar timeStep) {
 	static_cast<Physics*>(world->getWorldUserInfo())->postStep(timeStep);
 }
 
+void Physics::TickCallback(btDynamicsWorld* world, btScalar timeStep) {
+	Physics* physicsInstance = static_cast<Physics*>(world->getWorldUserInfo());
+
+	if (physicsInstance) {
+		physicsInstance->OnPhysicsTick(static_cast<float>(timeStep));
+	}
+}
+
 btDiscreteDynamicsWorld* Physics::DynamicsWorld;
+DebugDrawer Physics::DebugDrawer;
 
 Physics::Physics(){
 	initialize();
@@ -22,14 +31,6 @@ Physics::Physics(){
 
 Physics::~Physics(void){
 	deinitialize();
-}
-
-void PhysicsTickCallback(btDynamicsWorld* world, btScalar timeStep) {
-	Physics* physicsInstance = static_cast<Physics*>(world->getWorldUserInfo());
-
-	if (physicsInstance) {
-		physicsInstance->OnPhysicsTick(static_cast<float>(timeStep));
-	}
 }
 
 void Physics::OnPhysicsTick(float fixedDeltaTime) {
@@ -48,6 +49,7 @@ void Physics::initialize(){
 	DynamicsWorld->getSolverInfo().m_splitImpulse = false;
 	DynamicsWorld->setSynchronizeAllMotionStates(true);
 	//DynamicsWorld->setInternalTickCallback(PhysicsTickCallback, this, true);
+	DynamicsWorld->setDebugDrawer(&DebugDrawer);
 }
 
 void Physics::deinitialize(){

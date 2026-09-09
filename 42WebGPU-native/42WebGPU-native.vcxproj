@@ -230,6 +230,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClCompile Include="Nuklear\NkJoystick.cpp" />
     <ClCompile Include="Nuklear\NkNodeEditor.cpp" />
     <ClCompile Include="Nuklear\NkStyle.cpp" />
+    <ClCompile Include="Physics\DebugDrawer.cpp" />
     <ClCompile Include="Physics\Physics.cpp" />
     <ClCompile Include="src\bullet_store.cpp" />
     <ClCompile Include="src\ImguiExtension.cpp" />
@@ -353,6 +354,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClInclude Include="Nuklear\NkJoystick.h" />
     <ClInclude Include="Nuklear\NkNodeEditor.h" />
     <ClInclude Include="Nuklear\NkStyle.h" />
+    <ClInclude Include="Physics\DebugDrawer.h" />
     <ClInclude Include="Physics\Physics.h" />
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\bullet_store.h" />
