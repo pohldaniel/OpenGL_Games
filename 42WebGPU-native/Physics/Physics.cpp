@@ -1,6 +1,7 @@
 #include <engine/Mesh.h>
 #include <engine/Model.h>
 #include <engine/shape/Shape.h>
+#include <iostream>
 
 #include "Physics.h"
 
@@ -131,6 +132,8 @@ void Physics::preStep(btScalar timeStep) {
 
 void Physics::stepSimulation(btScalar timeStep){
 	int numSimSteps = DynamicsWorld->stepSimulation(timeStep, MAX_SIMULATION_SUBSTEPS, timeStep);
+
+	//std::cout << "OBJECTS: " << DynamicsWorld->getNumCollisionObjects() << std::endl;
 }
 
 void Physics::postStep(btScalar timeStep) {

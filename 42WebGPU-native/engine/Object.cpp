@@ -177,21 +177,18 @@ thread_local Matrix4f Object::Transformation;
 
 Object::Object() {
 	m_position.set(0.0f, 0.0f, 0.0f);
-	m_origin.set(0.0f, 0.0f, 0.0f);
 	m_scale.set(1.0f, 1.0f, 1.0f);	
 	m_orientation.set(0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 Object::Object(Object const& rhs) {
 	m_position = rhs.m_position;
-	m_origin = rhs.m_origin;
 	m_scale = rhs.m_scale;
 	m_orientation = rhs.m_orientation;	
 }
 
 Object& Object::operator=(const Object& rhs) {
 	m_position = rhs.m_position;
-	m_origin = rhs.m_origin;
 	m_scale = rhs.m_scale;
 	m_orientation = rhs.m_orientation;
 	return *this;
@@ -199,64 +196,54 @@ Object& Object::operator=(const Object& rhs) {
 
 Object::Object(Object&& rhs) noexcept : Object(rhs) {
 	m_position = std::move(rhs.m_position);
-	m_origin = std::move(rhs.m_origin);
 	m_scale = std::move(rhs.m_scale);
 	m_orientation = std::move(rhs.m_orientation);
 }
 
 Object& Object::operator=(Object&& rhs) noexcept {
 	m_position = std::move(rhs.m_position);
-	m_origin = std::move(rhs.m_origin);
 	m_scale = std::move(rhs.m_scale);
 	m_orientation = std::move(rhs.m_orientation);
 	return *this;
 }
 
-void Object::setScale(float sx, float sy, float sz) {
+void Object::setScale(float sx, float sy, float sz) const {
 	m_scale.set(sx, sy, sz);
 }
 
-void Object::setScale(const Vector3f &scale) {
+void Object::setScale(const Vector3f &scale) const {
 	m_scale = scale;
 }
 
-void Object::setScale(float s) {
+void Object::setScale(float s) const {
 	setScale(s, s, s);
 }
 
-void Object::setPosition(float x, float y, float z) {
+void Object::setPosition(float x, float y, float z) const {
 	m_position.set(x, y, z);
 }
 
-void Object::setPosition(const Vector3f &position) {
+void Object::setPosition(const Vector3f &position) const {
 	m_position = position;
 }
 
-void Object::setOrigin(float x, float y, float z) {
-	m_origin.set(x, y, z);
-}
-
-void Object::setOrigin(const Vector3f& origin) {
-	m_origin = origin;
-}
-
-void Object::setOrientation(const Vector3f &axis, float degrees) {
+void Object::setOrientation(const Vector3f &axis, float degrees) const {
 	m_orientation.set(axis, degrees);
 }
 
-void Object::setOrientation(float pitch, float yaw, float roll) {
+void Object::setOrientation(float pitch, float yaw, float roll) const {
 	m_orientation.fromPitchYawRoll(pitch, yaw, roll);
 }
 
-void Object::setOrientation(const Vector3f &eulerAngle) {
+void Object::setOrientation(const Vector3f &eulerAngle) const {
 	m_orientation.fromPitchYawRoll(eulerAngle[0], eulerAngle[1], eulerAngle[2]);
 }
 
-void Object::setOrientation(const Quaternion &orientation) {
+void Object::setOrientation(const Quaternion &orientation) const {
 	m_orientation = orientation;
 }
 
-void Object::setOrientation(float x, float y, float z, float w) {
+void Object::setOrientation(float x, float y, float z, float w) const {
 	m_orientation.set(x, y, z, w);
 }
 
@@ -334,13 +321,13 @@ Quaternion& Object::getOrientation() {
 
 const Matrix4f& Object::getTransformationSOP() const{
 	Transformation.translate(m_position);
-	Transformation *= Matrix4f::Rotate(m_orientation, m_origin);
+	Transformation *= Matrix4f::Rotate(m_orientation);
 	Transformation *= Matrix4f::Scale(m_scale);
 	return Transformation;
 }
 
 const Matrix4f& Object::getTransformationSO() const{
-	Transformation.rotate(m_orientation, m_origin);
+	Transformation.rotate(m_orientation);
 	Transformation *= Matrix4f::Scale(m_scale);
 	return Transformation;
 }
@@ -353,7 +340,7 @@ const Matrix4f& Object::getTransformationSP() const{
 
 const Matrix4f& Object::getTransformationOP()  const {
 	Transformation.translate(m_position);
-	Transformation *= Matrix4f::Rotate(m_orientation, m_origin);
+	Transformation *= Matrix4f::Rotate(m_orientation);
 	return Transformation;
 }
 
@@ -363,7 +350,7 @@ const Matrix4f& Object::getTransformationP() const{
 }
 
 const Matrix4f& Object::getTransformationO()  const{
-	Transformation.rotate(m_orientation, m_origin);
+	Transformation.rotate(m_orientation);
 	return Transformation;
 }
 

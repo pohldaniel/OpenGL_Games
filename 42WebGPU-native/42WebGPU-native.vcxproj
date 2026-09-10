@@ -193,6 +193,11 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClCompile Include="engine\Object.cpp" />
     <ClCompile Include="engine\RandomColor.cpp" />
     <ClCompile Include="engine\RandomNew.cpp" />
+    <ClCompile Include="engine\scene\BaseNode.cpp" />
+    <ClCompile Include="engine\scene\CollisionNode.cpp" />
+    <ClCompile Include="engine\scene\Node.cpp" />
+    <ClCompile Include="engine\scene\SceneNode.cpp" />
+    <ClCompile Include="engine\scene\ShapeNode.cpp" />
     <ClCompile Include="engine\shape\Capsule.cpp" />
     <ClCompile Include="engine\shape\Cube.cpp" />
     <ClCompile Include="engine\shape\Cylinder.cpp" />
@@ -233,10 +238,12 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClCompile Include="Physics\DebugDrawer.cpp" />
     <ClCompile Include="Physics\Physics.cpp" />
     <ClCompile Include="src\bullet_store.cpp" />
+    <ClCompile Include="src\Entities\Entity.cpp" />
     <ClCompile Include="src\ImguiExtension.cpp" />
     <ClCompile Include="src\LoadingManager.cpp" />
     <ClCompile Include="src\States\Compute.cpp" />
     <ClCompile Include="src\States\ComputeParticleLogo.cpp" />
+    <ClCompile Include="src\States\Cubes.cpp" />
     <ClCompile Include="src\States\DeferredRendering.cpp" />
     <ClCompile Include="src\States\ImageBasedLighting.cpp" />
     <ClCompile Include="src\States\InstancedCube.cpp" />
@@ -245,7 +252,6 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClCompile Include="src\States\NormalMap.cpp" />
     <ClCompile Include="src\States\NuklearGui.cpp" />
     <ClCompile Include="src\States\OcclusionQuery.cpp" />
-    <ClCompile Include="src\States\PhysicsCube.cpp" />
     <ClCompile Include="src\States\PrimitivePicking.cpp" />
     <ClCompile Include="src\States\RenderBundles.cpp" />
     <ClCompile Include="src\States\ShadowMapping.cpp" />
@@ -309,6 +315,11 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClInclude Include="engine\RandomColor.h" />
     <ClInclude Include="engine\RandomNew.h" />
     <ClInclude Include="engine\Rect.h" />
+    <ClInclude Include="engine\scene\BaseNode.h" />
+    <ClInclude Include="engine\scene\CollisionNode.h" />
+    <ClInclude Include="engine\scene\Node.h" />
+    <ClInclude Include="engine\scene\SceneNode.h" />
+    <ClInclude Include="engine\scene\ShapeNode.h" />
     <ClInclude Include="engine\shape\Capsule.h" />
     <ClInclude Include="engine\shape\Cube.h" />
     <ClInclude Include="engine\shape\Cylinder.h" />
@@ -359,11 +370,13 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\bullet_store.h" />
     <ClInclude Include="src\DataStructs.h" />
+    <ClInclude Include="src\Entities\Entity.h" />
     <ClInclude Include="src\Globals.h" />
     <ClInclude Include="src\ImguiExtension.h" />
     <ClInclude Include="src\LoadingManager.h" />
     <ClInclude Include="src\States\Compute.h" />
     <ClInclude Include="src\States\ComputeParticleLogo.h" />
+    <ClInclude Include="src\States\Cubes.h" />
     <ClInclude Include="src\States\DeferredRendering.h" />
     <ClInclude Include="src\States\ImageBasedLighting.h" />
     <ClInclude Include="src\States\InstancedCube.h" />
@@ -372,7 +385,6 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClInclude Include="src\States\NormalMap.h" />
     <ClInclude Include="src\States\NuklearGui.h" />
     <ClInclude Include="src\States\OcclusionQuery.h" />
-    <ClInclude Include="src\States\PhysicsCube.h" />
     <ClInclude Include="src\States\PrimitivePicking.h" />
     <ClInclude Include="src\States\RenderBundles.h" />
     <ClInclude Include="src\States\ShadowMapping.h" />

@@ -55,9 +55,10 @@ public:
 		TRIGGER_1 = 4096,
 		TRIGGER_2 = 8192,
 		ENEMY = 16384,
+		CUBE = 32768,
 		COL_FORCE_8BIT = 0xFFFF
 	};
-
+	
 
 	Physics();
 	~Physics(void);

@@ -356,6 +356,7 @@ public:
              float m41, float m42, float m43, float m44);
 	void set(const Matrix4f& rhs);
 	void set(float array[16]);
+	void copy(float(&dest)[16]) const;
 
 	static Matrix4f GetNormalMatrix(const Matrix4f& modelViewMatrix);
 	static Matrix4f &GetNormalMatrix(Matrix4f& mtx, const Matrix4f& modelViewMatrix);

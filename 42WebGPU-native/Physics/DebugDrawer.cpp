@@ -1,29 +1,22 @@
 #include <WebGPU/WgpContext.h>
 #include "DebugDrawer.h"
+#include <iostream>
 
-DebugDrawer::DebugDrawer() : m_debugMode(0) {
+DebugDrawer::DebugDrawer() : m_debugMode(btIDebugDraw::DBG_DrawWireframe), m_wireframeMode(true) {
    
 }
 
 void DebugDrawer::init() {
-    WGPUBufferDescriptor lineDesc = {};
-    lineDesc.label = WGPU_STR("DebugDrawer Line Vertex Buffer");
-    lineDesc.usage = WGPUBufferUsage_Vertex | WGPUBufferUsage_CopyDst;
-    lineDesc.size = m_maxLineVertices * sizeof(DebugVertex);
-    lineDesc.mappedAtCreation = false;
-    m_lineBuffer = wgpuDeviceCreateBuffer(wgpContext.device, &lineDesc);
-
-    WGPUBufferDescriptor triDesc = {};
-    triDesc.label = WGPU_STR("DebugDrawer Triangle Vertex Buffer");
-    triDesc.usage = WGPUBufferUsage_Vertex | WGPUBufferUsage_CopyDst;
-    triDesc.size = m_maxTriangleVertices * sizeof(DebugVertex);
-    triDesc.mappedAtCreation = false;
-    m_triangleBuffer = wgpuDeviceCreateBuffer(wgpContext.device, &triDesc);
     initPipelines();
+    std::fill(std::begin(m_viewProjection), std::end(m_viewProjection), 0.0f);
 }
 
 DebugDrawer::~DebugDrawer() {
-    clear();
+    shutDown();
+}
+
+void DebugDrawer::toggleWireframe() {
+    m_wireframeMode = !m_wireframeMode;
 }
 
 void DebugDrawer::drawLine(const btVector3& from, const btVector3& to, const btVector3& fromColor, const btVector3& toColor) {
@@ -35,38 +28,44 @@ void DebugDrawer::drawLine(const btVector3& from, const btVector3& to, const btV
     drawLine(from, to, color, color);
 }
 
-void DebugDrawer::drawTriangle(const btVector3& a, const btVector3& b, const btVector3& c, const btVector3& color, btScalar alpha) {
-    m_triangleVertices.push_back({ (float)a.getX(), (float)a.getY(), (float)a.getZ(), (float)color.getX(), (float)color.getY(), (float)color.getZ(), (float)alpha });
-    m_triangleVertices.push_back({ (float)b.getX(), (float)b.getY(), (float)b.getZ(), (float)color.getX(), (float)color.getY(), (float)color.getZ(), (float)alpha });
-    m_triangleVertices.push_back({ (float)c.getX(), (float)c.getY(), (float)c.getZ(), (float)color.getX(), (float)color.getY(), (float)color.getZ(), (float)alpha });
+void DebugDrawer::drawTriangle(const btVector3& a, const btVector3& b, const btVector3& c, const btVector3& color, btScalar alpha) {  
+    if (m_wireframeMode) {
+        drawLine(a, b, color);
+        drawLine(b, c, color);
+        drawLine(c, a, color);
+    }else {
+        m_triangleVertices.push_back({ (float)a.getX(), (float)a.getY(), (float)a.getZ(), (float)color.getX(), (float)color.getY(), (float)color.getZ(), (float)alpha });
+        m_triangleVertices.push_back({ (float)b.getX(), (float)b.getY(), (float)b.getZ(), (float)color.getX(), (float)color.getY(), (float)color.getZ(), (float)alpha });
+        m_triangleVertices.push_back({ (float)c.getX(), (float)c.getY(), (float)c.getZ(), (float)color.getX(), (float)color.getY(), (float)color.getZ(), (float)alpha });
+    }
 }
 
 void DebugDrawer::drawSphere(const btVector3& p, btScalar radius, const btVector3& color) {
-    int lats = 5;
-    int longs = 5;
+    const float step = 45.0f;
+    const float DEG_TO_RAD = SIMD_PI / 180.0f;
 
-    for (int i = 0; i <= lats; i++) {
-        btScalar lat0 = SIMD_PI * (-btScalar(0.5) + (btScalar)(i - 1) / lats);
-        btScalar z0 = radius * sinf(lat0);
-        btScalar zr0 = radius * cosf(lat0);
+    for (float j = 0.0f; j < 180.0f; j += step) {
+        for (float i = 0.0f; i < 360.0f; i += step) {
+            float rad_i = i * DEG_TO_RAD;
+            float rad_j = j * DEG_TO_RAD;
+            float rad_i_next = (i + step) * DEG_TO_RAD;
+            float rad_j_next = (j + step) * DEG_TO_RAD;
 
-        btScalar lat1 = SIMD_PI * (-btScalar(0.5) + (btScalar)i / lats);
-        btScalar z1 = radius * sinf(lat1);
-        btScalar zr1 = radius * cosf(lat1);
+            btVector3 v1 = p + btVector3(radius * std::sinf(rad_i) * std::sinf(rad_j),
+                radius * std::cosf(rad_j),
+                radius * std::cosf(rad_i) * std::sinf(rad_j));
 
-        for (int j = 0; j <= longs; j++) {
-            btScalar lng0 = 2 * SIMD_PI * (btScalar)(j - 1) / longs;
-            btScalar x0 = cosf(lng0);
-            btScalar y0 = sinf(lng0);
+            btVector3 v2 = p + btVector3(radius * std::sinf(rad_i_next) * std::sinf(rad_j),
+                radius * std::cosf(rad_j),
+                radius * std::cosf(rad_i_next) * std::sinf(rad_j));
 
-            btScalar lng1 = 2 * SIMD_PI * (btScalar)j / longs;
-            btScalar x1 = cosf(lng1);
-            btScalar y1 = sinf(lng1);
+            btVector3 v3 = p + btVector3(radius * std::sinf(rad_i) * std::sinf(rad_j_next),
+                radius * std::cosf(rad_j_next),
+                radius * std::cosf(rad_i) * std::sinf(rad_j_next));
 
-            btVector3 v1 = p + btVector3(x0 * zr0, y0 * zr0, z0);
-            btVector3 v2 = p + btVector3(x0 * zr1, y0 * zr1, z1);
-            btVector3 v3 = p + btVector3(x1 * zr0, y1 * zr0, z0);
-            btVector3 v4 = p + btVector3(x1 * zr1, y1 * zr1, z1);
+            btVector3 v4 = p + btVector3(radius * std::sinf(rad_i_next) * std::sinf(rad_j_next),
+                radius * std::cosf(rad_j_next),
+                radius * std::cosf(rad_i_next) * std::sinf(rad_j_next));
 
             drawTriangle(v1, v2, v3, color, 1.0f);
             drawTriangle(v3, v2, v4, color, 1.0f);
@@ -80,6 +79,8 @@ void DebugDrawer::drawContactPoint(const btVector3& pointOnB, const btVector3& n
 }
 
 void DebugDrawer::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor) {
+
+    wgpuQueueWriteBuffer(wgpContext.queue, m_unifromBuffer, 0u, m_viewProjection, 64u);
 
     WGPURenderPassColorAttachment renderPassColorAttachment = renderPassDescriptor.colorAttachments[0];
     renderPassColorAttachment.loadOp = WGPULoadOp::WGPULoadOp_Load;
@@ -151,49 +152,97 @@ void DebugDrawer::reportErrorWarning(const char* warningString) {
 
 }
 
-void DebugDrawer::clear() {
+void DebugDrawer::shutDown() {
     m_lineVertices.clear();
     m_triangleVertices.clear();
 
     if (m_lineBuffer) {
         wgpuBufferDestroy(m_lineBuffer);
         wgpuBufferRelease(m_lineBuffer);
+        m_lineBuffer = NULL;
     }
+
     if (m_triangleBuffer) {
         wgpuBufferDestroy(m_triangleBuffer);
         wgpuBufferRelease(m_triangleBuffer);
+        m_triangleBuffer = NULL;
+    }
+
+    if (m_unifromBuffer) {
+        wgpuBufferDestroy(m_unifromBuffer);
+        wgpuBufferRelease(m_unifromBuffer);
+        m_unifromBuffer = NULL;
+    }
+
+    if (m_bindGroup) {
+        wgpuBindGroupRelease(m_bindGroup);
+        m_bindGroup = NULL;
+    }
+
+    if (m_linePipeline) {
+        wgpuRenderPipelineRelease(m_linePipeline);
+        m_linePipeline = NULL;
+    }
+
+    if (m_trianglePipeline) {
+        wgpuRenderPipelineRelease(m_trianglePipeline);
+        m_trianglePipeline = NULL;
     }
 }
 
 void DebugDrawer::initPipelines() {
- /*
-    WGPUShaderModuleWGSLDescriptor wgslDesc = {};
-    wgslDesc.chain.sType = WGPUSType_ShaderModuleWGSLDescriptor;
-    wgslDesc.code = shaderCode;
 
-    WGPUShaderModuleDescriptor shaderDesc = {};
-    shaderDesc.nextInChain = &wgslDesc.chain;
-    WGPUShaderModule shaderModule = wgpuDeviceCreateShaderModule(device, &shaderDesc);
+    WGPUBufferDescriptor lineDescriptor = {};
+    lineDescriptor.label = WGPU_STR("DebugDrawer Line Vertex Buffer");
+    lineDescriptor.usage = WGPUBufferUsage_Vertex | WGPUBufferUsage_CopyDst;
+    lineDescriptor.size = m_maxLineVertices * sizeof(DebugVertex);
+    lineDescriptor.mappedAtCreation = false;
+    m_lineBuffer = wgpuDeviceCreateBuffer(wgpContext.device, &lineDescriptor);
 
-    WGPUBindGroupLayoutEntry bglEntry = {};
-    bglEntry.binding = 0;
-    bglEntry.visibility = WGPUShaderStage_Vertex;
-    bglEntry.buffer.type = WGPUBufferBindingType_Uniform;
+    WGPUBufferDescriptor triangleDesc = {};
+    triangleDesc.label = WGPU_STR("DebugDrawer Triangle Vertex Buffer");
+    triangleDesc.usage = WGPUBufferUsage_Vertex | WGPUBufferUsage_CopyDst;
+    triangleDesc.size = m_maxTriangleVertices * sizeof(DebugVertex);
+    triangleDesc.mappedAtCreation = false;
+    m_triangleBuffer = wgpuDeviceCreateBuffer(wgpContext.device, &triangleDesc);
 
-    WGPUBindGroupLayoutDescriptor bglDesc = {};
-    bglDesc.entryCount = 1;
-    bglDesc.entries = &bglEntry;
-    WGPUBindGroupLayout bindGroupLayout = wgpuDeviceCreateBindGroupLayout(device, &bglDesc);
+    std::vector<WGPUVertexAttribute> vertexAttribute = std::vector<WGPUVertexAttribute>(2);
 
-    WGPUPipelineLayoutDescriptor layoutDesc = {};
-    layoutDesc.bindGroupLayoutCount = 1;
-    layoutDesc.bindGroupLayouts = &bindGroupLayout;
-    WGPUPipelineLayout pipelineLayout = wgpuDeviceCreatePipelineLayout(device, &layoutDesc);
+    vertexAttribute[0].shaderLocation = 0u;
+    vertexAttribute[0].format = WGPUVertexFormat::WGPUVertexFormat_Float32x3;
+    vertexAttribute[0].offset = 0u;
+
+    vertexAttribute[1].shaderLocation = 1u;
+    vertexAttribute[1].format = WGPUVertexFormat::WGPUVertexFormat_Float32x4;
+    vertexAttribute[1].offset = 3 * sizeof(float);
+
+    WGPUVertexBufferLayout vertexBufferLayout = {};
+    vertexBufferLayout.attributeCount = (uint32_t)vertexAttribute.size();
+    vertexBufferLayout.attributes = vertexAttribute.data();
+    vertexBufferLayout.arrayStride = 28u;
+    vertexBufferLayout.stepMode = WGPUVertexStepMode::WGPUVertexStepMode_Vertex;
+    
+    WGPUShaderModule shaderModule = wgpCreateShaderFromFile("res/shader/physics_debug.wgsl");
+
+    WGPUBindGroupLayoutEntry bindGroupLayoutEntry = {};
+    bindGroupLayoutEntry.binding = 0;
+    bindGroupLayoutEntry.visibility = WGPUShaderStage_Vertex;
+    bindGroupLayoutEntry.buffer.type = WGPUBufferBindingType_Uniform;
+
+    WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
+    bindGroupLayoutDescriptor.entryCount = 1;
+    bindGroupLayoutDescriptor.entries = &bindGroupLayoutEntry;
+    WGPUBindGroupLayout bindGroupLayout = wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor);
+
+    WGPUPipelineLayoutDescriptor pipelineLayoutDescriptor = {};
+    pipelineLayoutDescriptor.bindGroupLayoutCount = 1;
+    pipelineLayoutDescriptor.bindGroupLayouts = &bindGroupLayout;
+    WGPUPipelineLayout pipelineLayout = wgpuDeviceCreatePipelineLayout(wgpContext.device, &pipelineLayoutDescriptor);
 
     WGPUVertexState vertexState = {};
     vertexState.module = shaderModule;
-    vertexState.entryPoint = "vs_main";
-    vertexState.bufferCount = 1;
+    vertexState.entryPoint = WGPU_STR("vs_main");
+    vertexState.bufferCount = 1u;
     vertexState.buffers = &vertexBufferLayout;
 
     WGPUBlendState blendState = {};
@@ -204,41 +253,80 @@ void DebugDrawer::initPipelines() {
     blendState.alpha.dstFactor = WGPUBlendFactor_Zero;
     blendState.alpha.operation = WGPUBlendOperation_Add;
 
-    WGPUColorTargetState colorTarget = {};
-    colorTarget.format = renderTargetFormat;
-    colorTarget.blend = &blendState;
-    colorTarget.writeMask = WGPUColorWriteMask_All;
+    WGPUColorTargetState colorTargetState = {};
+    colorTargetState.format = wgpContext.colorFormat;
+    colorTargetState.blend = &blendState;
+    colorTargetState.writeMask = WGPUColorWriteMask_All;
 
     WGPUFragmentState fragmentState = {};
     fragmentState.module = shaderModule;
-    fragmentState.entryPoint = "fs_main";
-    fragmentState.targetCount = 1;
-    fragmentState.targets = &colorTarget;
+    fragmentState.entryPoint = WGPU_STR("fs_main");
+    fragmentState.targetCount = 1u;
+    fragmentState.targets = &colorTargetState;
 
-    WGPUDepthStencilState depthStencil = {};
-    depthStencil.format = WGPUTextureFormat_Depth24Plus;
-    depthStencil.depthWriteEnabled = true;
-    depthStencil.depthCompare = WGPUCompareFunction_Less;
+    WGPUDepthStencilState depthStencilState = {};
+    depthStencilState.nextInChain = NULL;
+    depthStencilState.format = wgpContext.depthFormat;
+    depthStencilState.depthWriteEnabled = WGPUOptionalBool::WGPUOptionalBool_False;
+    depthStencilState.depthCompare = WGPUCompareFunction::WGPUCompareFunction_Less;
 
-    WGPURenderPipelineDescriptor pipelineDesc = {};
-    pipelineDesc.layout = pipelineLayout;
-    pipelineDesc.vertex = vertexState;
-    pipelineDesc.fragment = &fragmentState;
-    pipelineDesc.depthStencil = &depthStencil;
-    pipelineDesc.multisample.count = 1;
+    depthStencilState.stencilFront.compare = WGPUCompareFunction::WGPUCompareFunction_Always;
+    depthStencilState.stencilFront.failOp = WGPUStencilOperation::WGPUStencilOperation_Keep;
+    depthStencilState.stencilFront.depthFailOp = WGPUStencilOperation::WGPUStencilOperation_Keep;
+    depthStencilState.stencilFront.passOp = WGPUStencilOperation::WGPUStencilOperation_Keep;
+    depthStencilState.stencilBack.compare = WGPUCompareFunction::WGPUCompareFunction_Always;
+    depthStencilState.stencilBack.failOp = WGPUStencilOperation::WGPUStencilOperation_Keep;
+    depthStencilState.stencilBack.depthFailOp = WGPUStencilOperation::WGPUStencilOperation_Keep;
+    depthStencilState.stencilBack.passOp = WGPUStencilOperation::WGPUStencilOperation_Keep;
+    depthStencilState.stencilReadMask = 0u;
+    depthStencilState.stencilWriteMask = 0u;
+    depthStencilState.depthBias = 0;
+    depthStencilState.depthBiasSlopeScale = 0.0f;
+    depthStencilState.depthBiasClamp = 0.0f;
 
+    WGPURenderPipelineDescriptor renderPipelineDescriptor = {};
+    renderPipelineDescriptor.layout = pipelineLayout;
+    renderPipelineDescriptor.vertex = vertexState;
+    renderPipelineDescriptor.fragment = &fragmentState;
+    renderPipelineDescriptor.depthStencil = &depthStencilState;
+    renderPipelineDescriptor.multisample.count = 1u;
+    renderPipelineDescriptor.multisample.mask = ~0u;
+    renderPipelineDescriptor.multisample.alphaToCoverageEnabled = WGPUOptionalBool::WGPUOptionalBool_False;
+    renderPipelineDescriptor.primitive.stripIndexFormat = WGPUIndexFormat_Undefined;
+    renderPipelineDescriptor.primitive.cullMode = WGPUCullMode_None;
 
-    pipelineDesc.primitive.topology = WGPUPrimitiveTopology_LineList;
-    pipelineDesc.primitive.stripIndexFormat = WGPUIndexFormat_Undefined;
-    m_linePipeline = wgpuDeviceCreateRenderPipeline(device, &pipelineDesc);
+    renderPipelineDescriptor.primitive.topology = WGPUPrimitiveTopology_LineList;  
+    m_linePipeline = wgpuDeviceCreateRenderPipeline(wgpContext.device, &renderPipelineDescriptor);
 
+    renderPipelineDescriptor.primitive.topology = WGPUPrimitiveTopology_TriangleList;
+    m_trianglePipeline = wgpuDeviceCreateRenderPipeline(wgpContext.device, &renderPipelineDescriptor);
 
-    pipelineDesc.primitive.topology = WGPUPrimitiveTopology_TriangleList;
-    pipelineDesc.primitive.cullMode = WGPUCullMode_None;
-    m_trianglePipeline = wgpuDeviceCreateRenderPipeline(device, &pipelineDesc);
+    WGPUBufferDescriptor bufferDesc = {};
+    bufferDesc.label = WGPU_STR("uniform_buf");
+    bufferDesc.size = 16u * sizeof(float);;
+    bufferDesc.usage = WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform;
+    bufferDesc.mappedAtCreation = false;
+
+    m_unifromBuffer = wgpuDeviceCreateBuffer(wgpContext.device, &bufferDesc);
+
+    std::vector<WGPUBindGroupEntry> bindGroupEntries(1);
+    bindGroupEntries[0].binding = 0u;
+    bindGroupEntries[0].buffer = m_unifromBuffer;
+    bindGroupEntries[0].offset = 0u;
+    bindGroupEntries[0].size = 16u * sizeof(float);
+
+    WGPUBindGroupDescriptor bindGroupDesc = {};
+    bindGroupDesc.layout = bindGroupLayout;
+    bindGroupDesc.entryCount = (uint32_t)bindGroupEntries.size();
+    bindGroupDesc.entries = bindGroupEntries.data();
+
+    m_bindGroup = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
 
     wgpuBindGroupLayoutRelease(bindGroupLayout);
     wgpuPipelineLayoutRelease(pipelineLayout);
     wgpuShaderModuleRelease(shaderModule);
- */
+}
+
+float(&DebugDrawer::getViewProjection())[16]{
+    return m_viewProjection;
 }

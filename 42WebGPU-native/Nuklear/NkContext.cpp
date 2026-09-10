@@ -196,6 +196,10 @@ void nkShutDown() {
 		nkContext.pipelineLayout = NULL;
 	}
 
+	if (nkContext.renderPipeline) {
+		wgpuRenderPipelineRelease(nkContext.renderPipeline);
+	}
+
 	nk_free(&nkContext.context);
 	nk_font_atlas_clear(&nkContext.fontAtlas);
 	nk_buffer_free(&nkContext.vertexBuffer);
@@ -351,6 +355,7 @@ void nkCreateRenderPipeline(WGPURenderPipeline& renderPipeline) {
 	depthStencilState.format = wgpContext.depthFormat;
 	depthStencilState.depthWriteEnabled = WGPUOptionalBool::WGPUOptionalBool_False;
 	depthStencilState.depthCompare = WGPUCompareFunction::WGPUCompareFunction_Less;
+
 	depthStencilState.stencilFront.compare = WGPUCompareFunction::WGPUCompareFunction_Always;
 	depthStencilState.stencilFront.failOp = WGPUStencilOperation::WGPUStencilOperation_Keep;
 	depthStencilState.stencilFront.depthFailOp = WGPUStencilOperation::WGPUStencilOperation_Keep;

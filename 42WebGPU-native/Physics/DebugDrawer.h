@@ -10,8 +10,8 @@ struct DebugVertex {
 };
 
 class DebugDrawer : public btIDebugDraw {
-    uint64_t m_maxLineVertices = 100000;
-    uint64_t m_maxTriangleVertices = 100000;
+    uint64_t m_maxLineVertices = 100000u;
+    uint64_t m_maxTriangleVertices = 100000u;
 
 public:
 
@@ -20,7 +20,7 @@ public:
    
 
     void OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor);
-    void clear();
+    void shutDown();
 
     void drawLine(const btVector3& from, const btVector3& to, const btVector3& fromColor, const btVector3& toColor) override;
     void drawLine(const btVector3& from, const btVector3& to, const btVector3& color) override;
@@ -32,17 +32,25 @@ public:
     void draw3dText(const btVector3& location, const char* textString) override;
     void reportErrorWarning(const char* warningString) override;
 
-    void init();
-    void initPipelines();
+    void init();  
+    float(&getViewProjection())[16];
+    void toggleWireframe();
+
 private:
 
+    void initPipelines();
+
     int m_debugMode;
+    bool m_wireframeMode;
+
     std::vector<DebugVertex> m_lineVertices;
     std::vector<DebugVertex> m_triangleVertices;
 
-    WGPURenderPipeline m_linePipeline;
-    WGPURenderPipeline m_trianglePipeline;
-    WGPUBindGroup m_bindGroup;
-    WGPUBuffer m_lineBuffer;
-    WGPUBuffer m_triangleBuffer;
+    WGPURenderPipeline m_linePipeline = NULL;
+    WGPURenderPipeline m_trianglePipeline = NULL;
+    WGPUBindGroup m_bindGroup = NULL;
+    WGPUBuffer m_lineBuffer = NULL;
+    WGPUBuffer m_triangleBuffer = NULL;
+    WGPUBuffer m_unifromBuffer = NULL;
+    float m_viewProjection[16];
 };

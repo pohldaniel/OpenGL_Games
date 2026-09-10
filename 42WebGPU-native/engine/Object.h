@@ -71,21 +71,18 @@ public:
 	Object(Object&& rhs) noexcept;
 	Object& operator=(Object&& rhs) noexcept;
 
-	virtual void setScale(float sx, float sy, float sz);
-	virtual void setScale(const Vector3f& scale);
-	virtual void setScale(float s);
+	virtual void setScale(float sx, float sy, float sz) const;
+	virtual void setScale(const Vector3f& scale) const;
+	virtual void setScale(float s) const;
 
-	virtual void setPosition(float x, float y, float z);
-	virtual void setPosition(const Vector3f& position);
+	virtual void setPosition(float x, float y, float z) const;
+	virtual void setPosition(const Vector3f& position) const;
 
-	virtual void setOrigin(float x, float y, float z);
-	virtual void setOrigin(const Vector3f& origin);
-
-	virtual void setOrientation(const Vector3f& axis, float degrees);
-	virtual void setOrientation(float degreesX, float degreesY, float degreesZ);	
-	virtual void setOrientation(const Vector3f& eulerAngle);
-	virtual void setOrientation(const Quaternion& orientation);
-	virtual void setOrientation(float x, float y, float z, float w);
+	virtual void setOrientation(const Vector3f& axis, float degrees) const;
+	virtual void setOrientation(float degreesX, float degreesY, float degreesZ) const;
+	virtual void setOrientation(const Vector3f& eulerAngle) const;
+	virtual void setOrientation(const Quaternion& orientation) const;
+	virtual void setOrientation(float x, float y, float z, float w) const;
 
 	virtual void translate(const Vector3f& trans);
 	virtual void translate(float dx, float dy, float dz);
@@ -122,10 +119,9 @@ public:
 
 protected:
 
-	Vector3f m_position;
-	Vector3f m_origin;
-	Vector3f m_scale;	
-	Quaternion m_orientation;
+	mutable Vector3f m_position;
+	mutable Vector3f m_scale;
+	mutable Quaternion m_orientation;
 
 	static thread_local Matrix4f Transformation;
 };

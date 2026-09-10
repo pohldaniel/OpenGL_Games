@@ -25,7 +25,7 @@
 #include <States/VideoDecode.h>
 #include <States/RenderBundles.h>
 #include <States/NuklearGui.h>
-#include <States/PhysicsCube.h>
+#include <States/Cubes.h>
 #include <States/Isometric.h>
 
 #include "Application.h"
@@ -335,7 +335,7 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new VideoDecode(*Machine));
 	//Machine->addStateAtTop(new RenderBundles(*Machine));
 	//Machine->addStateAtTop(new NuklearGui(*Machine));
-	Machine->addStateAtTop(new PhysicsCube(*Machine));
+	Machine->addStateAtTop(new Cubes(*Machine));
 	//Machine->addStateAtTop(new Isometric(*Machine));
 }
 

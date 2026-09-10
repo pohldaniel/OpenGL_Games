@@ -1116,6 +1116,10 @@ void Matrix4f::set(float array[16]) {
 	mtx[3][0] = array[12], mtx[3][1] = array[13], mtx[3][2] = array[14], mtx[3][3] = array[15];
 }
 
+void Matrix4f::copy(float(&dest)[16]) const {
+	std::copy(&mtx[0][0], &mtx[0][0] + 16, dest);
+}
+
 void Matrix4f::toHeadPitchRoll(float &pitch, float &yaw, float &roll) const {
 	// Extracts the Euler angles from a rotation matrix. The returned
 	// angles are in degrees. This method might suffer from numerical

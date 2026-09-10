@@ -55,6 +55,12 @@
     <Filter Include="engine\video">
       <UniqueIdentifier>{0c314608-3a08-4973-adac-2b969c132df6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="engine\scene">
+      <UniqueIdentifier>{139321be-08c4-4d43-a29c-6fa23fb2cff4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Entities">
+      <UniqueIdentifier>{1ba94891-ee1f-4ba4-acc9-f44ba8128f92}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\input\ApplicationEventListener.cpp">
@@ -345,14 +351,32 @@
     <ClCompile Include="engine\sound\AudioEffect.cpp">
       <Filter>engine\sound</Filter>
     </ClCompile>
-    <ClCompile Include="src\States\PhysicsCube.cpp">
-      <Filter>Source Files\States</Filter>
-    </ClCompile>
     <ClCompile Include="Physics\Physics.cpp">
       <Filter>Physics</Filter>
     </ClCompile>
     <ClCompile Include="Physics\DebugDrawer.cpp">
       <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\scene\SceneNode.cpp">
+      <Filter>engine\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\scene\BaseNode.cpp">
+      <Filter>engine\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\scene\Node.cpp">
+      <Filter>engine\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="src\States\Cubes.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\scene\ShapeNode.cpp">
+      <Filter>engine\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\scene\CollisionNode.cpp">
+      <Filter>engine\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Entities\Entity.cpp">
+      <Filter>Source Files\Entities</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -686,14 +710,32 @@
     <ClInclude Include="engine\sound\AudioEffect.h">
       <Filter>engine\sound</Filter>
     </ClInclude>
-    <ClInclude Include="src\States\PhysicsCube.h">
-      <Filter>Source Files\States</Filter>
-    </ClInclude>
     <ClInclude Include="Physics\Physics.h">
       <Filter>Physics</Filter>
     </ClInclude>
     <ClInclude Include="Physics\DebugDrawer.h">
       <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\scene\SceneNode.h">
+      <Filter>engine\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\scene\BaseNode.h">
+      <Filter>engine\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\scene\Node.h">
+      <Filter>engine\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\Cubes.h">
+      <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\scene\ShapeNode.h">
+      <Filter>engine\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\scene\CollisionNode.h">
+      <Filter>engine\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Entities\Entity.h">
+      <Filter>Source Files\Entities</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

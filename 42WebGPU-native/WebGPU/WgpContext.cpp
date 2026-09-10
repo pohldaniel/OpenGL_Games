@@ -217,6 +217,7 @@ bool wgpCreateDevice(void* window) {
 	wgpCreateVertexBufferLayout(VL_P);
 	wgpCreateVertexBufferLayout(VL_PT);
 	wgpCreateVertexBufferLayout(VL_PN);
+	wgpCreateVertexBufferLayout(VL_PC);
 	wgpCreateVertexBufferLayout(VL_PNC);
 	wgpCreateVertexBufferLayout(VL_PTN);
 	wgpCreateVertexBufferLayout(VL_PTNC);
@@ -445,6 +446,24 @@ void wgpCreateVertexBufferLayout(VertexLayoutSlot slot) {
 		wgpVertexBufferLayout.arrayStride = 6 * sizeof(float);
 		wgpVertexBufferLayout.stepMode = WGPUVertexStepMode::WGPUVertexStepMode_Vertex;
 		wgpVertexBufferLayouts[VL_PN].push_back(wgpVertexBufferLayout);
+	}else if (wgpVertexBufferLayouts.count(VL_PC) == 0 && slot == VL_PC) {
+		std::vector<WGPUVertexAttribute>& wgpVertexAttribute = wgpVertexAttributes[VL_PC];
+		wgpVertexAttribute.resize(2);
+
+		wgpVertexAttribute[0].shaderLocation = 0;
+		wgpVertexAttribute[0].format = WGPUVertexFormat::WGPUVertexFormat_Float32x3;
+		wgpVertexAttribute[0].offset = 0;
+
+		wgpVertexAttribute[1].shaderLocation = 1;
+		wgpVertexAttribute[1].format = WGPUVertexFormat::WGPUVertexFormat_Float32x4;
+		wgpVertexAttribute[1].offset = 3 * sizeof(float);
+
+		WGPUVertexBufferLayout wgpVertexBufferLayout = {};
+		wgpVertexBufferLayout.attributeCount = (uint32_t)wgpVertexAttribute.size();
+		wgpVertexBufferLayout.attributes = wgpVertexAttribute.data();
+		wgpVertexBufferLayout.arrayStride = 7 * sizeof(float);
+		wgpVertexBufferLayout.stepMode = WGPUVertexStepMode::WGPUVertexStepMode_Vertex;
+		wgpVertexBufferLayouts[VL_PC].push_back(wgpVertexBufferLayout);
 	}else if (wgpVertexBufferLayouts.count(VL_PNC) == 0 && slot == VL_PNC) {
 		std::vector<WGPUVertexAttribute>& wgpVertexAttribute = wgpVertexAttributes[VL_PNC];
 		wgpVertexAttribute.resize(3);
