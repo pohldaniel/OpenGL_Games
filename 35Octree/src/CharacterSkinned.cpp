@@ -68,10 +68,7 @@ CharacterSkinned::CharacterSkinned(const AnimatedModel& ainamtedModel, Lift* lif
 CharacterSkinned::~CharacterSkinned() {
 	
 	delete m_kinematicController;
-	delete m_animationController;
-
-	m_sword->eraseSelf();
-	delete m_sword; 
+	delete m_animationController; 
 	delete m_animationNode;
 }
 
@@ -209,11 +206,11 @@ void CharacterSkinned::processWeaponAction(bool equip, bool lMouseB) {
 			m_weaponActionAnim = "girl_unsheath";
 			m_animationController->play(m_weaponActionAnim, WeaponLayer, false, 0.0f);
 			m_animationController->setTime(m_weaponActionAnim, 0.0f);
-			m_sword->eraseSelf();
-			m_rightHandLocatorNode->addChild(m_sword, true);
+
+			auto swordPtr = m_swordLocatorNode->detachChild(m_sword);
+			m_rightHandLocatorNode->attachChild(std::move(swordPtr));
 			m_sword->OnTransformChanged();
 			m_weaponActionState = Weapon_Equipping;
-
 		}
 		break;
 
@@ -265,11 +262,10 @@ void CharacterSkinned::processWeaponAction(bool equip, bool lMouseB) {
 		m_animationController->play(m_weaponActionAnim, WeaponLayer, false, 0.1f);
 		if (m_animationController->isAtEnd(m_weaponActionAnim)) {
 			m_animationController->stopLayer(WeaponLayer, 0.2f);
-			m_sword->eraseSelf();
-			m_swordLocatorNode->addChild(m_sword, true);
+			auto swordPtr = m_rightHandLocatorNode->detachChild(m_sword);
+			m_swordLocatorNode->attachChild(std::move(swordPtr));
 			m_sword->OnTransformChanged();
-			m_weaponActionState = Weapon_Unequipped;
-			
+			m_weaponActionState = Weapon_Unequipped;			
 		}
 		break;
 	case Weapon_AttackAnim:

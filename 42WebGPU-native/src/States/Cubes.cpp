@@ -20,6 +20,7 @@
 #include "Globals.h"
 
 Cubes::Cubes(StateMachine& machine) : State(machine, States::CUBES) {
+
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
@@ -34,8 +35,8 @@ Cubes::Cubes(StateMachine& machine) : State(machine, States::CUBES) {
 
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f,  -1.0f, 1.0f);
-	m_camera.lookAt(Vector3f(0.0f, 4.3f, 4.0f), Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
-	m_camera.setMovingSpeed(50.0f);
+	m_camera.lookAt(Vector3f(10.0f, 4.3f, 10.0f), Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.setMovingSpeed(10.0f);
 	m_camera.setRotationSpeed(0.1f);
 
 	m_trackball.reshape(Application::Width, Application::Height);
@@ -54,34 +55,49 @@ Cubes::Cubes(StateMachine& machine) : State(machine, States::CUBES) {
 
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
 
-	wgpContext.setClearColor({ 0.2f, 0.2f, 0.2f, 1.0f });
+	wgpContext.setClearColor({ 0.7f, 0.7f, 0.7f, 1.0f });
 	wgpContext.OnDraw = std::bind(&Cubes::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
 	nkContext.OnFillBuffer = std::bind(&Cubes::OnFillBuffer, this, std::placeholders::_1);
 	
 	m_scene = new SceneNode();
+	m_scene->setOnChildAdded([this](Node* newNode) {
+		if (auto* sceneNode = dynamic_cast<SceneNode*>(newNode)) {
+			m_children.push_back(sceneNode);
+		}
+	});
+
+	m_scene->setOnChildRemoved([this](Node* removedNode) {
+		auto it = std::find(m_children.begin(), m_children.end(), removedNode);
+		if (it != m_children.end()) {
+			std::iter_swap(it, m_children.end() - 1);
+			m_children.pop_back();
+		}
+	});
 
 	btCollisionObject* body = Physics::AddStaticObject(Physics::BtTransform(btVector3(0.0f, -50.0f, 0.0f)), new btBoxShape(btVector3(50.0f, 50.0f, 50.0f)), Physics::collisiontypes::FLOOR, Physics::collisiontypes::CUBE, nullptr);
-	m_scene->addChild<CollisionNode>(body);
-	
+	SceneNode* node = m_scene->addChild<SceneNode>();
+	node->setScale(250.0f * 2.0f, 250.0f * 2.0f, 250.0f * 2.0f);
+	node->setPosition(0.0f, -50.0f, 0.0f);
+
 	btTransform startTransform;
 	startTransform.setIdentity();
 	for (int k = 0; k < ARRAY_SIZE_Y; k++){
 		for (int i = 0; i < ARRAY_SIZE_X; i++){
 			for (int j = 0; j < ARRAY_SIZE_Z; j++){
 				startTransform.setOrigin(btVector3(btScalar(0.2 * i), btScalar(2 + .2 * k), btScalar(0.2 * j)));
-				btRigidBody* _body = Physics::AddRigidBody(1.0f, startTransform, new btBoxShape(btVector3(0.1f, 0.1f, 0.1f)), Physics::collisiontypes::CUBE, Physics::collisiontypes::CUBE | Physics::collisiontypes::FLOOR);
-				m_scene->addChild<CollisionNode>(_body);
+				btRigidBody* body = Physics::AddRigidBody(1.0f, startTransform, new btBoxShape(btVector3(0.1f, 0.1f, 0.1f)), Physics::collisiontypes::CUBE, Physics::collisiontypes::CUBE | Physics::collisiontypes::FLOOR);
+				m_scene->addChild<CollisionNode>(body);
 			}
 		}
 	}
 
-	m_storageBuffer.createBuffer(126u * sizeof(GPUInstanceData), WGPUBufferUsage_Storage | WGPUBufferUsage_CopyDst);
+	m_storageBuffer.createBuffer(5000u * sizeof(GPUInstanceData), WGPUBufferUsage_Storage | WGPUBufferUsage_CopyDst);
 	wgpContext.addSahderModule("STORAGE", "res/shader/physics.wgsl");
 	wgpContext.createRenderPipeline("STORAGE", "RP_STORAGE", VL_P, std::bind(&Cubes::OnBindGroupLayouts, this));
 
 	m_cube.buildCube({ -0.1f, -0.1f, -0.1f }, { 0.2f, 0.2f, 0.2f }, 1u, 1u, false, false);
 	m_wgpCube.create(m_cube);
-	m_wgpCube.setBindGroups("BG", std::bind(&Cubes::OnBindGroups, this));
+	m_wgpCube.setBindGroups("BG", std::bind(&Cubes::OnBindGroups, this));	
 }
 
 Cubes::~Cubes() {
@@ -145,6 +161,13 @@ void Cubes::update() {
 		Physics::DebugDrawer.toggleWireframe();
 	}
 
+	if (keyboard.keyPressed(Keyboard::KEY_T)) {
+		m_debugPhysic = !m_debugPhysic;
+	}
+
+	if (mouse.buttonPressed(Mouse::MouseButton::BUTTON_LEFT)) {
+		shootCube(mouse.xPos(), mouse.yPos());
+	}
 
 	if (mouse.buttonDownInvisible(Mouse::MouseButton::BUTTON_RIGHT)) {
 		dx = mouse.xDelta();
@@ -172,31 +195,27 @@ void Cubes::update() {
 	m_uniforms.lightVP = Matrix4f::IDENTITY;
 	m_uniforms.shadow = Matrix4f::BIAS * m_uniforms.lightVP;
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0u, &m_uniforms, sizeof(Uniforms));
-
-	Matrix4f viewProjection = m_camera.getPerspectiveMatrix() * m_camera.getViewMatrix();
-	viewProjection.copy(Physics::DebugDrawer.getViewProjection());
-
-	std::vector<GPUInstanceData> cpuInstanceBuffer;
-	cpuInstanceBuffer.reserve(m_scene->getChildren().size());
-
-	for (const auto& child : m_scene->getChildren()) {
-		auto* collisionNode = dynamic_cast<CollisionNode*>(child.get());
-		if (!collisionNode) continue;
-
-		GPUInstanceData data;
-		data.modelMatrix = collisionNode->getWorldTransformation();
-
-		// Farbe kopieren
-		//const float* col = collisionNode->getColor();
-		data.color[0] = 1.0f;
-		data.color[1] = 0.0f;
-		data.color[2] = 0.0f;
-		data.color[3] = 1.0f;
-
-		cpuInstanceBuffer.push_back(data);
+	
+	if (m_debugPhysic) {
+		Matrix4f viewProjection = m_camera.getPerspectiveMatrix() * m_camera.getViewMatrix();
+		viewProjection.copy(Physics::DebugDrawer.getViewProjection());
 	}
 
-	wgpuQueueWriteBuffer(wgpContext.queue, m_storageBuffer.getBuffer(), 0u, cpuInstanceBuffer.data(), cpuInstanceBuffer.size() * sizeof(GPUInstanceData));
+	m_cpuInstanceBuffer.clear();
+	m_cpuInstanceBuffer.reserve(m_scene->getChildren().size());
+
+	int counter = 0;
+	bool first = true;
+	for (const auto& child : m_children) {
+		GPUInstanceData data;
+		data.modelMatrix = child->getWorldTransformation();
+		data.color = first ? Vector4f(161.0f / 256.0f, 155.0f / 256.0f, 114.0f / 256.0f, 1.0f) : colors[counter];
+		m_cpuInstanceBuffer.push_back(data);
+		counter = (counter + 1) % 4;
+		first = false;
+	}
+
+	wgpuQueueWriteBuffer(wgpContext.queue, m_storageBuffer.getBuffer(), 0u, m_cpuInstanceBuffer.data(), m_cpuInstanceBuffer.size() * sizeof(GPUInstanceData));
 
 }
 
@@ -205,21 +224,22 @@ void Cubes::render() {
 }
 
 void Cubes::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor) {
+	
 	{
-		//Physics::GetDynamicsWorld()->debugDrawWorld();
-		//Physics::DebugDrawer.OnDraw(commandEncoder, renderPassDescriptor);
-	}
-
-	{
-
-
 		WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDescriptor);
 		wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
 		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_STORAGE"));
-		m_wgpCube.draw(renderPassEncoder, 126u);
+		
+		m_wgpCube.draw(renderPassEncoder, m_cpuInstanceBuffer.size());
 
 		wgpuRenderPassEncoderEnd(renderPassEncoder);
 		wgpuRenderPassEncoderRelease(renderPassEncoder);
+	}
+
+	if(m_debugPhysic)
+	{
+		Physics::GetDynamicsWorld()->debugDrawWorld();
+		Physics::DebugDrawer.OnDraw(commandEncoder, renderPassDescriptor);
 	}
 
 	if (m_drawUi)
@@ -382,4 +402,27 @@ std::vector<WGPUBindGroup> Cubes::OnBindGroups() {
 	bindGroups[0] = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
 
 	return bindGroups;
+}
+
+void Cubes::shootCube(unsigned int posX, unsigned int posY) {
+	float mouseXndc = (2.0f * posX) / static_cast<float>(Application::Width) - 1.0f;
+	float mouseYndc = 1.0f - (2.0f * posY) / static_cast<float>(Application::Height);
+	float tanfov = m_camera.getInvPerspectiveMatrixNew()[1][1];
+	float aspect = (static_cast<float>(Application::Width) / static_cast<float>(Application::Height));
+
+	Vector3f rayStartWorld = m_camera.getPosition() + (m_camera.getCamX() * mouseXndc * tanfov * aspect + m_camera.getCamY() * mouseYndc * tanfov + m_camera.getViewDirection()) * m_camera.getNear();
+	Vector3f rayEndWorld = m_camera.getPosition() + (m_camera.getCamX() * mouseXndc * tanfov * aspect + m_camera.getCamY() * mouseYndc * tanfov + m_camera.getViewDirection()) * m_camera.getFar();
+
+	Vector3f shootDirection = Vector3f::Normalize(rayEndWorld - rayStartWorld);
+	Vector3f spawnPos = m_camera.getPosition() + shootDirection * 1.5f;
+	float shootForce = 40.0f;
+	Vector3f velocity = shootDirection * shootForce;
+	
+	btTransform transform;
+	transform.setIdentity();
+	transform.setOrigin(Physics::VectorFrom(spawnPos));
+	btRigidBody* body = Physics::AddRigidBody(1.0f, transform, new btBoxShape(btVector3(0.1f, 0.1f, 0.1f)), Physics::collisiontypes::CUBE, Physics::collisiontypes::CUBE | Physics::collisiontypes::FLOOR);
+
+	auto* cubeNode = m_scene->addChild<CollisionNode>(body);
+	body->setLinearVelocity(Physics::VectorFrom(velocity));
 }

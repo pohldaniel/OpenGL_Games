@@ -49,6 +49,9 @@ public:
 
 	size_t countNodes();
 
+	Node* attachChild(std::unique_ptr<Node, std::function<void(Node* node)>> child);
+	std::unique_ptr<Node, std::function<void(Node*)>> Node::detachChild(Node* childToDetach);
+
 protected:
 
 	mutable std::list<std::unique_ptr<Node, std::function<void(Node* node)>>> m_children;

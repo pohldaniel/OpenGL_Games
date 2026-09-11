@@ -5,12 +5,11 @@
 #include <algorithm>
 #include <memory>
 
-#include "../utils/StringHash.h"
-#include "../Camera.h"
-
 class Node {
 
 public:
+
+	using NodeCallback = std::function<void(Node*)>;
 
 	Node();
 	Node(const Node& rhs);
@@ -25,7 +24,9 @@ public:
 	void setName(const std::string& name);
 	void setId(const int id);
 	
-	std::list<std::unique_ptr<Node, std::function<void(Node* node)>>>& getChildren() const;	
+	std::list<std::unique_ptr<Node, std::function<void(Node* node)>>>& getChildren() const;
+	template <typename T> std::vector<T*> getChildren() const;
+
 	const int getId() const;
 	const Node* getParent() const;
 
@@ -39,19 +40,19 @@ public:
 	template <class T> void eraseChildren() const;
 
 	Node* addChild(Node* node, bool disableDelete = false);
-
 	template <class T> T* addChild(bool disableDelete = false);
 	template <class T, class U> T* addChild(const U& ref, bool disableDelete = false);
-	template <class T, class U> T* addChild(const U& ref, const Camera& camera, bool disableDelete = false);
-	template <class T, class U, class V> T* addChild(const U& ref1, const V& ref2, bool disableDelete = false);
+	template <class T, class U> T* addChild(U* ref, bool disableDelete = false);
 
 	template <class T> T* findChild(std::string name, bool recursive = true) const;
-	template <class T> T* findChild(StringHash nameHash, bool recursive = true) const;
 	template <class T> T* findChild(const int id, bool recursive = true) const;
 
 	template <class T> size_t countChild(bool recursive = true) const;
 
 	size_t countNodes();
+
+	void setOnChildAdded(NodeCallback callback);
+	void setOnChildRemoved(NodeCallback callback);
 
 	Node* attachChild(std::unique_ptr<Node, std::function<void(Node* node)>> child);
 	std::unique_ptr<Node, std::function<void(Node*)>> Node::detachChild(Node* childToDetach);
@@ -61,62 +62,48 @@ protected:
 	mutable std::list<std::unique_ptr<Node, std::function<void(Node* node)>>> m_children;
 	Node* m_parent;
 	bool m_markForRemove;
-	StringHash m_nameHash;
 	int m_id;
+	std::string m_name;
+
+	NodeCallback OnChildAdded;
+	NodeCallback OnChildRemoved;
 };
 
 template <class T> T* Node::addChild(bool disableDelete) {
-	if (disableDelete)
-		m_children.emplace_back(std::unique_ptr<T, std::function<void(Node* node)>>(new T(), [&](Node* node) {}));
-	else
-		m_children.emplace_back(std::unique_ptr<T, std::function<void(Node* node)>>(new T(), [&](Node* node) {delete node; }));
-	m_children.back()->m_parent = this;
-	return static_cast<T*>(m_children.back().get());
+
+	auto child = disableDelete ? std::unique_ptr<T, std::function<void(Node* node)>>(new T(), [&](Node* node) {})
+                               : std::unique_ptr<T, std::function<void(Node* node)>>(new T(), [&](Node* node) {delete node; });
+
+	return static_cast<T*>(attachChild(std::move(child)));
 }
 
 template <class T, class U> T* Node::addChild(const U& ref, bool disableDelete) {
-	if (disableDelete)
-		m_children.emplace_back(std::unique_ptr<T, std::function<void(Node* node)>>(new T(ref), [&](Node* node) {}));
-	else
-		m_children.emplace_back(std::unique_ptr<T, std::function<void(Node* node)>>(new T(ref), [&](Node* node) {delete node; }));
-	m_children.back()->m_parent = this;
-	return static_cast<T*>(m_children.back().get());
+	
+	auto child = disableDelete ? std::unique_ptr<T, std::function<void(Node* node)>>(new T(ref), [&](Node* node) {})
+                               : std::unique_ptr<Node, std::function<void(Node* node)>>(new T(ref), [&](Node* node) { delete node; });
+
+	return static_cast<T*>(attachChild(std::move(child)));
 }
 
-template <class T, class U> T* Node::addChild(const U& ref, const Camera& camera, bool disableDelete) {
-	if (disableDelete)
-		m_children.emplace_back(std::unique_ptr<T, std::function<void(Node* node)>>(new T(ref, camera), [&](Node* node) {}));
-	else
-		m_children.emplace_back(std::unique_ptr<T, std::function<void(Node* node)>>(new T(ref, camera), [&](Node* node) {delete node; }));
-	m_children.back()->m_parent = this;
-	return static_cast<T*>(m_children.back().get());
-}
+template <class T, class U> T* Node::addChild(U* ref, bool disableDelete) {
 
-template <class T, class U, class V> T* Node::addChild(const U& ref1, const V& ref2, bool disableDelete) {
-	if (disableDelete)
-		m_children.emplace_back(std::unique_ptr<T, std::function<void(Node* node)>>(new T(ref1, ref2), [&](Node* node) {}));
-	else
-		m_children.emplace_back(std::unique_ptr<T, std::function<void(Node* node)>>(new T(ref1, ref2), [&](Node* node) {delete node; }));
-	m_children.back()->m_parent = this;
-	return static_cast<T*>(m_children.back().get());
-}
+	auto child = disableDelete ? std::unique_ptr<T, std::function<void(Node* node)>>(new T(ref), [&](Node* node) {})
+                               : std::unique_ptr<Node, std::function<void(Node* node)>>(new T(ref), [&](Node* node) { delete node; });
 
+	return static_cast<T*>(attachChild(std::move(child)));
+}
 
 template <class T> T* Node::findChild(std::string name, bool recursive) const {
-	return findChild<T>(StringHash(name), recursive);
-}
-
-template <class T> T* Node::findChild(StringHash nameHash, bool recursive) const {
 	for (auto it = m_children.begin(); it != m_children.end(); ++it) {
 		Node* child = (*it).get();
 		if (!child) {
 			continue;
 		}
 
-		if (child->m_nameHash == nameHash && dynamic_cast<T*>(child) != nullptr)
+		if (child->m_name == name && dynamic_cast<T*>(child) != nullptr)
 			return dynamic_cast<T*>(child);
 		else if (recursive && child->m_children.size()) {
-			Node* result = child->findChild<T>(nameHash, recursive);
+			Node* result = child->findChild<T>(name, recursive);
 			if (result)
 				return dynamic_cast<T*>(result);
 		}
@@ -164,4 +151,15 @@ template <class T> void Node::eraseChildren() const {
 		}
 		else ++it;
 	}
+}
+
+template <typename T>
+std::vector<T*> Node::getChildren() const {
+	std::vector<T*> castedChildren;
+	for (const auto& child : m_children) {
+		if (auto* castedChild = dynamic_cast<T*>(child.get())) {
+			castedChildren.push_back(castedChild);
+		}
+	}
+	return castedChildren;
 }

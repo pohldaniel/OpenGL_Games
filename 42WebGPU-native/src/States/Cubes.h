@@ -31,8 +31,16 @@ class Cubes : public State, public MouseEventListener, public KeyboardEventListe
 	
 	struct GPUInstanceData {
 		Matrix4f modelMatrix;
-		float color[4];
+		Vector4f color;
 	};
+
+	Vector4f colors[4] = { 
+                           {244.0f / 256.0f, 194.0f / 256.0f, 13.0f / 256., 1.0f},
+                           {219.0f / 256.0f, 50.0f / 256.0f, 54.0f / 256., 1.0f},
+                           {72.0f / 256.0f, 133.0f / 256.0f, 237.0f / 256., 1.0f},
+                           { 60.0f / 256.0f,  186.0f / 256.0f,84.0f / 256.0f, 1.0f }
+	};
+
 public:
 
 	Cubes(StateMachine& machine);
@@ -58,17 +66,23 @@ private:
 	std::vector<WGPUBindGroup> OnBindGroups();
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 
+	void shootCube(unsigned int posX, unsigned int posY);
+
 	bool m_initUi = true;
 	bool m_drawUi = false;
+	bool m_debugPhysic = false;
 
 	Camera m_camera;
 	Uniforms m_uniforms;	
 	TrackBall m_trackball;
 	SceneNode* m_scene;
 	Shape m_cube;
+	std::vector<GPUInstanceData> m_cpuInstanceBuffer;
 
 	WgpBuffer m_uniformBuffer, m_storageBuffer;
 	WgpModel m_wgpCube;
 
 	WGPUBindGroup m_bindGroup;
+
+	std::vector<SceneNode*> m_children;
 };

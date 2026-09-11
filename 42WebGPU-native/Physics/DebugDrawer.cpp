@@ -84,7 +84,10 @@ void DebugDrawer::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURen
 
     WGPURenderPassColorAttachment renderPassColorAttachment = renderPassDescriptor.colorAttachments[0];
     renderPassColorAttachment.loadOp = WGPULoadOp::WGPULoadOp_Load;
+
     WGPURenderPassDescriptor rndrPssDscrptor = renderPassDescriptor;
+    rndrPssDscrptor.colorAttachments = &renderPassColorAttachment;
+
     WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &rndrPssDscrptor);
 
     if (!m_lineVertices.empty()) {

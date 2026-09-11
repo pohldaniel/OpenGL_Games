@@ -35,6 +35,9 @@ public:
 	template <class T, class U> T* addChild(const U& ref, const Camera& camera, bool disableDelete = false);
 	const Node* getParent() const;
 
+	Node* attachChild(std::unique_ptr<Node, std::function<void(Node* node)>> child);
+	std::unique_ptr<Node, std::function<void(Node*)>> Node::detachChild(Node* childToDetach);
+
 protected:
 
 	mutable std::list<std::unique_ptr<Node, std::function<void(Node* node)>>> m_children;

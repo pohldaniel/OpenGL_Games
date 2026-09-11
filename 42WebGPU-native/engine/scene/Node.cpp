@@ -1,6 +1,6 @@
 #include "Node.h"
 
-Node::Node() : m_parent(nullptr), m_markForRemove(false), m_id(-1){
+Node::Node() : m_parent(nullptr), m_markForRemove(false), m_id(-1), OnChildAdded(nullptr), OnChildRemoved(nullptr){
 
 }
 
@@ -67,7 +67,7 @@ void Node::setParent(Node* node) {
 }
 
 void Node::setName(const std::string& name) {
-	m_nameHash = StringHash(name);
+	m_name = name;
 }
 
 void Node::setId(const int id) {
@@ -127,10 +127,22 @@ size_t Node::countNodes() {
 	return num;
 }
 
-Node* Node::attachChild(std::unique_ptr<Node, std::function<void(Node*)>> child) {
+void  Node::setOnChildAdded(NodeCallback callback) {
+	OnChildAdded = std::move(callback);
+}
+
+void Node::setOnChildRemoved(NodeCallback callback) {
+	OnChildRemoved = std::move(callback);
+}
+
+Node* Node::attachChild(std::unique_ptr<Node, std::function<void(Node*)>> child) {	
 	Node* rawPtr = child.get();
 	rawPtr->m_parent = this;
 	m_children.push_back(std::move(child));
+
+	if (OnChildAdded) {
+		OnChildAdded(rawPtr);
+	}
 
 	return rawPtr;
 }
@@ -141,6 +153,10 @@ std::unique_ptr<Node, std::function<void(Node*)>> Node::detachChild(Node* childT
 			auto ownedChild = std::move(*it);
 			m_children.erase(it);
 			ownedChild->m_parent = nullptr;
+
+			if (OnChildRemoved) {
+				OnChildRemoved(childToDetach);
+			}
 
 			return ownedChild;
 		}
