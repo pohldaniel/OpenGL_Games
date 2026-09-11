@@ -36,7 +36,7 @@ public:
 	const Node* getParent() const;
 
 	Node* attachChild(std::unique_ptr<Node, std::function<void(Node* node)>> child);
-	std::unique_ptr<Node, std::function<void(Node*)>> Node::detachChild(Node* childToDetach);
+	std::unique_ptr<Node, std::function<void(Node*)>> detachChild(Node* childToDetach);
 
 protected:
 

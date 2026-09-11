@@ -407,7 +407,7 @@ std::vector<WGPUBindGroup> Cubes::OnBindGroups() {
 void Cubes::shootCube(unsigned int posX, unsigned int posY) {
 	float mouseXndc = (2.0f * posX) / static_cast<float>(Application::Width) - 1.0f;
 	float mouseYndc = 1.0f - (2.0f * posY) / static_cast<float>(Application::Height);
-	float tanfov = m_camera.getInvPerspectiveMatrixNew()[1][1];
+	float tanfov = m_camera.getTanFov();
 	float aspect = (static_cast<float>(Application::Width) / static_cast<float>(Application::Height));
 
 	Vector3f rayStartWorld = m_camera.getPosition() + (m_camera.getCamX() * mouseXndc * tanfov * aspect + m_camera.getCamY() * mouseYndc * tanfov + m_camera.getViewDirection()) * m_camera.getNear();
