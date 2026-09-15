@@ -92,7 +92,7 @@ void DebugDrawer::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURen
 
     if (!m_lineVertices.empty()) {
         /*if (m_lineVertices.size() > m_maxLineVertices) {
-            m_maxLineVertices = m_lineVertices.size() * 2; // Verdoppeln für Puffer
+            m_maxLineVertices = m_lineVertices.size() * 2;
             wgpuBufferDestroy(m_lineBuffer);
             wgpuBufferRelease(m_lineBuffer);
 

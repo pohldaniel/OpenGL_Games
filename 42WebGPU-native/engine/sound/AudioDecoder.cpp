@@ -52,6 +52,8 @@ void AudioDecoder::open(const std::string& filename, std::unique_ptr<IAudioOutpu
 
     init(std::move(audioOutput));
     queryFirstFrame();
+
+    m_isPaused = false;
 }
 
 void AudioDecoder::playTrack(const std::string& filename) {
@@ -62,8 +64,9 @@ void AudioDecoder::playTrack(const std::string& filename) {
 }
 
 void AudioDecoder::update() {
-    if (!m_codecContext)
+    if (m_isPaused) {
         return;
+    }
 
     int ret = av_read_frame(m_formatContext, m_packet);
 
@@ -151,4 +154,13 @@ void AudioDecoder::close() {
 
     if (m_formatContext) 
         avformat_close_input(&m_formatContext);
+}
+
+void AudioDecoder::pause() {
+    m_isPaused = true;
+    m_audioOutput->pause();
+}
+
+void AudioDecoder::play() {
+    m_isPaused = false;
 }

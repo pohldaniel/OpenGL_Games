@@ -22,9 +22,10 @@
 #include <States/DeferredRendering.h>
 #include <States/VolumeRendering.h>
 #include <States/OcclusionQuery.h>
-#include <States/VideoDecode.h>
 #include <States/RenderBundles.h>
 #include <States/NuklearGui.h>
+#include <States/AudioDecode.h>
+#include <States/VideoDecode.h>
 #include <States/Cubes.h>
 #include <States/Isometric.h>
 
@@ -332,11 +333,12 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new DeferredRendering(*Machine));
 	//Machine->addStateAtTop(new VolumeRendering(*Machine));
 	//Machine->addStateAtTop(new OcclusionQuery(*Machine));
-	//Machine->addStateAtTop(new VideoDecode(*Machine));
 	//Machine->addStateAtTop(new RenderBundles(*Machine));
 	//Machine->addStateAtTop(new NuklearGui(*Machine));
-	Machine->addStateAtTop(new Cubes(*Machine));
-	//Machine->addStateAtTop(new Isometric(*Machine));
+	//Machine->addStateAtTop(new AudioDecode(*Machine));
+	//Machine->addStateAtTop(new VideoDecode(*Machine));
+	//Machine->addStateAtTop(new Cubes(*Machine));
+	Machine->addStateAtTop(new Isometric(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

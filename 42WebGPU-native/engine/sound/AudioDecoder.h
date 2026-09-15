@@ -42,6 +42,9 @@ public:
     void close();
     void update();
 
+    void play();
+    void pause();
+
 private:
 
     void init(std::unique_ptr<IAudioOutput> audioOutput = nullptr);
@@ -53,6 +56,7 @@ private:
     AVCodecContext* m_codecContext = nullptr;
     SwrContext* m_swrContext = nullptr;
     int m_audioStreamIndex = -1;
+    bool m_isPaused = true;
 
     AVPacket* m_packet = nullptr;
     AVFrame* m_frame = nullptr;
