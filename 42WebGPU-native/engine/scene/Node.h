@@ -31,10 +31,12 @@ public:
 	const Node* getParent() const;
 
 	Node* removeChild(Node* child);
+	Node* removeChildSilent(Node* child);
 	Node* removeSelf();
 
 	void eraseSelf();
 	void eraseChild(Node* child);
+	void eraseChildSilent(Node* child);
 	void eraseChild(const int id);
 	void eraseAllChildren(size_t offset = 0);
 	template <class T> void eraseChildren() const;
@@ -43,6 +45,10 @@ public:
 	template <class T> T* addChild(bool disableDelete = false);
 	template <class T, class U> T* addChild(const U& ref, bool disableDelete = false);
 	template <class T, class U> T* addChild(U* ref, bool disableDelete = false);
+	template <class T, class U> T* addChildSilent(U* ref, bool disableDelete = false);
+
+	template <class T, class... Args> T* Node::addChild(Args&&... args);
+	template <class T, class... Args> T* Node::addChildSilent(Args&&... args);
 
 	template <class T> T* findChild(std::string name, bool recursive = true) const;
 	template <class T> T* findChild(const int id, bool recursive = true) const;
@@ -55,7 +61,9 @@ public:
 	void setOnChildRemoved(NodeCallback callback);
 
 	Node* attachChild(std::unique_ptr<Node, std::function<void(Node* node)>> child);
+	Node* attachChildSilent(std::unique_ptr<Node, std::function<void(Node* node)>> child);
 	std::unique_ptr<Node, std::function<void(Node*)>> detachChild(Node* childToDetach);
+	std::unique_ptr<Node, std::function<void(Node*)>> detachChildSilent(Node* childToDetach);
 
 protected:
 
@@ -70,7 +78,6 @@ protected:
 };
 
 template <class T> T* Node::addChild(bool disableDelete) {
-
 	auto child = disableDelete ? std::unique_ptr<T, std::function<void(Node* node)>>(new T(), [&](Node* node) {})
                                : std::unique_ptr<T, std::function<void(Node* node)>>(new T(), [&](Node* node) {delete node; });
 
@@ -78,7 +85,6 @@ template <class T> T* Node::addChild(bool disableDelete) {
 }
 
 template <class T, class U> T* Node::addChild(const U& ref, bool disableDelete) {
-	
 	auto child = disableDelete ? std::unique_ptr<T, std::function<void(Node* node)>>(new T(ref), [&](Node* node) {})
                                : std::unique_ptr<Node, std::function<void(Node* node)>>(new T(ref), [&](Node* node) { delete node; });
 
@@ -86,11 +92,27 @@ template <class T, class U> T* Node::addChild(const U& ref, bool disableDelete) 
 }
 
 template <class T, class U> T* Node::addChild(U* ref, bool disableDelete) {
-
 	auto child = disableDelete ? std::unique_ptr<T, std::function<void(Node* node)>>(new T(ref), [&](Node* node) {})
                                : std::unique_ptr<Node, std::function<void(Node* node)>>(new T(ref), [&](Node* node) { delete node; });
 
 	return static_cast<T*>(attachChild(std::move(child)));
+}
+
+template <class T, class U> T* Node::addChildSilent(U* ref, bool disableDelete) {
+	auto child = disableDelete ? std::unique_ptr<T, std::function<void(Node* node)>>(new T(ref), [&](Node* node) {})
+		: std::unique_ptr<Node, std::function<void(Node* node)>>(new T(ref), [&](Node* node) { delete node; });
+
+	return static_cast<T*>(attachChildSilent(std::move(child)));
+}
+
+template <class T, class... Args> T* Node::addChild(Args&&... args) {
+	auto child = std::unique_ptr<Node, std::function<void(Node*)>>(new T(std::forward<Args>(args)...), [](Node* node) { delete node; });
+	return static_cast<T*>(attachChild(std::move(child)));
+}
+
+template <class T, class... Args> T* Node::addChildSilent(Args&&... args) {
+	auto child = std::unique_ptr<Node, std::function<void(Node*)>>(new T(std::forward<Args>(args)...), [](Node* node) { delete node; });
+	return static_cast<T*>(attachChildSilent(std::move(child)));
 }
 
 template <class T> T* Node::findChild(std::string name, bool recursive) const {

@@ -27,22 +27,32 @@ struct Wiggly {
 	time: f32
 };
 
+struct Instance {
+    modelMatrix : mat4x4<f32>
+}
+struct InstanceData {
+    instances : array<Instance>,
+}
+
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
 @group(0) @binding(1) var<uniform> wiggly: Wiggly;
 @group(0) @binding(2) var smplr: sampler;
 @group(0) @binding(3) var texture: texture_2d<f32>;
+@group(0) @binding(4) var<storage, read> instanceStorage : InstanceData;
 
 const wiggleMagnitude: f32 = 0.03;
 const wiggleDistModifier: f32 = 0.12;
 const wiggleTimeModifier: f32 = 9.4;
 
 @vertex
-fn vs_main(in: VertexInput) -> VertexOutput {
+fn vs_main(in : VertexInput, @builtin(instance_index) instanceIndex : u32) -> VertexOutput {
 	var out: VertexOutput;
+	let instance = instanceStorage.instances[instanceIndex];
+	
 	
 	let xOffset = sin(wiggleTimeModifier * wiggly.time + wiggleDistModifier * distance(wiggly.nosePos, in.position * 100.0)) * wiggleMagnitude;
 	
-	out.position = uniforms.projection * uniforms.view * uniforms.model * vec4(in.position.x + xOffset, in.position.y, in.position.z, 1.0);
+	out.position = uniforms.projection * uniforms.view * instance.modelMatrix * vec4(in.position.x + xOffset, in.position.y, in.position.z, 1.0);
 	out.normal = in.normal;
 	out.texcoord = in.texcoord;
 	out.color = uniforms.color;

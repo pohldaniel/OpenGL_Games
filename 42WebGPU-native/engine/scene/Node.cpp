@@ -97,6 +97,12 @@ void Node::eraseChild(Node* child) {
 	detachChild(child);
 }
 
+void Node::eraseChildSilent(Node* child) {
+	if (!child || child->m_parent != this)
+		return;
+	detachChildSilent(child);
+}
+
 void Node::eraseSelf() {
 	if (m_parent)
 		m_parent->eraseChild(this);
@@ -104,6 +110,14 @@ void Node::eraseSelf() {
 
 Node* Node::removeChild(Node* child) {
 	auto ownedChild = detachChild(child);
+	if (ownedChild) {
+		return ownedChild.release();
+	}
+	return nullptr;
+}
+
+Node* Node::removeChildSilent(Node* child) {
+	auto ownedChild = detachChildSilent(child);
 	if (ownedChild) {
 		return ownedChild.release();
 	}
@@ -145,6 +159,13 @@ Node* Node::attachChild(std::unique_ptr<Node, std::function<void(Node*)>> child)
 	return rawPtr;
 }
 
+Node* Node::attachChildSilent(std::unique_ptr<Node, std::function<void(Node* node)>> child) {
+	Node* rawPtr = child.get();
+	rawPtr->m_parent = this;
+	m_children.push_back(std::move(child));
+	return rawPtr;
+}
+
 std::unique_ptr<Node, std::function<void(Node*)>> Node::detachChild(Node* childToDetach) {
 	for (auto it = m_children.begin(); it != m_children.end(); ++it) {
 		if (it->get() == childToDetach) {
@@ -156,6 +177,18 @@ std::unique_ptr<Node, std::function<void(Node*)>> Node::detachChild(Node* childT
 				OnChildRemoved(childToDetach);
 			}
 
+			return ownedChild;
+		}
+	}
+	return nullptr;
+}
+
+std::unique_ptr<Node, std::function<void(Node*)>> Node::detachChildSilent(Node* childToDetach) {
+	for (auto it = m_children.begin(); it != m_children.end(); ++it) {
+		if (it->get() == childToDetach) {
+			auto ownedChild = std::move(*it);
+			m_children.erase(it);
+			ownedChild->m_parent = nullptr;
 			return ownedChild;
 		}
 	}

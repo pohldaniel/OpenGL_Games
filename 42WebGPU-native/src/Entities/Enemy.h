@@ -8,9 +8,14 @@ class Enemy : public CollisionNode, public Entity {
 
 public:
 
-	Enemy(btCollisionObject* collisionObject);
+	Enemy(btCollisionObject* collisionObject, const Vector3f& target);
 	~Enemy();
 
 	void update(const float dt) override;
 	void fixedUpdate(float fdt) override;
+private:
+
+	float getLookAtYRotation(const Vector3f& objectPos, const Vector3f& targetPos);
+
+	const Vector3f& target;
 };

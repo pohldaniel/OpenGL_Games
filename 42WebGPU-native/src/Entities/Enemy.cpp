@@ -1,6 +1,7 @@
+#include <iostream>
 #include "Enemy.h"
 
-Enemy::Enemy(btCollisionObject* collisionObject) : CollisionNode(collisionObject){
+Enemy::Enemy(btCollisionObject* collisionObject, const Vector3f& target) : CollisionNode(collisionObject), target(target){
     m_collisionObject->setUserPointer(this);
 }
 
@@ -9,7 +10,11 @@ Enemy::~Enemy() {
 }
 
 void Enemy::update(const float dt) {
-
+    const float monsterSpeed = 0.6f;
+    Quaternion rot;
+    rot.rotate(0.0f, getLookAtYRotation(target, getPosition()), 0.0f);
+    setOrientation(rot);
+    translateRelative(Vector3f::BACKWARD * dt * monsterSpeed);
 }
 
 void Enemy::fixedUpdate(float fdt) {
@@ -17,5 +22,16 @@ void Enemy::fixedUpdate(float fdt) {
 
     const Vector3f& pos = getPosition();
     const Quaternion& rot = getOrientation();
+
     m_collisionObject->setWorldTransform(Physics::BtTransform(pos, rot));
+}
+
+float Enemy::getLookAtYRotation(const Vector3f& objectPos, const Vector3f& targetPos) {
+    float dx = targetPos[0] - objectPos[0];
+    float dz = targetPos[2] - objectPos[2];
+
+    if (abs(dx) < 0.01f && abs(dz) < 0.01f)
+        return 0.0f;
+
+    return std::atan2(dx, dz) * _180_ON_PI;
 }

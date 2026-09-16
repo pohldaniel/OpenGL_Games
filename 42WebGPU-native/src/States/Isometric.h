@@ -32,6 +32,7 @@
 #include <glm/gtx/quaternion.hpp>
 
 #include "bullet_store.h"
+#include "enemy_spawner.h"
 
 struct BulletCollisionCallback : public btCollisionWorld::ContactResultCallback {
 	bool m_hasCollided = false;
@@ -103,7 +104,7 @@ private:
 	CollisionEntity* createNewBulletToPool();
 
 	bool m_initUi = true;
-	bool m_drawUi = false;
+	bool m_drawUi = true;
 	bool m_isDeath = false;
 
 	Camera m_camera;
@@ -117,7 +118,7 @@ private:
 	AnimatedModel m_player;
 	Shape m_floor, m_bullet;
 
-	WgpBuffer m_uniformBuffer, m_instanceBuffer, m_wigglyBuffer, m_skinBuffer, m_rotationBuffer, m_offsetBuffer;
+	WgpBuffer m_uniformBuffer, m_storageBuffer, m_wigglyBuffer, m_skinBuffer, m_rotationBuffer, m_offsetBuffer;
 	WgpModel m_wgpPlayer, m_wgpFloor, m_wgpEnemy, m_wgpBullet;
 	WgpTexture m_wgpFloorD, m_wgpEnemyD, m_wgpBulletTexture;
 	BulletStore m_bulletStore;
@@ -132,11 +133,15 @@ private:
 	float deathTime = -1.0f;
 	float aimTheta = 0.0f;
 	float lastFireTime = 0.0f;
-	bool m_debugPhysic = true;
+	bool m_debugCollision = true;
 	size_t m_targetPoolSize;
+
+	EnemySpawner m_enemySpawner;
 
 	SoundEffect m_fire, m_ding;
 	std::vector<CollisionEntity*> m_entities;
 	std::vector<Enemy*> m_enemies;
-	static WGPUBindGroup CreateBindGroup(const WgpBuffer& uniformBuffer, const WgpBuffer& wigglyBuffer, const WgpTexture& texture);
+	std::vector<Matrix4f> m_cpuInstanceBuffer;
+
+	static WGPUBindGroup CreateBindGroup(const WgpBuffer& uniformBuffer, const WgpBuffer& wigglyBuffer, const WgpTexture& texture, const WgpBuffer& storageBuffer);
 };

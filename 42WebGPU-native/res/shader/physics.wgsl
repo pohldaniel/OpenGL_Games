@@ -29,13 +29,10 @@ struct VertexOutput {
 }
 
 @vertex
-fn vs_main(in : VertexInput, @builtin(instance_index) instanceIdx : u32) -> VertexOutput {
+fn vs_main(in : VertexInput, @builtin(instance_index) instanceIndex : u32) -> VertexOutput {
     var out : VertexOutput;
     
-    // Hole die Weltmatrix für DIESEN spezifischen Cube
-     let instance = instanceStorage.instances[instanceIdx];
-    
-    // Transformation: Local -> World -> Clip Space
+    let instance = instanceStorage.instances[instanceIndex];
     out.position = uniforms.projection * uniforms.view * instance.modelMatrix * vec4<f32>(in.position, 1.0);
     out.color = instance.color;
     return out;
