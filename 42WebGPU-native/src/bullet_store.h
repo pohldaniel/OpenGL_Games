@@ -1,5 +1,4 @@
-#ifndef _SD_ANG_BULLET_STORE_H_
-#define _SD_ANG_BULLET_STORE_H_
+#pragma once
 
 #include <vector>
 
@@ -35,5 +34,3 @@ public:
   ThreadPool* const threadPool;
   std::vector<BulletGroup> bulletGroups;
 };
-
-#endif // _SD_ANG_BULLET_STORE_H_

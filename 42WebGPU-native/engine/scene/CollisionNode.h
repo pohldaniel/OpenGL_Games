@@ -1,8 +1,6 @@
 #pragma once
 
 #include <Physics/Physics.h>
-#pragma once
-
 #include "SceneNode.h"
 
 class CollisionNode : public SceneNode {
@@ -17,8 +15,11 @@ public:
 	using SceneNode::addChild;
 	void addChild(CollisionNode* node);
 	btCollisionObject* getCollisionObject() const;
+	void setActive(bool active);
+	bool isActive();
 
 protected:
 
 	btCollisionObject* m_collisionObject;
+	bool m_isActive;
 };

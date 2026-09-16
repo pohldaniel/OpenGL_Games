@@ -30,8 +30,8 @@ public:
 	const int getId() const;
 	const Node* getParent() const;
 
-	void removeChild(Node* child);
-	void removeSelf();
+	Node* removeChild(Node* child);
+	Node* removeSelf();
 
 	void eraseSelf();
 	void eraseChild(Node* child);

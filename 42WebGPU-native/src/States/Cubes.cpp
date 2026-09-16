@@ -97,7 +97,7 @@ Cubes::Cubes(StateMachine& machine) : State(machine, States::CUBES) {
 
 	m_cube.buildCube({ -0.1f, -0.1f, -0.1f }, { 0.2f, 0.2f, 0.2f }, 1u, 1u, false, false);
 	m_wgpCube.create(m_cube);
-	m_wgpCube.setBindGroups("BG", std::bind(&Cubes::OnBindGroups, this));	
+	m_wgpCube.setBindGroups("BG", std::bind(&Cubes::OnBindGroups, this));
 }
 
 Cubes::~Cubes() {

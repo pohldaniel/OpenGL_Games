@@ -51,6 +51,7 @@ void Physics::initialize(){
 	DynamicsWorld->setSynchronizeAllMotionStates(true);
 	//DynamicsWorld->setInternalTickCallback(PhysicsTickCallback, this, true);
 	DynamicsWorld->setDebugDrawer(&DebugDrawer);
+
 }
 
 void Physics::deinitialize(){

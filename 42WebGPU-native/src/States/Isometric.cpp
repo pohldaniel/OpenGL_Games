@@ -9,8 +9,12 @@
 #include <Nuklear/NkContext.h>
 #include <Nuklear/NkStyle.h>
 
+#include <engine/scene/CollisionNode.h>
 #include <engine/sound/SoundDevice.h>
 #include <engine/sound/AudioEffect.h>
+
+#include <Entities/CollisionEntity.h>
+#include <Entities/Enemy.h>
 
 #include "Isometric.h"
 #include "Application.h"
@@ -48,7 +52,7 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 
 	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm, Application::OnSurfaceChange);
 	wgpSetSurfaceDepthFormat(WGPUTextureFormat::WGPUTextureFormat_Depth24Plus, Application::OnSurfaceChange);
-
+	Physics::DebugDrawer.init();
 	nkInit(static_cast<float>(Application::Width), static_cast<float>(Application::Height));
 	nkInitFont("res/fonts/upheavtt.ttf");
 
@@ -186,16 +190,30 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 	m_player.update(0.01f);
 
 	m_fire.init<RtAudioEffect>();
-	m_fire.get<RtAudioEffect>()->getMixer().addAudioEffect(std::make_unique<ChorusEffect>("chorus"), false);
 
 	m_ding.init<RtAudioEffect>();
 	m_ding.get<RtAudioEffect>()->getMixer().setVolume(0.5f);
+
+	m_scene = new SceneNode();
+	m_targetPoolSize = 1000;
+
+	
+	const Vector3f posistion = static_cast<const AnimatedMesh*>(m_player.getMesh())->getBone(0u).getPosition();
+	Vector3f pos = Vector3f(2.0f, 120.0f * 0.0044f, 2.0f);
+	Quaternion rot;
+	rot.rotate(0.0f, getLookAtYRotation(posistion, pos), 0.0f);
+	
+	btCollisionObject* body = Physics::AddKinematicObject(Physics::BtTransform(pos, rot), new btCapsuleShapeZ(0.04f, 0.2f), Physics::collisiontypes::ENEMY, Physics::collisiontypes::SPHERE);
+
+	Enemy* enemy = m_scene->addChild<Enemy>(body);
+	m_enemies.push_back(enemy);
 }
 
 Isometric::~Isometric() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 	nkShutDown();
+	Physics::DebugDrawer.shutDown();
 	m_uniformBuffer.markForDelete();
 	m_skinBuffer.markForDelete();
 
@@ -203,7 +221,58 @@ Isometric::~Isometric() {
 }
 
 void Isometric::fixedUpdate() {
+	size_t activeBulletCount = m_bulletStore.m_offsets.size();
 
+	while (m_entities.size() < activeBulletCount) {
+		createNewBulletToPool();
+	}
+
+	while (m_entities.size() > m_targetPoolSize) {
+		CollisionEntity* lastEntity = m_entities.back();
+		m_scene->eraseChild(lastEntity);
+		m_entities.pop_back();
+	}
+
+	for (auto entity : m_entities) {
+		entity->setActive(false);
+	}
+
+	for (size_t i = 0; i < activeBulletCount; ++i) {
+		glm::vec3 pos = m_bulletStore.m_offsets[i];
+		glm::quat rot = m_bulletStore.m_rots[i];
+
+		m_entities[i]->setActive(true);
+		m_entities[i]->setPosition(pos[0], pos[1], pos[2]);
+		m_entities[i]->setOrientation(rot.x, rot.y, rot.z, rot.w);
+	}
+
+	for (size_t i = activeBulletCount; i < m_entities.size(); ++i) {
+		if (m_entities[i]->isActive()) {
+			m_entities[i]->setActive(false);
+		}
+	}
+
+	for (auto entity : m_entities) {
+		entity->fixedUpdate(m_fdt);
+	}
+
+	Globals::physics->stepSimulation(PHYSICS_STEP);
+
+	for (auto entity : m_entities) {
+		if (!entity->isActive()) continue;
+		
+		BulletCollisionCallback callback;
+		Physics::GetDynamicsWorld()->contactTest(entity->getCollisionObject(), callback);
+
+		if (callback.m_hasCollided && callback.m_hitTarget) {			
+			void* userPtr = callback.m_hitTarget->getUserPointer();
+			if (userPtr) {
+				Enemy* hitEnemy = static_cast<Enemy*>(userPtr);
+				hitEnemy->setActive(false);
+				m_ding.play("res/sounds/bullet_hit_metal_enemy_4.wav");
+			}
+		}
+	}
 }
 
 void Isometric::update() {
@@ -255,7 +324,14 @@ void Isometric::update() {
 
 	if (keyboard.keyPressed(Keyboard::KEY_2)) {
 		m_fire.get<RtAudioEffect>()->getMixer().setEnabled("chorus", false);
-		m_ding.play("res/sounds/bullet_hit_metal_enemy_4.wav");
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_Z)) {
+		Physics::DebugDrawer.toggleWireframe();
+	}
+
+	if (keyboard.keyPressed(Keyboard::KEY_T)) {
+		m_debugPhysic = !m_debugPhysic;
 	}
 
 	if ((m_rotationButtonResult.buttonDown || (mouse.buttonDown(Mouse::MouseButton::BUTTON_LEFT) && !m_rotationButtonResult.isActive && !m_joystickResult.isActive)) && (lastFireTime + 0.1f) < Globals::clock.getElapsedTimeSec()) {
@@ -347,13 +423,13 @@ void Isometric::update() {
 		playerDirection += Vector3f(1.0f, 0.0f, 0.0f);
 	}
 
-	if (keyboard.keyPressed(Keyboard::KEY_T) ) {
+	/*if (keyboard.keyPressed(Keyboard::KEY_T) ) {
 		m_isDeath = true;
 	}
 
 
 
-	/*if (keyboard.keyPressed(Keyboard::KEY_1)) {
+	if (keyboard.keyPressed(Keyboard::KEY_1)) {
 		m_audio->getMixer().setFilter(1.0f);
 	}
 
@@ -456,6 +532,11 @@ void Isometric::update() {
 
 	wgpuQueueWriteBuffer(wgpContext.queue, m_rotationBuffer.getBuffer(), 0u, m_bulletStore.m_rots.data(), m_bulletStore.m_rots.size() * sizeof(Vector4f));
 	wgpuQueueWriteBuffer(wgpContext.queue, m_offsetBuffer.getBuffer(), 0u, m_bulletStore.m_offsets.data(), m_bulletStore.m_offsets.size() * sizeof(Vector4f));
+
+	if (m_debugPhysic) {
+		Matrix4f viewProjection = m_camera.getPerspectiveMatrix() * m_camera.getViewMatrix();
+		viewProjection.copy(Physics::DebugDrawer.getViewProjection());
+	}
 }
 
 void Isometric::render() {
@@ -482,6 +563,12 @@ void Isometric::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURende
 
 		wgpuRenderPassEncoderEnd(renderPassEncoder);
 		wgpuRenderPassEncoderRelease(renderPassEncoder);
+	}
+
+	if (m_debugPhysic)
+	{
+		Physics::GetDynamicsWorld()->debugDrawWorld();
+		Physics::DebugDrawer.OnDraw(commandEncoder, renderPassDescriptor);
 	}
 
 	{
@@ -870,4 +957,17 @@ float Isometric::getLookAtYRotation(const Vector3f& objectPos, const Vector3f& t
 		return 0.0f;
 
 	return std::atan2(dx, dz) * _180_ON_PI;
+}
+
+CollisionEntity* Isometric::createNewBulletToPool() {
+	btTransform startTransform;
+	startTransform.setIdentity();
+
+	btCollisionObject* body = Physics::AddKinematicObject(startTransform, new btCapsuleShapeX(0.015f, 0.15f), Physics::collisiontypes::SPHERE, Physics::collisiontypes::ENEMY);
+
+	CollisionEntity* entity = m_scene->addChild<CollisionEntity>(body);
+	entity->setActive(false);
+	m_entities.push_back(entity);
+
+	return entity;
 }

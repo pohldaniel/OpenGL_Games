@@ -10,8 +10,8 @@ struct DebugVertex {
 };
 
 class DebugDrawer : public btIDebugDraw {
-    uint64_t m_maxLineVertices = 100000u;
-    uint64_t m_maxTriangleVertices = 100000u;
+    uint64_t m_maxLineVertices = 1000000u;
+    uint64_t m_maxTriangleVertices = 1000000u;
 
 public:
 

@@ -90,12 +90,11 @@ void Node::eraseAllChildren(size_t offset) {
 }
 
 void Node::eraseChild(Node* child) {
-
 	if (!child || child->m_parent != this)
 		return;
 
-	child->m_parent = nullptr;
-	m_children.erase(std::remove_if(m_children.begin(), m_children.end(), [child](const std::unique_ptr<Node, std::function<void(Node* node)>>& node) { return node.get() == child; }), m_children.end());
+	//out-of-scope the unique pointer will be destroyed
+	detachChild(child);
 }
 
 void Node::eraseSelf() {
@@ -103,19 +102,18 @@ void Node::eraseSelf() {
 		m_parent->eraseChild(this);
 }
 
-void Node::removeChild(Node* child) {
-
-	if (!child || child->m_parent != this)
-		return;
-
-	child->m_parent = nullptr;
-
-	[[maybe_unused]]auto tmp = std::remove_if(m_children.begin(), m_children.end(), [child](const std::unique_ptr<Node, std::function<void(Node* node)>>& node) -> bool { return node.get() == child; });
+Node* Node::removeChild(Node* child) {
+	auto ownedChild = detachChild(child);
+	if (ownedChild) {
+		return ownedChild.release();
+	}
+	return nullptr;
 }
 
-void Node::removeSelf() {
+Node* Node::removeSelf() {
 	if (m_parent)
-		m_parent->removeChild(this);
+		return m_parent->removeChild(this);
+	return nullptr;
 }
 
 size_t Node::countNodes() {

@@ -1,11 +1,11 @@
 #include "CollisionNode.h"
-#include <iostream>
-CollisionNode::CollisionNode(btCollisionObject* collisionObject) : SceneNode(), m_collisionObject(collisionObject) {
+
+CollisionNode::CollisionNode(btCollisionObject* collisionObject) : SceneNode(), m_collisionObject(collisionObject), m_isActive(true) {
 	
 }
 
 CollisionNode::~CollisionNode() {
-
+    Physics::DeleteCollisionObject(m_collisionObject);
 }
 
 void CollisionNode::addChild(CollisionNode* node) {
@@ -34,4 +34,24 @@ const Matrix4f& CollisionNode::getWorldTransformation() const {
     setOrientation(quat.x(), quat.y(), quat.z(), quat.w());
 
     return SceneNode::getWorldTransformation();
+}
+
+void CollisionNode::setActive(bool active) {
+    m_isActive = active;
+    if (m_isActive) {
+        m_collisionObject->setCollisionFlags(m_collisionObject->getCollisionFlags() & ~btCollisionObject::CF_NO_CONTACT_RESPONSE);
+        m_collisionObject->setCollisionFlags(m_collisionObject->getCollisionFlags() & ~btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT);
+        m_collisionObject->activate(true);
+    }else {
+        m_collisionObject->setCollisionFlags(m_collisionObject->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
+        m_collisionObject->setCollisionFlags(m_collisionObject->getCollisionFlags() | btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT);
+        m_collisionObject->forceActivationState(ISLAND_SLEEPING);
+
+        //body->setLinearVelocity(btVector3(0, 0, 0));
+        //body->setAngularVelocity(btVector3(0, 0, 0));   
+    }
+}
+
+bool CollisionNode::isActive() {
+    return m_isActive;
 }

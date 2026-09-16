@@ -6,6 +6,7 @@
 #include <engine/animation/AnimationController.h>
 #include <engine/animation/AnimatedModel.h>
 #include <engine/animation/Animation.h>
+#include <engine/scene/SceneNode.h>
 #include <engine/shape/Shape.h>
 #include <engine/AssimpModel.h>
 #include <engine/TrackBall.h>
@@ -22,6 +23,8 @@
 #include <WebGPU/WgpModel.h>
 #include <WebGPU/WgpData.h>
 
+#include <Physics/Physics.h>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -30,6 +33,33 @@
 
 #include "bullet_store.h"
 
+struct BulletCollisionCallback : public btCollisionWorld::ContactResultCallback {
+	bool m_hasCollided = false;
+	btCollisionObject* m_hitTarget = nullptr;
+	virtual bool needsCollision(btBroadphaseProxy* proxy) const override {
+
+		auto* targetObj = static_cast<btCollisionObject*>(proxy->m_clientObject);
+		if (!targetObj) 
+			return false;
+
+		if (targetObj->getCollisionFlags() & btCollisionObject::CF_NO_CONTACT_RESPONSE)
+			return false;
+
+		return (Physics::collisiontypes::ENEMY & proxy->m_collisionFilterGroup) && (Physics::collisiontypes::SPHERE & proxy->m_collisionFilterMask);
+	}
+
+	virtual btScalar addSingleResult(btManifoldPoint& cp,
+		const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0,
+		const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) override
+	{
+		m_hasCollided = true;
+		m_hitTarget = const_cast<btCollisionObject*>(colObj1Wrap->getCollisionObject());
+		return 0;
+	}
+};
+
+class CollisionEntity;
+class Enemy;
 class Isometric : public State, public MouseEventListener, public KeyboardEventListener {
 
 	struct Wiggly {
@@ -70,6 +100,7 @@ private:
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 	bool getWorldPosition(int xPos, int yPos, const Vector3f& planeNormal, Vector3f& outIntersection);
 	float getLookAtYRotation(const Vector3f& objectPos, const Vector3f& targetPos);
+	CollisionEntity* createNewBulletToPool();
 
 	bool m_initUi = true;
 	bool m_drawUi = false;
@@ -90,6 +121,7 @@ private:
 	WgpModel m_wgpPlayer, m_wgpFloor, m_wgpEnemy, m_wgpBullet;
 	WgpTexture m_wgpFloorD, m_wgpEnemyD, m_wgpBulletTexture;
 	BulletStore m_bulletStore;
+	SceneNode* m_scene;
 
 	float prev_idleWeight = 0.0f;
 	float prev_rightWeight = 0.0f;
@@ -100,8 +132,11 @@ private:
 	float deathTime = -1.0f;
 	float aimTheta = 0.0f;
 	float lastFireTime = 0.0f;
+	bool m_debugPhysic = true;
+	size_t m_targetPoolSize;
 
 	SoundEffect m_fire, m_ding;
-
+	std::vector<CollisionEntity*> m_entities;
+	std::vector<Enemy*> m_enemies;
 	static WGPUBindGroup CreateBindGroup(const WgpBuffer& uniformBuffer, const WgpBuffer& wigglyBuffer, const WgpTexture& texture);
 };

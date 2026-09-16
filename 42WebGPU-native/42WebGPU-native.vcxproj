@@ -89,7 +89,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;FREEIMAGE_LIB;WEBGPU_DAWN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;src;..\libimgui;..\libassimp\include;..\rapidjson\include;..\Freeimage\libfreeimage\include;..\openal\include;..\sndfile\include;..\nuklear;..\OpenAl\include;..\SDKs\wgpu-dawn\include;..\SDKs\ffmpeg\include;..\SDKs\rtaudio\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4005;4244;</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -111,7 +111,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;FREEIMAGE_LIB;WEBGPU_DAWN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;src;..\libimgui;..\libassimp\include;..\rapidjson\include;..\Freeimage\libfreeimage\include;..\openal\include;..\sndfile\include;..\nuklear;..\OpenAl\include;..\SDKs\wgpu-dawn\include;..\SDKs\ffmpeg\include;..\SDKs\rtaudio\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4005;4244;</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -136,7 +136,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;FREEIMAGE_LIB;WEBGPU_DAWN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;src;..\libimgui;..\libassimp\include;..\rapidjson\include;..\Freeimage\libfreeimage\include;..\openal\include;..\sndfile\include;..\nuklear;..\OpenAl\include;..\SDKs\wgpu-dawn\include;..\SDKs\ffmpeg\include;..\SDKs\rtaudio\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WholeProgramOptimization>false</WholeProgramOptimization>
-      <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4005;4244;</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -163,7 +163,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
       <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;NOMINMAX;AL_LIBTYPE_STATIC;FREEIMAGE_LIB;WEBGPU_DAWN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;src;..\libimgui;..\libassimp\include;..\rapidjson\include;..\Freeimage\libfreeimage\include;..\openal\include;..\sndfile\include;..\nuklear;..\OpenAl\include;..\libbullet;..\SDKs\wgpu-dawn\include;..\SDKs\ffmpeg\include;..\SDKs\rtaudio\include;..\SDKs\Vulkan\include;..\SDKs\DaisySP\include;..\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WholeProgramOptimization>false</WholeProgramOptimization>
-      <DisableSpecificWarnings>4005;</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4005;4244;</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -238,6 +238,9 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClCompile Include="Physics\DebugDrawer.cpp" />
     <ClCompile Include="Physics\Physics.cpp" />
     <ClCompile Include="src\bullet_store.cpp" />
+    <ClCompile Include="src\enemy_spawner.cpp" />
+    <ClCompile Include="src\Entities\CollisionEntity.cpp" />
+    <ClCompile Include="src\Entities\Enemy.cpp" />
     <ClCompile Include="src\Entities\Entity.cpp" />
     <ClCompile Include="src\ImguiExtension.cpp" />
     <ClCompile Include="src\LoadingManager.cpp" />
@@ -371,6 +374,10 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\bullet_store.h" />
     <ClInclude Include="src\DataStructs.h" />
+    <ClInclude Include="src\enemyOld.h" />
+    <ClInclude Include="src\enemy_spawner.h" />
+    <ClInclude Include="src\Entities\CollisionEntity.h" />
+    <ClInclude Include="src\Entities\Enemy.h" />
     <ClInclude Include="src\Entities\Entity.h" />
     <ClInclude Include="src\Globals.h" />
     <ClInclude Include="src\ImguiExtension.h" />
