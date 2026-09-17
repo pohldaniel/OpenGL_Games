@@ -165,7 +165,6 @@ template <class T> size_t Node::countChild(bool recursive) const {
 }
 
 template <class T> void Node::eraseChildren() const {
-
 	for (auto it = m_children.begin(); it != m_children.end();) {
 		Node* child = (*it).get();
 		if (child && dynamic_cast<T*>(child)) {

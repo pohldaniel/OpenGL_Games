@@ -1,5 +1,4 @@
 #include <cstdlib>
-#include <iostream>
 
 #include "enemy_spawner.h"
 
@@ -9,7 +8,7 @@ namespace {
     const float spawnRadius = 10.0f;
 }
 
-EnemySpawner::EnemySpawner(float _monsterY, std::vector<Enemy*>& _enemies, const AnimatedModel& _player) : countdown(spawnsPerInterval), enemies(_enemies), monsterY(_monsterY), player(_player) {
+EnemySpawner::EnemySpawner(float _monsterY, const AnimatedModel& _player) : countdown(spawnsPerInterval), monsterY(_monsterY), player(_player) {
 
 }
 
@@ -24,6 +23,9 @@ void EnemySpawner::update(const Vector3f& pos, float dt) {
 }
 
 void EnemySpawner::spawnEnemy(const Vector3f& pos) {
+    if (scene->getChildren<Enemy>().size() > 20u)
+        return;
+
     const float theta = glm::radians((float)(rand() % 360));
     const float x = pos[0] + sin(theta) * spawnRadius;
     const float z = pos[2] + cos(theta) * spawnRadius;
@@ -32,7 +34,7 @@ void EnemySpawner::spawnEnemy(const Vector3f& pos) {
     Quaternion rot;
     rot.rotate(0.0f, getLookAtYRotation(pos, spawnPos), 0.0f);
   
-    btCollisionObject* body = Physics::AddKinematicObject(Physics::BtTransform(spawnPos, rot), new btCapsuleShapeZ(0.04f, 0.2f), Physics::collisiontypes::ENEMY, Physics::collisiontypes::SPHERE);
+    btCollisionObject* body = Physics::AddKinematicObject(Physics::BtTransform(spawnPos, rot), new btCapsuleShapeZ(0.08f, 0.4f), Physics::collisiontypes::ENEMY, Physics::collisiontypes::SPHERE | Physics::collisiontypes::CHARACTER);
     Enemy* enemy = scene->addChild<Enemy>(body, static_cast<const AnimatedMesh*>(player.getMesh())->getBone(0u).getPosition());
     enemy->setPosition(spawnPos);
     enemy->setOrientation(rot);   

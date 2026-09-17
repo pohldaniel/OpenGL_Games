@@ -4030,3 +4030,23 @@ Quaternion Quaternion::SLerp2(const Quaternion &a, const Quaternion &b, float t)
 
 	return a * t1 + sign * b * t2;
 }
+
+Quaternion Quaternion::Rotate(float pitch, float yaw, float roll) {
+	pitch = pitch * HALF_PI_ON_180;
+	yaw = yaw * HALF_PI_ON_180;
+	roll = roll * HALF_PI_ON_180;
+
+	float cosP = cosf(pitch);
+	float sinP = sinf(pitch);
+	float cosY = cosf(yaw);
+	float sinY = sinf(yaw);
+	float cosR = cosf(roll);
+	float sinR = sinf(roll);
+
+	float rot0 = sinP * cosY * cosR - cosP * sinY * sinR;
+	float rot1 = cosP * sinY * cosR + sinP * cosY * sinR;
+	float rot2 = cosP * cosY * sinR - sinP * sinY * cosR;
+	float rot3 = cosP * cosY * cosR + sinP * sinY * sinR;
+
+	return Quaternion(rot0, rot1, rot2, rot3);
+}

@@ -1,3 +1,4 @@
+#include <iostream>
 #include "CollisionEntity.h"
 
 CollisionEntity::CollisionEntity(btCollisionObject* collisionObject) : CollisionNode(collisionObject){

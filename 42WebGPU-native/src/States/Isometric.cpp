@@ -15,6 +15,7 @@
 
 #include <Entities/CollisionEntity.h>
 #include <Entities/Enemy.h>
+#include <Entities/Player.h>
 
 #include "Isometric.h"
 #include "Application.h"
@@ -42,7 +43,7 @@ Matrix4f invPivot = Matrix4f(1.0f, 0.0f, 0.0f, 0.0f,
 ThreadPool threadPool(4);
 const int spreadAmount = 10;
 
-Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC), m_bulletStore(&threadPool), m_enemySpawner(120.0f * 0.0044f, m_enemies, m_player) {
+Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC), m_bulletStore(&threadPool), m_enemySpawner(120.0f * 0.0044f, m_player) {
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
@@ -71,7 +72,7 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 
 	m_enemy.loadModel("res/models/EelDog/EelDog.fbx");
 	m_enemy.rotate(90.0f, 0.0f, 0.0f);
-	m_enemy.rotate(0.0f, 180.0f, 0.0f);
+	m_enemy.rotate(0.0f, 0.0f, 0.0f);
 	m_enemy.scale(0.01f);
 
 	Material::CleanupMaterials();
@@ -107,6 +108,7 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 	m_trackball.reshape(Application::Width, Application::Height);
 
 	m_floor.buildQuadXZ({-50.0f, 0.0f, -50.0f}, {100.0f, 100.0f});
+	m_floor.rotate(0.0f, 45.0f, 0.0f);
 	m_bullet.buildQuadXZ({ -0.3f * 0.243f, 0.0f, -0.3f * 0.243f }, { 0.3f * 0.5f, 0.3f * 0.5f }, 1u, 1u, true, false);
 
 	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
@@ -209,6 +211,9 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 
 	m_enemySpawner.scene = m_scene;
 	m_targetPoolSize = 100;
+
+	btCollisionObject* body = Physics::AddKinematicObject(Physics::BtTransform(Vector3f(0.0f, 0.4f, 0.0f)), new btCylinderShape(btVector3(0.35f * 0.5f, 0.4f, 0.35f * 0.5f)), Physics::collisiontypes::CHARACTER, Physics::collisiontypes::ENEMY);
+	m_playerEnitity = m_scene->addChild<Player>(body, m_player);
 }
 
 Isometric::~Isometric() {
@@ -264,7 +269,16 @@ void Isometric::fixedUpdate() {
 		enemy->fixedUpdate(m_fdt);
 	}
 
+	m_playerEnitity->fixedUpdate(m_fdt);
+
 	Globals::physics->stepSimulation(PHYSICS_STEP);
+
+	BulletCollisionPlayerCallback callback;
+	Physics::GetDynamicsWorld()->contactTest(m_playerEnitity->getCollisionObject(), callback);
+	if (callback.m_hasCollided && callback.m_hitTarget) {
+		m_playerEnitity->setActive(false);
+		m_isDeath = true;
+	}
 
 	for (auto entity : m_entities) {
 		if (!entity->isActive()) continue;
@@ -344,7 +358,7 @@ void Isometric::update() {
 		m_debugCollision = !m_debugCollision;
 	}
 
-	if ((m_rotationButtonResult.buttonDown || (mouse.buttonDown(Mouse::MouseButton::BUTTON_LEFT) && !m_rotationButtonResult.isActive && !m_joystickResult.isActive)) && (lastFireTime + 0.1f) < Globals::clock.getElapsedTimeSec()) {
+	if (!m_isDeath && (m_rotationButtonResult.buttonDown || (mouse.buttonDown(Mouse::MouseButton::BUTTON_LEFT) && !m_rotationButtonResult.isActive && !m_joystickResult.isActive)) && (lastFireTime + 0.1f) < Globals::clock.getElapsedTimeSec()) {
 		const Quaternion orientation = m_player.getOrientation();
 
 		glm::quat midOri;
@@ -384,12 +398,11 @@ void Isometric::update() {
 
 	const AnimatedMesh* mesh_ = static_cast<const AnimatedMesh*>(m_player.getMesh());
 	const Vector3f posistion = mesh_->getBone(0u).getPosition();
-	
 	m_camera.lookAt(posistion + Vector3f(0.0f, 4.3f, 4.0f), posistion, Vector3f(0.0f, 1.0f, 0.0f));
 	if ((mouse.xDelta() || mouse.yDelta()) && !m_isDeath) {
 		Vector3f coords;	
 		if (getWorldPosition(mouse.xPos(), mouse.yPos(), Vector3f(0.0f, 1.0f, 0.0f), coords)) {
-			aimTheta = (!m_rotationButtonResult.isActive && !m_joystickResult.isActive) && mouse.buttonDown(Mouse::BUTTON_LEFT) ? getLookAtYRotation(posistion, coords) : m_rotationButtonResult.degrees;
+			aimTheta = (!m_rotationButtonResult.isActive && !m_joystickResult.isActive) ? getLookAtYRotation(posistion, coords) : m_rotationButtonResult.degrees;
 			m_rotationButtonResult.degrees = aimTheta ;
 
 			if(m_rotationButtonResult.degrees)
@@ -433,38 +446,10 @@ void Isometric::update() {
 		playerDirection += Vector3f(1.0f, 0.0f, 0.0f);
 	}
 
-	/*if (keyboard.keyPressed(Keyboard::KEY_T) ) {
-		m_isDeath = true;
-	}
-
-	if (keyboard.keyPressed(Keyboard::KEY_1)) {
-		m_audio->getMixer().setFilter(1.0f);
-	}
-
-	if (keyboard.keyPressed(Keyboard::KEY_2)) {
-		m_audio->getMixer().setFilter(0.75f);
-		std::cout << "Filter Aktiviert: Dumpf (0.75f)" << std::endl;
-	}
-
-	if (keyboard.keyPressed(Keyboard::KEY_3)) {
-		m_audio->getMixer().setFilter(0.5f);
-		std::cout << "Filter Aktiviert: Extrem Dumpf (0.5f)" << std::endl;
-	}
-
-	if (keyboard.keyPressed(Keyboard::KEY_4)) {
-		m_audio->getMixer().setFilter(0.35f);
-		std::cout << "Filter Aktiviert: Extrem Dumpf (0.35f)" << std::endl;
-	}
-
-	if (keyboard.keyPressed(Keyboard::KEY_5)) {
-		m_audio->getMixer().setFilter(0.15f);
-		std::cout << "Filter Aktiviert: Extrem Dumpf (0.15f)" << std::endl;
-	}*/
-
 	playerMove = playerDirection.lengthSq() > 0.01f && !m_isDeath;
 
 	if (playerMove) {
-		m_player.translate(playerDirection[0] * 2.0f * m_dt, playerDirection[1] * 2.0f * m_dt, playerDirection[2] * 2.0f * m_dt);
+		m_playerEnitity->translate(playerDirection[0] * 2.0f * m_dt, playerDirection[1] * 2.0f * m_dt, playerDirection[2] * 2.0f * m_dt);
 	}
 
 	float movementTheta = std::atan2(playerDirection[0], playerDirection[2]);
@@ -531,10 +516,6 @@ void Isometric::update() {
 	m_uniforms.lightVP = Matrix4f::IDENTITY;
 	m_uniforms.shadow = Matrix4f::BIAS * m_uniforms.lightVP;
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0u, &m_uniforms, sizeof(Uniforms));
-
-	//Vector3f posEnemy = Vector3f(2.0f, 120.0f * 0.0044f, 2.0f);
-	//m_uniforms.model = Matrix4f::Translate(posEnemy) * Matrix4f::Rotate(0.0f, getLookAtYRotation(posistion, posEnemy), 0.0f);
-	//wgpuQueueWriteBuffer(wgpContext.queue, m_instanceBuffer.getBuffer(), 0u, &m_uniforms, sizeof(Uniforms));
 
 	m_cpuInstanceBuffer.clear();
 	m_cpuInstanceBuffer.reserve(m_enemies.size());
@@ -996,7 +977,7 @@ CollisionEntity* Isometric::createNewBulletToPool() {
 	btTransform startTransform;
 	startTransform.setIdentity();
 
-	btCollisionObject* body = Physics::AddKinematicObject(startTransform, new btCapsuleShapeX(0.015f, 0.15f), Physics::collisiontypes::SPHERE, Physics::collisiontypes::ENEMY);
+	btCollisionObject* body = Physics::AddKinematicObject(startTransform, new btCapsuleShapeX(0.03f, 0.3f), Physics::collisiontypes::SPHERE, Physics::collisiontypes::ENEMY);
 
 	CollisionEntity* entity = m_scene->addChildSilent<CollisionEntity>(body);
 	entity->setActive(false);

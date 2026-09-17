@@ -1,4 +1,3 @@
-#include <iostream>
 #include "Enemy.h"
 
 Enemy::Enemy(btCollisionObject* collisionObject, const Vector3f& target) : CollisionNode(collisionObject), target(target){
@@ -11,10 +10,14 @@ Enemy::~Enemy() {
 
 void Enemy::update(const float dt) {
     const float monsterSpeed = 0.6f;
-    Quaternion rot;
-    rot.rotate(0.0f, getLookAtYRotation(target, getPosition()), 0.0f);
+    float distanceSq = (target - getPosition()).lengthSq();
+
+    if (distanceSq < 0.35f)
+        return;
+
+    Quaternion rot = Quaternion::Rotate(0.0f, getLookAtYRotation(getPosition(), target), 0.0f);
     setOrientation(rot);
-    translateRelative(Vector3f::BACKWARD * dt * monsterSpeed);
+    translateRelative(Vector3f::FORWARD * dt * monsterSpeed);
 }
 
 void Enemy::fixedUpdate(float fdt) {

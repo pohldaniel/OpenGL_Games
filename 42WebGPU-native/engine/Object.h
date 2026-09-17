@@ -100,9 +100,9 @@ public:
 	virtual void rotate(const Quaternion& orientation);
 	virtual void rotate(float x, float y, float z, float w);
 
-	const Vector3f& getPosition() const;
-	const Vector3f& getScale() const;
-	const Quaternion& getOrientation() const;
+	virtual const Vector3f& getPosition() const;
+	virtual const Vector3f& getScale() const;
+	virtual const Quaternion& getOrientation() const;
 	Vector3f& getPosition();
 	Vector3f& getScale();
 	Quaternion& getOrientation();

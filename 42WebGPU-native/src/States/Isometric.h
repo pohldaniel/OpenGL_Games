@@ -59,8 +59,34 @@ struct BulletCollisionCallback : public btCollisionWorld::ContactResultCallback 
 	}
 };
 
+struct BulletCollisionPlayerCallback : public btCollisionWorld::ContactResultCallback {
+	bool m_hasCollided = false;
+	btCollisionObject* m_hitTarget = nullptr;
+	virtual bool needsCollision(btBroadphaseProxy* proxy) const override {
+
+		auto* targetObj = static_cast<btCollisionObject*>(proxy->m_clientObject);
+		if (!targetObj)
+			return false;
+
+		if (targetObj->getCollisionFlags() & btCollisionObject::CF_NO_CONTACT_RESPONSE)
+			return false;
+
+		return (Physics::collisiontypes::ENEMY & proxy->m_collisionFilterGroup) && (Physics::collisiontypes::CHARACTER & proxy->m_collisionFilterMask);
+	}
+
+	virtual btScalar addSingleResult(btManifoldPoint& cp,
+		const btCollisionObjectWrapper* colObj0Wrap, int partId0, int index0,
+		const btCollisionObjectWrapper* colObj1Wrap, int partId1, int index1) override
+	{
+		m_hasCollided = true;
+		m_hitTarget = const_cast<btCollisionObject*>(colObj1Wrap->getCollisionObject());
+		return 0;
+	}
+};
+
 class CollisionEntity;
 class Enemy;
+class Player;
 class Isometric : public State, public MouseEventListener, public KeyboardEventListener {
 
 	struct Wiggly {
@@ -104,8 +130,9 @@ private:
 	CollisionEntity* createNewBulletToPool();
 
 	bool m_initUi = true;
-	bool m_drawUi = true;
+	bool m_drawUi = false;
 	bool m_isDeath = false;
+	bool m_debugCollision = false;
 
 	Camera m_camera;
 	Uniforms m_uniforms;	
@@ -133,13 +160,13 @@ private:
 	float deathTime = -1.0f;
 	float aimTheta = 0.0f;
 	float lastFireTime = 0.0f;
-	bool m_debugCollision = true;
 	size_t m_targetPoolSize;
 
 	EnemySpawner m_enemySpawner;
 
 	SoundEffect m_fire, m_ding;
 	std::vector<CollisionEntity*> m_entities;
+	Player* m_playerEnitity;
 	std::vector<Enemy*> m_enemies;
 	std::vector<Matrix4f> m_cpuInstanceBuffer;
 

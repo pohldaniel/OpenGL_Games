@@ -8,20 +8,19 @@
 #include "glm/gtc/matrix_transform.hpp"
 
 class EnemySpawner {
+
 public:
-	EnemySpawner(float _monsterY, std::vector<Enemy*>& _enemies, const AnimatedModel& _player);
+
+	EnemySpawner(float _monsterY, const AnimatedModel& _player);
 
 	void update(const Vector3f& pos, float dt);
 	SceneNode* scene;
-	const AnimatedModel& player;
 
 private:
+
 	void spawnEnemy(const Vector3f& pos);
 	float getLookAtYRotation(const Vector3f& objectPos, const Vector3f& targetPos);
-
-	// not owned
-	std::vector<Enemy*>& enemies;
-	
+	const AnimatedModel& player;
 	float countdown;
 	const float monsterY;
 };
