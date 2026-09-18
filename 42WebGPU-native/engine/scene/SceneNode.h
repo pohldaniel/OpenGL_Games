@@ -9,8 +9,8 @@ public:
 	SceneNode();
 	SceneNode(const SceneNode& rhs);
 	SceneNode& operator=(const SceneNode& rhs);
-	SceneNode(SceneNode&& rhs);
-	SceneNode& operator=(SceneNode&& rhs);
+	SceneNode(SceneNode&& rhs) noexcept;
+	SceneNode& operator=(SceneNode&& rhs) noexcept;
 
 	const Matrix4f& getWorldTransformation() const override;
 	const Vector3f& getWorldPosition(bool update = true) const override;

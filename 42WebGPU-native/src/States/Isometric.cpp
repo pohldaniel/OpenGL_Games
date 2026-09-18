@@ -198,6 +198,7 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 	m_scene->setOnChildAdded([this](Node* newNode) {
 		if (auto* enemy = dynamic_cast<Enemy*>(newNode)) {
 			m_enemies.push_back(enemy);
+			m_enemySpawner.count()++;
 		}
 	});
 
@@ -206,6 +207,7 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 		if (it != m_enemies.end()) {
 			std::iter_swap(it, m_enemies.end() - 1);
 			m_enemies.pop_back();
+			m_enemySpawner.count()--;
 		}
 	});
 
@@ -217,6 +219,7 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 }
 
 Isometric::~Isometric() {
+	delete m_scene;
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 	nkShutDown();

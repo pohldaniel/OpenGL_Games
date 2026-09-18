@@ -126,10 +126,6 @@ unsigned int Shape::getStride() const {
 	return m_stride;
 }
 
-void Shape::rewind() {
-	Shape::Rewind(m_indexBuffer);
-}
-
 void Shape::flatShading() {
 	if (m_stride < 6u)
 		return;
@@ -181,6 +177,10 @@ void Shape::flatShading() {
 	copy(indexBuffer.begin(), indexBuffer.end(), back_inserter(m_indexBuffer));
 }
 
+void Shape::rewind() {
+	Shape::Rewind(m_indexBuffer);
+}
+
 void Shape::scale(float sx, float sy, float sz) {
 	Shape::Scale(sx, sy, sz, m_vertexBuffer, m_stride);
 }
@@ -203,18 +203,6 @@ void Shape::Rewind(std::vector<unsigned int>& indexBuffer) {
 		indexBuffer[i + 1] = indexBuffer[i + 2];
 		indexBuffer[i + 2] = index2;
 	}
-}
-
-std::array<float, 3> Shape::Normalize(const std::array<float, 3>& v) {
-	float length = sqrtf((v[0] * v[0]) + (v[1] * v[1]) + (v[2] * v[2]));
-	float invMag = length != 0.0f ? 1.0f / length : 1.0f;
-	return { v[0] * invMag, v[1] * invMag, v[2] * invMag };
-}
-
-std::array<float, 3> Shape::Cross(const std::array<float, 3>& p, const std::array<float, 3>& q) {
-	return { (p[1] * q[2]) - (p[2] * q[1]),
-			 (p[2] * q[0]) - (p[0] * q[2]),
-			 (p[0] * q[1]) - (p[1] * q[0]) };
 }
 
 void Shape::Scale(float sx, float sy, float sz, std::vector<float>& vertexBuffer, unsigned int stride) {
@@ -287,4 +275,16 @@ void Shape::Translate(float dx, float dy, float dz, std::vector<float>& vertexBu
 		vertexBuffer[i + 1u] += dy;
 		vertexBuffer[i + 2u] += dz;
 	}
+}
+
+std::array<float, 3> Shape::Normalize(const std::array<float, 3>& v) {
+	float length = sqrtf((v[0] * v[0]) + (v[1] * v[1]) + (v[2] * v[2]));
+	float invMag = length != 0.0f ? 1.0f / length : 1.0f;
+	return { v[0] * invMag, v[1] * invMag, v[2] * invMag };
+}
+
+std::array<float, 3> Shape::Cross(const std::array<float, 3>& p, const std::array<float, 3>& q) {
+	return { (p[1] * q[2]) - (p[2] * q[1]),
+			 (p[2] * q[0]) - (p[0] * q[2]),
+			 (p[0] * q[1]) - (p[1] * q[0]) };
 }

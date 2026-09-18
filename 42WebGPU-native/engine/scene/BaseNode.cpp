@@ -1,8 +1,6 @@
-#include <iostream>
 #include "BaseNode.h"
-#include "SceneNode.h"
 
-BaseNode::BaseNode() : Object(), Node(), m_isDirty(true){
+BaseNode::BaseNode() : Node(), Object(), m_isDirty(true){
 
 }
 
@@ -17,11 +15,11 @@ BaseNode& BaseNode::operator=(const BaseNode& rhs) {
 	return *this;
 }
 
-BaseNode::BaseNode(BaseNode&& rhs) : Node(rhs), Object(rhs) {
+BaseNode::BaseNode(BaseNode&& rhs) noexcept : Node(rhs), Object(rhs) {
 	m_isDirty = rhs.m_isDirty;
 }
 
-BaseNode& BaseNode::operator=(BaseNode&& rhs) {
+BaseNode& BaseNode::operator=(BaseNode&& rhs) noexcept {
 	Node::operator=(rhs);
 	Object::operator=(rhs);
 	m_isDirty = rhs.m_isDirty;
@@ -149,8 +147,4 @@ void BaseNode::rotate(const Quaternion& orientation) {
 void BaseNode::rotate(const float x, const float y, const float z, const float w) {
 	Object::rotate(x, y, z, w);
 	OnTransformChanged();
-}
-
-const Vector3f& BaseNode::getWorldOrigin(bool update) const {
-	return Vector3f::ZERO;
 }

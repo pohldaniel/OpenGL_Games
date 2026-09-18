@@ -13,7 +13,7 @@ SceneNode::SceneNode(const SceneNode& rhs) : BaseNode(rhs) {
 
 }
 
-SceneNode::SceneNode(SceneNode&& rhs) : BaseNode(rhs) {
+SceneNode::SceneNode(SceneNode&& rhs) noexcept : BaseNode(rhs) {
 
 }
 
@@ -22,7 +22,7 @@ SceneNode& SceneNode::operator=(const SceneNode& rhs) {
 	return *this;
 }
 
-SceneNode& SceneNode::operator=(SceneNode&& rhs) {
+SceneNode& SceneNode::operator=(SceneNode&& rhs) noexcept {
 	BaseNode::operator=(rhs);
 	return *this;
 }

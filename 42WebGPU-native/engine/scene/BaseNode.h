@@ -15,8 +15,8 @@ public:
 	BaseNode();
 	BaseNode(const BaseNode& rhs);
 	BaseNode& operator=(const BaseNode& rhs);
-	BaseNode(BaseNode&& rhs);
-	BaseNode& operator=(BaseNode&& rhs);
+	BaseNode(BaseNode&& rhs) noexcept;
+	BaseNode& operator=(BaseNode&& rhs) noexcept;
 
 	virtual const Matrix4f& getWorldTransformation() const = 0;
 	virtual const Vector3f& getWorldPosition(bool update = true) const = 0;
@@ -54,6 +54,5 @@ public:
 
 protected:
 
-	virtual void OnTransformChanged() const;
-	virtual const Vector3f& getWorldOrigin(bool update = true) const;	mutable bool m_isDirty;
+	virtual void OnTransformChanged() const;	mutable bool m_isDirty;
 };

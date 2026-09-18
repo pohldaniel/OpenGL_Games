@@ -8,7 +8,7 @@ namespace {
     const float spawnRadius = 10.0f;
 }
 
-EnemySpawner::EnemySpawner(float _monsterY, const AnimatedModel& _player) : countdown(spawnsPerInterval), monsterY(_monsterY), player(_player) {
+EnemySpawner::EnemySpawner(float _monsterY, const AnimatedModel& _player) : countdown(spawnsPerInterval), monsterY(_monsterY), player(_player), m_count(0){
 
 }
 
@@ -23,7 +23,7 @@ void EnemySpawner::update(const Vector3f& pos, float dt) {
 }
 
 void EnemySpawner::spawnEnemy(const Vector3f& pos) {
-    if (scene->getChildren<Enemy>().size() > 20u)
+    if (m_count > 20u)
         return;
 
     const float theta = glm::radians((float)(rand() % 360));
@@ -31,9 +31,8 @@ void EnemySpawner::spawnEnemy(const Vector3f& pos) {
     const float z = pos[2] + cos(theta) * spawnRadius;
 
     Vector3f spawnPos(x, monsterY, z);
-    Quaternion rot;
-    rot.rotate(0.0f, getLookAtYRotation(pos, spawnPos), 0.0f);
-  
+    Quaternion rot = Quaternion::Rotate(0.0f, getLookAtYRotation(pos, spawnPos), 0.0f);
+
     btCollisionObject* body = Physics::AddKinematicObject(Physics::BtTransform(spawnPos, rot), new btCapsuleShapeZ(0.08f, 0.4f), Physics::collisiontypes::ENEMY, Physics::collisiontypes::SPHERE | Physics::collisiontypes::CHARACTER);
     Enemy* enemy = scene->addChild<Enemy>(body, static_cast<const AnimatedMesh*>(player.getMesh())->getBone(0u).getPosition());
     enemy->setPosition(spawnPos);
@@ -48,4 +47,8 @@ float EnemySpawner::getLookAtYRotation(const Vector3f& objectPos, const Vector3f
         return 0.0f;
 
     return std::atan2(dx, dz) * _180_ON_PI;
+}
+
+size_t& EnemySpawner::count() {
+    return m_count;
 }

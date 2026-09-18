@@ -4,21 +4,75 @@ Node::Node() : m_parent(nullptr), m_markForRemove(false), m_id(-1), OnChildAdded
 
 }
 
-Node::Node(const Node& rhs) {
-	m_markForRemove = rhs.m_markForRemove;
+Node::Node(const Node& rhs) : 
+	m_parent(rhs.m_parent), 
+	m_markForRemove(rhs.m_markForRemove), 
+	m_id(rhs.m_id),  
+	m_name(rhs.m_name),
+	OnChildAdded(rhs.OnChildAdded),
+	OnChildRemoved(rhs.OnChildRemoved) {
+	
+	for (const auto& childPtr : rhs.m_children) {
+		if (childPtr) {
+			m_children.emplace_back(new Node(*childPtr), childPtr.get_deleter());
+			m_children.back()->m_parent = this;
+		}
+	}
 }
 
 Node& Node::operator=(const Node& rhs) {
+	m_parent = rhs.m_parent;
 	m_markForRemove = rhs.m_markForRemove;
+	m_id = rhs.m_id;
+	m_name = rhs.m_name;
+	OnChildAdded = rhs.OnChildAdded;
+	OnChildRemoved = rhs.OnChildRemoved;
+
+	for (const auto& childPtr : rhs.m_children) {
+		if (childPtr) {
+			m_children.emplace_back(new Node(*childPtr), childPtr.get_deleter());
+			m_children.back()->m_parent = this;
+		}
+	}
 	return *this;
 }
 
-Node::Node(Node&& rhs) {
-	m_markForRemove = rhs.m_markForRemove;
+Node::Node(Node&& rhs) noexcept :
+	m_parent(rhs.m_parent),
+	m_markForRemove(rhs.m_markForRemove),
+	m_id(rhs.m_id),
+	m_name(rhs.m_name),
+	m_children(std::move(rhs.m_children)),
+	OnChildAdded(std::move(rhs.OnChildAdded)),
+	OnChildRemoved(std::move(rhs.OnChildRemoved)) {
+
+	for (auto& childPtr : m_children) {
+		if (childPtr) {
+			childPtr->m_parent = this;
+		}
+	}
+
+	rhs.m_parent = nullptr;
+	rhs.m_markForRemove = false;
 }
 
-Node& Node::operator=(Node&& rhs) {
+Node& Node::operator=(Node&& rhs) noexcept {
+	m_parent = rhs.m_parent;
 	m_markForRemove = rhs.m_markForRemove;
+	m_id = rhs.m_id;
+	m_name = rhs.m_name;
+	m_children = std::move(rhs.m_children);
+	OnChildAdded = std::move(rhs.OnChildAdded);
+	OnChildRemoved = std::move(rhs.OnChildRemoved);
+
+	for (auto& childPtr : m_children) {
+		if (childPtr) {
+			childPtr->m_parent = this;
+		}
+	}
+
+	rhs.m_parent = nullptr;
+	rhs.m_markForRemove = false;
 	return *this;
 }
 
@@ -35,10 +89,16 @@ std::list<std::unique_ptr<Node, std::function<void(Node* node)>>>& Node::getChil
 }
 
 Node* Node::addChild(Node* node, bool disableDelete) {
+	if (node->m_parent) {
+		node->setParent(this);
+		return node;
+	}
+
 	if (disableDelete)
 		m_children.emplace_back(std::unique_ptr<Node, std::function<void(Node* node)>>(node, [&](Node* node) {}));
 	else
 		m_children.emplace_back(std::unique_ptr<Node, std::function<void(Node* node)>>(node, [&](Node* node) {delete node; }));
+
 	m_children.back()->m_parent = this;
 	return m_children.back().get();
 }
@@ -51,18 +111,31 @@ const int Node::getId() const {
 	return m_id;
 }
 
-void Node::setParent(Node* node) {
-
-	if (node && m_parent) {
+void Node::setParent(Node* node, bool disableDelete) {
+	if (m_parent == node) return;
+	if (m_parent) {
 		std::list<std::unique_ptr<Node, std::function<void(Node* node)>>>::iterator it = std::find_if(m_parent->getChildren().begin(), m_parent->getChildren().end(), [node](std::unique_ptr<Node, std::function<void(Node* node)>>& _node) { return _node.get() == node; });
+		if (it != m_parent->getChildren().end()) {			
+			//node->m_children.splice(node->m_children.end(), m_parent->getChildren(), it);
 
-		if (it != m_parent->getChildren().end()) {
-			node->getChildren().splice(m_parent->getChildren().end(), m_parent->getChildren(), it);
+			Node* rawPtr = it->release();
+			m_parent->m_children.erase(it);
+			if (disableDelete) 
+				node->m_children.emplace_back(std::unique_ptr<Node, std::function<void(Node * node)>>(rawPtr, [&](Node* rawPtr) {}));
+			else
+				node->m_children.emplace_back(std::unique_ptr<Node, std::function<void(Node * node)>>(rawPtr, [&](Node* rawPtr) {delete rawPtr; }));
+			
+			m_parent = node;
+			return;
+		}else {
+			m_parent->m_children.erase(it);
+			m_parent = nullptr;
+			return;
 		}
-	}else if (node) {
-		node->addChild(this);
-	}else if (m_parent) {
-		m_parent->eraseChild(this);
+	}
+
+	if (!m_parent && node) {
+		node->addChild(this, disableDelete);
 	}
 }
 
@@ -75,18 +148,29 @@ void Node::setId(const int id) {
 }
 
 void Node::eraseChild(const int id) {
-	m_children.erase(std::remove_if(m_children.begin(), m_children.end(), [id](const std::unique_ptr<Node, std::function<void(Node* node)>>& node) { return node->getId() == id; }), m_children.end());
+	auto it = std::find_if(m_children.begin(), m_children.end(),
+		[id](const auto& childPtr) {
+			return childPtr && childPtr->getId() == id;
+	});
+
+
+	if (it != m_children.end()) {
+		(*it)->m_parent = nullptr;
+		m_children.erase(it);
+	}
 }
 
 void Node::eraseAllChildren(size_t offset) {
-	for (auto it = m_children.begin(); it != m_children.end(); ++it) {
-		Node* child = (*it).release();
-		child->m_parent = nullptr;
-		delete child;
-		child = nullptr;
-	}
-	//m_children.clear();
-	m_children.erase(std::next(m_children.begin(), offset), m_children.end());
+	if (offset >= m_children.size())
+		return;
+
+	auto startIt = std::next(m_children.begin(), offset);
+
+	std::for_each(startIt, m_children.end(), [](const auto& childPtr) {
+		childPtr->m_parent = nullptr;
+	});
+
+	m_children.erase(startIt, m_children.end());
 }
 
 void Node::eraseChild(Node* child) {

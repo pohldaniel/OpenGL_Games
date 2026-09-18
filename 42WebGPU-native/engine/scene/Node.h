@@ -14,12 +14,12 @@ public:
 	Node();
 	Node(const Node& rhs);
 	Node& operator=(const Node& rhs);
-	Node(Node&& rhs);
-	Node& operator=(Node&& rhs);
+	Node(Node&& rhs) noexcept;
+	Node& operator=(Node&& rhs) noexcept;
 	virtual ~Node();
 
 	void markForRemove();
-	void setParent(Node* node);
+	void setParent(Node* node, bool disableDelete = false);
 	
 	void setName(const std::string& name);
 	void setId(const int id);
@@ -47,8 +47,8 @@ public:
 	template <class T, class U> T* addChild(U* ref, bool disableDelete = false);
 	template <class T, class U> T* addChildSilent(U* ref, bool disableDelete = false);
 
-	template <class T, class... Args> T* Node::addChild(Args&&... args);
-	template <class T, class... Args> T* Node::addChildSilent(Args&&... args);
+	template <class T, class... Args, typename = std::enable_if_t<(sizeof...(Args) > 0)>> T* addChild(Args&&... args);
+	template <class T, class... Args, typename = std::enable_if_t<(sizeof...(Args) > 0)>> T* addChildSilent(Args&&... args);
 
 	template <class T> T* findChild(std::string name, bool recursive = true) const;
 	template <class T> T* findChild(const int id, bool recursive = true) const;
@@ -67,11 +67,11 @@ public:
 
 protected:
 
-	mutable std::list<std::unique_ptr<Node, std::function<void(Node* node)>>> m_children;
 	Node* m_parent;
 	bool m_markForRemove;
 	int m_id;
 	std::string m_name;
+	mutable std::list<std::unique_ptr<Node, std::function<void(Node* node)>>> m_children;
 
 	NodeCallback OnChildAdded;
 	NodeCallback OnChildRemoved;
@@ -105,12 +105,12 @@ template <class T, class U> T* Node::addChildSilent(U* ref, bool disableDelete) 
 	return static_cast<T*>(attachChildSilent(std::move(child)));
 }
 
-template <class T, class... Args> T* Node::addChild(Args&&... args) {
+template <class T, class... Args, typename> T* Node::addChild(Args&&... args) {
 	auto child = std::unique_ptr<Node, std::function<void(Node*)>>(new T(std::forward<Args>(args)...), [](Node* node) { delete node; });
 	return static_cast<T*>(attachChild(std::move(child)));
 }
 
-template <class T, class... Args> T* Node::addChildSilent(Args&&... args) {
+template <class T, class... Args, typename> T* Node::addChildSilent(Args&&... args) {
 	auto child = std::unique_ptr<Node, std::function<void(Node*)>>(new T(std::forward<Args>(args)...), [](Node* node) { delete node; });
 	return static_cast<T*>(attachChildSilent(std::move(child)));
 }
@@ -118,10 +118,7 @@ template <class T, class... Args> T* Node::addChildSilent(Args&&... args) {
 template <class T> T* Node::findChild(std::string name, bool recursive) const {
 	for (auto it = m_children.begin(); it != m_children.end(); ++it) {
 		Node* child = (*it).get();
-		if (!child) {
-			continue;
-		}
-
+		
 		if (child->m_name == name && dynamic_cast<T*>(child) != nullptr)
 			return dynamic_cast<T*>(child);
 		else if (recursive && child->m_children.size()) {
@@ -136,10 +133,7 @@ template <class T> T* Node::findChild(std::string name, bool recursive) const {
 template <class T> T* Node::findChild(const int id, bool recursive) const {
 	for (auto it = m_children.begin(); it != m_children.end(); ++it) {
 		Node* child = (*it).get();
-		if (!child) {
-			continue;
-		}
-
+		
 		if (child->m_id == id && dynamic_cast<T*>(child) != nullptr)
 			return dynamic_cast<T*>(child);
 		else if (recursive && child->m_children.size()) {
@@ -176,11 +170,11 @@ template <class T> void Node::eraseChildren() const {
 
 template <typename T>
 std::vector<T*> Node::getChildren() const {
-	std::vector<T*> castedChildren;
+	std::vector<T*> filteredChildren;
 	for (const auto& child : m_children) {
 		if (auto* castedChild = dynamic_cast<T*>(child.get())) {
-			castedChildren.push_back(castedChild);
+			filteredChildren.push_back(castedChild);
 		}
 	}
-	return castedChildren;
+	return filteredChildren;
 }
