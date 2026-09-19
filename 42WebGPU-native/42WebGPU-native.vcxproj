@@ -222,7 +222,6 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClCompile Include="engine\thread\MutexClass.cpp" />
     <ClCompile Include="engine\thread\Thread.cpp" />
     <ClCompile Include="engine\thread\WorkQueue.cpp" />
-    <ClCompile Include="engine\TileSet.cpp" />
     <ClCompile Include="engine\Timer.cpp" />
     <ClCompile Include="engine\utils\BinaryIO.cpp" />
     <ClCompile Include="engine\video\D3D11Decoder.cpp" />
@@ -354,7 +353,6 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClInclude Include="engine\thread\MutexClass.h" />
     <ClInclude Include="engine\thread\Thread.h" />
     <ClInclude Include="engine\thread\WorkQueue.h" />
-    <ClInclude Include="engine\TileSet.h" />
     <ClInclude Include="engine\Timer.h" />
     <ClInclude Include="engine\TrackBall.h" />
     <ClInclude Include="engine\Transform.h" />

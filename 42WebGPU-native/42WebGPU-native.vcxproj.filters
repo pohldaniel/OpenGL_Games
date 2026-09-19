@@ -393,9 +393,6 @@
     <ClCompile Include="src\Entities\Player.cpp">
       <Filter>Source Files\Entities</Filter>
     </ClCompile>
-    <ClCompile Include="engine\TileSet.cpp">
-      <Filter>engine</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\input\ApplicationEventListener.h">
@@ -769,9 +766,6 @@
     </ClInclude>
     <ClInclude Include="src\Entities\Player.h">
       <Filter>Source Files\Entities</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\TileSet.h">
-      <Filter>engine</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

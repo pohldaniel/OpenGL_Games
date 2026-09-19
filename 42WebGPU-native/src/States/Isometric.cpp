@@ -1,4 +1,4 @@
-#include <imgui.h>
+﻿#include <imgui.h>
 #include <imgui_impl_win32.h>
 #include <imgui_impl_wgpu.h>
 #include <imgui_internal.h>
@@ -112,6 +112,9 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 	m_bullet.buildQuadXZ({ -0.3f * 0.243f, 0.0f, -0.3f * 0.243f }, { 0.3f * 0.5f, 0.3f * 0.5f }, 1u, 1u, true, false);
 
 	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
+	m_infoBufferBillboard.createBuffer(sizeof(FrameInfo), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
+	m_infoBufferMuzzle.createBuffer(sizeof(FrameInfo), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
+	
 	m_storageBuffer.createBuffer(1000u * sizeof(Matrix4f), WGPUBufferUsage_Storage | WGPUBufferUsage_CopyDst);
 	m_wigglyBuffer.createBuffer(sizeof(Vector4f), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	m_skinBuffer.createBuffer(sizeof(Matrix4f) * 96u, WGPUBufferUsage_CopyDst | WGPUBufferUsage_Storage);
@@ -119,8 +122,13 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 	m_rotationBuffer.createBuffer(sizeof(Vector4f) * 4000u, WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	m_offsetBuffer.createBuffer(sizeof(Vector4f) * 4000u, WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 
+	m_spriteBuffer.createBuffer(20u * sizeof(SpriteInstance), WGPUBufferUsage_Storage | WGPUBufferUsage_CopyDst);
+	m_muzzleBuffer.createBuffer(100u * sizeof(SpriteInstance), WGPUBufferUsage_Storage | WGPUBufferUsage_CopyDst);
+
 	m_wgpBulletTexture.setFlipHorizontal(true);
 	m_wgpBulletTexture.loadFromFile("res/textures/BulletTexture.png");
+	m_sprite.loadFromFile("res/textures/impact_spritesheet_with_00.png");
+	m_muzzle.loadFromFile("res/textures/muzzle_spritesheet.png");
 
 	m_uniforms.projection = m_camera.getPerspectiveMatrix();
 	m_uniforms.view = m_camera.getViewMatrix();
@@ -133,8 +141,24 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 	m_uniforms.shadow = Matrix4f::BIAS * m_uniforms.lightVP;
 	m_uniforms.lightPosition = Vector3f(50.0f, 100.0f, -100.0f);
 
-	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
-	//wgpuQueueWriteBuffer(wgpContext.queue, m_instanceBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0u, &m_uniforms, sizeof(Uniforms));
+	//wgpuQueueWriteBuffer(wgpContext.queue, m_instanceBuffer.getBuffer(), 0u, &m_uniforms, sizeof(Uniforms));
+
+	FrameInfo sprite;
+	sprite.frameSize[0] = 1.0f / 11.0f;
+	sprite.frameSize[1] = 1.0f;
+	sprite.colRow[0] = 11u;
+	sprite.colRow[1] = 1u;
+
+	wgpuQueueWriteBuffer(wgpContext.queue, m_infoBufferBillboard.getBuffer(), 0u, &sprite, sizeof(FrameInfo));
+
+	FrameInfo muzzle;
+	muzzle.frameSize[0] = 1.0f / 6.0f;
+	muzzle.frameSize[1] = 1.0f;
+	muzzle.colRow[0] = 6u;
+	muzzle.colRow[1] = 1u;
+
+	wgpuQueueWriteBuffer(wgpContext.queue, m_infoBufferMuzzle.getBuffer(), 0u, &muzzle, sizeof(FrameInfo));
 
 	wgpContext.addSahderModule("ANIMATION", "res/shader/animation_fbx.wgsl");
 	wgpContext.createRenderPipeline("ANIMATION", "RP_ANIMATION", VL_PTNWJ, std::bind(&Isometric::OnBindGroupLayouts, this));
@@ -150,10 +174,20 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 		1u, WGPUPrimitiveTopology_TriangleList, WGPUTextureFormat_Undefined, WGPUTextureFormat_Undefined, WGPUCompareFunction_Always,
 		{ DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_Undefined, WGPUCullMode_None, StencilMode::DEFAULT, {} });
 
+	wgpContext.addSahderModule("BILLBOARD", "res/shader/billboard.wgsl");
+	wgpContext.createRenderPipeline("BILLBOARD", "RP_BILLBOARD", VL_NONE, std::bind(&Isometric::OnBindGroupLayoutsBillboard, this),
+		1u, WGPUPrimitiveTopology_TriangleStrip, WGPUTextureFormat_Undefined, WGPUTextureFormat_Undefined, WGPUCompareFunction_Always,
+		{ DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_Undefined, WGPUCullMode_None, StencilMode::DEFAULT, {} });
+
+	wgpContext.addSahderModule("MUZZLE", "res/shader/muzzle.wgsl");
+	wgpContext.createRenderPipeline("MUZZLE", "RP_MUZZLE", VL_NONE, std::bind(&Isometric::OnBindGroupLayoutsBillboard, this),
+		1u, WGPUPrimitiveTopology_TriangleStrip, WGPUTextureFormat_Undefined, WGPUTextureFormat_Undefined, WGPUCompareFunction_Always,
+		{ DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_Undefined, WGPUCullMode_None, StencilMode::DEFAULT, {} });
+
 	m_wgpPlayer.create(m_player);
 	m_wgpPlayer.setBindGroups("BG", std::bind(&Isometric::OnBindGroups, this));
 
-	wgpContext.setClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
+	wgpContext.setClearColor({ 0.2f, 0.2f, 0.2f, 1.0f });
 	wgpContext.OnDraw = std::bind(&Isometric::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
 	nkContext.OnFillBuffer = std::bind(&Isometric::OnFillBuffer, this, std::placeholders::_1);
 	
@@ -216,6 +250,9 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 
 	btCollisionObject* body = Physics::AddKinematicObject(Physics::BtTransform(Vector3f(0.0f, 0.4f, 0.0f)), new btCylinderShape(btVector3(0.35f * 0.5f, 0.4f, 0.35f * 0.5f)), Physics::collisiontypes::CHARACTER, Physics::collisiontypes::ENEMY);
 	m_playerEnitity = m_scene->addChild<Player>(body, m_player);
+
+	m_bindGroupBillboard = createBindGroupBillboard();
+	m_bindGroupMuzzle = createBindGroupMuzzle();
 }
 
 Isometric::~Isometric() {
@@ -297,6 +334,8 @@ void Isometric::fixedUpdate() {
 				m_scene->eraseChild(hitEnemy);
 
 				m_ding.play("res/sounds/bullet_hit_metal_enemy_4.wav");
+				Vector3f pos = hitEnemy->getPosition();
+				spawnBillboard(pos);
 			}
 		}
 	}
@@ -361,6 +400,10 @@ void Isometric::update() {
 		m_debugCollision = !m_debugCollision;
 	}
 
+	if (keyboard.keyPressed(Keyboard::KEY_R)) {
+		spawnMuzzle();
+	}
+
 	if (!m_isDeath && (m_rotationButtonResult.buttonDown || (mouse.buttonDown(Mouse::MouseButton::BUTTON_LEFT) && !m_rotationButtonResult.isActive && !m_joystickResult.isActive)) && (lastFireTime + 0.1f) < Globals::clock.getElapsedTimeSec()) {
 		const Quaternion orientation = m_player.getOrientation();
 
@@ -381,6 +424,7 @@ void Isometric::update() {
 		m_bulletStore.createBullets(projectileSpawnPoint, midOri, spreadAmount);
 		lastFireTime = Globals::clock.getElapsedTimeSec();
 		m_fire.play("res/sounds/shooting_one.wav");
+		spawnMuzzle();
 	}
 
 	if (mouse.buttonDownInvisible(Mouse::MouseButton::BUTTON_RIGHT)) {
@@ -433,19 +477,19 @@ void Isometric::update() {
 	}
 
 	Vector3f playerDirection = Vector3f();
-	if (keyboard.keyDown(Keyboard::KEY_UP) || moveY > 0.0f) {
+	if (keyboard.keyDown(Keyboard::KEY_W) || moveY > 0.0f) {
 		playerDirection -= Vector3f(0.0f, 0.0f, 1.0f);
 	}
 
-	if (keyboard.keyDown(Keyboard::KEY_DOWN) || moveY < 0.0f) {
+	if (keyboard.keyDown(Keyboard::KEY_S) || moveY < 0.0f) {
 		playerDirection += Vector3f(0.0f, 0.0f, 1.0f);
 	}
 
-	if (keyboard.keyDown(Keyboard::KEY_LEFT) || moveX < 0.0f) {
+	if (keyboard.keyDown(Keyboard::KEY_A) || moveX < 0.0f) {
 		playerDirection -= Vector3f(1.0f, 0.0f, 0.0f);
 	}
 
-	if (keyboard.keyDown(Keyboard::KEY_RIGHT) || moveX > 0.0f) {
+	if (keyboard.keyDown(Keyboard::KEY_D) || moveX > 0.0f) {
 		playerDirection += Vector3f(1.0f, 0.0f, 0.0f);
 	}
 
@@ -505,15 +549,29 @@ void Isometric::update() {
 	for (auto enemy : m_enemies) {
 		enemy->update(m_dt);
 	}
+	updateBillboards(m_dt);
+	
+	updateMuzzle(m_dt);
 
 	const AnimatedMesh* mesh = static_cast<const AnimatedMesh*>(m_player.getMesh());
 	mesh->skinMatrices()[42] ^= mesh->getBone(43u).getWorldTransformation() * offset * pivot;
 	wgpuQueueWriteBuffer(wgpContext.queue, m_skinBuffer.getBuffer(), 0u, mesh->getSkinMatrices(), mesh->getNumBones() * sizeof(Matrix4f));
 
+	Matrix4f muzzleTransform = mesh->skinMatrices()[42] * Matrix4f::Translate(214.0f, 76.143f, -3.054f) * Matrix4f::Scale(50.0f, 50.0f, 50.0f);
+
+	float angle = aimTheta;
+	while (angle < 0.0f) angle += 360.0f;
+	while (angle >= 360.0f) angle -= 360.0f;
+	float radians = angle * PI_ON_180;
+	float finalCorrectionAngle = 90.0f * std::abs(std::cos(radians));
+	float sign = (angle > 0.0f && angle < 180.0f) ? -1.0f : 1.0f;
+
+	muzzleTransform = muzzleTransform * Matrix4f::Rotate(sign * finalCorrectionAngle, 0.0f, 0.0f);
+	
 	m_uniforms.projection = m_camera.getPerspectiveMatrix();
 	m_uniforms.view = m_camera.getViewMatrix();
 	m_uniforms.env = m_camera.getRotationMatrix();
-	m_uniforms.model = Matrix4f::IDENTITY;
+	m_uniforms.model = muzzleTransform;
 	m_uniforms.normal = Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_uniforms.model);
 	m_uniforms.camPosition = m_camera.getPosition();
 	m_uniforms.lightVP = Matrix4f::IDENTITY;
@@ -534,7 +592,7 @@ void Isometric::update() {
 	m_wiggly.nosePos[2] = -2.0f ;
 	m_wiggly.time = Globals::clock.getElapsedTimeSec();
 
-	wgpuQueueWriteBuffer(wgpContext.queue, m_wigglyBuffer.getBuffer(), 0, &m_wiggly, sizeof(Wiggly));
+	wgpuQueueWriteBuffer(wgpContext.queue, m_wigglyBuffer.getBuffer(), 0u, &m_wiggly, sizeof(Wiggly));
 
 	wgpuQueueWriteBuffer(wgpContext.queue, m_rotationBuffer.getBuffer(), 0u, m_bulletStore.m_rots.data(), m_bulletStore.m_rots.size() * sizeof(Vector4f));
 	wgpuQueueWriteBuffer(wgpContext.queue, m_offsetBuffer.getBuffer(), 0u, m_bulletStore.m_offsets.data(), m_bulletStore.m_offsets.size() * sizeof(Vector4f));
@@ -543,6 +601,9 @@ void Isometric::update() {
 		Matrix4f viewProjection = m_camera.getPerspectiveMatrix() * m_camera.getViewMatrix();
 		viewProjection.copy(Physics::DebugDrawer.getViewProjection());
 	}
+
+	wgpuQueueWriteBuffer(wgpContext.queue, m_spriteBuffer.getBuffer(), 0u, m_activeBillboards.data(), m_activeBillboards.size() * sizeof(SpriteInstance));
+	wgpuQueueWriteBuffer(wgpContext.queue, m_muzzleBuffer.getBuffer(), 0u, m_activeMuzzle.data(), m_activeMuzzle.size() * sizeof(SpriteInstance));
 }
 
 void Isometric::render() {
@@ -563,6 +624,14 @@ void Isometric::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURende
 
 		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_ANIMATION"));
 		m_wgpPlayer.draw(renderPassEncoder);
+
+		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_BILLBOARD"));
+		wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_bindGroupBillboard, 0u, NULL);
+		wgpuRenderPassEncoderDraw(renderPassEncoder, 4u, m_activeBillboards.size(), 0u, 0u);
+
+		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_MUZZLE"));
+		wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_bindGroupMuzzle, 0u, NULL);
+		wgpuRenderPassEncoderDraw(renderPassEncoder, 4u, 1u, 0u, 0u);
 
 		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_BULLET"));
 		m_wgpBullet.draw(renderPassEncoder, m_bulletStore.m_rots.size());
@@ -828,6 +897,44 @@ std::vector<WGPUBindGroupLayout> Isometric::OnBindGroupLayoutsBullet() {
 	return bindingLayouts;
 }
 
+std::vector<WGPUBindGroupLayout> Isometric::OnBindGroupLayoutsBillboard() {
+	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
+
+	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(5);
+
+	bindingLayoutEntries[0].binding = 0u;
+	bindingLayoutEntries[0].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
+	bindingLayoutEntries[0].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
+	bindingLayoutEntries[0].buffer.minBindingSize = sizeof(Uniforms);
+
+	bindingLayoutEntries[1].binding = 1u;
+	bindingLayoutEntries[1].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
+	bindingLayoutEntries[1].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
+	bindingLayoutEntries[1].buffer.minBindingSize = sizeof(FrameInfo);
+
+	bindingLayoutEntries[2].binding = 2u;
+	bindingLayoutEntries[2].visibility = WGPUShaderStage_Vertex;
+	bindingLayoutEntries[2].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_ReadOnlyStorage;
+	bindingLayoutEntries[2].buffer.minBindingSize = 10u * sizeof(SpriteInstance);
+
+	bindingLayoutEntries[3].binding = 3u;
+	bindingLayoutEntries[3].visibility = WGPUShaderStage_Fragment;
+	bindingLayoutEntries[3].sampler.type = WGPUSamplerBindingType::WGPUSamplerBindingType_Filtering;
+
+	bindingLayoutEntries[4].binding = 4u;
+	bindingLayoutEntries[4].visibility = WGPUShaderStage_Fragment;
+	bindingLayoutEntries[4].texture.sampleType = WGPUTextureSampleType::WGPUTextureSampleType_Float;
+	bindingLayoutEntries[4].texture.viewDimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
+
+	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
+	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
+	bindGroupLayoutDescriptor.entries = bindingLayoutEntries.data();
+
+	bindingLayouts[0] = wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor);
+
+	return bindingLayouts;
+}
+
 std::vector<WGPUBindGroup> Isometric::OnBindGroups() {
 	std::vector<WGPUBindGroup> bindGroups(1);
 
@@ -944,6 +1051,68 @@ WGPUBindGroup Isometric::CreateBindGroup(const WgpBuffer& uniformBuffer, const W
 	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
 }
 
+WGPUBindGroup Isometric::createBindGroupBillboard() {
+	std::vector<WGPUBindGroupEntry> bindGroupEntries(5);
+
+	bindGroupEntries[0].binding = 0u;
+	bindGroupEntries[0].buffer = m_uniformBuffer.getBuffer();
+	bindGroupEntries[0].offset = 0u;
+	bindGroupEntries[0].size = wgpuBufferGetSize(m_uniformBuffer.getBuffer());
+
+	bindGroupEntries[1].binding = 1u;
+	bindGroupEntries[1].buffer = m_infoBufferBillboard.getBuffer();
+	bindGroupEntries[1].offset = 0u;
+	bindGroupEntries[1].size = wgpuBufferGetSize(m_infoBufferBillboard.getBuffer());
+
+	bindGroupEntries[2].binding = 2u;
+	bindGroupEntries[2].buffer = m_spriteBuffer.getBuffer();
+	bindGroupEntries[2].offset = 0u;
+	bindGroupEntries[2].size = wgpuBufferGetSize(m_spriteBuffer.getBuffer());
+
+	bindGroupEntries[3].binding = 3u;
+	bindGroupEntries[3].sampler = wgpContext.getSampler(SS_LINEAR_CLAMP);
+
+	bindGroupEntries[4].binding = 4u;
+	bindGroupEntries[4].textureView = m_sprite.getTextureView();
+
+	WGPUBindGroupDescriptor bindGroupDesc = {};
+	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_BILLBOARD"), 0u);
+	bindGroupDesc.entryCount = (uint32_t)bindGroupEntries.size();
+	bindGroupDesc.entries = (WGPUBindGroupEntry*)bindGroupEntries.data();
+	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
+}
+
+WGPUBindGroup Isometric::createBindGroupMuzzle() {
+	std::vector<WGPUBindGroupEntry> bindGroupEntries(5);
+
+	bindGroupEntries[0].binding = 0u;
+	bindGroupEntries[0].buffer = m_uniformBuffer.getBuffer();
+	bindGroupEntries[0].offset = 0u;
+	bindGroupEntries[0].size = wgpuBufferGetSize(m_uniformBuffer.getBuffer());
+
+	bindGroupEntries[1].binding = 1u;
+	bindGroupEntries[1].buffer = m_infoBufferMuzzle.getBuffer();
+	bindGroupEntries[1].offset = 0u;
+	bindGroupEntries[1].size = wgpuBufferGetSize(m_infoBufferMuzzle.getBuffer());
+
+	bindGroupEntries[2].binding = 2u;
+	bindGroupEntries[2].buffer = m_muzzleBuffer.getBuffer();
+	bindGroupEntries[2].offset = 0u;
+	bindGroupEntries[2].size = wgpuBufferGetSize(m_muzzleBuffer.getBuffer());
+
+	bindGroupEntries[3].binding = 3u;
+	bindGroupEntries[3].sampler = wgpContext.getSampler(SS_LINEAR_CLAMP);
+
+	bindGroupEntries[4].binding = 4u;
+	bindGroupEntries[4].textureView = m_muzzle.getTextureView();
+
+	WGPUBindGroupDescriptor bindGroupDesc = {};
+	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_MUZZLE"), 0u);
+	bindGroupDesc.entryCount = (uint32_t)bindGroupEntries.size();
+	bindGroupDesc.entries = (WGPUBindGroupEntry*)bindGroupEntries.data();
+	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
+}
+
 bool Isometric::getWorldPosition(int xPos, int yPos, const Vector3f& planeNormal, Vector3f& outIntersection) {
 	float mouseXndc = (2.0f * xPos) / static_cast<float>(Application::Width) - 1.0f;
 	float mouseYndc = 1.0f - (2.0f * yPos) / static_cast<float>(Application::Height);
@@ -987,4 +1156,79 @@ CollisionEntity* Isometric::createNewBulletToPool() {
 	m_entities.push_back(entity);
 
 	return entity;
+}
+
+void Isometric::spawnBillboard(const Vector3f& position) {
+	SpriteInstance newSprite;
+	newSprite.position[0] = position[0];
+	newSprite.position[1] = 120.0f * 0.0044f;
+	newSprite.position[2] = position[2];
+
+	newSprite.scale[0] = 0.25f;
+	newSprite.scale[1] = 0.25f;
+
+	newSprite.currentFrame = 0u;
+
+	m_activeBillboards.push_back(newSprite);
+}
+
+void Isometric::spawnMuzzle() {
+	if (m_activeMuzzle.size() > 0)
+		return;
+
+	SpriteInstance newSprite;
+	newSprite.position[0] = 0.0f;
+	newSprite.position[1] = 0.0f;
+	newSprite.position[2] = 0.0f;
+
+	newSprite.scale[0] = 1.0f;
+	newSprite.scale[1] = 1.0f;
+
+	newSprite.currentFrame = 0u;
+
+	m_activeMuzzle.push_back(newSprite);
+}
+
+void Isometric::updateBillboards(float dt) {
+	const uint32_t numCols = 11;
+	const float timePerSprite = 0.05f;
+	const float spritesheetDur = numCols * timePerSprite;
+
+	for (auto& sprite : m_activeBillboards) {
+		sprite.age += dt;
+		sprite.currentFrame = sprite.age / timePerSprite;
+	}
+
+	m_activeBillboards.erase(
+		std::remove_if(
+			m_activeBillboards.begin(),
+			m_activeBillboards.end(),
+			[spritesheetDur](const SpriteInstance& s) {
+				return s.age >= spritesheetDur;
+			}
+		),
+		m_activeBillboards.end()
+	);
+}
+
+void Isometric::updateMuzzle(float dt) {
+	const uint32_t numCols = 6;
+	const float timePerSprite = 0.05f;
+	const float spritesheetDur = numCols * timePerSprite;
+
+	for (auto& sprite : m_activeMuzzle) {
+		sprite.age += dt;
+		sprite.currentFrame = sprite.age / timePerSprite;
+	}
+
+	m_activeMuzzle.erase(
+		std::remove_if(
+			m_activeMuzzle.begin(),
+			m_activeMuzzle.end(),
+			[spritesheetDur](const SpriteInstance& s) {
+				return s.age >= spritesheetDur;
+			}
+		),
+		m_activeMuzzle.end()
+	);
 }

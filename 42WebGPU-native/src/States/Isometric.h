@@ -94,6 +94,19 @@ class Isometric : public State, public MouseEventListener, public KeyboardEventL
 		float time;
 	};
 
+	struct SpriteInstance {
+		float position[3];
+		float age;
+		float scale[2];
+		float currentFrame;
+		uint32_t padding2;
+	};
+
+	struct FrameInfo {
+		uint32_t colRow[2];
+		float frameSize[2];
+	};
+
 public:
 
 	Isometric(StateMachine& machine);
@@ -119,15 +132,22 @@ private:
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsFloor();
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsWiggly();
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsBullet();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsBillboard();
 
 	std::vector<WGPUBindGroup> OnBindGroups();
 	std::vector<WGPUBindGroup> OnBindGroupsFloor();
 	std::vector<WGPUBindGroup> OnBindGroupsBullet();
+	WGPUBindGroup createBindGroupBillboard();
+	WGPUBindGroup createBindGroupMuzzle();
 
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 	bool getWorldPosition(int xPos, int yPos, const Vector3f& planeNormal, Vector3f& outIntersection);
 	float getLookAtYRotation(const Vector3f& objectPos, const Vector3f& targetPos);
 	CollisionEntity* createNewBulletToPool();
+	void spawnBillboard(const Vector3f& position);
+	void spawnMuzzle();
+	void updateBillboards(float dt);
+	void updateMuzzle(float dt);
 
 	bool m_initUi = true;
 	bool m_drawUi = false;
@@ -145,9 +165,10 @@ private:
 	AnimatedModel m_player;
 	Shape m_floor, m_bullet;
 
-	WgpBuffer m_uniformBuffer, m_storageBuffer, m_wigglyBuffer, m_skinBuffer, m_rotationBuffer, m_offsetBuffer;
+	WgpBuffer m_uniformBuffer, m_infoBufferBillboard, m_infoBufferMuzzle, m_storageBuffer, m_wigglyBuffer, m_skinBuffer, m_rotationBuffer, m_offsetBuffer, m_spriteBuffer, m_muzzleBuffer;
 	WgpModel m_wgpPlayer, m_wgpFloor, m_wgpEnemy, m_wgpBullet;
-	WgpTexture m_wgpFloorD, m_wgpEnemyD, m_wgpBulletTexture;
+	WgpTexture m_wgpFloorD, m_wgpEnemyD, m_wgpBulletTexture, m_sprite, m_muzzle;
+	WGPUBindGroup m_bindGroupBillboard, m_bindGroupMuzzle;
 	BulletStore m_bulletStore;
 	SceneNode* m_scene;
 
@@ -169,6 +190,7 @@ private:
 	Player* m_playerEnitity;
 	std::vector<Enemy*> m_enemies;
 	std::vector<Matrix4f> m_cpuInstanceBuffer;
-
+	std::vector<SpriteInstance> m_activeBillboards;
+	std::vector<SpriteInstance> m_activeMuzzle;
 	static WGPUBindGroup CreateBindGroup(const WgpBuffer& uniformBuffer, const WgpBuffer& wigglyBuffer, const WgpTexture& texture, const WgpBuffer& storageBuffer);
 };
