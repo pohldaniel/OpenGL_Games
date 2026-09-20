@@ -116,6 +116,7 @@ public:
 	void update() override;
 	void render() override;
 	void OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor);
+	void OnDrawShadow(const WGPURenderPassEncoder& renderPassEncoder);
 	void OnFillBuffer(nk_context& nkCntxt);
 
 	void resize(int deltaW, int deltaH) override;
@@ -133,10 +134,13 @@ private:
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsWiggly();
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsBullet();
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsBillboard();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsShadow();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsWigglyShadow();
 
 	std::vector<WGPUBindGroup> OnBindGroups();
 	std::vector<WGPUBindGroup> OnBindGroupsFloor();
 	std::vector<WGPUBindGroup> OnBindGroupsBullet();
+	std::vector<WGPUBindGroup> OnBindGroupsShadow();
 	WGPUBindGroup createBindGroupBillboard();
 	WGPUBindGroup createBindGroupMuzzle();
 
@@ -167,7 +171,7 @@ private:
 
 	WgpBuffer m_uniformBuffer, m_infoBufferBillboard, m_infoBufferMuzzle, m_storageBuffer, m_wigglyBuffer, m_skinBuffer, m_rotationBuffer, m_offsetBuffer, m_spriteBuffer, m_muzzleBuffer;
 	WgpModel m_wgpPlayer, m_wgpFloor, m_wgpEnemy, m_wgpBullet;
-	WgpTexture m_wgpFloorD, m_wgpEnemyD, m_wgpBulletTexture, m_sprite, m_muzzle;
+	WgpTexture m_wgpFloorD, m_wgpEnemyD, m_wgpBulletTexture, m_sprite, m_muzzle, m_wgpTextureShadow;
 	WGPUBindGroup m_bindGroupBillboard, m_bindGroupMuzzle;
 	BulletStore m_bulletStore;
 	SceneNode* m_scene;
@@ -192,5 +196,9 @@ private:
 	std::vector<Matrix4f> m_cpuInstanceBuffer;
 	std::vector<SpriteInstance> m_activeBillboards;
 	std::vector<SpriteInstance> m_activeMuzzle;
+	Matrix4f m_lightProjection, m_lightView;
+	Vector3f m_lightDir;
+
 	static WGPUBindGroup CreateBindGroup(const WgpBuffer& uniformBuffer, const WgpBuffer& wigglyBuffer, const WgpTexture& texture, const WgpBuffer& storageBuffer);
+	static WGPUBindGroup CreateBindGroupShadow(const WgpBuffer& uniformBuffer, const WgpBuffer& wigglyBuffer, const WgpBuffer& storageBuffer);
 };

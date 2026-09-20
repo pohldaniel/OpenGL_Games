@@ -19,7 +19,10 @@ struct Uniforms {
     model: mat4x4<f32>,    
 	normal: mat4x4<f32>,
 	color: vec4<f32>,
-	camPos: vec3<f32>
+	camPos: vec3<f32>,
+	lightVP: mat4x4<f32>,
+	shadow: mat4x4<f32>,
+	lightPos: vec3<f32>
 };
 
 struct Wiggly {
@@ -30,6 +33,7 @@ struct Wiggly {
 struct Instance {
     modelMatrix : mat4x4<f32>
 }
+
 struct InstanceData {
     instances : array<Instance>,
 }

@@ -9,7 +9,8 @@ struct VertexOutput {
 	@builtin(position) position: vec4f,
 	@location(1) texcoord: vec2f,
 	@location(2) normal: vec3f,
-	@location(3) color: vec4f
+	@location(3) color: vec4f,
+	@location(4) shadowPos: vec4f
 };
 
 struct Uniforms {
@@ -19,25 +20,48 @@ struct Uniforms {
     model: mat4x4<f32>,    
 	normal: mat4x4<f32>,
 	color: vec4<f32>,
-	camPos: vec3<f32>
+	camPos: vec3<f32>,
+	lightVP: mat4x4<f32>,
+	shadow: mat4x4<f32>,
+	lightPos: vec3<f32>
 };
 
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
 @group(0) @binding(1) var smplr: sampler;
 @group(0) @binding(2) var texture: texture_2d<f32>;
-
+@group(0) @binding(3) var shadowSampler : sampler_comparison; 
+@group(0) @binding(4) var shadowMap : texture_depth_2d;          
+    
 @vertex
 fn vs_main(in: VertexInput) -> VertexOutput {
 	var out: VertexOutput;
 	out.position = uniforms.projection * uniforms.view * vec4f(in.position, 1.0);
+	out.shadowPos = uniforms.shadow * vec4f(in.position, 1.0); 
 	out.normal = in.normal;
 	out.texcoord = in.texcoord;
 	out.color = uniforms.color;
 	return out;
 }
 
+fn shadowCalculation(bias: f32, shadowPos: vec4<f32>, offset: vec2<f32>) -> f32 {
+	return textureSampleCompare(shadowMap, shadowSampler, shadowPos.xy + offset, shadowPos.z - bias );     
+}
 
 @fragment
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
-	return textureSample(texture, smplr, in.texcoord * 100.0);
+	let texelSize = vec2f(1.0, 1.0) / vec2f(textureDimensions(shadowMap));
+	var shadow = 0.0;
+	for (var y = 0; y <= 1; y++) {
+		for (var x = 0; x <= 1; x++) {
+			//let offset = vec2f(vec2(x, y)) * texelSize;
+			let offset = (vec2f(vec2(x, y)) - 0.5) * texelSize;
+			shadow += shadowCalculation(0.001, in.shadowPos, offset);						
+		}
+	}      
+	shadow /= 4.0;
+    let shadowIntensity = shadow * 0.7;
+    let lightFactor = 1.0 - shadowIntensity; 
+    
+	let texColor = textureSample(texture, smplr, in.texcoord * 100.0);
+    return vec4<f32>(texColor.rgb * lightFactor, texColor.a);
 }
