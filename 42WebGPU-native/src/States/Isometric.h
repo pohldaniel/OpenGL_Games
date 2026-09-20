@@ -143,13 +143,14 @@ private:
 	std::vector<WGPUBindGroup> OnBindGroupsShadow();
 	WGPUBindGroup createBindGroupBillboard();
 	WGPUBindGroup createBindGroupMuzzle();
+	WGPUBindGroup createBindGroupWiggly();
 
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 	bool getWorldPosition(int xPos, int yPos, const Vector3f& planeNormal, Vector3f& outIntersection);
 	float getLookAtYRotation(const Vector3f& objectPos, const Vector3f& targetPos);
 	CollisionEntity* createNewBulletToPool();
 	void spawnBillboard(const Vector3f& position);
-	void spawnMuzzle();
+	void resetMuzzle();
 	void updateBillboards(float dt);
 	void updateMuzzle(float dt);
 
@@ -195,10 +196,9 @@ private:
 	std::vector<Enemy*> m_enemies;
 	std::vector<Matrix4f> m_cpuInstanceBuffer;
 	std::vector<SpriteInstance> m_activeBillboards;
-	std::vector<SpriteInstance> m_activeMuzzle;
+	SpriteInstance m_muzzleInstance;
 	Matrix4f m_lightProjection, m_lightView;
 	Vector3f m_lightDir;
 
-	static WGPUBindGroup CreateBindGroup(const WgpBuffer& uniformBuffer, const WgpBuffer& wigglyBuffer, const WgpTexture& texture, const WgpBuffer& storageBuffer);
 	static WGPUBindGroup CreateBindGroupShadow(const WgpBuffer& uniformBuffer, const WgpBuffer& wigglyBuffer, const WgpBuffer& storageBuffer);
 };

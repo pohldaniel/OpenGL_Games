@@ -92,7 +92,7 @@ void BulletStore::createBullets(const glm::vec3& position, const glm::quat& midO
               glm::vec3(0.0f, 0.0f, 1.0f));
           const glm::vec3 dir = rotateByQuat(glm::vec3(1.0f, 0.0f, 0.0f), rotQuat);
           const int pos = i * spreadAmount + j + startIndex;
-          m_offsets[pos] = glm::vec4(position, 0.0f);
+          m_offsets[pos] = glm::vec4(position - dir * 0.2f, 0.0f) ;
           allBulletDirs[pos] = dir;
           m_rots[pos] = rotQuat;
         }
