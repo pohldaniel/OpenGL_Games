@@ -116,9 +116,12 @@ public:
 	void update() override;
 	void render() override;
 	void OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor);
+	void OnPostDraw();
 	void OnDrawShadow(const WGPURenderPassEncoder& renderPassEncoder);
+	void OnDrawEmission(const WGPURenderPassEncoder& renderPassEncoder);
+	void OnDrawScene(const WGPURenderPassEncoder& renderPassEncoder);
 	void OnFillBuffer(nk_context& nkCntxt);
-
+	
 	void resize(int deltaW, int deltaH) override;
 	void OnMouseMotion(const Event::MouseMoveEvent& event) override;
 	void OnMouseWheel(const Event::MouseWheelEvent& event) override;
@@ -136,14 +139,33 @@ private:
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsBillboard();
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsShadow();
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsWigglyShadow();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsBlur();
 
 	std::vector<WGPUBindGroup> OnBindGroups();
+
+	std::vector<WGPUBindGroup> OnBindGroupsPlayer();
+	std::vector<WGPUBindGroup> OnBindGroupsGun();
+
 	std::vector<WGPUBindGroup> OnBindGroupsFloor();
 	std::vector<WGPUBindGroup> OnBindGroupsBullet();
 	std::vector<WGPUBindGroup> OnBindGroupsShadow();
 	WGPUBindGroup createBindGroupBillboard();
 	WGPUBindGroup createBindGroupMuzzle();
 	WGPUBindGroup createBindGroupWiggly();
+	WGPUBindGroup createBindGroupComposite();
+	WGPUBindGroup createBindGroupBlurH();
+	WGPUBindGroup createBindGroupBlurV();
+
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsEmission();
+	std::vector<WGPUBindGroup> OnBindGroupsPlayerEmission();
+	std::vector<WGPUBindGroup> OnBindGroupsGunEmission();
+
+
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsMask();
+	std::vector<WGPUBindGroup> OnBindGroupsMask();
+
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsComposite();
+	//std::vector<WGPUBindGroup> OnBindGroupsMaskComposite();
 
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 	bool getWorldPosition(int xPos, int yPos, const Vector3f& planeNormal, Vector3f& outIntersection);
@@ -158,6 +180,7 @@ private:
 	bool m_drawUi = false;
 	bool m_isDeath = false;
 	bool m_debugCollision = false;
+	bool m_wantResize = false;
 
 	Camera m_camera;
 	Uniforms m_uniforms;	
@@ -173,7 +196,15 @@ private:
 	WgpBuffer m_uniformBuffer, m_infoBufferBillboard, m_infoBufferMuzzle, m_storageBuffer, m_wigglyBuffer, m_skinBuffer, m_rotationBuffer, m_offsetBuffer, m_spriteBuffer, m_muzzleBuffer;
 	WgpModel m_wgpPlayer, m_wgpFloor, m_wgpEnemy, m_wgpBullet;
 	WgpTexture m_wgpFloorD, m_wgpEnemyD, m_wgpBulletTexture, m_sprite, m_muzzle, m_wgpTextureShadow;
-	WGPUBindGroup m_bindGroupBillboard, m_bindGroupMuzzle;
+
+	WgpTexture m_wgpPlayerDiffuse, m_wgpGunDiffuse, m_wgpPlayerEmission, m_wgpGunEmission;
+
+	WgpTexture m_wgpEmissionTarget, m_wgpEmissionDepth;
+	WgpTexture m_wgpSceneTarget, m_wgpSceneDepth;
+	WgpTexture m_wgpBlurTempTarget;
+	WgpTexture m_wgpBlurFinalTarget;
+
+	WGPUBindGroup m_bindGroupBillboard, m_bindGroupMuzzle, m_bindGroupComposite, m_bindGroupBlurH, m_bindGroupBlurV;
 	BulletStore m_bulletStore;
 	SceneNode* m_scene;
 

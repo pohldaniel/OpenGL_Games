@@ -105,6 +105,11 @@ const std::list<WgpMesh>& WgpModel::getMeshes() const{
 	return m_meshes;
 }
 
+WgpMesh& WgpModel::getMesh(size_t index) const {
+	auto it = std::next(m_meshes.begin(), index);
+	return *it;
+}
+
 void WgpModel::draw(const WGPURenderPassEncoder& renderPassEncoder, uint32_t instanceCount) const {
 	for (std::list<WgpMesh>::const_iterator it = m_meshes.begin(); it != m_meshes.end(); ++it) {
 		(*it).draw(renderPassEncoder, instanceCount);

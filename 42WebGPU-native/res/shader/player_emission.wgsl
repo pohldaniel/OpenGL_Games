@@ -29,8 +29,8 @@ struct Uniforms {
 
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
 @group(0) @binding(1) var<storage, read> skin: array<mat4x4f>;
-@group(0) @binding(2) var shadowSampler : sampler_comparison; 
-@group(0) @binding(3) var shadowMap : texture_depth_2d; 
+@group(0) @binding(2) var smplr: sampler;
+@group(0) @binding(3) var emission: texture_2d<f32>;
 
 fn get_world_matrix(weight : vec4f, joint : vec4u) -> mat4x4f {
 	return skin[joint.x] * weight.x + skin[joint.y] * weight.y +
@@ -51,24 +51,8 @@ fn vs_main(in: VertexInput) -> VertexOutput {
 	return out;
 }
 
-fn shadowCalculation(bias: f32, shadowPos: vec4<f32>, offset: vec2<f32>) -> f32 {
-	return textureSampleCompare(shadowMap, shadowSampler, shadowPos.xy + offset, shadowPos.z - bias );     
-}
-
 @fragment
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
-	let texelSize = vec2f(1.0, 1.0) / vec2f(textureDimensions(shadowMap));
-	var shadow = 0.0;
-	for (var y = 0; y <= 1; y++) {
-		for (var x = 0; x <= 1; x++) {
-			//let offset = vec2f(vec2(x, y)) * texelSize;
-			let offset = (vec2f(vec2(x, y)) - 0.5) * texelSize;
-			shadow += shadowCalculation(0.001, in.shadowPos, offset);						
-		}
-	}      
-	shadow /= 4.0;
-    let shadowIntensity = shadow * 0.7;
-    let lightFactor = 1.0 - shadowIntensity;
-	
-	return vec4f(in.normal * lightFactor, 1.0);
+	let texColor = textureSample(emission, smplr, in.texcoord);
+	return vec4f(texColor.rgb , 1.0);
 }

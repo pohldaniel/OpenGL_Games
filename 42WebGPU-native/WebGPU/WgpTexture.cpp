@@ -276,6 +276,7 @@ void WgpTexture::loadFromFile(const std::string& fileName, bool flipVertical, sh
                              filePath.extension() == ".hdr" ? FreeImage_Load(FIF_HDR, fileName.c_str(), HDR_DEFAULT) :
                              filePath.extension() == ".psd" ? FreeImage_Load(FIF_PSD, fileName.c_str(), PSD_DEFAULT) :
                              filePath.extension() == ".tif" ? FreeImage_Load(FIF_TIFF, fileName.c_str(), TIFF_DEFAULT) :
+                             filePath.extension() == ".tga" ? FreeImage_Load(FIF_TARGA, fileName.c_str(), TARGA_DEFAULT) :
                                                               FreeImage_Load(FIF_BMP, fileName.c_str(), BMP_DEFAULT);
 
     SwapRedBlue32(sourceBitmap);
@@ -408,6 +409,7 @@ void WgpTexture::loadHDRICubeFromFile(const std::string& fileName, bool flipVert
                              filePath.extension() == ".hdr" ? FreeImage_Load(FIF_HDR, fileName.c_str(), HDR_DEFAULT) :
                              filePath.extension() == ".psd" ? FreeImage_Load(FIF_PSD, fileName.c_str(), PSD_DEFAULT) :
                              filePath.extension() == ".tif" ? FreeImage_Load(FIF_TIFF, fileName.c_str(), TIFF_DEFAULT) :
+                             filePath.extension() == ".tga" ? FreeImage_Load(FIF_TARGA, fileName.c_str(), TARGA_DEFAULT) :
                                                               FreeImage_Load(FIF_BMP, fileName.c_str(), BMP_DEFAULT);
 
     if (flipVertical)
@@ -459,6 +461,7 @@ void WgpTexture::loadHDRIFromFile(const std::string& fileName, bool flipVertical
                              filePath.extension() == ".hdr" ? FreeImage_Load(FIF_HDR, fileName.c_str(), HDR_DEFAULT) :
                              filePath.extension() == ".psd" ? FreeImage_Load(FIF_PSD, fileName.c_str(), PSD_DEFAULT) :
                              filePath.extension() == ".tif" ? FreeImage_Load(FIF_TIFF, fileName.c_str(), TIFF_DEFAULT) :
+                             filePath.extension() == ".tga" ? FreeImage_Load(FIF_TARGA, fileName.c_str(), TARGA_DEFAULT) :
                                                               FreeImage_Load(FIF_BMP, fileName.c_str(), BMP_DEFAULT);
 
     if (flipVertical)
@@ -501,6 +504,7 @@ void WgpTexture::loadCubeFromFiles(std::string* fileNames, bool flipVertical) {
                                  filePath.extension() == ".hdr" ? FreeImage_Load(FIF_HDR, fileNames[face].c_str(), HDR_DEFAULT) :
                                  filePath.extension() == ".psd" ? FreeImage_Load(FIF_PSD, fileNames[face].c_str(), PSD_DEFAULT) :
                                  filePath.extension() == ".tif" ? FreeImage_Load(FIF_TIFF, fileNames[face].c_str(), TIFF_DEFAULT) :
+                                 filePath.extension() == ".tga" ? FreeImage_Load(FIF_TARGA, fileNames[face].c_str(), TARGA_DEFAULT) :
                                                                   FreeImage_Load(FIF_BMP, fileNames[face].c_str(), BMP_DEFAULT);
 
         SwapRedBlue32(sourceBitmap);
@@ -535,29 +539,30 @@ void WgpTexture::loadCubeFromFiles(std::string* fileNames, bool flipVertical) {
     m_textureView = wgpCreateTextureView(m_texture, WGPUTextureAspect::WGPUTextureAspect_All);
 }
 
-void WgpTexture::createEmpty(uint32_t width, uint32_t height, uint32_t depth, WGPUTextureUsage textureUsage, WGPUTextureFormat textureFormat, uint32_t mipLevelCount) {
+void WgpTexture::createEmpty(uint32_t width, uint32_t height, uint32_t depth, WGPUTextureUsage textureUsage, WGPUTextureFormat textureFormat, uint32_t mipLevelCount, uint32_t msaaSampleCount) {
     m_width = width;
     m_height = height;
     m_channels = 4u;
     m_format = textureFormat;
-    m_texture = wgpCreateTexture(m_width, m_height, depth, textureUsage, m_format, mipLevelCount);
+    m_texture = wgpCreateTexture(m_width, m_height, depth, textureUsage, m_format, mipLevelCount, msaaSampleCount);
     m_textureView = wgpCreateTextureView(m_texture, WGPUTextureAspect::WGPUTextureAspect_All);
 }
 
 void WgpTexture::resize(uint32_t width, uint32_t height) {
     if (m_texture) {
         uint32_t mipLevelCount = wgpuTextureGetMipLevelCount(m_texture);
+        uint32_t smapleCount = wgpuTextureGetSampleCount(m_texture);
         uint32_t depth = wgpuTextureGetDepthOrArrayLayers(m_texture);
         WGPUTextureUsage textureUsage = wgpuTextureGetUsage(m_texture);
 
         wgpuTextureDestroy(m_texture);
         wgpuTextureRelease(m_texture);
         wgpuTextureViewRelease(m_textureView);
-
+        
         m_width = width;
         m_height = height;
 
-        m_texture = wgpCreateTexture(m_width, m_height, depth, textureUsage, m_format, mipLevelCount);
+        m_texture = wgpCreateTexture(m_width, m_height, depth, textureUsage, m_format, mipLevelCount, smapleCount);
         m_textureView = wgpCreateTextureView(m_texture, WGPUTextureAspect::WGPUTextureAspect_All);
     }
 }
@@ -571,6 +576,7 @@ unsigned char* WgpTexture::LoadFromFile(const std::string& fileName, bool flipVe
                              filePath.extension() == ".hdr" ? FreeImage_Load(FIF_HDR, fileName.c_str(), HDR_DEFAULT) :
                              filePath.extension() == ".psd" ? FreeImage_Load(FIF_PSD, fileName.c_str(), PSD_DEFAULT) :
                              filePath.extension() == ".tif" ? FreeImage_Load(FIF_TIFF, fileName.c_str(), TIFF_DEFAULT) :
+                             filePath.extension() == ".tga" ? FreeImage_Load(FIF_TARGA, fileName.c_str(), TARGA_DEFAULT) :
                                                               FreeImage_Load(FIF_BMP, fileName.c_str(), BMP_DEFAULT);
     SwapRedBlue32(sourceBitmap);
 
@@ -601,6 +607,7 @@ unsigned char* WgpTexture::LoadFromFile(const std::string& fileName, uint32_t& w
                              filePath.extension() == ".hdr" ? FreeImage_Load(FIF_HDR, fileName.c_str(), HDR_DEFAULT) :
                              filePath.extension() == ".psd" ? FreeImage_Load(FIF_PSD, fileName.c_str(), PSD_DEFAULT) :
                              filePath.extension() == ".tif" ? FreeImage_Load(FIF_TIFF, fileName.c_str(), TIFF_DEFAULT) :
+                             filePath.extension() == ".tga" ? FreeImage_Load(FIF_TARGA, fileName.c_str(), TARGA_DEFAULT) :
                                                               FreeImage_Load(FIF_BMP, fileName.c_str(), BMP_DEFAULT);
     SwapRedBlue32(sourceBitmap);
 

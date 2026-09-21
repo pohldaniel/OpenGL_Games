@@ -37,7 +37,7 @@ extern std::unordered_map<VertexLayoutSlot, std::vector<WGPUVertexBufferLayout>>
 extern "C" {
 	void wgpInit(void* window);
 	bool wgpCreateDevice(void* window);
-	void wgpLogAdapterProperties();
+	void wgpLogAdapterProperties(WGPUAdapter adapter);
 
 	WGPUBuffer wgpCreateEmptyBuffer(uint32_t size, WGPUBufferUsage bufferUsage, bool mappedAtCreation = false);
 	WGPUBuffer wgpCreateBuffer(const void* data, uint32_t size, WGPUBufferUsage bufferUsage);
@@ -83,7 +83,8 @@ enum RenderPipelineFlags {
 	WRITE_DEPTH = 1,
 	DEPTH_STENCIL_STATE = 2,
 	BLEND_STATE = 4,
-	FRAGMENT_STATE = 8
+	FRAGMENT_STATE = 8,
+	WRITE_COLOR = 16
 };
 
 enum BlendMode {
@@ -130,7 +131,7 @@ struct WgpContext {
 		WGPUTextureFormat colorTextureFormat = WGPUTextureFormat::WGPUTextureFormat_Undefined,
 		WGPUTextureFormat depthTextureFormat = WGPUTextureFormat::WGPUTextureFormat_Undefined,
 		WGPUCompareFunction depthCompareFunction = WGPUCompareFunction::WGPUCompareFunction_Less,	
-		const PipelineConfiguration configuration = { WRITE_DEPTH | DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_Undefined, WGPUCullMode_Undefined, StencilMode::DEFAULT, {} });
+		const PipelineConfiguration configuration = { WRITE_DEPTH | DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE | WRITE_COLOR, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_Undefined, WGPUCullMode_Undefined, StencilMode::DEFAULT, {} });
 
 	void addSampler(const WGPUSampler& sampler, SamplerSlot samplerSlot);
 	const WGPUSampler& getSampler(SamplerSlot samplerSlot) const;
