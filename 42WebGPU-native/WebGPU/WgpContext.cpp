@@ -172,7 +172,6 @@ bool wgpCreateDevice(void* window) {
 	requiredLimits.maxTextureDimension1D = 2048u;
 	requiredLimits.maxTextureDimension2D = 2048u;
 	requiredLimits.maxTextureDimension3D = 2048u;
-	requiredLimits.maxSamplersPerShaderStage = 1u;
 
 	WGPUUncapturedErrorCallbackInfo errorCallbackInfo = {};
 	errorCallbackInfo.callback = OnErrorDevice;

@@ -292,11 +292,25 @@ Isometric::~Isometric() {
 	nkShutDown();
 	Physics::DebugDrawer.shutDown();
 	m_uniformBuffer.markForDelete();
+	m_infoBufferBillboard.markForDelete();
+	m_infoBufferMuzzle.markForDelete();
 	m_storageBuffer.markForDelete();
 	m_wigglyBuffer.markForDelete();
 	m_skinBuffer.markForDelete();
 	m_rotationBuffer.markForDelete();
 	m_offsetBuffer.markForDelete();
+	m_spriteBuffer.markForDelete();
+	m_muzzleBuffer.markForDelete();
+
+	m_wgpFloorD.markForDelete();
+	m_wgpEnemyD.markForDelete();
+	m_wgpBulletTexture.markForDelete();
+	m_sprite.markForDelete();
+	m_muzzle.markForDelete();
+	m_wgpTextureShadow.markForDelete();
+
+	wgpuBindGroupRelease(m_bindGroupBillboard);
+	wgpuBindGroupRelease(m_bindGroupMuzzle);
 }
 
 void Isometric::fixedUpdate() {
@@ -364,8 +378,7 @@ void Isometric::fixedUpdate() {
 				m_scene->eraseChild(hitEnemy);
 
 				m_ding.play("res/sounds/bullet_hit_metal_enemy_4.wav");
-				Vector3f pos = hitEnemy->getPosition();
-				spawnBillboard(pos);
+				spawnBillboard(hitEnemy->getPosition());
 			}
 		}
 	}
@@ -1341,17 +1354,17 @@ CollisionEntity* Isometric::createNewBulletToPool() {
 }
 
 void Isometric::spawnBillboard(const Vector3f& position) {
-	SpriteInstance newSprite;
-	newSprite.position[0] = position[0];
-	newSprite.position[1] = 120.0f * 0.0044f;
-	newSprite.position[2] = position[2];
+	SpriteInstance billboard;
+	billboard.position[0] = position[0];
+	billboard.position[1] = 120.0f * 0.0044f;
+	billboard.position[2] = position[2];
 
-	newSprite.scale[0] = 0.25f;
-	newSprite.scale[1] = 0.25f;
+	billboard.scale[0] = 0.25f;
+	billboard.scale[1] = 0.25f;
+	billboard.age = 0.0f;
+	billboard.currentFrame = 0u;
 
-	newSprite.currentFrame = 0u;
-
-	m_activeBillboards.push_back(newSprite);
+	m_activeBillboards.push_back(billboard);
 }
 
 void Isometric::resetMuzzle() {
