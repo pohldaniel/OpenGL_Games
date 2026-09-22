@@ -41,8 +41,8 @@ struct PointLight {
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
 @group(0) @binding(1) var smplr: sampler;
 @group(0) @binding(2) var diffuseMap: texture_2d<f32>;
-@group(0) @binding(3) var normal: texture_2d<f32>;
-@group(0) @binding(4) var specularity: texture_2d<f32>;
+@group(0) @binding(3) var normalMap: texture_2d<f32>;
+@group(0) @binding(4) var specularityMap: texture_2d<f32>;
 @group(0) @binding(5) var shadowSampler : sampler_comparison; 
 @group(0) @binding(6) var shadowMap : texture_depth_2d;          
 @group(0) @binding(7) var<uniform> directional: DirectionalLight;
@@ -60,7 +60,7 @@ fn vs_main(in: VertexInput) -> VertexOutput {
 	return out;
 }
 
-const ambient : vec3f = vec3f(0.35 * 0.5 * 0.7f * 0.7f, 0.35 * 0.5 * 0.7f * 0.7f, 0.35 * 0.5 * 0.7f);
+const ambient : vec3f = vec3f(0.35 * 0.5 * 0.7 * 0.7, 0.35 * 0.5 * 0.7 * 0.7, 0.35 * 0.5 * 0.7);
 
 fn shadowCalculation(bias: f32, shadowPos: vec4<f32>, offset: vec2<f32>) -> f32 {
 	return textureSampleCompare(shadowMap, shadowSampler, shadowPos.xy + offset, shadowPos.z - bias );     
@@ -68,12 +68,12 @@ fn shadowCalculation(bias: f32, shadowPos: vec4<f32>, offset: vec2<f32>) -> f32 
 
 @fragment
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
-	var color: vec4<f32> = textureSample(diffuseMap, smplr, in.texcoord * 100.0);
+	var color: vec4f = textureSample(diffuseMap, smplr, in.texcoord * 100.0);
 	let diffTexColor = color.rgb;
 	
 	let lightDir = normalize(-directional.dir);
 
-    var normal: vec3<f32> = textureSample(normal, smplr, in.texcoord * 100.0).xyz;
+    var normal: vec3<f32> = textureSample(normalMap, smplr, in.texcoord * 100.0).xyz;
     normal = normalize(normal * 2.0 - 1.0);
 	
 	let diff = max(dot(normal, lightDir), 0.0);
@@ -94,15 +94,15 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
 	
 	
 	let specNormal = vec3f(0.0, 1.0, 0.0);
-    let specLightDir = normalize(vec3f(-3.0, 0.0, -1.0));
+    let specLightDir = normalize(vec3f(-3.0, -4.0, 1.0));
     let reflectDir = reflect(specLightDir, specNormal);
     let viewDir = normalize(uniforms.camPos - in.worldPos);
 	
-	let shininess: f32 = 0.7;
+	let shininess: f32 = 1.0;
     let str: f32 = 1.0;
 	
 	let spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
-    let specTexColor = textureSample(specularity, smplr, in.texcoord * 100.0);
+    let specTexColor = textureSample(specularityMap, smplr, in.texcoord * 100.0);
 	color += str * spec * specTexColor * directional.color;
 	if (point.actve == 1u){
 		let pointLightDir = normalize(point.pos - in.worldPos);
@@ -118,15 +118,6 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
 		var diffuse: vec3f = point.color.rgb * pointDiff * diffTexColor;
 		diffuse *= attenuation;
 		color += vec4f(diffuse, 1.0);
-	}
-	//return color;
-	//return 0.7 * (1.0 - shadow) * directional.color  * vec4f(diffTexColor, 1.0);
-	
+	}	
 	return color;
-	
-    //let shadowIntensity = 0.7 * (1.0 - shadow);
-    //let lightFactor = 1.0 - shadowIntensity; 
-    
-	//let texColor = textureSample(diffuseMap, smplr, in.texcoord * 100.0);
-    //return vec4<f32>(texColor.rgb * shadowIntensity, texColor.a);
 }

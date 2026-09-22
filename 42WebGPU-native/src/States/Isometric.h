@@ -186,9 +186,9 @@ private:
 	WgpBuffer m_pointLightBuffer, m_directionalLightBuffer;
 	
 	WgpModel m_wgpPlayer, m_wgpFloor, m_wgpEnemy, m_wgpBullet;
-	WgpTexture m_wgpFloorD, m_wgpFloorN, m_wgpFloorS, m_wgpEnemyD, m_wgpBulletTexture, m_sprite, m_muzzle, m_wgpTextureShadow;
+	WgpTexture m_wgpFloorD, m_wgpFloorN, m_wgpFloorS, m_wgpEnemyD, m_wgpEnemyN, m_wgpEnemyS, m_wgpBulletTexture, m_sprite, m_muzzle, m_wgpTextureShadow;
 
-	WgpTexture m_wgpPlayerDiffuse, m_wgpGunDiffuse, m_wgpPlayerEmission, m_wgpGunEmission;
+	WgpTexture m_wgpPlayerD, m_wgpPlayerN, m_wgpPlayerS, m_wgpPlayerE, m_wgpGunD, m_wgpGunN, m_wgpGunS, m_wgpGunE;
 
 	WgpTexture m_wgpEmissionTarget, m_wgpEmissionDepth;
 	WgpTexture m_wgpSceneTarget, m_wgpSceneDepth;
