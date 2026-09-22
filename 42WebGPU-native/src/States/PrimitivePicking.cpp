@@ -71,7 +71,7 @@ PrimitivePicking::PrimitivePicking(StateMachine& machine) : State(machine, State
 		WGPUTextureFormat_Undefined,
 		WGPUTextureFormat_Undefined,
 		WGPUCompareFunction_Less,
-		{ WRITE_DEPTH | DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_R32Uint , WGPUCullMode_None }
+		{ WRITE_DEPTH | DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE | WRITE_COLOR, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_R32Uint , WGPUCullMode_None }
 	);
 
 	wgpContext.addSahderModule("PICK_DEBUG", "res/shader/pick_debug.wgsl");

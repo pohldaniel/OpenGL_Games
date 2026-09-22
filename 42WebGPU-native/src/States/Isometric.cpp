@@ -195,10 +195,10 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 	wgpContext.addSahderModule("FLOOR", "res/shader/floor.wgsl");
 	wgpContext.createRenderPipeline("FLOOR", "RP_FLOOR", VL_PTN, std::bind(&Isometric::OnBindGroupLayoutsFloor, this), 4u);
 
-	wgpContext.addSahderModule("MASK", "res/shader/floor_mask.wgsl");
-	wgpContext.createRenderPipeline("MASK", "RP_MASK", VL_PTN, std::bind(&Isometric::OnBindGroupLayoutsMask, this), 
+	wgpContext.addSahderModule("FLOOR_MASK", "res/shader/floor_mask.wgsl");
+	wgpContext.createRenderPipeline("FLOOR_MASK", "RP_FLOOR_MASK", VL_PTN, std::bind(&Isometric::OnBindGroupLayoutsMask, this), 
 		1u, WGPUPrimitiveTopology_TriangleList, WGPUTextureFormat_Undefined, WGPUTextureFormat_Depth16Unorm, WGPUCompareFunction_Always,
-		{ DEPTH_STENCIL_STATE | FRAGMENT_STATE });
+		{ WRITE_DEPTH | DEPTH_STENCIL_STATE | FRAGMENT_STATE });
 
 	
 	wgpContext.addSahderModule("WIGGLY", "res/shader/wiggly.wgsl");
@@ -210,7 +210,7 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 		{ DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE | WRITE_COLOR, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_Undefined, WGPUCullMode_None, StencilMode::DEFAULT, {} });
 
 	wgpContext.createRenderPipeline("BULLET", "RP_BULLET_EMISSION", VL_PT, std::bind(&Isometric::OnBindGroupLayoutsBullet, this),
-		1u, WGPUPrimitiveTopology_TriangleList, WGPUTextureFormat_Undefined, WGPUTextureFormat_Depth16Unorm, WGPUCompareFunction_Always,
+		1u, WGPUPrimitiveTopology_TriangleList, WGPUTextureFormat_Undefined, WGPUTextureFormat_Depth16Unorm, WGPUCompareFunction_Less,
 		{ DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE | WRITE_COLOR, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_Undefined, WGPUCullMode_None, StencilMode::DEFAULT, {} });
 
 	wgpContext.addSahderModule("BILLBOARD", "res/shader/billboard.wgsl");
@@ -1603,7 +1603,7 @@ void Isometric::OnDrawEmission(const WGPURenderPassEncoder& renderPassEncoder) {
 	m_wgpPlayer.setBindGroupsSlot("EMISSION");
 	m_wgpPlayer.draw(renderPassEncoder);
 
-	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_MASK"));
+	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_FLOOR_MASK"));
 	m_wgpFloor.setBindGroupsSlot("MASK");
 	m_wgpFloor.draw(renderPassEncoder);
 
@@ -1758,7 +1758,7 @@ std::vector<WGPUBindGroup> Isometric::OnBindGroupsMask() {
 	bindGroupEntries[0].size = sizeof(Uniforms);
 
 	WGPUBindGroupDescriptor bindGroupDesc = {};
-	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_MASK"), 0u);
+	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_FLOOR_MASK"), 0u);
 	bindGroupDesc.entryCount = (uint32_t)bindGroupEntries.size();
 	bindGroupDesc.entries = bindGroupEntries.data();
 
