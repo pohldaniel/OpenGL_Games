@@ -41,7 +41,7 @@ Matrix4f invPivot = Matrix4f(1.0f, 0.0f, 0.0f, 0.0f,
 	-130.762f, -70.4033f, 3.52485f, 1.0f);
 
 ThreadPool threadPool(4);
-const int spreadAmount = 15;
+const int spreadAmount = 50;
 
 Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC), m_bulletStore(&threadPool), m_enemySpawner(120.0f * 0.0044f, m_player) {
 	Application::SetCursorIcon(IDC_ARROW);
@@ -120,8 +120,8 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 	m_wigglyBuffer.createBuffer(sizeof(Vector4f), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	m_skinBuffer.createBuffer(sizeof(Matrix4f) * 96u, WGPUBufferUsage_CopyDst | WGPUBufferUsage_Storage);
 
-	m_rotationBuffer.createBuffer(sizeof(Vector4f) * 4000u, WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
-	m_offsetBuffer.createBuffer(sizeof(Vector4f) * 4000u, WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
+	m_rotationBuffer.createBuffer(sizeof(Vector4f) * 400000u, WGPUBufferUsage_Storage | WGPUBufferUsage_CopyDst);
+	m_offsetBuffer.createBuffer(sizeof(Vector4f) * 400000u, WGPUBufferUsage_Storage | WGPUBufferUsage_CopyDst);
 
 	m_spriteBuffer.createBuffer(20u * sizeof(SpriteInstance), WGPUBufferUsage_Storage | WGPUBufferUsage_CopyDst);
 	m_muzzleBuffer.createBuffer(100u * sizeof(SpriteInstance), WGPUBufferUsage_Storage | WGPUBufferUsage_CopyDst);
@@ -359,7 +359,7 @@ Isometric::~Isometric() {
 }
 
 void Isometric::fixedUpdate() {
-	size_t activeBulletCount = m_bulletStore.m_offsets.size();
+	/*size_t activeBulletCount = m_bulletStore.m_offsets.size();
 
 	while (m_entities.size() < activeBulletCount) {
 		createNewBulletToPool();
@@ -371,28 +371,20 @@ void Isometric::fixedUpdate() {
 		m_entities.pop_back();
 	}
 
-	for (auto entity : m_entities) {
-		entity->setActive(false);
-	}
-
 	for (size_t i = 0; i < activeBulletCount; ++i) {
 		glm::vec3 pos = m_bulletStore.m_offsets[i];
 		glm::quat rot = m_bulletStore.m_rots[i];
-
-		m_entities[i]->setActive(true);
 		m_entities[i]->setPosition(pos[0], pos[1], pos[2]);
 		m_entities[i]->setOrientation(rot.x, rot.y, rot.z, rot.w);
+
+		m_entities[i]->setActive(true);
 	}
 
 	for (size_t i = activeBulletCount; i < m_entities.size(); ++i) {
 		if (m_entities[i]->isActive()) {
 			m_entities[i]->setActive(false);
 		}
-	}
-
-	for (auto entity : m_entities) {
-		entity->fixedUpdate(m_fdt);
-	}
+	}*/
 
 	for (auto enemy : m_enemies) {
 		enemy->fixedUpdate(m_fdt);
@@ -632,7 +624,9 @@ void Isometric::update() {
 
 	m_player.update(m_dt);
 	m_player.updateSkinning();
-	m_bulletStore.updateBullets(m_dt);
+
+
+	m_bulletStore.updateBullets(m_dt, m_enemies);
 	m_enemySpawner.update(posistion, m_dt);
 
 	for (auto enemy : m_enemies) {
@@ -672,8 +666,15 @@ void Isometric::update() {
 	m_cpuInstanceBuffer.clear();
 	m_cpuInstanceBuffer.reserve(m_enemies.size());
 
-	for (const auto& child : m_enemies) {	
-		m_cpuInstanceBuffer.push_back(child->getTransformationSOP());
+	for (const auto& enemy : m_enemies) {
+		if (enemy->isDeath()) {
+			enemy->setActive(false);
+			m_scene->eraseChild(enemy);
+			m_ding.play("res/sounds/bullet_hit_metal_enemy_4.wav");
+			spawnBillboard(enemy->getPosition());
+			continue;
+		}
+		m_cpuInstanceBuffer.push_back(enemy->getTransformationSOP());
 	}
 
 	wgpuQueueWriteBuffer(wgpContext.queue, m_storageBuffer.getBuffer(), 0u, m_cpuInstanceBuffer.data(), m_cpuInstanceBuffer.size() * sizeof(Matrix4f));
@@ -684,7 +685,6 @@ void Isometric::update() {
 	m_wiggly.time = Globals::clock.getElapsedTimeSec();
 
 	wgpuQueueWriteBuffer(wgpContext.queue, m_wigglyBuffer.getBuffer(), 0u, &m_wiggly, sizeof(Wiggly));
-
 	wgpuQueueWriteBuffer(wgpContext.queue, m_rotationBuffer.getBuffer(), 0u, m_bulletStore.m_rots.data(), m_bulletStore.m_rots.size() * sizeof(Vector4f));
 	wgpuQueueWriteBuffer(wgpContext.queue, m_offsetBuffer.getBuffer(), 0u, m_bulletStore.m_offsets.data(), m_bulletStore.m_offsets.size() * sizeof(Vector4f));
 
@@ -1040,13 +1040,13 @@ std::vector<WGPUBindGroupLayout> Isometric::OnBindGroupLayoutsBullet() {
 
 	bindingLayoutEntries[1].binding = 1u;
 	bindingLayoutEntries[1].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
-	bindingLayoutEntries[1].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
-	bindingLayoutEntries[1].buffer.minBindingSize = sizeof(Vector4f) * 4000u;
+	bindingLayoutEntries[1].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_ReadOnlyStorage;
+	bindingLayoutEntries[1].buffer.minBindingSize = sizeof(Vector4f) * 400000u;
 
 	bindingLayoutEntries[2].binding = 2u;
 	bindingLayoutEntries[2].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
-	bindingLayoutEntries[2].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
-	bindingLayoutEntries[2].buffer.minBindingSize = sizeof(Vector4f) * 4000u;
+	bindingLayoutEntries[2].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_ReadOnlyStorage;
+	bindingLayoutEntries[2].buffer.minBindingSize = sizeof(Vector4f) * 400000u;
 
 	bindingLayoutEntries[3].binding = 3u;
 	bindingLayoutEntries[3].visibility = WGPUShaderStage_Fragment;
@@ -1624,16 +1624,16 @@ void Isometric::OnDrawScene(const WGPURenderPassEncoder& renderPassEncoder) {
 	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_ANIMATION"));
 	m_wgpPlayer.draw(renderPassEncoder);
 
-	//wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_BILLBOARD"));
-	//wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_bindGroupBillboard, 0u, NULL);
-	//wgpuRenderPassEncoderDraw(renderPassEncoder, 4u, m_activeBillboards.size(), 0u, 0u);
+	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_BILLBOARD"));
+	wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_bindGroupBillboard, 0u, NULL);
+	wgpuRenderPassEncoderDraw(renderPassEncoder, 4u, m_activeBillboards.size(), 0u, 0u);
 
 	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_MUZZLE"));
 	wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_bindGroupMuzzle, 0u, NULL);
 	wgpuRenderPassEncoderDraw(renderPassEncoder, 4u, 1u, 0u, 0u);
 
-	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_BULLET"));
-	m_wgpBullet.draw(renderPassEncoder, m_bulletStore.m_rots.size());
+	//wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_BULLET"));
+	//m_wgpBullet.draw(renderPassEncoder, m_bulletStore.m_rots.size());
 }
 
 std::vector<WGPUBindGroupLayout> Isometric::OnBindGroupLayoutsEmission() {

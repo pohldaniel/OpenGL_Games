@@ -12,11 +12,11 @@ struct VertexOutput {
 };
 
 struct Rot {
-	rot : array<vec4f, 4000>,
+	rot : array<vec4f>,
 };
 
 struct Offset {
-	offset : array<vec4f, 4000>
+	offset : array<vec4f>
 };
 
 struct Uniforms {
@@ -33,8 +33,8 @@ struct Uniforms {
 };
 
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
-@group(0) @binding(1) var<uniform> rots : Rot;
-@group(0) @binding(2) var<uniform> offsets : Offset;
+@group(0) @binding(1) var<storage, read> rots : Rot;
+@group(0) @binding(2) var<storage, read> offsets : Offset;
 @group(0) @binding(3) var smplr: sampler;
 @group(0) @binding(4) var texture: texture_2d<f32>;
 

@@ -1,6 +1,6 @@
 #include "Enemy.h"
 
-Enemy::Enemy(btCollisionObject* collisionObject, const Vector3f& target) : CollisionNode(collisionObject), target(target){
+Enemy::Enemy(btCollisionObject* collisionObject, const Vector3f& target) : CollisionNode(collisionObject), target(target), m_isDeath(false){
     m_collisionObject->setUserPointer(this);
 }
 
@@ -37,4 +37,16 @@ float Enemy::getLookAtYRotation(const Vector3f& objectPos, const Vector3f& targe
         return 0.0f;
 
     return std::atan2(dx, dz) * _180_ON_PI;
+}
+
+const Vector3f Enemy::getDirection() const {
+    return Quaternion::Rotate(getOrientation(), Vector3f::FORWARD);
+}
+
+void Enemy::setIsDeath(bool isDeath) {
+    m_isDeath = true;
+}
+
+bool Enemy::isDeath() {
+    return m_isDeath;
 }

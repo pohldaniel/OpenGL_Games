@@ -372,6 +372,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClInclude Include="Nuklear\NkStyle.h" />
     <ClInclude Include="Physics\DebugDrawer.h" />
     <ClInclude Include="Physics\Physics.h" />
+    <ClInclude Include="src\aabb.h" />
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\bullet_store.h" />
     <ClInclude Include="src\DataStructs.h" />

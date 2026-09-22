@@ -45,10 +45,7 @@ void CollisionNode::setActive(bool active) {
     }else {
         m_collisionObject->setCollisionFlags(m_collisionObject->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
         m_collisionObject->setCollisionFlags(m_collisionObject->getCollisionFlags() | btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT);
-        m_collisionObject->forceActivationState(ISLAND_SLEEPING);
-
-        //body->setLinearVelocity(btVector3(0, 0, 0));
-        //body->setAngularVelocity(btVector3(0, 0, 0));   
+        m_collisionObject->forceActivationState(ISLAND_SLEEPING); 
     }
 }
 

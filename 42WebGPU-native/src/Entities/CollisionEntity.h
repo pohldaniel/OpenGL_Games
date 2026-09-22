@@ -13,4 +13,7 @@ public:
 
 	void update(const float dt) override;
 	void fixedUpdate(float fdt) override;
+
+	void setPosition(const float x, const float y, const float z) const override;
+	void setOrientation(const float x, const float y, const float z, const float w) const override;
 };

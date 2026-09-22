@@ -767,5 +767,8 @@
     <ClInclude Include="src\Entities\Player.h">
       <Filter>Source Files\Entities</Filter>
     </ClInclude>
+    <ClInclude Include="src\aabb.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -5,12 +5,13 @@
 #include <glm/glm.hpp>
 #include "ThreadPool.h"
 
+class Enemy;
 class BulletStore {
 public:
  
 
   void createBullets(const glm::vec3& position, const glm::quat& midOri, const int spreadAmount);
-  void updateBullets(float deltaTimeSeconds);
+  void updateBullets(float deltaTimeSeconds, std::vector<Enemy*>& enemies);
 
   std::vector<glm::vec4> m_offsets;
   std::vector<glm::quat> m_rots;

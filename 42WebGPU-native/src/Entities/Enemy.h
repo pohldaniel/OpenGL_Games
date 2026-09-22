@@ -13,9 +13,15 @@ public:
 
 	void update(const float dt) override;
 	void fixedUpdate(float fdt) override;
+
+	const Vector3f getDirection() const;
+	void setIsDeath(bool isDeath);
+	bool isDeath();
+
 private:
 
 	float getLookAtYRotation(const Vector3f& objectPos, const Vector3f& targetPos);
 
 	const Vector3f& target;
+	bool m_isDeath;
 };
