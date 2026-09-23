@@ -9,7 +9,7 @@ CollisionEntity::~CollisionEntity() {
 
 }
 
-void CollisionEntity::update(const float dt) {
+void CollisionEntity::update(float dt) {
 
 }
 

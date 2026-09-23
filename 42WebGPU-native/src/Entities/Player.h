@@ -12,7 +12,7 @@ public:
 	Player(btCollisionObject* collisionObject, AnimatedModel& model);
 	~Player();
 
-	void update(const float dt) override;
+	void update(float dt) override;
 	void fixedUpdate(float fdt) override;
 
 	void translate(float dx, float dy, float dz)  override;

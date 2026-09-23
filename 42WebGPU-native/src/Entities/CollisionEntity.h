@@ -11,7 +11,7 @@ public:
 	CollisionEntity(btCollisionObject* collisionObject);
 	~CollisionEntity();
 
-	void update(const float dt) override;
+	void update(float dt) override;
 	void fixedUpdate(float fdt) override;
 
 	void setPosition(const float x, const float y, const float z) const override;

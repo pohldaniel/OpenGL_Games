@@ -9,7 +9,7 @@ Player::~Player() {
 
 }
 
-void Player::update(const float dt) {
+void Player::update(float dt) {
    
 }
 

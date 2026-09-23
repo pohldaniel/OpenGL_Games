@@ -8,7 +8,7 @@ Enemy::~Enemy() {
 
 }
 
-void Enemy::update(const float dt) {
+void Enemy::update(float dt) {
     const float monsterSpeed = 0.6f;
     float distanceSq = (target - getPosition()).lengthSq();
 

@@ -11,7 +11,7 @@ public:
 	Enemy(btCollisionObject* collisionObject, const Vector3f& target);
 	~Enemy();
 
-	void update(const float dt) override;
+	void update(float dt) override;
 	void fixedUpdate(float fdt) override;
 
 	const Vector3f getDirection() const;

@@ -342,7 +342,7 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 	m_targetPoolSize = 100;
 
 	btCollisionObject* body = Physics::AddKinematicObject(Physics::BtTransform(Vector3f(0.0f, 0.4f, 0.0f)), new btCylinderShape(btVector3(0.35f * 0.5f, 0.4f, 0.35f * 0.5f)), Physics::collisiontypes::CHARACTER, Physics::collisiontypes::ENEMY);
-	m_playerEnitity = m_scene->addChild<Player>(body, m_player);
+	m_playerEntity = m_scene->addChild<Player>(body, m_player);
 
 	m_bindGroupBillboard = createBindGroupBillboard();
 	m_bindGroupMuzzle = createBindGroupMuzzle();
@@ -390,14 +390,14 @@ void Isometric::fixedUpdate() {
 		enemy->fixedUpdate(m_fdt);
 	}
 
-	m_playerEnitity->fixedUpdate(m_fdt);
+	m_playerEntity->fixedUpdate(m_fdt);
 
 	Globals::physics->stepSimulation(PHYSICS_STEP);
 
 	BulletCollisionCallback callback;
-	Physics::GetDynamicsWorld()->contactTest(m_playerEnitity->getCollisionObject(), callback);
+	Physics::GetDynamicsWorld()->contactTest(m_playerEntity->getCollisionObject(), callback);
 	if (callback.m_hasCollided && callback.m_hitTarget) {
-		m_playerEnitity->setActive(false);
+		m_playerEntity->setActive(false);
 		m_isDeath = true;
 	}
 }
@@ -558,8 +558,8 @@ void Isometric::update() {
 	playerMove = playerDirection.lengthSq() > 0.01f && !m_isDeath;
 
 	if (playerMove) {
-		m_playerEnitity->translate(playerDirection[0] * 2.0f * m_dt, playerDirection[1] * 2.0f * m_dt, playerDirection[2] * 2.0f * m_dt);
-		m_lightView = Matrix4f::LookAt(m_playerEnitity->getPosition() - 20.0f * m_lightDir, m_playerEnitity->getPosition(), Vector3f(0.0f, 1.0f, 0.0f));
+		m_playerEntity->translate(playerDirection[0] * 2.0f * m_dt, playerDirection[1] * 2.0f * m_dt, playerDirection[2] * 2.0f * m_dt);
+		m_lightView = Matrix4f::LookAt(m_playerEntity->getPosition() - 20.0f * m_lightDir, m_playerEntity->getPosition(), Vector3f(0.0f, 1.0f, 0.0f));
 	}
 
 	float movementTheta = std::atan2(playerDirection[0], playerDirection[2]);
@@ -640,7 +640,7 @@ void Isometric::update() {
 	m_uniforms.camPosition = m_camera.getPosition();
 	m_uniforms.lightVP = m_lightProjection * m_lightView;
 	m_uniforms.shadow = Matrix4f::BIAS * m_uniforms.lightVP;
-	m_uniforms.lightPosition = m_playerEnitity->getPosition() - 20.0f * m_lightDir;
+	m_uniforms.lightPosition = m_playerEntity->getPosition() - 20.0f * m_lightDir;
 
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0u, &m_uniforms, sizeof(Uniforms));
 

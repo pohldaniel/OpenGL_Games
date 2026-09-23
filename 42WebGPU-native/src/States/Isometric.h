@@ -209,7 +209,7 @@ private:
 
 	SoundEffect m_fire, m_ding;
 	std::vector<CollisionEntity*> m_entities;
-	Player* m_playerEnitity;
+	Player* m_playerEntity;
 	std::vector<Enemy*> m_enemies;
 	std::vector<Matrix4f> m_cpuInstanceBuffer;
 	std::vector<SpriteInstance> m_activeBillboards;
