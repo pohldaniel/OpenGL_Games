@@ -80,11 +80,9 @@ enum SamplerSlot {
 };
 
 enum RenderPipelineFlags {
-	WRITE_DEPTH = 1,
-	DEPTH_STENCIL_STATE = 2,
-	BLEND_STATE = 4,
-	FRAGMENT_STATE = 8,
-	WRITE_COLOR = 16
+	DEPTH_STENCIL_STATE = 1,
+	BLEND_STATE = 2,
+	FRAGMENT_STATE = 4
 };
 
 enum BlendMode {
@@ -96,17 +94,29 @@ enum BlendMode {
 enum StencilMode {
 	DEFAULT,
 	SET,
-	MASK	
+	MASK
+};
+
+enum DepthMode {
+	WRITE,
+	PASS
+};
+
+enum ColorMode {
+	WRITE_RGBA,
+	WRITE_NONE
 };
 
 struct WgpContext {
 
 	struct PipelineConfiguration {
 		unsigned int flags;
+		ColorMode colorMode;
+		DepthMode depthMode;
+		StencilMode stencilMode;
 		BlendMode blendMode;
 		WGPUTextureFormat colorTextureFormat;
 		WGPUCullMode cullMode;
-		StencilMode stencilMode;
 		std::vector<WGPUConstantEntry> constantEntries;
 	};
 
@@ -131,7 +141,7 @@ struct WgpContext {
 		WGPUTextureFormat colorTextureFormat = WGPUTextureFormat::WGPUTextureFormat_Undefined,
 		WGPUTextureFormat depthTextureFormat = WGPUTextureFormat::WGPUTextureFormat_Undefined,
 		WGPUCompareFunction depthCompareFunction = WGPUCompareFunction::WGPUCompareFunction_Less,	
-		const PipelineConfiguration configuration = { WRITE_DEPTH | DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE | WRITE_COLOR, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_Undefined, WGPUCullMode_Undefined, StencilMode::DEFAULT, {} });
+		const PipelineConfiguration configuration = { DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE, ColorMode::WRITE_RGBA, DepthMode::WRITE, StencilMode::DEFAULT, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_Undefined, WGPUCullMode_Undefined, {} });
 
 	void addSampler(const WGPUSampler& sampler, SamplerSlot samplerSlot);
 	const WGPUSampler& getSampler(SamplerSlot samplerSlot) const;

@@ -92,7 +92,7 @@ DeferredRendering::DeferredRendering(StateMachine& machine) : State(machine, Sta
 		WGPUTextureFormat_Undefined,
 		WGPUTextureFormat_Undefined,
 		WGPUCompareFunction_Less,
-		{ WRITE_DEPTH | DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE | WRITE_COLOR, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_Undefined , WGPUCullMode_Undefined,  DEFAULT ,
+		{ DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE, ColorMode::WRITE_RGBA, DepthMode::WRITE, StencilMode::DEFAULT, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_Undefined , WGPUCullMode_Undefined,
 		  { 
 			{ NULL, STRVIEW("canvasSizeWidth"), static_cast<double>(Application::Width)   },
 		    { NULL, STRVIEW("canvasSizeHeight"), static_cast<double>(Application::Height) } 
@@ -107,7 +107,7 @@ DeferredRendering::DeferredRendering(StateMachine& machine) : State(machine, Sta
 		WGPUTextureFormat_BGRA8Unorm,
 		WGPUTextureFormat_Depth24Plus,
 		WGPUCompareFunction_Less,
-		{ WRITE_DEPTH | DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE | WRITE_COLOR, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_RGBA16Float , WGPUCullMode_Undefined,  DEFAULT }
+		{ DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE,  ColorMode::WRITE_RGBA, DepthMode::WRITE, StencilMode::DEFAULT, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_RGBA16Float, WGPUCullMode_Undefined }
 	);
 
 	wgpContext.addSahderModule("COMPUTE", "res/shader/deferred_compute.wgsl");

@@ -68,7 +68,7 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 		WGPUTextureFormat_Undefined,
 		WGPUTextureFormat_Undefined,
 		WGPUCompareFunction_LessEqual,
-		{ WRITE_DEPTH | DEPTH_STENCIL_STATE | FRAGMENT_STATE | WRITE_COLOR, BlendMode::ALPHA_BLENDING }
+		{ DEPTH_STENCIL_STATE | FRAGMENT_STATE }
 	);
 	
 	wgpContext.addSahderModule("IRRADIANCE", "res/shader/irradiance.wgsl");
@@ -79,7 +79,7 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 		WGPUTextureFormat_RGBA16Float,
 		WGPUTextureFormat_Undefined,
 		WGPUCompareFunction_Less,
-		{ WRITE_DEPTH | FRAGMENT_STATE | WRITE_COLOR, BlendMode::ALPHA_BLENDING }
+		{ FRAGMENT_STATE }
 	);
 
 	wgpContext.addSahderModule("CUBE", "res/shader/cube_map.wgsl");
@@ -90,7 +90,7 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 		WGPUTextureFormat_RGBA16Float,
 		WGPUTextureFormat_Undefined,
 		WGPUCompareFunction_Less,
-		{ WRITE_DEPTH | FRAGMENT_STATE | WRITE_COLOR, BlendMode::ALPHA_BLENDING }
+		{ FRAGMENT_STATE }
 	);
 
 	wgpContext.addSahderModule("PREFILTER", "res/shader/prefilter.wgsl");
@@ -101,7 +101,7 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 		WGPUTextureFormat_RGBA16Float,
 		WGPUTextureFormat_Undefined,
 		WGPUCompareFunction_Less,
-		{ WRITE_DEPTH | FRAGMENT_STATE | WRITE_COLOR, BlendMode::ALPHA_BLENDING }
+		{ FRAGMENT_STATE }
 	);
 
 	wgpContext.addSahderModule("BRDF", "res/shader/brdf.wgsl");
@@ -112,7 +112,7 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 		WGPUTextureFormat_RG16Float,
 		WGPUTextureFormat_Undefined,
 		WGPUCompareFunction_Less,
-		{ WRITE_DEPTH | FRAGMENT_STATE | WRITE_COLOR, BlendMode::ALPHA_BLENDING }
+		{ FRAGMENT_STATE }
 	);
 
 	m_wgpCube.create(m_cube);

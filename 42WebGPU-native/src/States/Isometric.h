@@ -131,30 +131,25 @@ private:
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsShadow();
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsWigglyShadow();
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsBlur();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsEmission();
+	std::vector<WGPUBindGroup> OnBindGroupsPlayerEmission();
+	std::vector<WGPUBindGroup> OnBindGroupsGunEmission();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsFloorEmission();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsComposite();
 
 	std::vector<WGPUBindGroup> OnBindGroupsPlayer();
 	std::vector<WGPUBindGroup> OnBindGroupsGun();
-
 	std::vector<WGPUBindGroup> OnBindGroupsFloor();
 	std::vector<WGPUBindGroup> OnBindGroupsBullet();
 	std::vector<WGPUBindGroup> OnBindGroupsShadow();
+	std::vector<WGPUBindGroup> OnBindGroupsFloorEmission();
+
 	WGPUBindGroup createBindGroupBillboard();
 	WGPUBindGroup createBindGroupMuzzle();
 	WGPUBindGroup createBindGroupWiggly();
 	WGPUBindGroup createBindGroupComposite();
 	WGPUBindGroup createBindGroupBlurH();
 	WGPUBindGroup createBindGroupBlurV();
-
-	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsEmission();
-	std::vector<WGPUBindGroup> OnBindGroupsPlayerEmission();
-	std::vector<WGPUBindGroup> OnBindGroupsGunEmission();
-
-
-	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsMask();
-	std::vector<WGPUBindGroup> OnBindGroupsFloorEmission();
-
-	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsComposite();
-	//std::vector<WGPUBindGroup> OnBindGroupsMaskComposite();
 
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 	bool getWorldPosition(int xPos, int yPos, const Vector3f& planeNormal, Vector3f& outIntersection);

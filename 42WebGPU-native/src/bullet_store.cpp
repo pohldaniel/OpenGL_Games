@@ -1,20 +1,19 @@
-#include "bullet_store.h"
-
+#define _USE_MATH_DEFINES
+#include <math.h>
 #include <chrono>
 #include <algorithm>
 #include <iostream>
 #include <thread>
-#include <Entities/Enemy.h>
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/vector_angle.hpp>
 
-#include "aabb.h"
+#include <Entities/Enemy.h>
 
-#define _USE_MATH_DEFINES
-#include <math.h>
+#include "aabb.h"
+#include "bullet_store.h"
 
 namespace {
 

@@ -1104,12 +1104,12 @@ void WgpContext::createRenderPipeline(const std::string& shaderModuleName,
 	if (configuration.colorTextureFormat != WGPUTextureFormat_Undefined) {
 		colorTargetStates.push_back({ NULL, configuration.colorTextureFormat ,
 										   (configuration.flags & BLEND_STATE) && isBlendAble(configuration.colorTextureFormat) ? &blendState : NULL,
-											(configuration.flags & WRITE_COLOR) ? WGPUColorWriteMask_All : WGPUColorWriteMask_None });
+										   (configuration.colorMode == WRITE_RGBA) ? WGPUColorWriteMask_All : WGPUColorWriteMask_None });
 	}
 
 	colorTargetStates.push_back({ NULL, colorTextureFormat == WGPUTextureFormat_Undefined ? colorFormat : colorTextureFormat,
 									   (configuration.flags & BLEND_STATE) ? &blendState : NULL,
-                                       (configuration.flags & WRITE_COLOR) ? WGPUColorWriteMask_All : WGPUColorWriteMask_None });
+                                       (configuration.colorMode == WRITE_RGBA) ? WGPUColorWriteMask_All : WGPUColorWriteMask_None });
 	
 	WGPUFragmentState fragmentState = {};
 	fragmentState.module = shaderModules.at(shaderModuleName);
@@ -1133,7 +1133,7 @@ void WgpContext::createRenderPipeline(const std::string& shaderModuleName,
 	}
 
 	depthStencilState.depthCompare = depthCompareFunction;
-	depthStencilState.depthWriteEnabled = (configuration.flags & WRITE_DEPTH) ? WGPUOptionalBool::WGPUOptionalBool_True : WGPUOptionalBool::WGPUOptionalBool_False;
+	depthStencilState.depthWriteEnabled = (configuration.depthMode == WRITE) ? WGPUOptionalBool::WGPUOptionalBool_True : WGPUOptionalBool::WGPUOptionalBool_False;
 	depthStencilState.format = depthTextureFormat == WGPUTextureFormat_Undefined ? depthFormat : depthTextureFormat;
 	depthStencilState.stencilReadMask = (configuration.stencilMode == StencilMode::SET || configuration.stencilMode == StencilMode::MASK) ? 255u : 0u;
 	depthStencilState.stencilWriteMask = (configuration.stencilMode == StencilMode::SET || configuration.stencilMode == StencilMode::MASK) ? 255u : 0u;

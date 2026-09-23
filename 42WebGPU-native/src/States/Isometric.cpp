@@ -223,9 +223,9 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 	wgpContext.createRenderPipeline("FLOOR", "RP_FLOOR", VL_PTN, std::bind(&Isometric::OnBindGroupLayoutsFloor, this), 4u);
 
 	wgpContext.addSahderModule("FLOOR_MASK", "res/shader/floor_emission.wgsl");
-	wgpContext.createRenderPipeline("FLOOR_MASK", "RP_FLOOR_EMISSION", VL_PTN, std::bind(&Isometric::OnBindGroupLayoutsMask, this), 
+	wgpContext.createRenderPipeline("FLOOR_MASK", "RP_FLOOR_EMISSION", VL_PTN, std::bind(&Isometric::OnBindGroupLayoutsFloorEmission, this),
 		1u, WGPUPrimitiveTopology_TriangleList, WGPUTextureFormat_Undefined, WGPUTextureFormat_Depth16Unorm, WGPUCompareFunction_Always,
-		{ WRITE_DEPTH | DEPTH_STENCIL_STATE | FRAGMENT_STATE });
+		{ DEPTH_STENCIL_STATE | FRAGMENT_STATE, ColorMode::WRITE_NONE });
 
 	wgpContext.addSahderModule("WIGGLY", "res/shader/wiggly.wgsl");
 	wgpContext.createRenderPipeline("WIGGLY", "RP_WIGGLY", VL_PTN, std::bind(&Isometric::OnBindGroupLayoutsWiggly, this), 4u);
@@ -233,44 +233,44 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 	wgpContext.addSahderModule("BULLET", "res/shader/bullet.wgsl");
 	wgpContext.createRenderPipeline("BULLET", "RP_BULLET", VL_PT, std::bind(&Isometric::OnBindGroupLayoutsBullet, this),
 		4u, WGPUPrimitiveTopology_TriangleList, WGPUTextureFormat_Undefined, WGPUTextureFormat_Undefined, WGPUCompareFunction_Always,
-		{ DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE | WRITE_COLOR, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_Undefined, WGPUCullMode_None, StencilMode::DEFAULT, {} });
+		{ DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE, ColorMode::WRITE_RGBA, DepthMode::WRITE, StencilMode::DEFAULT, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_Undefined, WGPUCullMode_None });
 
 	wgpContext.createRenderPipeline("BULLET", "RP_BULLET_EMISSION", VL_PT, std::bind(&Isometric::OnBindGroupLayoutsBullet, this),
 		1u, WGPUPrimitiveTopology_TriangleList, WGPUTextureFormat_Undefined, WGPUTextureFormat_Depth16Unorm, WGPUCompareFunction_LessEqual,
-		{ DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE | WRITE_COLOR, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_Undefined, WGPUCullMode_None, StencilMode::DEFAULT, {} });
+		{ DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE, ColorMode::WRITE_RGBA, DepthMode::WRITE, StencilMode::DEFAULT, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_Undefined, WGPUCullMode_None });
 
 	wgpContext.addSahderModule("BILLBOARD", "res/shader/billboard.wgsl");
 	wgpContext.createRenderPipeline("BILLBOARD", "RP_BILLBOARD", VL_NONE, std::bind(&Isometric::OnBindGroupLayoutsBillboard, this),
 		4u, WGPUPrimitiveTopology_TriangleStrip, WGPUTextureFormat_Undefined, WGPUTextureFormat_Undefined, WGPUCompareFunction_Always,
-		{ DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE | WRITE_COLOR, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_Undefined, WGPUCullMode_None, StencilMode::DEFAULT, {} });
+		{ DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE });
 
 	wgpContext.addSahderModule("MUZZLE", "res/shader/muzzle.wgsl");
 	wgpContext.createRenderPipeline("MUZZLE", "RP_MUZZLE", VL_NONE, std::bind(&Isometric::OnBindGroupLayoutsBillboard, this),
 		4u, WGPUPrimitiveTopology_TriangleStrip, WGPUTextureFormat_Undefined, WGPUTextureFormat_Undefined, WGPUCompareFunction_Always,
-		{ DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE | WRITE_COLOR, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_Undefined, WGPUCullMode_None, StencilMode::DEFAULT, {} });
+		{ DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE, ColorMode::WRITE_RGBA, DepthMode::WRITE, StencilMode::DEFAULT, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_Undefined, WGPUCullMode_None });
 
 	wgpContext.addSahderModule("PLAYER_SHADOW", "res/shader/player_shadow.wgsl");
 	wgpContext.createRenderPipeline("PLAYER_SHADOW", "RP_PLAYER_SHADOW", VL_PTNWJ, std::bind(&Isometric::OnBindGroupLayoutsShadow, this),
 		1u, WGPUPrimitiveTopology_TriangleList, WGPUTextureFormat_Undefined, WGPUTextureFormat_Depth32Float, WGPUCompareFunction_Less,
-		{ WRITE_DEPTH | DEPTH_STENCIL_STATE, BlendMode::ALPHA_BLENDING }
+		{ DEPTH_STENCIL_STATE }
 	);
 
 	wgpContext.addSahderModule("WIGGLY_SHADOW", "res/shader/wiggly_shadow.wgsl");
 	wgpContext.createRenderPipeline("WIGGLY_SHADOW", "RP_WIGGLY_SHADOW", VL_PTN, std::bind(&Isometric::OnBindGroupLayoutsWigglyShadow, this),
 		1u, WGPUPrimitiveTopology_TriangleList, WGPUTextureFormat_Undefined, WGPUTextureFormat_Depth32Float, WGPUCompareFunction_Less,
-		{ WRITE_DEPTH | DEPTH_STENCIL_STATE, BlendMode::ALPHA_BLENDING }
+		{ DEPTH_STENCIL_STATE}
 	);
 
 	wgpContext.addSahderModule("BLUR_HORIZONTAL", "res/shader/blur_horizontal.wgsl");
 	wgpContext.createRenderPipeline("BLUR_HORIZONTAL", "RP_BLUR_HORIZONTAL", VL_NONE, std::bind(&Isometric::OnBindGroupLayoutsBlur, this),
 		1u, WGPUPrimitiveTopology_TriangleList, WGPUTextureFormat_Undefined, WGPUTextureFormat_Undefined, WGPUCompareFunction_Always,
-		{ FRAGMENT_STATE | WRITE_COLOR }
+		{ FRAGMENT_STATE}
 	);
 
 	wgpContext.addSahderModule("BLUR_VERTICAL", "res/shader/blur_vertical.wgsl");
 	wgpContext.createRenderPipeline("BLUR_VERTICAL", "RP_BLUR_VERTICAL", VL_NONE, std::bind(&Isometric::OnBindGroupLayoutsBlur, this),
 		1u, WGPUPrimitiveTopology_TriangleList, WGPUTextureFormat_Undefined, WGPUTextureFormat_Undefined, WGPUCompareFunction_Always,
-		{ FRAGMENT_STATE | WRITE_COLOR }
+		{ FRAGMENT_STATE }
 	);
 
 	m_wgpPlayer.create(m_player);
@@ -616,17 +616,12 @@ void Isometric::update() {
 	}
 	updateBillboards(m_dt);
 	
-
-
 	const AnimatedMesh* mesh = static_cast<const AnimatedMesh*>(m_player.getMesh());
 	mesh->skinMatrices()[42] ^= mesh->getBone(43u).getWorldTransformation() * offset * pivot;
 	wgpuQueueWriteBuffer(wgpContext.queue, m_skinBuffer.getBuffer(), 0u, mesh->getSkinMatrices(), mesh->getNumBones() * sizeof(Matrix4f));
 
 	Matrix4f muzzleTransform = mesh->skinMatrices()[42] * Matrix4f::Translate(221.0f, 76.143f, -3.054f) ;
-
 	updateMuzzle(m_dt, muzzleTransform[3][0], muzzleTransform[3][1], muzzleTransform[3][2]);
-
-	
 
 	float angle = aimTheta;
 	while (angle < 0.0f) angle += 360.0f;
@@ -770,8 +765,8 @@ void Isometric::OnPostDraw() {
 		m_wgpSceneTarget.resize(Application::Width, Application::Height);
 		m_wgpSceneDepth.resize(Application::Width, Application::Height);
 
-		m_wgpBlurTempTarget.resize(Application::Width, Application::Height);
-		m_wgpBlurFinalTarget.resize(Application::Width, Application::Height);
+		m_wgpBlurTempTarget.resize(Application::Width / 2, Application::Height / 2);
+		m_wgpBlurFinalTarget.resize(Application::Width / 2, Application::Height / 2);
 
 		wgpuBindGroupRelease(m_bindGroupComposite);
 		wgpuBindGroupRelease(m_bindGroupBlurH);
@@ -1070,12 +1065,12 @@ std::vector<WGPUBindGroupLayout> Isometric::OnBindGroupLayoutsBullet() {
 	bindingLayoutEntries[0].buffer.minBindingSize = sizeof(Uniforms);
 
 	bindingLayoutEntries[1].binding = 1u;
-	bindingLayoutEntries[1].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
+	bindingLayoutEntries[1].visibility = WGPUShaderStage_Vertex;
 	bindingLayoutEntries[1].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_ReadOnlyStorage;
 	bindingLayoutEntries[1].buffer.minBindingSize = sizeof(Vector4f) * 400000u;
 
 	bindingLayoutEntries[2].binding = 2u;
-	bindingLayoutEntries[2].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
+	bindingLayoutEntries[2].visibility = WGPUShaderStage_Vertex;
 	bindingLayoutEntries[2].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_ReadOnlyStorage;
 	bindingLayoutEntries[2].buffer.minBindingSize = sizeof(Vector4f) * 400000u;
 
@@ -1799,7 +1794,7 @@ std::vector<WGPUBindGroup> Isometric::OnBindGroupsGunEmission() {
 	return bindGroups;
 }
 
-std::vector<WGPUBindGroupLayout> Isometric::OnBindGroupLayoutsMask() {
+std::vector<WGPUBindGroupLayout> Isometric::OnBindGroupLayoutsFloorEmission() {
 	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
 
 	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(1);
