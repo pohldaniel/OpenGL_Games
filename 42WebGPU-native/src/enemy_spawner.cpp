@@ -26,7 +26,7 @@ void EnemySpawner::spawnEnemy(const Vector3f& pos) {
     if (m_count > 20u)
         return;
 
-    const float theta = glm::radians((float)(rand() % 360));
+    const float theta = ((float)(rand() % 360)) * PI_ON_180;
     const float x = pos[0] + sin(theta) * spawnRadius;
     const float z = pos[2] + cos(theta) * spawnRadius;
 

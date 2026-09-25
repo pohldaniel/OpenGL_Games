@@ -25,12 +25,6 @@
 
 #include <Physics/Physics.h>
 
-#include <glm/glm.hpp>
-#include <glm/gtc/quaternion.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/transform.hpp>
-#include <glm/gtx/quaternion.hpp>
-
 #include "bullet_store.h"
 #include "enemy_spawner.h"
 
@@ -204,6 +198,7 @@ private:
 	float aimTheta = 0.0f;
 	float lastFireTime = 0.0f;
 	size_t m_targetPoolSize;
+	int m_spreadAmount = 20;
 
 	EnemySpawner m_enemySpawner;
 

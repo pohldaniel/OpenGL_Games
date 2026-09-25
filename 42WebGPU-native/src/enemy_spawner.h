@@ -3,8 +3,6 @@
 #include <engine/Vector.h>
 #include <engine/animation/AnimatedModel.h>
 #include <Entities/Enemy.h>
-#include "glm/glm.hpp"
-#include "glm/gtc/matrix_transform.hpp"
 
 class EnemySpawner {
 

@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include <glm/glm.hpp>
+#include <engine/Vector.h>
 #include "ThreadPool.h"
 
 class Enemy;
@@ -10,12 +10,12 @@ class BulletStore {
 public:
  
 
-  void createBullets(const glm::vec3& position, const glm::quat& midOri, const int spreadAmount);
+  void createBullets(const Vector3f& position, const Quaternion& midOri, const int spreadAmount);
   void updateBullets(float deltaTimeSeconds, std::vector<Enemy*>& enemies);
 
-  std::vector<glm::vec4> m_offsets;
-  std::vector<glm::quat> m_rots;
-  std::vector<glm::vec3> allBulletDirs;
+  std::vector<Vector4f> m_offsets;
+  std::vector<Quaternion> m_rots;
+  std::vector<Vector3f> allBulletDirs;
 
   struct BulletGroup {
     int startIndex;

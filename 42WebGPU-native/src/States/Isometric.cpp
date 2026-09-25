@@ -41,7 +41,6 @@ Matrix4f invPivot = Matrix4f(1.0f, 0.0f, 0.0f, 0.0f,
 	-130.762f, -70.4033f, 3.52485f, 1.0f);
 
 ThreadPool threadPool(4);
-const int spreadAmount = 50;
 
 Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC), m_bulletStore(&threadPool), m_enemySpawner(120.0f * 0.0044f, m_player) {
 	Application::SetCursorIcon(IDC_ARROW);
@@ -467,22 +466,10 @@ void Isometric::update() {
 
 	if (!m_isDeath && (m_rotationButtonResult.buttonDown || (mouse.buttonDown(Mouse::MouseButton::BUTTON_LEFT) && !m_rotationButtonResult.isActive && !m_joystickResult.isActive)) && (lastFireTime + 0.1f) < Globals::clock.getElapsedTimeSec()) {
 		const Quaternion orientation = m_player.getOrientation();
-
-		glm::quat midOri;
-		midOri.x = orientation[0];
-		midOri.y = orientation[1];
-		midOri.z = orientation[2];
-		midOri.w = orientation[3];
-
 		const Matrix4f trans = m_player.getWorldTransformation();
-		const glm::mat4 playerModelTransform(trans[0][0], trans[0][1], trans[0][2], trans[0][3],
-                                             trans[1][0], trans[1][1], trans[1][2], trans[1][3],
-                                             trans[2][0], trans[2][1], trans[2][2], trans[2][3],
-                                             trans[3][0], trans[3][1], trans[3][2], trans[3][3]);
+		const Vector3f projectileSpawnPoint = trans ^ Vector4f(-20.0f, 120.0f, 140.0f, 1.0f);
 
-		const glm::vec3 projectileSpawnPoint = playerModelTransform * glm::vec4(-20.0f, 120.0f, 140.0f, 1.0f);
-
-		m_bulletStore.createBullets(projectileSpawnPoint, midOri, spreadAmount);
+		m_bulletStore.createBullets(projectileSpawnPoint, orientation, m_spreadAmount);
 		lastFireTime = Globals::clock.getElapsedTimeSec();
 		m_fire.play("res/sounds/shooting_one.wav");
 		resetMuzzle();
@@ -875,6 +862,7 @@ void Isometric::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Debug Collision", &m_debugCollision);
+	ImGui::SliderInt("Spreadamount", &m_spreadAmount, 5, 50);
 	ImGui::End();
 
 	ImGui::Render();

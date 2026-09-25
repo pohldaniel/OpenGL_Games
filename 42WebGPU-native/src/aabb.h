@@ -2,7 +2,6 @@
 
 #include <float.h>
 #include <algorithm>
-#include <glm/glm.hpp>
 #include <engine/Vector.h>
 
 struct AABB {
@@ -13,13 +12,13 @@ struct AABB {
     float zMin = FLT_MAX;
     float zMax = FLT_MIN;
 
-    void expandToInclude(const glm::vec4& v) {
-        xMin = std::min(xMin, v.x);
-        xMax = std::max(xMax, v.x);
-        yMin = std::min(yMin, v.y);
-        yMax = std::max(yMax, v.y);
-        zMin = std::min(zMin, v.z);
-        zMax = std::max(zMax, v.z);
+    void expandToInclude(const Vector4f& v) {
+        xMin = std::min(xMin, v[0]);
+        xMax = std::max(xMax, v[0]);
+        yMin = std::min(yMin, v[1]);
+        yMax = std::max(yMax, v[1]);
+        zMin = std::min(zMin, v[2]);
+        zMax = std::max(zMax, v[2]);
         isInitialised = true;
     }
 
