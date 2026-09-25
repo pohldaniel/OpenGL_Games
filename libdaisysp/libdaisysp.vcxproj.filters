@@ -1,0 +1,339 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\Control">
+      <UniqueIdentifier>{9fac2d07-a2c8-462e-88bb-5080190dd1eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Drums">
+      <UniqueIdentifier>{c197849d-a8d2-4663-b0c8-880b15049333}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Dynamics">
+      <UniqueIdentifier>{9b46b4df-3398-4b6e-990c-d5dd757b3e38}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Effects">
+      <UniqueIdentifier>{62b1ba34-5ab1-435f-bfdf-6a8436530d9f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Filters">
+      <UniqueIdentifier>{9732434e-9311-45c2-bae2-8e246048ae70}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Noise">
+      <UniqueIdentifier>{80202af1-7881-4828-b59b-8ab2e920a785}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\PhysicalModeling">
+      <UniqueIdentifier>{55b00a53-966f-453e-afcc-11e841ac2ff1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Sampling">
+      <UniqueIdentifier>{074992cb-1a5b-43ac-a04b-b89f9d3a29e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Synthesis">
+      <UniqueIdentifier>{78560931-28a2-49ec-a04a-1e0d8adba212}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Utility">
+      <UniqueIdentifier>{567e1c36-3f01-4799-81fc-fd68983e6962}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Control\adenv.cpp">
+      <Filter>Source Files\Control</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Control\adsr.cpp">
+      <Filter>Source Files\Control</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Control\phasor.cpp">
+      <Filter>Source Files\Control</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Drums\analogbassdrum.cpp">
+      <Filter>Source Files\Drums</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Drums\analogsnaredrum.cpp">
+      <Filter>Source Files\Drums</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Drums\hihat.cpp">
+      <Filter>Source Files\Drums</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Drums\synthbassdrum.cpp">
+      <Filter>Source Files\Drums</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Drums\synthsnaredrum.cpp">
+      <Filter>Source Files\Drums</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Dynamics\crossfade.cpp">
+      <Filter>Source Files\Dynamics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Dynamics\limiter.cpp">
+      <Filter>Source Files\Dynamics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Effects\autowah.cpp">
+      <Filter>Source Files\Effects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Effects\chorus.cpp">
+      <Filter>Source Files\Effects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Effects\decimator.cpp">
+      <Filter>Source Files\Effects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Effects\flanger.cpp">
+      <Filter>Source Files\Effects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Effects\overdrive.cpp">
+      <Filter>Source Files\Effects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Effects\phaser.cpp">
+      <Filter>Source Files\Effects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Effects\sampleratereducer.cpp">
+      <Filter>Source Files\Effects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Effects\tremolo.cpp">
+      <Filter>Source Files\Effects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Effects\wavefolder.cpp">
+      <Filter>Source Files\Effects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Filters\ladder.cpp">
+      <Filter>Source Files\Filters</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Filters\soap.cpp">
+      <Filter>Source Files\Filters</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Filters\svf.cpp">
+      <Filter>Source Files\Filters</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Noise\clockednoise.cpp">
+      <Filter>Source Files\Noise</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Noise\grainlet.cpp">
+      <Filter>Source Files\Noise</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Noise\particle.cpp">
+      <Filter>Source Files\Noise</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PhysicalModeling\drip.cpp">
+      <Filter>Source Files\PhysicalModeling</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PhysicalModeling\KarplusString.cpp">
+      <Filter>Source Files\PhysicalModeling</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PhysicalModeling\modalvoice.cpp">
+      <Filter>Source Files\PhysicalModeling</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PhysicalModeling\resonator.cpp">
+      <Filter>Source Files\PhysicalModeling</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PhysicalModeling\stringvoice.cpp">
+      <Filter>Source Files\PhysicalModeling</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Sampling\granularplayer.cpp">
+      <Filter>Source Files\Sampling</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Synthesis\fm2.cpp">
+      <Filter>Source Files\Synthesis</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Synthesis\formantosc.cpp">
+      <Filter>Source Files\Synthesis</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Synthesis\oscillator.cpp">
+      <Filter>Source Files\Synthesis</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Synthesis\oscillatorbank.cpp">
+      <Filter>Source Files\Synthesis</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Synthesis\variablesawosc.cpp">
+      <Filter>Source Files\Synthesis</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Synthesis\variableshapeosc.cpp">
+      <Filter>Source Files\Synthesis</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Synthesis\vosim.cpp">
+      <Filter>Source Files\Synthesis</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Synthesis\zoscillator.cpp">
+      <Filter>Source Files\Synthesis</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Utility\dcblock.cpp">
+      <Filter>Source Files\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Utility\metro.cpp">
+      <Filter>Source Files\Utility</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\Control\adenv.h">
+      <Filter>Source Files\Control</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Control\adsr.h">
+      <Filter>Source Files\Control</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Control\phasor.h">
+      <Filter>Source Files\Control</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Drums\analogbassdrum.h">
+      <Filter>Source Files\Drums</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Drums\analogsnaredrum.h">
+      <Filter>Source Files\Drums</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Drums\hihat.h">
+      <Filter>Source Files\Drums</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Drums\synthbassdrum.h">
+      <Filter>Source Files\Drums</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Drums\synthsnaredrum.h">
+      <Filter>Source Files\Drums</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Dynamics\crossfade.h">
+      <Filter>Source Files\Dynamics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Dynamics\limiter.h">
+      <Filter>Source Files\Dynamics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Effects\autowah.h">
+      <Filter>Source Files\Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Effects\chorus.h">
+      <Filter>Source Files\Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Effects\decimator.h">
+      <Filter>Source Files\Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Effects\flanger.h">
+      <Filter>Source Files\Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Effects\overdrive.h">
+      <Filter>Source Files\Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Effects\phaser.h">
+      <Filter>Source Files\Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Effects\pitchshifter.h">
+      <Filter>Source Files\Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Effects\sampleratereducer.h">
+      <Filter>Source Files\Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Effects\tremolo.h">
+      <Filter>Source Files\Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Effects\wavefolder.h">
+      <Filter>Source Files\Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Filters\fir.h">
+      <Filter>Source Files\Filters</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Filters\ladder.h">
+      <Filter>Source Files\Filters</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Filters\onepole.h">
+      <Filter>Source Files\Filters</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Filters\soap.h">
+      <Filter>Source Files\Filters</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Filters\svf.h">
+      <Filter>Source Files\Filters</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Noise\clockednoise.h">
+      <Filter>Source Files\Noise</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Noise\dust.h">
+      <Filter>Source Files\Noise</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Noise\fractal_noise.h">
+      <Filter>Source Files\Noise</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Noise\grainlet.h">
+      <Filter>Source Files\Noise</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Noise\particle.h">
+      <Filter>Source Files\Noise</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Noise\whitenoise.h">
+      <Filter>Source Files\Noise</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PhysicalModeling\drip.h">
+      <Filter>Source Files\PhysicalModeling</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PhysicalModeling\KarplusString.h">
+      <Filter>Source Files\PhysicalModeling</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PhysicalModeling\modalvoice.h">
+      <Filter>Source Files\PhysicalModeling</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PhysicalModeling\resonator.h">
+      <Filter>Source Files\PhysicalModeling</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PhysicalModeling\stringvoice.h">
+      <Filter>Source Files\PhysicalModeling</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Sampling\granularplayer.h">
+      <Filter>Source Files\Sampling</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Synthesis\fm2.h">
+      <Filter>Source Files\Synthesis</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Synthesis\formantosc.h">
+      <Filter>Source Files\Synthesis</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Synthesis\harmonic_osc.h">
+      <Filter>Source Files\Synthesis</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Synthesis\oscillator.h">
+      <Filter>Source Files\Synthesis</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Synthesis\oscillatorbank.h">
+      <Filter>Source Files\Synthesis</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Synthesis\variablesawosc.h">
+      <Filter>Source Files\Synthesis</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Synthesis\variableshapeosc.h">
+      <Filter>Source Files\Synthesis</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Synthesis\vosim.h">
+      <Filter>Source Files\Synthesis</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Synthesis\zoscillator.h">
+      <Filter>Source Files\Synthesis</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utility\dcblock.h">
+      <Filter>Source Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utility\delayline.h">
+      <Filter>Source Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utility\dsp.h">
+      <Filter>Source Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utility\looper.h">
+      <Filter>Source Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utility\maytrig.h">
+      <Filter>Source Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utility\metro.h">
+      <Filter>Source Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utility\samplehold.h">
+      <Filter>Source Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utility\smooth_random.h">
+      <Filter>Source Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="include\daisysp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

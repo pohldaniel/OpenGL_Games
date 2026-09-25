@@ -1,0 +1,247 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Control\adenv.cpp" />
+    <ClCompile Include="src\Control\adsr.cpp" />
+    <ClCompile Include="src\Control\phasor.cpp" />
+    <ClCompile Include="src\Drums\analogbassdrum.cpp" />
+    <ClCompile Include="src\Drums\analogsnaredrum.cpp" />
+    <ClCompile Include="src\Drums\hihat.cpp" />
+    <ClCompile Include="src\Drums\synthbassdrum.cpp" />
+    <ClCompile Include="src\Drums\synthsnaredrum.cpp" />
+    <ClCompile Include="src\Dynamics\crossfade.cpp" />
+    <ClCompile Include="src\Dynamics\limiter.cpp" />
+    <ClCompile Include="src\Effects\autowah.cpp" />
+    <ClCompile Include="src\Effects\chorus.cpp" />
+    <ClCompile Include="src\Effects\decimator.cpp" />
+    <ClCompile Include="src\Effects\flanger.cpp" />
+    <ClCompile Include="src\Effects\overdrive.cpp" />
+    <ClCompile Include="src\Effects\phaser.cpp" />
+    <ClCompile Include="src\Effects\sampleratereducer.cpp" />
+    <ClCompile Include="src\Effects\tremolo.cpp" />
+    <ClCompile Include="src\Effects\wavefolder.cpp" />
+    <ClCompile Include="src\Filters\ladder.cpp" />
+    <ClCompile Include="src\Filters\soap.cpp" />
+    <ClCompile Include="src\Filters\svf.cpp" />
+    <ClCompile Include="src\Noise\clockednoise.cpp" />
+    <ClCompile Include="src\Noise\grainlet.cpp" />
+    <ClCompile Include="src\Noise\particle.cpp" />
+    <ClCompile Include="src\PhysicalModeling\drip.cpp" />
+    <ClCompile Include="src\PhysicalModeling\KarplusString.cpp" />
+    <ClCompile Include="src\PhysicalModeling\modalvoice.cpp" />
+    <ClCompile Include="src\PhysicalModeling\resonator.cpp" />
+    <ClCompile Include="src\PhysicalModeling\stringvoice.cpp" />
+    <ClCompile Include="src\Sampling\granularplayer.cpp" />
+    <ClCompile Include="src\Synthesis\fm2.cpp" />
+    <ClCompile Include="src\Synthesis\formantosc.cpp" />
+    <ClCompile Include="src\Synthesis\oscillator.cpp" />
+    <ClCompile Include="src\Synthesis\oscillatorbank.cpp" />
+    <ClCompile Include="src\Synthesis\variablesawosc.cpp" />
+    <ClCompile Include="src\Synthesis\variableshapeosc.cpp" />
+    <ClCompile Include="src\Synthesis\vosim.cpp" />
+    <ClCompile Include="src\Synthesis\zoscillator.cpp" />
+    <ClCompile Include="src\Utility\dcblock.cpp" />
+    <ClCompile Include="src\Utility\metro.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\daisysp.h" />
+    <ClInclude Include="src\Control\adenv.h" />
+    <ClInclude Include="src\Control\adsr.h" />
+    <ClInclude Include="src\Control\phasor.h" />
+    <ClInclude Include="src\Drums\analogbassdrum.h" />
+    <ClInclude Include="src\Drums\analogsnaredrum.h" />
+    <ClInclude Include="src\Drums\hihat.h" />
+    <ClInclude Include="src\Drums\synthbassdrum.h" />
+    <ClInclude Include="src\Drums\synthsnaredrum.h" />
+    <ClInclude Include="src\Dynamics\crossfade.h" />
+    <ClInclude Include="src\Dynamics\limiter.h" />
+    <ClInclude Include="src\Effects\autowah.h" />
+    <ClInclude Include="src\Effects\chorus.h" />
+    <ClInclude Include="src\Effects\decimator.h" />
+    <ClInclude Include="src\Effects\flanger.h" />
+    <ClInclude Include="src\Effects\overdrive.h" />
+    <ClInclude Include="src\Effects\phaser.h" />
+    <ClInclude Include="src\Effects\pitchshifter.h" />
+    <ClInclude Include="src\Effects\sampleratereducer.h" />
+    <ClInclude Include="src\Effects\tremolo.h" />
+    <ClInclude Include="src\Effects\wavefolder.h" />
+    <ClInclude Include="src\Filters\fir.h" />
+    <ClInclude Include="src\Filters\ladder.h" />
+    <ClInclude Include="src\Filters\onepole.h" />
+    <ClInclude Include="src\Filters\soap.h" />
+    <ClInclude Include="src\Filters\svf.h" />
+    <ClInclude Include="src\Noise\clockednoise.h" />
+    <ClInclude Include="src\Noise\dust.h" />
+    <ClInclude Include="src\Noise\fractal_noise.h" />
+    <ClInclude Include="src\Noise\grainlet.h" />
+    <ClInclude Include="src\Noise\particle.h" />
+    <ClInclude Include="src\Noise\whitenoise.h" />
+    <ClInclude Include="src\PhysicalModeling\drip.h" />
+    <ClInclude Include="src\PhysicalModeling\KarplusString.h" />
+    <ClInclude Include="src\PhysicalModeling\modalvoice.h" />
+    <ClInclude Include="src\PhysicalModeling\resonator.h" />
+    <ClInclude Include="src\PhysicalModeling\stringvoice.h" />
+    <ClInclude Include="src\Sampling\granularplayer.h" />
+    <ClInclude Include="src\Synthesis\fm2.h" />
+    <ClInclude Include="src\Synthesis\formantosc.h" />
+    <ClInclude Include="src\Synthesis\harmonic_osc.h" />
+    <ClInclude Include="src\Synthesis\oscillator.h" />
+    <ClInclude Include="src\Synthesis\oscillatorbank.h" />
+    <ClInclude Include="src\Synthesis\variablesawosc.h" />
+    <ClInclude Include="src\Synthesis\variableshapeosc.h" />
+    <ClInclude Include="src\Synthesis\vosim.h" />
+    <ClInclude Include="src\Synthesis\zoscillator.h" />
+    <ClInclude Include="src\Utility\dcblock.h" />
+    <ClInclude Include="src\Utility\delayline.h" />
+    <ClInclude Include="src\Utility\dsp.h" />
+    <ClInclude Include="src\Utility\looper.h" />
+    <ClInclude Include="src\Utility\maytrig.h" />
+    <ClInclude Include="src\Utility\metro.h" />
+    <ClInclude Include="src\Utility\samplehold.h" />
+    <ClInclude Include="src\Utility\smooth_random.h" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{b07e9a88-6620-4f7e-b745-ac2d662b8d9e}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>libdaisysp</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>..\libd\x86\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>..\libd\x64\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>..\lib\x64\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>..\lib\x86\</OutDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>src;include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>src;include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>src;include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>src;include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
