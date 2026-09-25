@@ -61,6 +61,9 @@
     <Filter Include="Source Files\Entities">
       <UniqueIdentifier>{1ba94891-ee1f-4ba4-acc9-f44ba8128f92}</UniqueIdentifier>
     </Filter>
+    <Filter Include="engine\ui">
+      <UniqueIdentifier>{f5cc897e-26a6-40d3-be76-155e17fe06a4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\input\ApplicationEventListener.cpp">
@@ -276,9 +279,6 @@
     <ClCompile Include="src\States\DeferredRendering.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
-    <ClCompile Include="src\States\NuklearGui.cpp">
-      <Filter>Source Files\States</Filter>
-    </ClCompile>
     <ClCompile Include="Nuklear\NkContext.cpp">
       <Filter>Nuklear</Filter>
     </ClCompile>
@@ -392,6 +392,21 @@
     </ClCompile>
     <ClCompile Include="src\Entities\Player.cpp">
       <Filter>Source Files\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\ui\Widget.cpp">
+      <Filter>engine\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\States\NuklearUi.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="src\States\CustomUi.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\ui\Surface.cpp">
+      <Filter>engine\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\ui\Button.cpp">
+      <Filter>engine\ui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -632,9 +647,6 @@
     <ClInclude Include="src\States\DeferredRendering.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
-    <ClInclude Include="src\States\NuklearGui.h">
-      <Filter>Source Files\States</Filter>
-    </ClInclude>
     <ClInclude Include="Nuklear\NkContext.h">
       <Filter>Nuklear</Filter>
     </ClInclude>
@@ -769,6 +781,21 @@
     </ClInclude>
     <ClInclude Include="src\aabb.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\ui\Widget.h">
+      <Filter>engine\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\NuklearUi.h">
+      <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\CustomUi.h">
+      <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\ui\Surface.h">
+      <Filter>engine\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\ui\Button.h">
+      <Filter>engine\ui</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

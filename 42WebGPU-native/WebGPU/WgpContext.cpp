@@ -966,7 +966,8 @@ void wgpDraw() {
 	commandEncoderDescriptor.label = WGPU_STR("command_encoder");
 	wgpContext.commandEncoder = wgpuDeviceCreateCommandEncoder(wgpContext.device, &commandEncoderDescriptor);
 
-	wgpContext.OnDraw(wgpContext.commandEncoder, renderPassDescriptor);
+	if(wgpContext.OnDraw)
+		wgpContext.OnDraw(wgpContext.commandEncoder, renderPassDescriptor);
 
 	wgpuTextureViewRelease(textureView);
 

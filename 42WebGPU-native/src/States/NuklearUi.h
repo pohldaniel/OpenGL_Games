@@ -12,12 +12,12 @@
 #include <WebGPU/WgpModel.h>
 #include <WebGPU/WgpData.h>
 
-class NuklearGui : public State, public MouseEventListener, public KeyboardEventListener {
+class NuklearUi : public State, public MouseEventListener, public KeyboardEventListener {
 	
 public:
 
-	NuklearGui(StateMachine& machine);
-	~NuklearGui();
+	NuklearUi(StateMachine& machine);
+	~NuklearUi();
 
 	void fixedUpdate() override;
 	void update() override;
