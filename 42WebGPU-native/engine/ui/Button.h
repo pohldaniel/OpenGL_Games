@@ -1,5 +1,5 @@
 #pragma once
-
+#include <functional>
 #include <engine/ui/Widget.h>
 
 class Button : public Widget {
@@ -14,11 +14,22 @@ public:
 	void setDrawFunction(std::function<void()> fun);
 	void setColor(const Vector4f& color);
 	void setOutlineColor(const Vector4f& color);
+	void setOutlineColorHover(const Vector4f& color);
+	void setOutlineThickness(float thickness);
+
+	void setFunction(std::function<void()> fun);
 
 private:
 
 	void drawDefault() override;
-	void pushUiInstance(UiPipelineType type, const UiInstance& instance);
+	void inputDefault(int mouseX, int mouseY, bool buttonLeft);
+
 	Vector4f m_color;
 	Vector4f m_outlineColor;
+	Vector4f m_outlineColorHover;
+
+	float m_thickness;
+	bool m_isPressed;
+	bool m_wasPressed;
+	std::function<void()> m_fun;
 };

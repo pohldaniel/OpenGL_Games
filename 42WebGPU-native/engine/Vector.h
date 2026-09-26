@@ -50,7 +50,7 @@ public:
 	void set(float x_, float y_);
 	float length() const;
 	float lengthSq() const;
-	const float* getVec()const;
+	const float* getData()const;
 	bool zero();
 	Vector2f& normalize();
 	
@@ -135,8 +135,8 @@ public:
 	float &operator[](int index);
 	float operator[](int index) const;
 
-	const float* getVec()const;
-	float* getVec();
+	const float* getData()const;
+	float* getData();
 
 	Vector3f &operator=(const Vector3f& rhs);
 	Vector3f &operator=(Vector3f&& rhs);
@@ -221,6 +221,7 @@ public:
 	void set(float x_, float y_, float z_, float w_);
 	void normalize3();
 	unsigned int toUInt() const;
+	const float* getData()const;
 
 	static float Dot(const Vector4f &p, const Vector4f &q);
 	static float Dot(const Vector4f &p, const Vector3f &q);
@@ -357,6 +358,7 @@ public:
 	void set(const Matrix4f& rhs);
 	void set(float array[16]);
 	void copy(float(&dest)[16]) const;
+	const float* getData()const;
 
 	static Matrix4f GetNormalMatrix(const Matrix4f& modelViewMatrix);
 	static Matrix4f &GetNormalMatrix(Matrix4f& mtx, const Matrix4f& modelViewMatrix);

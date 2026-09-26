@@ -17,7 +17,7 @@ public:
 private:
 
 	void drawDefault() override;
-	void pushUiInstance(UiPipelineType type, const UiInstance& instance);
+	void inputDefault(int mouseX, int mouseY, bool buttonLeft);
 
 	Vector4f m_color;
 };

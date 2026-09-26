@@ -4,6 +4,7 @@
 #include <imgui_internal.h>
 
 #include <WebGPU/WgpContext.h>
+#include <States/Menu.h>
 
 #include "NormalMap.h"
 #include "Application.h"
@@ -159,6 +160,19 @@ NormalMap::~NormalMap() {
 
 	m_uniformBuffer.markForDelete();
 	m_normalUniformBuffer.markForDelete();
+
+	m_textureAW.markForDelete();
+	m_textureNT.markForDelete();
+	m_textureHT.markForDelete();
+	m_textureNS.markForDelete();
+	m_textureHS.markForDelete();
+	m_textureAB.markForDelete();
+	m_textureNB.markForDelete();
+	m_textureHB.markForDelete();
+
+	for (auto& it : m_bindgroups) {		
+		wgpuBindGroupRelease(it);		
+	}
 }
 
 void NormalMap::fixedUpdate() {
@@ -295,7 +309,9 @@ void NormalMap::OnKeyDown(const Event::KeyboardEvent& event) {
 #endif
 
 	if (event.keyCode == VK_ESCAPE) {
+		wgpCleanState();
 		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
 	}
 }
 

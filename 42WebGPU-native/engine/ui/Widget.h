@@ -5,30 +5,10 @@
 #include <functional>
 
 #include <webgpu.h>
-
+#include "../ui/UiContext.h"
 #include "../scene/Node.h"
 #include "../Vector.h"
 #include "../Object.h"
-
-enum class UiPipelineType {
-	Standard,
-	MaskWrite,
-	OutlineRead
-};
-
-struct UiInstance {
-	Matrix4f transform;
-	Vector4f color;
-	float textureRect[4];
-	float textureLayer;
-	float flipAndTile[3];
-};
-
-struct UiBatch {
-	UiPipelineType pipelineType;
-	uint32_t startIndex;     // Wo im großen StorageBuffer fängt dieser Batch an?
-	uint32_t instanceCount;  // Wie viele Elemente nutzen diese Pipeline am Stück?
-};
 
 class Widget : public Node, public Object2D {
 
@@ -40,6 +20,7 @@ public:
 	virtual ~Widget();
 
 	virtual void draw();
+	virtual void input(int mouseX, int mouseY, bool buttonLeft = false);
 
 	void setScale(float sx, float sy) override;
 	void setScale(const Vector2f& scale) override;
@@ -76,30 +57,25 @@ public:
 	void updateWorldTransformation() const;
 
 	void setDrawFunction(std::function<void()> fun);
-
-	static void Init(float width, float height);
-	static void Draw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor);
-	static void Resize(float width, float height);
-
-	static std::vector<UiInstance> Instances;
-	static std::vector<UiBatch> Batches;
+	void setInputFunction(std::function<void(int mouseX, int mouseY, bool buttonLeft)> fun);
 
 protected:
 
 	void OnTransformChanged();
 	void drawTree();
+	void inputTree(int mouseX, int mouseY, bool buttonLeft = false);
+
+	void addWidget(UiPipelineType type, const UiInstance& instance);
 	std::function<void()> m_draw;
+	std::function<void(const int mouseX, const int mouseY, bool buttonLeft)> m_input;
 
 private:
 
 	virtual void drawDefault() = 0;
+	virtual void inputDefault(int mouseX, int mouseY, bool buttonLeft = false) = 0;
 
 	mutable Matrix4f m_modelMatrix;
 	mutable bool m_isDirty;
-
-	static void CreateRenderPipeline(WGPURenderPipeline& renderPipeline);
-	static void CreateRenderPipelineMask(WGPURenderPipeline& renderPipeline);
-	static void CreateRenderPipelineRead(WGPURenderPipeline& renderPipeline);
 
 	static Vector2f WorldPosition;
 	static Vector2f WorldScale;

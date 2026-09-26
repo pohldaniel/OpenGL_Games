@@ -225,6 +225,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClCompile Include="engine\Timer.cpp" />
     <ClCompile Include="engine\ui\Button.cpp" />
     <ClCompile Include="engine\ui\Surface.cpp" />
+    <ClCompile Include="engine\ui\UiContext.cpp" />
     <ClCompile Include="engine\ui\Widget.cpp" />
     <ClCompile Include="engine\utils\BinaryIO.cpp" />
     <ClCompile Include="engine\video\D3D11Decoder.cpp" />
@@ -252,11 +253,11 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClCompile Include="src\States\Compute.cpp" />
     <ClCompile Include="src\States\ComputeParticleLogo.cpp" />
     <ClCompile Include="src\States\Cubes.cpp" />
-    <ClCompile Include="src\States\CustomUi.cpp" />
     <ClCompile Include="src\States\DeferredRendering.cpp" />
     <ClCompile Include="src\States\ImageBasedLighting.cpp" />
     <ClCompile Include="src\States\InstancedCube.cpp" />
     <ClCompile Include="src\States\Isometric.cpp" />
+    <ClCompile Include="src\States\Menu.cpp" />
     <ClCompile Include="src\States\MSDFFont.cpp" />
     <ClCompile Include="src\States\NormalMap.cpp" />
     <ClCompile Include="src\States\NuklearUi.cpp" />
@@ -362,6 +363,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClInclude Include="engine\Transform.h" />
     <ClInclude Include="engine\ui\Button.h" />
     <ClInclude Include="engine\ui\Surface.h" />
+    <ClInclude Include="engine\ui\UiContext.h" />
     <ClInclude Include="engine\ui\Widget.h" />
     <ClInclude Include="engine\utils\BinaryIO.h" />
     <ClInclude Include="engine\Vector.h" />
@@ -395,11 +397,11 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClInclude Include="src\States\Compute.h" />
     <ClInclude Include="src\States\ComputeParticleLogo.h" />
     <ClInclude Include="src\States\Cubes.h" />
-    <ClInclude Include="src\States\CustomUi.h" />
     <ClInclude Include="src\States\DeferredRendering.h" />
     <ClInclude Include="src\States\ImageBasedLighting.h" />
     <ClInclude Include="src\States\InstancedCube.h" />
     <ClInclude Include="src\States\Isometric.h" />
+    <ClInclude Include="src\States\Menu.h" />
     <ClInclude Include="src\States\MSDFFont.h" />
     <ClInclude Include="src\States\NormalMap.h" />
     <ClInclude Include="src\States\NuklearUi.h" />

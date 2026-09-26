@@ -198,6 +198,7 @@ void nkShutDown() {
 
 	if (nkContext.renderPipeline) {
 		wgpuRenderPipelineRelease(nkContext.renderPipeline);
+		nkContext.renderPipeline = NULL;
 	}
 
 	nk_free(&nkContext.context);

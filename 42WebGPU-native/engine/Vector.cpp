@@ -1120,6 +1120,10 @@ void Matrix4f::copy(float(&dest)[16]) const {
 	std::copy(&mtx[0][0], &mtx[0][0] + 16, dest);
 }
 
+const float* Matrix4f::getData() const {
+	return &mtx[0][0];
+}
+
 void Matrix4f::toHeadPitchRoll(float &pitch, float &yaw, float &roll) const {
 	// Extracts the Euler angles from a rotation matrix. The returned
 	// angles are in degrees. This method might suffer from numerical
@@ -2800,7 +2804,7 @@ float Vector2f::operator[](int index) const {
 	return vec[index];
 }
 
-const float* Vector2f::getVec()const {
+const float* Vector2f::getData()const {
 	return vec;
 }
 
@@ -3156,11 +3160,11 @@ void Vector3f::scale(float sx, float sy, float sz) {
 	vec[0] *= sx, vec[1] *= sy, vec[2] *= sz;
 }
 
-const float* Vector3f::getVec()const {
+const float* Vector3f::getData()const {
 	return vec;
 }
 
-float* Vector3f::getVec() {
+float* Vector3f::getData() {
 	return vec;
 }
 
@@ -3340,12 +3344,16 @@ void Vector4f::normalize3() {
 	vec[3] = vec[3] * invDistance;
 }
 
-unsigned int Vector4f::toUInt() const{
+unsigned int Vector4f::toUInt() const {
 	unsigned int r = Math::Clamp(((unsigned int)(vec[0] * 255.0f)), 0u, 255u);
 	unsigned int g = Math::Clamp(((unsigned int)(vec[1] * 255.0f)), 0u, 255u);
 	unsigned int b = Math::Clamp(((unsigned int)(vec[2] * 255.0f)), 0u, 255u);
 	unsigned int a = Math::Clamp(((unsigned int)(vec[3] * 255.0f)), 0u, 255u);
 	return (a << 24) | (b << 16) | (g << 8) | r;
+}
+
+const float* Vector4f::getData() const {
+	return vec;
 }
 
 float Vector4f::Dot(const Vector4f &p, const Vector4f &q) {

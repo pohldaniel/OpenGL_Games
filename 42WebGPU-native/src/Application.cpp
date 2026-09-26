@@ -28,7 +28,7 @@
 #include <States/VideoDecode.h>
 #include <States/Cubes.h>
 #include <States/Isometric.h>
-#include <States/CustomUi.h>
+#include <States/Menu.h>
 
 #include "Application.h"
 #include "Globals.h"
@@ -340,7 +340,7 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new VideoDecode(*Machine));
 	//Machine->addStateAtTop(new Cubes(*Machine));
 	//Machine->addStateAtTop(new Isometric(*Machine));
-	Machine->addStateAtTop(new CustomUi(*Machine));
+	Machine->addStateAtTop(new Menu(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

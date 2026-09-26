@@ -22,24 +22,11 @@ void Surface::setColor(const Vector4f& color) {
 	m_color = color;
 }
 
-void Surface::pushUiInstance(UiPipelineType type, const UiInstance& instance) {
-	if (Batches.empty() || Batches.back().pipelineType != type) {
-		UiBatch newBatch;
-		newBatch.pipelineType = type;
-		newBatch.startIndex = static_cast<uint32_t>(Instances.size());
-		newBatch.instanceCount = 0;
-		Batches.push_back(newBatch);
-	}
-
-	// Daten hinzufügen und den Zähler des aktuellen Batches erhöhen
-	Instances.push_back(instance);
-	Batches.back().instanceCount++;
-}
-
 void Surface::drawDefault() {
 	UiInstance uiInstance = {};
-	uiInstance.transform = getWorldTransformation();
-	uiInstance.color = m_color;
+	std::memcpy(uiInstance.transform, getWorldTransformation().getData(), sizeof(Matrix4f));
+	std::memcpy(uiInstance.color, m_color.getData(), sizeof(Vector4f));
+
 	uiInstance.textureRect[0] = 0.0f;
 	uiInstance.textureRect[1] = 0.0f;
 	uiInstance.textureRect[2] = 1.0f;
@@ -49,6 +36,9 @@ void Surface::drawDefault() {
 	uiInstance.flipAndTile[0] = 0.0f;
 	uiInstance.flipAndTile[1] = 0.0f;
 	uiInstance.flipAndTile[2] = 0.0f;
-	pushUiInstance(UiPipelineType::Standard, uiInstance);
-	//Instances.push_back(uiInstance);
+	addWidget(UiPipelineType::Standard, uiInstance);
+}
+
+void Surface::inputDefault(int mouseX, int mouseY, bool buttonLeft) {
+
 }

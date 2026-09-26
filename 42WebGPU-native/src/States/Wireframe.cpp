@@ -4,7 +4,7 @@
 #include <imgui_internal.h>
 
 #include <WebGPU/WgpContext.h>
-#include <States/SkinnedMesh.h>
+#include <States/Menu.h>
 
 #include "Wireframe.h"
 #include "Application.h"
@@ -14,7 +14,7 @@ Wireframe::Wireframe(StateMachine& machine) : State(machine, States::WIREFRAME) 
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
-
+	
 	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);	
 
 	wgpContext.addSahderModule("PTN", "res/shader/shader.wgsl");
@@ -116,14 +116,6 @@ void Wireframe::update() {
 		move |= true;
 	}
 
-	if (keyboard.keyPressed(Keyboard::KEY_T)) {
-		wgpPipelineLayoutsRelease();
-		wgpPipelinesRelease();
-		wgpShaderModulesRelease();
-		m_isRunning = false;
-		m_machine.addStateAtBottom(new SkinnedMesh(m_machine));
-	}
-
 	Mouse &mouse = Mouse::instance();
 
 	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {
@@ -222,7 +214,9 @@ void Wireframe::OnKeyDown(const Event::KeyboardEvent& event) {
 #endif
 
 	if (event.keyCode == VK_ESCAPE) {
+		wgpCleanState();
 		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
 	}
 }
 
