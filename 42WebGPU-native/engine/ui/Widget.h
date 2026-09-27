@@ -19,8 +19,8 @@ public:
 	Widget(Widget&& rhs) noexcept;
 	virtual ~Widget();
 
-	virtual void draw();
-	virtual void input(int mouseX, int mouseY, bool buttonLeft = false);
+	virtual void createTree();
+	virtual void inputTree(int mouseX, int mouseY, bool buttonLeft = false);
 
 	void setScale(float sx, float sy) override;
 	void setScale(const Vector2f& scale) override;
@@ -49,6 +49,7 @@ public:
 	void scale(float s) override;
 
 	void rotate(float degrees) override;
+	void resize();
 
 	const Matrix4f& getWorldTransformation() const;
 	const Vector2f& getWorldPosition(bool update = true) const;
@@ -56,22 +57,22 @@ public:
 	const float getWorldOrientation(bool update = true) const;
 	void updateWorldTransformation() const;
 
-	void setDrawFunction(std::function<void()> fun);
+	void setCreateFunction(std::function<void()> fun);
 	void setInputFunction(std::function<void(int mouseX, int mouseY, bool buttonLeft)> fun);
 
 protected:
 
 	void OnTransformChanged();
-	void drawTree();
-	void inputTree(int mouseX, int mouseY, bool buttonLeft = false);
+	void createChildren();
+	void inputChildren(int mouseX, int mouseY, bool buttonLeft = false);
 
-	void addWidget(UiPipelineType type, const UiInstance& instance);
-	std::function<void()> m_draw;
+	void pushWidget(UiPipelineType type, const UiInstance& instance);
+	std::function<void()> m_create;
 	std::function<void(const int mouseX, const int mouseY, bool buttonLeft)> m_input;
 
 private:
 
-	virtual void drawDefault() = 0;
+	virtual void createDefault() = 0;
 	virtual void inputDefault(int mouseX, int mouseY, bool buttonLeft = false) = 0;
 
 	mutable Matrix4f m_modelMatrix;

@@ -326,7 +326,7 @@ WGPUTexture wgpCreateTexture(uint32_t width, uint32_t height, uint32_t depth, WG
 	return wgpuDeviceCreateTexture(device, &textureDescriptor);
 }
 
-WGPUTextureView wgpCreateTextureView(const WGPUTexture& texture, WGPUTextureAspect aspect) {
+WGPUTextureView wgpCreateTextureView(const WGPUTexture& texture, WGPUTextureAspect aspect, bool isArray) {
 	WGPUTextureViewDescriptor textureViewDescriptor = {};
 	textureViewDescriptor.label = WGPU_STR("texture_view");
 	textureViewDescriptor.aspect = aspect;
@@ -334,7 +334,7 @@ WGPUTextureView wgpCreateTextureView(const WGPUTexture& texture, WGPUTextureAspe
 	textureViewDescriptor.arrayLayerCount = wgpuTextureGetDepthOrArrayLayers(texture);
 	textureViewDescriptor.baseMipLevel = 0u;
 	textureViewDescriptor.mipLevelCount = wgpuTextureGetMipLevelCount(texture);
-	textureViewDescriptor.dimension = textureViewDescriptor.arrayLayerCount == 6u ? WGPUTextureViewDimension::WGPUTextureViewDimension_Cube : WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
+	textureViewDescriptor.dimension = textureViewDescriptor.arrayLayerCount == 6u ? WGPUTextureViewDimension::WGPUTextureViewDimension_Cube : isArray ? WGPUTextureViewDimension::WGPUTextureViewDimension_2DArray : WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
 	textureViewDescriptor.format = wgpuTextureGetFormat(texture);
 	textureViewDescriptor.nextInChain = NULL;
 	return wgpuTextureCreateView(texture, &textureViewDescriptor);

@@ -378,7 +378,7 @@ std::vector<WGPUBindGroup> MSDFFont::OnBindGroups() {
 
 	std::vector<WGPUBindGroupEntry> bindGroupEntries1(1);
 	bindGroupEntries1[0].binding = 0u;
-	bindGroupEntries1[0].textureView = m_characterSet.m_texture.getTextureView();
+	bindGroupEntries1[0].textureView = m_characterSet.texture.getTextureView();
 
 	WGPUBindGroupDescriptor bindGroupDesc1 = {};
 	bindGroupDesc1.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_FONT"), 1u);

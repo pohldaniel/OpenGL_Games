@@ -539,13 +539,13 @@ void WgpTexture::loadCubeFromFiles(std::string* fileNames, bool flipVertical) {
     m_textureView = wgpCreateTextureView(m_texture, WGPUTextureAspect::WGPUTextureAspect_All);
 }
 
-void WgpTexture::createEmpty(uint32_t width, uint32_t height, uint32_t depth, WGPUTextureUsage textureUsage, WGPUTextureFormat textureFormat, uint32_t mipLevelCount, uint32_t msaaSampleCount) {
+void WgpTexture::createEmpty(uint32_t width, uint32_t height, uint32_t depth, WGPUTextureUsage textureUsage, WGPUTextureFormat textureFormat, uint32_t mipLevelCount, uint32_t msaaSampleCount, bool isArray) {
     m_width = width;
     m_height = height;
-    m_channels = 4u;
+    m_channels = textureFormat == WGPUTextureFormat_R8Unorm ? 1u : 4u;
     m_format = textureFormat;
     m_texture = wgpCreateTexture(m_width, m_height, depth, textureUsage, m_format, mipLevelCount, msaaSampleCount);
-    m_textureView = wgpCreateTextureView(m_texture, WGPUTextureAspect::WGPUTextureAspect_All);
+    m_textureView = wgpCreateTextureView(m_texture, WGPUTextureAspect::WGPUTextureAspect_All, isArray);
 }
 
 void WgpTexture::resize(uint32_t width, uint32_t height) {
@@ -676,7 +676,7 @@ void WgpTexture::Safe(const std::string& fileOut, const unsigned char* bytes, ui
     FreeImage_DeInitialise();
 }
 
-void WgpTexture::SafeHDRI(const std::string& fileOut, const unsigned char* bytes, uint32_t width, uint32_t height, uint32_t channels) {
+void WgpTexture::SafeHDRI(const std::string& fileOut, const unsigned char* bytes, uint32_t width, uint32_t height) {
     FreeImage_Initialise();
     FIBITMAP* sourceBitmap = FreeImage_Allocate(width, height, 128u, 0u, 0u, 0u);
     memcpy(FreeImage_GetBits(sourceBitmap), bytes, width * height * 4u * sizeof(float));

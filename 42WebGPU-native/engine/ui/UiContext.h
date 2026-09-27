@@ -16,7 +16,9 @@ extern "C" {
 	void uiCreateRenderPipeline(WGPURenderPipeline& renderPipeline);
 	void uiCreateRenderPipelineMask(WGPURenderPipeline& renderPipeline);
 	void uiCreateRenderPipelineRead(WGPURenderPipeline& renderPipeline);
+	void uiCreateRenderPipelineText(WGPURenderPipeline& renderPipeline);
 	void uiCreateBindGroup(WGPUBindGroup& bindgroup);
+	void uiCreateBindGroupText(WGPUBindGroup& bindgroup);
 }
 	
 struct UiInstance {
@@ -30,7 +32,8 @@ struct UiInstance {
 enum class UiPipelineType {
 	Standard,
 	MaskWrite,
-	OutlineRead
+	OutlineRead,
+	Text
 };
 
 struct UiBatch {
@@ -43,9 +46,11 @@ struct UiContext {
 	float width;
 	float height;
 
-	WGPUBindGroup bindgroup = nullptr;;
-	WGPUBindGroupLayout bindgroupLayout = nullptr;
-	WGPURenderPipeline renderPipeline = nullptr, renderPipelineMask = nullptr, renderPipelineRead = nullptr;
+	WGPUBindGroup bindgroup = nullptr, bindgroupText = nullptr;
+	WGPUBindGroupLayout bindgroupLayout = nullptr, bindgroupLayoutText = nullptr;
+	WGPURenderPipeline renderPipeline = nullptr, renderPipelineMask = nullptr, renderPipelineRead = nullptr, renderPipelineText = nullptr;
+	WGPUTextureView textureView = nullptr;
+
 	WgpBuffer wgpStorageBuffer, wgpUniformBuffer;
 
 	std::vector<UiInstance> uiInstances;

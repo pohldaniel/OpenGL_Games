@@ -7,7 +7,7 @@ m_outlineColorHover(Vector4f(1.0f, 0.0f, 1.0f, 1.0f)),
 m_thickness(0.0f),
 m_isPressed(false),
 m_wasPressed(false),
-m_fun(nullptr){
+m_onClick(nullptr){
 
 }
 
@@ -18,7 +18,7 @@ Button::Button(const Button& rhs) :
 	m_thickness(rhs.m_thickness),
 	m_isPressed(rhs.m_isPressed),
 	m_wasPressed(rhs.m_wasPressed),
-	m_fun(rhs.m_fun){
+	m_onClick(rhs.m_onClick){
 }
 
 Button::Button(Button&& rhs) noexcept :
@@ -28,7 +28,7 @@ Button::Button(Button&& rhs) noexcept :
 	m_thickness(rhs.m_thickness),
 	m_isPressed(rhs.m_isPressed),
 	m_wasPressed(rhs.m_wasPressed),
-	m_fun(std::move(rhs.m_fun)) {
+	m_onClick(std::move(rhs.m_onClick)) {
 }
 
 Button::~Button() {
@@ -51,7 +51,7 @@ void Button::setOutlineThickness(float thickness) {
 	m_thickness = thickness;
 }
 
-void Button::drawDefault() {
+void Button::createDefault() {
 	UiInstance buttonInst = {};
 	std::memcpy(buttonInst.transform, getWorldTransformation().getData(), sizeof(Matrix4f));
 	std::memcpy(buttonInst.color, m_color.getData(), sizeof(Vector4f));
@@ -66,7 +66,7 @@ void Button::drawDefault() {
 	buttonInst.flipAndTile[1] = 0.0f;
 	buttonInst.flipAndTile[2] = 0.0f;
 
-	addWidget(UiPipelineType::MaskWrite, buttonInst);
+	pushWidget(UiPipelineType::MaskWrite, buttonInst);
 
 	Vector2f scale = getWorldScale();
 	float xScaleOutline = (m_thickness) / (scale[0]);
@@ -89,7 +89,7 @@ void Button::drawDefault() {
 	outlineInst.flipAndTile[0] = 0.0f;
 	outlineInst.flipAndTile[1] = 0.0f;
 	outlineInst.flipAndTile[2] = 0.0f;
-	addWidget(UiPipelineType::OutlineRead, outlineInst);
+	pushWidget(UiPipelineType::OutlineRead, outlineInst);
 }
 
 void Button::inputDefault(int mouseX, int mouseY, bool buttonLeft) {
@@ -105,13 +105,13 @@ void Button::inputDefault(int mouseX, int mouseY, bool buttonLeft) {
 		m_outlineColor = Vector4f(1.0f, 1.0f, 0.0f, 1.0f);
 	}
 
-	if (m_isPressed && !m_wasPressed && m_fun) {
-		m_fun();
+	if (m_isPressed && !m_wasPressed && m_onClick) {
+		m_onClick();
 	}
 
 	m_wasPressed = m_isPressed;
 }
 
-void Button::setFunction(std::function<void()> fun) {
-	m_fun = fun;
+void Button::setOnClick(std::function<void()> fun) {
+	m_onClick = fun;
 }

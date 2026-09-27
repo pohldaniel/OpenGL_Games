@@ -4,15 +4,15 @@ Vector2f Widget::WorldPosition;
 Vector2f Widget::WorldScale;
 float Widget::WorldOrientation;
 
-Widget::Widget() : Node(), Object2D(), m_isDirty(true), m_draw(nullptr) {
+Widget::Widget() : Node(), Object2D(), m_isDirty(true), m_create(nullptr) {
 
 }
 
-Widget::Widget(const Widget& rhs) : Node(rhs), Object2D(rhs), m_draw(rhs.m_draw) {
+Widget::Widget(const Widget& rhs) : Node(rhs), Object2D(rhs), m_create(rhs.m_create) {
 	m_isDirty = rhs.m_isDirty;
 }
 
-Widget::Widget(Widget&& rhs) noexcept : Node(rhs), Object2D(rhs), m_draw(std::move(rhs.m_draw)) {
+Widget::Widget(Widget&& rhs) noexcept : Node(rhs), Object2D(rhs), m_create(std::move(rhs.m_create)) {
 	m_isDirty = rhs.m_isDirty;
 }
 
@@ -20,34 +20,34 @@ Widget::~Widget() {
 
 }
 
-void Widget::draw() {
-	if (m_draw) {
-		return m_draw();
+void Widget::createTree() {
+	if (m_create) {
+		return m_create();
 	}
-	drawDefault();
-	drawTree();	
+	createDefault();
+	createChildren();
 }
 
-void Widget::drawTree() {
+void Widget::createChildren() {
 	if (m_children.size() > 0) {
 		for (std::list<std::unique_ptr<Node, std::function<void(Node* node)>>>::iterator it = getChildren().begin(); it != getChildren().end(); ++it) {
-			static_cast<Widget*>((*it).get())->draw();
+			static_cast<Widget*>((*it).get())->createTree();
 		}
 	}
 }
 
-void Widget::input(const int mouseX, const int mouseY, bool buttonLeft) {
+void Widget::inputTree(const int mouseX, const int mouseY, bool buttonLeft) {
 	if (m_input) {
 		return m_input(mouseX, mouseY, buttonLeft);
 	}
 	inputDefault(mouseX, mouseY, buttonLeft);
-	inputTree(mouseX, mouseY, buttonLeft);
+	inputChildren(mouseX, mouseY, buttonLeft);
 }
 
-void Widget::inputTree(int mouseX, int mouseY, bool buttonLeft) {
+void Widget::inputChildren(int mouseX, int mouseY, bool buttonLeft) {
 	if (m_children.size() > 0) {
 		for (std::list<std::unique_ptr<Node, std::function<void(Node* node)>>>::iterator it = getChildren().begin(); it != getChildren().end(); ++it) {
-			static_cast<Widget*>((*it).get())->input(mouseX, mouseY, buttonLeft);
+			static_cast<Widget*>((*it).get())->inputTree(mouseX, mouseY, buttonLeft);
 		}
 	}
 }
@@ -184,15 +184,15 @@ void Widget::rotate(float degrees) {
 	OnTransformChanged();
 }
 
-void Widget::setDrawFunction(std::function<void()> fun) {
-	m_draw = fun;
+void Widget::setCreateFunction(std::function<void()> fun) {
+	m_create = fun;
 }
 
 void Widget::setInputFunction(std::function<void(const int mouseX, const int mouseY, bool buttonLeft)> fun) {
 	m_input = fun;
 }
 
-void Widget::addWidget(UiPipelineType type, const UiInstance& instance) {
+void Widget::pushWidget(UiPipelineType type, const UiInstance& instance) {
 	if (uiContext.uiBatches.empty() || uiContext.uiBatches.back().pipelineType != type) {
 		UiBatch uiBatch;
 		uiBatch.pipelineType = type;
@@ -202,4 +202,14 @@ void Widget::addWidget(UiPipelineType type, const UiInstance& instance) {
 	}
 	uiContext.uiInstances.push_back(instance);
 	uiContext.uiBatches.back().instanceCount++;
+}
+
+void Widget::resize() {
+	float normWidth = m_pixelSize.x / (static_cast<float>(Application::Width) * 0.5f);
+	float normHeight = m_pixelSize.y / (static_cast<float>(Application::Height) * 0.5f);
+	Object2D::setScale(normWidth, normHeight);
+
+	// 2. Kinder (Label) zentrieren
+	for (auto* child : m_children) {
+	}
 }

@@ -11,13 +11,12 @@ public:
 	Surface(Surface&& rhs) noexcept;
 	virtual ~Surface();
 
-	void setDrawFunction(std::function<void()> fun);
 	void setColor(const Vector4f& color);
 
 private:
 
-	void drawDefault() override;
-	void inputDefault(int mouseX, int mouseY, bool buttonLeft);
+	void createDefault() override;
+	void inputDefault(int mouseX, int mouseY, bool buttonLeft) override;
 
 	Vector4f m_color;
 };

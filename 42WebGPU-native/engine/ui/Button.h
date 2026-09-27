@@ -11,18 +11,17 @@ public:
 	Button(Button&& rhs) noexcept;
 	virtual ~Button();
 
-	void setDrawFunction(std::function<void()> fun);
 	void setColor(const Vector4f& color);
 	void setOutlineColor(const Vector4f& color);
 	void setOutlineColorHover(const Vector4f& color);
 	void setOutlineThickness(float thickness);
 
-	void setFunction(std::function<void()> fun);
+	void setOnClick(std::function<void()> fun);
 
 private:
 
-	void drawDefault() override;
-	void inputDefault(int mouseX, int mouseY, bool buttonLeft);
+	void createDefault() override;
+	void inputDefault(int mouseX, int mouseY, bool buttonLeft) override;
 
 	Vector4f m_color;
 	Vector4f m_outlineColor;
@@ -31,5 +30,5 @@ private:
 	float m_thickness;
 	bool m_isPressed;
 	bool m_wasPressed;
-	std::function<void()> m_fun;
+	std::function<void()> m_onClick;
 };

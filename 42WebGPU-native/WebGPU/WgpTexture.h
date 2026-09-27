@@ -21,7 +21,7 @@ public:
 	void loadHDRIFromFile(const std::string& fileName, bool flipVertical = false, bool halfBPP = false);
 	void loadCubeFromFiles(std::string* fileNames, bool flipVertical = false);
 
-	void createEmpty(uint32_t width, uint32_t height, uint32_t depth, WGPUTextureUsage textureUsage, WGPUTextureFormat textureFormat, uint32_t mipLevelCount = 1u, uint32_t msaaSampleCount = 1u);
+	void createEmpty(uint32_t width, uint32_t height, uint32_t depth, WGPUTextureUsage textureUsage, WGPUTextureFormat textureFormat, uint32_t mipLevelCount = 1u, uint32_t msaaSampleCount = 1u, bool isArray = false);
 	void resize(uint32_t width, uint32_t height);
 	void cleanup();
 	void markForDelete();
@@ -45,7 +45,7 @@ public:
 	
 	static void Safe(const std::string& fileOut, const unsigned char* bytes, uint32_t width, uint32_t height, uint32_t channels);
 	static void Safe(const std::string& fileOut, const unsigned char* bytes, uint32_t size);
-	static void SafeHDRI(const std::string& fileOut, const unsigned char* bytes, uint32_t width, uint32_t height, uint32_t channels);
+	static void SafeHDRI(const std::string& fileOut, const unsigned char* bytes, uint32_t width, uint32_t height);
 
 private:
 	

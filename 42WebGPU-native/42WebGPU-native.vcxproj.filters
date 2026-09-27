@@ -411,6 +411,15 @@
     <ClCompile Include="src\States\Menu.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
+    <ClCompile Include="engine\ui\Empty.cpp">
+      <Filter>engine\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\ui\Label.cpp">
+      <Filter>engine\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\ui\TextField.cpp">
+      <Filter>engine\ui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\input\ApplicationEventListener.h">
@@ -802,6 +811,15 @@
     </ClInclude>
     <ClInclude Include="src\States\Menu.h">
       <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\ui\Empty.h">
+      <Filter>engine\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\ui\Label.h">
+      <Filter>engine\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\ui\TextField.h">
+      <Filter>engine\ui</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -14,62 +14,74 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	EventDispatcher::AddKeyboardListener(this);
 	Mouse::instance().attach(Application::GetWindow(), false, true);
 
+	m_characterSet.loadFromFile("res/fonts/upheavtt.ttf", 32.0f);
+	uiContext.textureView = m_characterSet.texture.getTextureView();
 	uiInit(static_cast<float>(Application::Width), static_cast<float>(Application::Height));
 
-	m_surface = new Surface();
-	m_surface->setScale(static_cast<float>(Application::Width), static_cast<float>(Application::Height));
-	m_surface->setColor(Vector4f::ZERO);
+	m_uiScene = new Empty();
+	m_uiScene->setScale(static_cast<float>(Application::Width), static_cast<float>(Application::Height));
 
-	Button* nested = m_surface->addChild<Button>();
-	nested->setScale(0.1f, 0.1f);
-	nested->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
-	nested->setOutlineColor(Vector4f(1.0f, 1.0f, 0.0f, 1.0f));
-	nested->setPosition(0.05f, 0.05f);
-	nested->setOutlineThickness(5.0f);
-	nested->setFunction([&]() {
+	Button* button = m_uiScene->addChild<Button>();
+	button->setScale(0.1f, 0.1f);
+	button->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+	button->setOutlineColor(Vector4f(1.0f, 1.0f, 0.0f, 1.0f));
+	button->setPosition(0.05f, 0.05f);
+	button->setOutlineThickness(5.0f);
+	button->setOnClick([&]() {
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new Wireframe(m_machine));
 	});
+	Label* label = button->addChild<Label>(m_characterSet);
+	label->setText("Wireframe's");
+	label->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 
-	nested = m_surface->addChild<Button>();
-	nested->setScale(0.1f, 0.1f);
-	nested->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
-	nested->setOutlineColor(Vector4f(1.0f, 1.0f, 0.0f, 1.0f));
-	nested->setPosition(0.2f, 0.05f);
-	nested->setOutlineThickness(5.0f);
-	nested->setFunction([&]() {
+	button = m_uiScene->addChild<Button>();
+	button->setScale(0.1f, 0.1f);
+	button->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+	button->setOutlineColor(Vector4f(1.0f, 1.0f, 0.0f, 1.0f));
+	button->setPosition(0.35f, 0.05f);
+	button->setOutlineThickness(5.0f);
+	button->setOnClick([&]() {
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new Compute(m_machine));
 	});
 
-	nested = m_surface->addChild<Button>();
-	nested->setScale(0.1f, 0.1f);
-	nested->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
-	nested->setOutlineColor(Vector4f(1.0f, 1.0f, 0.0f, 1.0f));
-	nested->setPosition(0.35f, 0.05f);
-	nested->setOutlineThickness(5.0f);
-	nested->setFunction([&]() {
+	button = m_uiScene->addChild<Button>();
+	button->setScale(0.1f, 0.1f);
+	button->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+	button->setOutlineColor(Vector4f(1.0f, 1.0f, 0.0f, 1.0f));
+	button->setPosition(0.5f, 0.05f);
+	button->setOutlineThickness(5.0f);
+	button->setOnClick([&]() {
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new Specularity(m_machine));
 	});
 
-	nested = m_surface->addChild<Button>();
-	nested->setScale(0.1f, 0.1f);
-	nested->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
-	nested->setOutlineColor(Vector4f(1.0f, 1.0f, 0.0f, 1.0f));
-	nested->setPosition(0.5f, 0.05f);
-	nested->setOutlineThickness(5.0f);
-	nested->setFunction([&]() {
+	button = m_uiScene->addChild<Button>();
+	button->setScale(0.1f, 0.1f);
+	button->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+	button->setOutlineColor(Vector4f(1.0f, 1.0f, 0.0f, 1.0f));
+	button->setPosition(0.65f, 0.05f);
+	button->setOutlineThickness(5.0f);
+	button->setOnClick([&]() {
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new NormalMap(m_machine));
 	});
+
+
+
+	/*Label* label = m_uiScene->addChild<Label>(m_characterSet);
+	label->setScale(0.1f, 0.1f);
+	label->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	label->setPosition(0.5f, 0.5f);
+	label->setText("Hallo wie geht's?");*/
 
 	wgpContext.OnDraw = std::bind(&Menu::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
 }
 
 Menu::~Menu() {
 	EventDispatcher::RemoveKeyboardListener(this);
-	delete m_surface;
+	delete m_uiScene;
 }
 
 void Menu::fixedUpdate() {
@@ -78,8 +90,8 @@ void Menu::fixedUpdate() {
 
 void Menu::update() {
 	Mouse& mouse = Mouse::instance();
-	m_surface->input(mouse.xPos(), mouse.yPos(), mouse.buttonDown(Mouse::MouseButton::BUTTON_LEFT));
-	m_surface->draw();
+	m_uiScene->inputTree(mouse.xPos(), mouse.yPos(), mouse.buttonDown(Mouse::MouseButton::BUTTON_LEFT));
+	m_uiScene->createTree();
 }
 
 void Menu::render() {
