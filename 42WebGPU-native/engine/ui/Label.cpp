@@ -47,7 +47,8 @@ void Label::layoutDefault() {
 void Label::createDefault() {
 	Vector2f currentCursor = { 0.0f, 0.0f };
 	Vector2f scale = getWorldScale();
-	
+	//float rotationAngle = 90.0f;
+
 	for (char c : m_text) {
 		
 		const Char& ch = characterSet.getCharacter(c);
@@ -70,6 +71,34 @@ void Label::createDefault() {
 		pushWidget(UiPipelineType::Text, uiInstance);
 
 		currentCursor[0] += ch.advance / scale[0];
+
+		/*const Char& ch = characterSet.getCharacter(c);
+		float dx = ch.pos[0] / scale[0];
+		float dy = ch.pos[1] / scale[1];
+		float gw = ch.size[0] / scale[0];
+		float gh = ch.size[1] / scale[1];
+
+		UiInstance uiInstance = {};
+
+		// 1. Erstelle die Basis-Transformation der einzelnen Glyphe (Verschiebung & Größe)
+		float glyphY = (paddingY + dy) / scale[1];
+		Matrix4f glyphBase = Matrix4f::Translate(currentCursor[0] + dx, glyphY, 0.0f) * Matrix4f::Scale(gw, gh, 1.0f);
+
+		// 2. Jetzt die magische Multiplikation:
+		// Wenn das WIDGET selbst rotiert ist, steckt das in getWorldTransformation().
+		// Wenn du zusätzlich die Glyphen einzeln im Label rotieren willst:
+		Matrix4f rotationMatrix = Matrix4f::RotateZ(rotationAngle); // Rotation um die Z-Achse (2D)
+
+		// Die finale Matrix für diese Glyphe
+		Matrix4f finalTransform = getWorldTransformation() * rotationMatrix * glyphBase;
+
+		std::memcpy(uiInstance.transform, finalTransform.getData(), sizeof(Matrix4f));
+		std::memcpy(uiInstance.color, m_color.getData(), sizeof(Vector4f));
+
+		// ... Texture-Rects zuweisen wie gehabt ...
+		pushWidget(UiPipelineType::Text, uiInstance);
+
+		currentCursor[0] += ch.advance / scale[0];*/
 	}
 }
 

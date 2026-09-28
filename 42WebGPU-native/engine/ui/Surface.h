@@ -14,11 +14,16 @@ public:
 	void setColor(const Vector4f& color);
 	void setDrag(bool drag);
 
-private:
+	void setScale(float sx, float sy) override;
 
-	void createDefault() override;
+private:
+	
 	void inputDefault(int mouseX, int mouseY, bool buttonLeft) override;
+	void layoutDefault() override;
+	void createDefault() override;
 
 	Vector4f m_color;
 	bool m_hasDrag;
+	bool m_isDragged, m_firsDragged = false;
+	int m_mouseX, m_mouseY;
 };

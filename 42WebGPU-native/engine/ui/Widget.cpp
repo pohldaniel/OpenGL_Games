@@ -30,7 +30,8 @@ Widget::~Widget() {
 }
 
 void Widget::createTree() {
-	ProcessLayoutQueue();
+	//ProcessLayoutQueue();
+	updateLayout();
 	if (m_create) {
 		return m_create();
 	}

@@ -18,13 +18,16 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	uiContext.textureView = m_characterSet.texture.getTextureView();
 	uiInit(static_cast<float>(Application::Width), static_cast<float>(Application::Height));
 
-	m_uiScene = new Surface();
-	m_uiScene->setScale(static_cast<float>(Application::Width) * 0.5f, static_cast<float>(Application::Height) * 0.5f);
-	m_uiScene->setColor(Vector4f::ONE);
-	m_uiScene->setDrag(true);
-	m_uiScene->setPosition(200.0f, 200.0f);
+	m_uiScene = new Empty();
+	m_uiScene->setScale(static_cast<float>(Application::Width), static_cast<float>(Application::Height));
 
-	Button* button = m_uiScene->addChild<Button>();
+	Surface* surface  = m_uiScene->addChild<Surface>();
+	surface->setScale(0.5f, 0.5f);
+	surface->setColor(Vector4f::ONE);
+	surface->setDrag(true);
+	surface->setPosition(200.0f / static_cast<float>(Application::Width), 200.0f / static_cast<float>(Application::Height));
+
+	Button* button = surface->addChild<Button>();
 	button->setScale(0.1f, 0.1f);
 	button->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
 	button->setOutlineColor(Vector4f(1.0f, 1.0f, 0.0f, 1.0f));
@@ -43,7 +46,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	label->setColor(Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
 	label->setPadding(5.0f);
 
-	button = m_uiScene->addChild<Button>();
+	button = surface->addChild<Button>();
 	button->setScale(0.1f, 0.1f);
 	button->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
 	button->setOutlineColor(Vector4f(1.0f, 1.0f, 0.0f, 1.0f));
@@ -54,7 +57,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 		m_machine.addStateAtBottom(new Compute(m_machine));
 	});
 
-	button = m_uiScene->addChild<Button>();
+	button = surface->addChild<Button>();
 	button->setScale(0.1f, 0.1f);
 	button->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
 	button->setOutlineColor(Vector4f(1.0f, 1.0f, 0.0f, 1.0f));
@@ -65,7 +68,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 		m_machine.addStateAtBottom(new Specularity(m_machine));
 	});
 
-	button = m_uiScene->addChild<Button>();
+	button = surface->addChild<Button>();
 	button->setScale(0.1f, 0.1f);
 	button->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
 	button->setOutlineColor(Vector4f(1.0f, 1.0f, 0.0f, 1.0f));
@@ -75,14 +78,6 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new NormalMap(m_machine));
 	});
-
-
-
-	/*Label* label = m_uiScene->addChild<Label>(m_characterSet);
-	label->setScale(0.1f, 0.1f);
-	label->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-	label->setPosition(0.5f, 0.5f);
-	label->setText("Hallo wie geht's?");*/
 
 	wgpContext.OnDraw = std::bind(&Menu::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
 }

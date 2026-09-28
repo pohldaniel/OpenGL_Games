@@ -25,7 +25,7 @@ public:
 	void updateLayout();
 	void createTree();
 
-	void setScale(float sx, float sy) override;
+	virtual void setScale(float sx, float sy) override;
 	void setScale(const Vector2f& scale) override;
 	void setScale(float s) override;
 
