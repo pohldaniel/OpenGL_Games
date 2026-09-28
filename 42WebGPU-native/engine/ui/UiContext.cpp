@@ -1,4 +1,3 @@
-#include <iostream>
 #include <WebGPU/WgpContext.h>
 #include "UiContext.h"
 

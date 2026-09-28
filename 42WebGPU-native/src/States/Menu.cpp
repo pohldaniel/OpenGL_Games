@@ -18,8 +18,11 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	uiContext.textureView = m_characterSet.texture.getTextureView();
 	uiInit(static_cast<float>(Application::Width), static_cast<float>(Application::Height));
 
-	m_uiScene = new Empty();
-	m_uiScene->setScale(static_cast<float>(Application::Width), static_cast<float>(Application::Height));
+	m_uiScene = new Surface();
+	m_uiScene->setScale(static_cast<float>(Application::Width) * 0.5f, static_cast<float>(Application::Height) * 0.5f);
+	m_uiScene->setColor(Vector4f::ONE);
+	m_uiScene->setDrag(true);
+	m_uiScene->setPosition(200.0f, 200.0f);
 
 	Button* button = m_uiScene->addChild<Button>();
 	button->setScale(0.1f, 0.1f);
@@ -35,11 +38,16 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	label->setText("Wireframe's");
 	label->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 
+	label = button->addChild<Label>(m_characterSet);
+	label->setText("Compute");
+	label->setColor(Vector4f(0.0f, 0.0f, 1.0f, 1.0f));
+	label->setPadding(5.0f);
+
 	button = m_uiScene->addChild<Button>();
 	button->setScale(0.1f, 0.1f);
 	button->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
 	button->setOutlineColor(Vector4f(1.0f, 1.0f, 0.0f, 1.0f));
-	button->setPosition(0.35f, 0.05f);
+	button->setPosition(0.05f, 0.35f);
 	button->setOutlineThickness(5.0f);
 	button->setOnClick([&]() {
 		m_isRunning = false;
@@ -50,7 +58,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	button->setScale(0.1f, 0.1f);
 	button->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
 	button->setOutlineColor(Vector4f(1.0f, 1.0f, 0.0f, 1.0f));
-	button->setPosition(0.5f, 0.05f);
+	button->setPosition(0.35f, 0.35f);
 	button->setOutlineThickness(5.0f);
 	button->setOnClick([&]() {
 		m_isRunning = false;
@@ -61,7 +69,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	button->setScale(0.1f, 0.1f);
 	button->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
 	button->setOutlineColor(Vector4f(1.0f, 1.0f, 0.0f, 1.0f));
-	button->setPosition(0.65f, 0.05f);
+	button->setPosition(0.05f, 0.5f);
 	button->setOutlineThickness(5.0f);
 	button->setOnClick([&]() {
 		m_isRunning = false;

@@ -14,6 +14,7 @@ public:
 
 	void setText(const std::string& text);
 	void setColor(const Vector4f& color);
+	void setPadding(float padding, bool silent = false) override;
 
 protected:
 
@@ -23,6 +24,7 @@ protected:
 
 private:
 
-	virtual void createDefault() override;
 	void inputDefault(int mouseX, int mouseY, bool buttonLeft) override;
+	void layoutDefault() override;
+	void createDefault() override;
 };

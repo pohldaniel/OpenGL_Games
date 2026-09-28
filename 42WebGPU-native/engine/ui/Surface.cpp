@@ -1,6 +1,6 @@
 #include "Surface.h"
 
-Surface::Surface() : Widget(), m_color(Vector4f::ONE) {
+Surface::Surface() : Widget(), m_color(Vector4f::ONE), m_hasDrag(false){
 	
 }
 
@@ -41,4 +41,8 @@ void Surface::createDefault() {
 
 void Surface::inputDefault(int mouseX, int mouseY, bool buttonLeft) {
 
+}
+
+void Surface::setDrag(bool drag) {
+	m_hasDrag = drag;
 }

@@ -8,7 +8,7 @@ m_thickness(0.0f),
 m_isPressed(false),
 m_wasPressed(false),
 m_onClick(nullptr){
-
+	m_padding = 5.0f;
 }
 
 Button::Button(const Button& rhs) :
@@ -55,6 +55,8 @@ void Button::createDefault() {
 	UiInstance buttonInst = {};
 	std::memcpy(buttonInst.transform, getWorldTransformation().getData(), sizeof(Matrix4f));
 	std::memcpy(buttonInst.color, m_color.getData(), sizeof(Vector4f));
+
+	//getWorldTransformation().print();
 
 	buttonInst.textureRect[0] = 0.0f;
 	buttonInst.textureRect[1] = 0.0f;

@@ -3,17 +3,26 @@
 Vector2f Widget::WorldPosition;
 Vector2f Widget::WorldScale;
 float Widget::WorldOrientation;
+std::set<Widget*> Widget::DirtyWidgets;
 
-Widget::Widget() : Node(), Object2D(), m_isDirty(true), m_create(nullptr) {
-
+Widget::Widget() : Node(), Object2D(), m_create(nullptr), m_isDirty(true), m_width(0.0f), m_height(0.0f), m_padding(0.0f), m_isLayoutDirty(true){
+	MarkAsDirty(this);
 }
 
 Widget::Widget(const Widget& rhs) : Node(rhs), Object2D(rhs), m_create(rhs.m_create) {
 	m_isDirty = rhs.m_isDirty;
+	m_width = rhs.m_width;
+	m_height = rhs.m_height;
+	m_padding = rhs.m_padding;
+	m_isLayoutDirty = rhs.m_isLayoutDirty;
 }
 
 Widget::Widget(Widget&& rhs) noexcept : Node(rhs), Object2D(rhs), m_create(std::move(rhs.m_create)) {
 	m_isDirty = rhs.m_isDirty;
+	m_width = rhs.m_width;
+	m_height = rhs.m_height;
+	m_padding = rhs.m_padding;
+	m_isLayoutDirty = rhs.m_isLayoutDirty;
 }
 
 Widget::~Widget() {
@@ -21,6 +30,7 @@ Widget::~Widget() {
 }
 
 void Widget::createTree() {
+	ProcessLayoutQueue();
 	if (m_create) {
 		return m_create();
 	}
@@ -53,16 +63,30 @@ void Widget::inputChildren(int mouseX, int mouseY, bool buttonLeft) {
 }
 
 void Widget::OnTransformChanged() {
-
-	if (m_isDirty) {
+	if (m_isDirty) 
 		return;
-	}
+
+	m_isDirty = true;
 
 	for (auto&& child : m_children) {
 		static_cast<Widget*>(child.get())->OnTransformChanged();
-	}
+	}	
+}
 
-	m_isDirty = true;
+void Widget::OnInvalidate() {
+	
+	if (m_isLayoutDirty) {
+		return;
+	}
+		
+
+	m_isLayoutDirty = true;
+	
+	MarkAsDirty(this);
+
+	if(m_parent)
+		static_cast<Widget*>(m_parent)->OnInvalidate();
+	
 }
 
 const Matrix4f& Widget::getWorldTransformation() const {
@@ -204,12 +228,114 @@ void Widget::pushWidget(UiPipelineType type, const UiInstance& instance) {
 	uiContext.uiBatches.back().instanceCount++;
 }
 
-void Widget::resize() {
-	float normWidth = m_pixelSize.x / (static_cast<float>(Application::Width) * 0.5f);
-	float normHeight = m_pixelSize.y / (static_cast<float>(Application::Height) * 0.5f);
-	Object2D::setScale(normWidth, normHeight);
+void Widget::updateLayout() {
+	for (std::list<std::unique_ptr<Node, std::function<void(Node* node)>>>::iterator it = getChildren().begin(); it != getChildren().end(); ++it) {
+		static_cast<Widget*>((*it).get())->layoutDefault();
+	}	
+}
 
-	// 2. Kinder (Label) zentrieren
-	for (auto* child : m_children) {
+void Widget::layoutDefault() {	
+	if (!m_isLayoutDirty)
+		return;
+
+	if (!m_children.empty()) {
+		Vector2f scale = m_parent ? static_cast<Widget*>(m_parent)->getWorldScale() : getScale();
+		Vector2f position = getPosition();
+
+		float width = 0.0f;
+		float height = 0.0f;
+
+		for (std::list<std::unique_ptr<Node, std::function<void(Node* node)>>>::iterator it = getChildren().begin(); it != getChildren().end(); ++it) {
+			Widget* child = static_cast<Widget*>((*it).get());
+			width += child->getWidth();
+			height = std::max(height, child->getHeight());
+		}
+
+		setWidth(width + (m_padding * 2.0f), true);
+		setHeight(height + (m_padding * 2.0f), true);
+		setScale(m_width / scale[0], m_height / scale[1]);
+		scale = getWorldScale();
+
+		float posX = m_padding;
+		for (std::list<std::unique_ptr<Node, std::function<void(Node* node)>>>::iterator it = getChildren().begin(); it != getChildren().end(); ++it) {
+			Widget* child = static_cast<Widget*>((*it).get());
+			float posY = (getHeight() - child->getHeight()) * 0.5f;
+			child->setPosition(posX / scale[0], posY / scale[1]);
+			posX += child->getWidth();
+		}
 	}
+	m_isLayoutDirty = false;
+}
+
+float Widget::getWidth(){
+	return m_width;
+}
+
+float Widget::getHeight() {
+	return m_height;
+}
+
+float Widget::getPadding() {
+	return m_padding;
+}
+
+void Widget::setWidth(float width, bool silent) {
+	m_width = width;
+	if(!silent)
+		OnInvalidate();
+}
+
+void Widget::setHeight(float height, bool silent) {
+	m_height = height;
+	if (!silent)
+		OnInvalidate();
+}
+
+void Widget::setPadding(float padding, bool silent) {
+	m_padding = padding;
+	if (!silent)
+		OnInvalidate();
+}
+
+void Widget::MarkAsDirty(Widget* widget) {
+	DirtyWidgets.insert(widget);
+}
+
+void Widget::ProcessLayoutQueue() {
+
+	if (DirtyWidgets.empty()) 
+		return;
+
+	auto it = DirtyWidgets.begin();
+	Widget* commonParent = *it;
+
+	++it;
+
+	for (; it != DirtyWidgets.end(); ++it) {
+		Widget* nextWidget = *it;
+		if (!nextWidget) continue;
+
+		std::unordered_set<Widget*> ancestors;
+		Widget* tracer = commonParent;
+		while (tracer) {
+			ancestors.insert(tracer);
+			tracer = static_cast<Widget*>(tracer->m_parent);
+		}
+
+		tracer = nextWidget;
+		while (tracer) {
+			if (ancestors.count(tracer) > 0) {
+				commonParent = tracer;
+				break;
+			}
+			tracer = static_cast<Widget*>(tracer->m_parent);
+		}
+	}
+
+	if (commonParent) {
+		commonParent->updateLayout();
+	}
+
+	DirtyWidgets.clear();
+	
 }

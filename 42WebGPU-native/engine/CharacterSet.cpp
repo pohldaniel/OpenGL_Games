@@ -232,12 +232,12 @@ void CharacterSet::loadFromFile(const std::string& path, uint32_t characterSize)
 		if (paddingTop < 0) paddingTop = 0;
 		unsigned int uPaddingTop = std::min(static_cast<unsigned int>(paddingTop), height - glyph->bitmap.rows);
 
-		for (unsigned int j = 0; j < glyph->bitmap.width * glyph->bitmap.rows; j++, index++) {
-			glyphBox[index] = glyph->bitmap.buffer[j];
-		}
-
 		for (unsigned int j = 0; j < glyph->bitmap.width * uPaddingTop; j++, index++) {
 			glyphBox[index] = 0;
+		}
+
+		for (unsigned int j = 0; j < glyph->bitmap.width * glyph->bitmap.rows; j++, index++) {
+			glyphBox[index] = glyph->bitmap.buffer[j];
 		}
 
 		while (index < glyphBox.size()) {

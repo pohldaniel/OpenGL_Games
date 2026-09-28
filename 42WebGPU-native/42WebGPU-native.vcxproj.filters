@@ -417,9 +417,6 @@
     <ClCompile Include="engine\ui\Label.cpp">
       <Filter>engine\ui</Filter>
     </ClCompile>
-    <ClCompile Include="engine\ui\TextField.cpp">
-      <Filter>engine\ui</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\input\ApplicationEventListener.h">
@@ -816,9 +813,6 @@
       <Filter>engine\ui</Filter>
     </ClInclude>
     <ClInclude Include="engine\ui\Label.h">
-      <Filter>engine\ui</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\ui\TextField.h">
       <Filter>engine\ui</Filter>
     </ClInclude>
   </ItemGroup>

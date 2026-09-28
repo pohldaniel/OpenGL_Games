@@ -227,7 +227,6 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClCompile Include="engine\ui\Empty.cpp" />
     <ClCompile Include="engine\ui\Label.cpp" />
     <ClCompile Include="engine\ui\Surface.cpp" />
-    <ClCompile Include="engine\ui\TextField.cpp" />
     <ClCompile Include="engine\ui\UiContext.cpp" />
     <ClCompile Include="engine\ui\Widget.cpp" />
     <ClCompile Include="engine\utils\BinaryIO.cpp" />
@@ -368,7 +367,6 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClInclude Include="engine\ui\Empty.h" />
     <ClInclude Include="engine\ui\Label.h" />
     <ClInclude Include="engine\ui\Surface.h" />
-    <ClInclude Include="engine\ui\TextField.h" />
     <ClInclude Include="engine\ui\UiContext.h" />
     <ClInclude Include="engine\ui\Widget.h" />
     <ClInclude Include="engine\utils\BinaryIO.h" />

@@ -12,6 +12,7 @@ public:
 	virtual ~Surface();
 
 	void setColor(const Vector4f& color);
+	void setDrag(bool drag);
 
 private:
 
@@ -19,4 +20,5 @@ private:
 	void inputDefault(int mouseX, int mouseY, bool buttonLeft) override;
 
 	Vector4f m_color;
+	bool m_hasDrag;
 };

@@ -30,6 +30,6 @@ public:
 
 private:
 
-	Empty* m_uiScene;
+	Surface* m_uiScene;
 	CharacterSet m_characterSet;
 };

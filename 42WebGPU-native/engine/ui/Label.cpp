@@ -1,4 +1,3 @@
-#include <iostream>
 #include "Label.h"
 
 Label::Label(const CharacterSet& characterSet) : Widget(), characterSet(characterSet), m_color(Vector4f::ONE) {
@@ -31,24 +30,18 @@ void Label::setColor(const Vector4f& textColor) {
 
 void Label::setText(const std::string& text) {
 	m_text = text;
-	float padding = 5.0f;
-	float widht = characterSet.getWidth(m_text) + padding * 2.0f;
-	float height = characterSet.lineHeight + padding * 2.0f;
+	m_width = characterSet.getWidth(m_text) + m_padding * 2.0f;
+	m_height = characterSet.lineHeight + m_padding * 2.0f;
+	OnInvalidate();
+}
 
-	Vector2f scale = getWorldScale();
-	Object2D::setScale(widht / scale[0], height / scale[1]);
+void Label::layoutDefault() {
+	if (!m_isLayoutDirty)
+		return;
 
-	if (m_parent) {
-		Widget* parent = static_cast<Widget*>(m_parent);
-		parent->scale(m_scale[0], m_scale[1]);
-		Vector2f posP = parent->getPosition();
-		Vector2f scaleP = parent->getWorldScale();
-
-		float posY = posP[1] + (scaleP[1] + padding - characterSet.lineHeight) * 0.5f;
-
-		Object2D::translate((padding) / scaleP[0], posY / scaleP[1]);		
-	}
-	OnTransformChanged();
+	Vector2f worldScale = getWorldScale();
+	setScale(m_width / worldScale[0], m_height / worldScale[1]);
+	m_isLayoutDirty = false;
 }
 
 void Label::createDefault() {
@@ -58,13 +51,13 @@ void Label::createDefault() {
 	for (char c : m_text) {
 		
 		const Char& ch = characterSet.getCharacter(c);
-		float dx = ch.pos[0] / scale[0];
-		float dy = ch.pos[1] / scale[1];
+		float dx = (m_padding + ch.pos[0]) / scale[0];
+		float dy = m_padding / scale[1];
 		float gw = ch.size[0] / scale[0];
 		float gh = ch.size[1] / scale[1];
 
 		UiInstance uiInstance = {};
-		Matrix4f glyphTransform = Matrix4f::Translate(currentCursor[0] + dx, 0.0f, 0.0f) * Matrix4f::Scale(gw, gh, 1.0f);
+		Matrix4f glyphTransform = Matrix4f::Translate(currentCursor[0] + dx, dy, 0.0f) * Matrix4f::Scale(gw, gh, 1.0f);
 
 		std::memcpy(uiInstance.transform, (getWorldTransformation() * glyphTransform).getData(), sizeof(Matrix4f));
 		std::memcpy(uiInstance.color, m_color.getData(), sizeof(Vector4f));
@@ -82,4 +75,10 @@ void Label::createDefault() {
 
 void Label::inputDefault(int mouseX, int mouseY, bool buttonLeft) {
 
+}
+
+void Label::setPadding(float padding, bool silent) {
+	Widget::setPadding(padding, silent);
+	m_width = characterSet.getWidth(m_text) + m_padding * 2.0f;
+	m_height = characterSet.lineHeight + m_padding * 2.0f;
 }

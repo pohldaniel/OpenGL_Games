@@ -18,6 +18,8 @@ public:
 
 	void setOnClick(std::function<void()> fun);
 
+	//virtual void updateLayout() override;
+
 private:
 
 	void createDefault() override;
