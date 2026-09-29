@@ -12,9 +12,8 @@ public:
 	virtual ~Surface();
 
 	void setColor(const Vector4f& color);
+	void setGap(float gap);
 	void setDrag(bool drag);
-
-	void setScale(float sx, float sy) override;
 
 private:
 	
@@ -22,7 +21,9 @@ private:
 	void layoutDefault() override;
 	void createDefault() override;
 
+	Vector4f m_defaultColor;
 	Vector4f m_color;
+	float m_gap;
 	bool m_hasDrag;
 	bool m_isDragged, m_firsDragged = false;
 	int m_mouseX, m_mouseY;

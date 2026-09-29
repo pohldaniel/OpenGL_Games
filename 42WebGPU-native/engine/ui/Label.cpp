@@ -30,8 +30,8 @@ void Label::setColor(const Vector4f& textColor) {
 
 void Label::setText(const std::string& text) {
 	m_text = text;
-	m_width = characterSet.getWidth(m_text) + m_padding * 2.0f;
-	m_height = characterSet.lineHeight + m_padding * 2.0f;
+	m_width = characterSet.getWidth(m_text) + m_paddingX * 2.0f;
+	m_height = characterSet.lineHeight + m_paddingY * 2.0f;
 	OnInvalidate();
 }
 
@@ -52,8 +52,8 @@ void Label::createDefault() {
 	for (char c : m_text) {
 		
 		const Char& ch = characterSet.getCharacter(c);
-		float dx = (m_padding + ch.pos[0]) / scale[0];
-		float dy = m_padding / scale[1];
+		float dx = (m_paddingX + ch.pos[0]) / scale[0];
+		float dy = m_paddingY / scale[1];
 		float gw = ch.size[0] / scale[0];
 		float gh = ch.size[1] / scale[1];
 
@@ -106,8 +106,8 @@ void Label::inputDefault(int mouseX, int mouseY, bool buttonLeft) {
 
 }
 
-void Label::setPadding(float padding, bool silent) {
-	Widget::setPadding(padding, silent);
-	m_width = characterSet.getWidth(m_text) + m_padding * 2.0f;
-	m_height = characterSet.lineHeight + m_padding * 2.0f;
+void Label::setPadding(float paddingX, float paddingY, bool silent) {
+	Widget::setPadding(paddingX, paddingY, silent);
+	m_width = characterSet.getWidth(m_text) + m_paddingX * 2.0f;
+	m_height = characterSet.lineHeight + m_paddingY * 2.0f;
 }

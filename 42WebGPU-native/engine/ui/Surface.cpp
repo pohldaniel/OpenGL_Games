@@ -2,20 +2,24 @@
 #include "Surface.h"
 #include "Application.h"
 
-Surface::Surface() : Widget(), m_color(Vector4f::ONE), m_hasDrag(false), m_isDragged(false){
+Surface::Surface() : Widget(), m_color(Vector4f::ONE), m_defaultColor(Vector4f::ONE), m_gap(0.0f), m_hasDrag(false), m_isDragged(false){
 	
 }
 
 Surface::Surface(const Surface& rhs) :
 	Widget(rhs),
 	m_color(rhs.m_color),
+	m_defaultColor(rhs.m_defaultColor),
+	m_gap(rhs.m_gap),
 	m_hasDrag(rhs.m_hasDrag),
 	m_isDragged(rhs.m_isDragged) {
 }
 
 Surface::Surface(Surface&& rhs) noexcept :
-	Widget(rhs),
+	Widget(rhs),	
 	m_color(rhs.m_color),
+	m_defaultColor(rhs.m_defaultColor),
+	m_gap(rhs.m_gap),
 	m_hasDrag(rhs.m_hasDrag),
 	m_isDragged(rhs.m_isDragged) {
 }
@@ -26,6 +30,7 @@ Surface::~Surface() {
 
 void Surface::setColor(const Vector4f& color) {
 	m_color = color;
+	m_defaultColor = color;
 }
 
 void Surface::setDrag(bool drag) {
@@ -36,12 +41,6 @@ void Surface::inputDefault(int mouseX, int mouseY, bool buttonLeft) {
 	float width = getWidth();
 	float height = getHeight();
 
-    /*Matrix4f inverseWorld = getWorldTransformation().Invert();
-    Vector4f globalMouse(static_cast<float>(mouseX), static_cast<float>(mouseY), 0.0f, 1.0f);
-    Vector4f localMouse = inverseWorld * globalMouse;
-    float localX = localMouse[0];
-    float localY = localMouse[1];*/
-
 	Vector2f position = getWorldPosition(true);
     Vector2f scale = m_parent ? static_cast<Widget*>(m_parent)->getWorldScale() : getScale();
 
@@ -51,7 +50,7 @@ void Surface::inputDefault(int mouseX, int mouseY, bool buttonLeft) {
     if (isOverDragZone || m_isDragged) {
         m_color = Vector4f(0.2f, 0.45f, 0.85f, 1.0f);
     }else {
-        m_color = Vector4f::ONE;
+        m_color = m_defaultColor;
     }
 
     if (buttonLeft) {
@@ -76,7 +75,45 @@ void Surface::inputDefault(int mouseX, int mouseY, bool buttonLeft) {
 }
 
 void Surface::layoutDefault() {
+    if (!m_isLayoutDirty)
+        return;
 
+	if (!m_children.empty()) {
+		Vector2f scale = getWorldScale(true);
+		Vector2f position = getPosition();
+		Vector2f localScale = getScale();
+		float prevWidth = localScale[0] * scale[0];
+		float prevHeight = localScale[1] * scale[1];
+		float width = 0.0f;
+		float height = 0.0f;
+		
+		for (std::list<std::unique_ptr<Node, std::function<void(Node* node)>>>::iterator it = getChildren().begin(); it != getChildren().end(); ++it) {
+			Widget* child = static_cast<Widget*>((*it).get());
+			width += child->getWidth() + m_gap;
+			height = std::max(height, child->getHeight());
+		} 
+
+		setWidth((width + (m_paddingX * 2.0f)), true);
+		setHeight((height + (m_paddingY * 2.0f)), true);
+		
+		setScale((m_width * localScale[0]) / scale[0], m_height / scale[1]);
+
+		for (std::list<std::unique_ptr<Node, std::function<void(Node* node)>>>::iterator it = getChildren().begin(); it != getChildren().end(); ++it) {
+			Widget* child = static_cast<Widget*>((*it).get());	
+			child->scale(prevWidth / (m_width * localScale[0]), prevHeight / m_height);
+		}
+
+		scale = getWorldScale(true);
+
+		float posX = m_paddingX;
+		for (std::list<std::unique_ptr<Node, std::function<void(Node* node)>>>::iterator it = getChildren().begin(); it != getChildren().end(); ++it) {
+			Widget* child = static_cast<Widget*>((*it).get());
+			float posY = (getHeight() / localScale[1] - child->getHeight()) * 0.5f;
+			child->setPosition(posX / scale[0], posY / scale[1]);
+			posX += child->getWidth() + m_gap;
+		}
+	}
+	m_isLayoutDirty = false;
 }
 
 void Surface::createDefault() {
@@ -96,10 +133,6 @@ void Surface::createDefault() {
 	pushWidget(UiPipelineType::Standard, uiInstance);
 }
 
-void Surface::setScale(float sx, float sy) {
-	Vector2f scale = getWorldScale();
-	setWidth(sx * scale[0]);
-	setHeight(sy * scale[1]);
-
-	Widget::setScale(sx, sy);
+void Surface::setGap(float gap) {
+	m_gap = gap;
 }

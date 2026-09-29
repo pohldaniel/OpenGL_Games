@@ -14,7 +14,7 @@ public:
 
 	void setText(const std::string& text);
 	void setColor(const Vector4f& color);
-	void setPadding(float padding, bool silent = false) override;
+	void setPadding(float paddingX, float paddingY, bool silent = false) override;
 
 protected:
 

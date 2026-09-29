@@ -64,13 +64,11 @@ public:
 	
 	float getWidth();
 	float getHeight();
-	float getPadding();
 
 	void setWidth(float width, bool silent = false);
 	void setHeight(float height, bool silent = false);
-	virtual void setPadding(float padding, bool silent = false);
+	virtual void setPadding(float paddingX, float paddingY, bool silent = false);
 	
-
 protected:
 
 	void OnTransformChanged();
@@ -85,7 +83,8 @@ protected:
 	mutable bool m_isLayoutDirty;
 	float m_width;
 	float m_height;
-	float m_padding;
+	float m_paddingX;
+	float m_paddingY;
 
 private:
 

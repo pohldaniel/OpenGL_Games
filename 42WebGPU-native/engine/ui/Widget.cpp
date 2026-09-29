@@ -5,7 +5,7 @@ Vector2f Widget::WorldScale;
 float Widget::WorldOrientation;
 std::set<Widget*> Widget::DirtyWidgets;
 
-Widget::Widget() : Node(), Object2D(), m_create(nullptr), m_isDirty(true), m_width(0.0f), m_height(0.0f), m_padding(0.0f), m_isLayoutDirty(true){
+Widget::Widget() : Node(), Object2D(), m_create(nullptr), m_isDirty(true), m_width(0.0f), m_height(0.0f), m_paddingX(0.0f), m_paddingY(0.0f), m_isLayoutDirty(true){
 	MarkAsDirty(this);
 }
 
@@ -13,7 +13,8 @@ Widget::Widget(const Widget& rhs) : Node(rhs), Object2D(rhs), m_create(rhs.m_cre
 	m_isDirty = rhs.m_isDirty;
 	m_width = rhs.m_width;
 	m_height = rhs.m_height;
-	m_padding = rhs.m_padding;
+	m_paddingX = rhs.m_paddingX;
+	m_paddingY = rhs.m_paddingY;
 	m_isLayoutDirty = rhs.m_isLayoutDirty;
 }
 
@@ -21,7 +22,8 @@ Widget::Widget(Widget&& rhs) noexcept : Node(rhs), Object2D(rhs), m_create(std::
 	m_isDirty = rhs.m_isDirty;
 	m_width = rhs.m_width;
 	m_height = rhs.m_height;
-	m_padding = rhs.m_padding;
+	m_paddingX = rhs.m_paddingX;
+	m_paddingY = rhs.m_paddingY;
 	m_isLayoutDirty = rhs.m_isLayoutDirty;
 }
 
@@ -231,8 +233,9 @@ void Widget::pushWidget(UiPipelineType type, const UiInstance& instance) {
 
 void Widget::updateLayout() {
 	for (std::list<std::unique_ptr<Node, std::function<void(Node* node)>>>::iterator it = getChildren().begin(); it != getChildren().end(); ++it) {
-		static_cast<Widget*>((*it).get())->layoutDefault();
-	}	
+		static_cast<Widget*>((*it).get())->updateLayout();
+	}
+	layoutDefault();
 }
 
 void Widget::layoutDefault() {	
@@ -252,12 +255,12 @@ void Widget::layoutDefault() {
 			height = std::max(height, child->getHeight());
 		}
 
-		setWidth(width + (m_padding * 2.0f), true);
-		setHeight(height + (m_padding * 2.0f), true);
+		setWidth(width + (m_paddingX * 2.0f), true);
+		setHeight(height + (m_paddingY * 2.0f), true);
 		setScale(m_width / scale[0], m_height / scale[1]);
 		scale = getWorldScale();
 
-		float posX = m_padding;
+		float posX = m_paddingX;
 		for (std::list<std::unique_ptr<Node, std::function<void(Node* node)>>>::iterator it = getChildren().begin(); it != getChildren().end(); ++it) {
 			Widget* child = static_cast<Widget*>((*it).get());
 			float posY = (getHeight() - child->getHeight()) * 0.5f;
@@ -276,10 +279,6 @@ float Widget::getHeight() {
 	return m_height;
 }
 
-float Widget::getPadding() {
-	return m_padding;
-}
-
 void Widget::setWidth(float width, bool silent) {
 	m_width = width;
 	if(!silent)
@@ -292,8 +291,9 @@ void Widget::setHeight(float height, bool silent) {
 		OnInvalidate();
 }
 
-void Widget::setPadding(float padding, bool silent) {
-	m_padding = padding;
+void Widget::setPadding(float paddingX, float paddingY, bool silent) {
+	m_paddingX = paddingX;
+	m_paddingY = paddingY;
 	if (!silent)
 		OnInvalidate();
 }

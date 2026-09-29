@@ -1,3 +1,4 @@
+#include <iostream>
 #include "Button.h"
 
 Button::Button() : Widget(),
@@ -8,7 +9,7 @@ m_thickness(0.0f),
 m_isPressed(false),
 m_wasPressed(false),
 m_onClick(nullptr){
-	m_padding = 5.0f;
+	
 }
 
 Button::Button(const Button& rhs) :
@@ -55,8 +56,6 @@ void Button::createDefault() {
 	UiInstance buttonInst = {};
 	std::memcpy(buttonInst.transform, getWorldTransformation().getData(), sizeof(Matrix4f));
 	std::memcpy(buttonInst.color, m_color.getData(), sizeof(Vector4f));
-
-	//getWorldTransformation().print();
 
 	buttonInst.textureRect[0] = 0.0f;
 	buttonInst.textureRect[1] = 0.0f;
@@ -117,3 +116,49 @@ void Button::inputDefault(int mouseX, int mouseY, bool buttonLeft) {
 void Button::setOnClick(std::function<void()> fun) {
 	m_onClick = fun;
 }
+
+void Button::layoutDefault() {
+	if (!m_isLayoutDirty)
+		return;
+
+	if (!m_children.empty()) {
+		Vector2f scale = m_parent ? static_cast<Widget*>(m_parent)->getWorldScale() : getScale();
+		Vector2f position = getPosition();
+
+		float width = 0.0f;
+		float height = 0.0f;
+
+		for (std::list<std::unique_ptr<Node, std::function<void(Node* node)>>>::iterator it = getChildren().begin(); it != getChildren().end(); ++it) {
+			Widget* child = static_cast<Widget*>((*it).get());
+			width += child->getWidth();
+			height = std::max(height, child->getHeight());
+		}
+	
+		setWidth(width + (m_paddingX * 2.0f), true);
+		setHeight(height + (m_paddingY * 2.0f), true);
+		setScale(m_width / scale[0], m_height / scale[1]);
+		scale = getWorldScale();
+
+		float posX = m_paddingX;
+		for (std::list<std::unique_ptr<Node, std::function<void(Node* node)>>>::iterator it = getChildren().begin(); it != getChildren().end(); ++it) {
+			Widget* child = static_cast<Widget*>((*it).get());
+			float posY = (getHeight() - child->getHeight()) * 0.5f;
+			child->setPosition(posX / scale[0], posY / scale[1]);
+			posX += child->getWidth();
+		}
+	}else {
+		
+		Vector2f scale = m_parent ? static_cast<Widget*>(m_parent)->getWorldScale() : getScale();
+		setWidth(m_scale[0] * scale[0] + m_paddingX * 2.0f, true);
+		setHeight(m_scale[1] * scale[1] + m_paddingY * 2.0f, true);
+		setScale(m_width / scale[0], m_height / scale[1]);
+
+		//std::cout << " BUTTON: " << "WIDTH: " << m_width << " HEIGHT: " << m_height << "PADDING: " << m_padding << std::endl;
+	}
+	m_isLayoutDirty = false;
+}
+
+/*void Button::setPadding(float padding, bool silent) {
+	Widget::setPadding(padding, silent);
+	m_width = characterSet.getWidth(m_text) + m_padding * 2.0f;
+	m_height = characterSet.lineHeight + m_padding * 2.0f;*/
