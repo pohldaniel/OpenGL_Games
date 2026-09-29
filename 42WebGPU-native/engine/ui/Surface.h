@@ -25,6 +25,6 @@ private:
 	Vector4f m_color;
 	float m_gap;
 	bool m_hasDrag;
-	bool m_isDragged, m_firsDragged = false;
+	bool m_isDragged = false, m_isResizing = false;
 	int m_mouseX, m_mouseY;
 };
