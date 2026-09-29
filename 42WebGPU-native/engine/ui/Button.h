@@ -20,7 +20,7 @@ public:
 private:
 
 	void inputDefault(int mouseX, int mouseY, bool buttonLeft) override;
-	void layoutDefault() override;
+	//void layoutDefault() override;
 	void createDefault() override;
 
 	Vector4f m_color;

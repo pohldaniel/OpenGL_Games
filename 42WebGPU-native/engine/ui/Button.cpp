@@ -54,7 +54,7 @@ void Button::setOutlineThickness(float thickness) {
 
 void Button::createDefault() {
 	UiInstance buttonInst = {};
-	std::memcpy(buttonInst.transform, getWorldTransformation().getData(), sizeof(Matrix4f));
+	std::memcpy(buttonInst.transform, (getWorldTransformation() * Matrix4f::Scale(m_width, m_height)).getData(), sizeof(Matrix4f));
 	std::memcpy(buttonInst.color, m_color.getData(), sizeof(Vector4f));
 
 	buttonInst.textureRect[0] = 0.0f;
@@ -117,48 +117,51 @@ void Button::setOnClick(std::function<void()> fun) {
 	m_onClick = fun;
 }
 
-void Button::layoutDefault() {
+/*void Button::layoutDefault() {
 	if (!m_isLayoutDirty)
 		return;
 
 	if (!m_children.empty()) {
-		Vector2f scale = m_parent ? static_cast<Widget*>(m_parent)->getWorldScale() : getScale();
+		Vector2f scale = getWorldScale(true);
+		Vector2f localScale = getScale();
 		Vector2f position = getPosition();
-
+		
+		float prevWidth = localScale[0] * scale[0];
+		float prevHeight = localScale[1] * scale[1];
 		float width = 0.0f;
 		float height = 0.0f;
 
 		for (std::list<std::unique_ptr<Node, std::function<void(Node* node)>>>::iterator it = getChildren().begin(); it != getChildren().end(); ++it) {
 			Widget* child = static_cast<Widget*>((*it).get());
-			width += child->getWidth();
+			width += child->getWidth() + m_spacingX;
 			height = std::max(height, child->getHeight());
 		}
-	
-		setWidth(width + (m_paddingX * 2.0f), true);
-		setHeight(height + (m_paddingY * 2.0f), true);
-		setScale(m_width / scale[0], m_height / scale[1]);
-		scale = getWorldScale();
+
+		setWidth((width + (m_paddingX * 2.0f)), true);
+		setHeight((height + (m_paddingY * 2.0f)), true);
+
+		setScale((m_width * localScale[0]) / scale[0], (m_height * localScale[1]) / scale[1]);
+
+		for (std::list<std::unique_ptr<Node, std::function<void(Node* node)>>>::iterator it = getChildren().begin(); it != getChildren().end(); ++it) {
+			Widget* child = static_cast<Widget*>((*it).get());
+			child->scale(prevWidth / (m_width * localScale[0]), prevHeight / (m_height * localScale[1]));
+		}
+
+		scale = getWorldScale(true);
 
 		float posX = m_paddingX;
 		for (std::list<std::unique_ptr<Node, std::function<void(Node* node)>>>::iterator it = getChildren().begin(); it != getChildren().end(); ++it) {
 			Widget* child = static_cast<Widget*>((*it).get());
 			float posY = (getHeight() - child->getHeight()) * 0.5f;
 			child->setPosition(posX / scale[0], posY / scale[1]);
-			posX += child->getWidth();
+			posX += child->getWidth() + m_spacingX;
 		}
-	}else {
-		
-		Vector2f scale = m_parent ? static_cast<Widget*>(m_parent)->getWorldScale() : getScale();
-		setWidth(m_scale[0] * scale[0] + m_paddingX * 2.0f, true);
-		setHeight(m_scale[1] * scale[1] + m_paddingY * 2.0f, true);
-		setScale(m_width / scale[0], m_height / scale[1]);
-
-		//std::cout << " BUTTON: " << "WIDTH: " << m_width << " HEIGHT: " << m_height << "PADDING: " << m_padding << std::endl;
+	}else {		
+		Vector2f scale = getWorldScale(true);
+		Vector2f localScale = getScale();
+		setWidth(scale[0] + m_paddingX * 2.0f, true);
+		setHeight(scale[1] + m_paddingY * 2.0f, true);
+		setScale((m_width * localScale[0]) / scale[0], (m_height * localScale[1]) / scale[1]);
 	}
 	m_isLayoutDirty = false;
-}
-
-/*void Button::setPadding(float padding, bool silent) {
-	Widget::setPadding(padding, silent);
-	m_width = characterSet.getWidth(m_text) + m_padding * 2.0f;
-	m_height = characterSet.lineHeight + m_padding * 2.0f;*/
+}*/

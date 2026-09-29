@@ -2,7 +2,7 @@
 #include "Surface.h"
 #include "Application.h"
 
-Surface::Surface() : Widget(), m_color(Vector4f::ONE), m_defaultColor(Vector4f::ONE), m_gap(0.0f), m_hasDrag(false), m_isDragged(false){
+Surface::Surface() : Widget(), m_color(Vector4f::ONE), m_defaultColor(Vector4f::ONE), m_hasDrag(false), m_isDragged(false){
 	
 }
 
@@ -10,7 +10,6 @@ Surface::Surface(const Surface& rhs) :
 	Widget(rhs),
 	m_color(rhs.m_color),
 	m_defaultColor(rhs.m_defaultColor),
-	m_gap(rhs.m_gap),
 	m_hasDrag(rhs.m_hasDrag),
 	m_isDragged(rhs.m_isDragged) {
 }
@@ -19,7 +18,6 @@ Surface::Surface(Surface&& rhs) noexcept :
 	Widget(rhs),	
 	m_color(rhs.m_color),
 	m_defaultColor(rhs.m_defaultColor),
-	m_gap(rhs.m_gap),
 	m_hasDrag(rhs.m_hasDrag),
 	m_isDragged(rhs.m_isDragged) {
 }
@@ -51,7 +49,7 @@ void Surface::inputDefault(int mouseX, int mouseY, bool buttonLeft) {
 	bool isOverResizeZone = (mouseX >= position[0] + width - resizeBorder && mouseX <= position[0] + width)
 		&& (mouseY >= position[1] + height - resizeBorder && mouseY <= position[1] + height);
 
-	std::cout << "SCALE 1: " << m_scale[0] << "  " << m_scale[1] << std::endl;
+	//std::cout << "SCALE 1: " << m_scale[0] << "  " << m_scale[1] << std::endl;
 
 	if (m_isResizing) {
 		m_color = Vector4f(0.85f, 0.45f, 0.2f, 1.0f);
@@ -105,10 +103,10 @@ void Surface::inputDefault(int mouseX, int mouseY, bool buttonLeft) {
 		setScale(newWidth / scale[0], newHeight / scale[1]);
 	}
 
-	std::cout << "SCALE 2: " << m_scale[0] << "  " << m_scale[1] << std::endl;
+	//std::cout << "SCALE 2: " << m_scale[0] << "  " << m_scale[1] << std::endl;
 }
 
-void Surface::layoutDefault() {
+/*void Surface::layoutDefault() {
     if (!m_isLayoutDirty)
         return;
 
@@ -123,12 +121,12 @@ void Surface::layoutDefault() {
 		
 		for (std::list<std::unique_ptr<Node, std::function<void(Node* node)>>>::iterator it = getChildren().begin(); it != getChildren().end(); ++it) {
 			Widget* child = static_cast<Widget*>((*it).get());
-			width += child->getWidth() + m_gap;
+			width += child->getWidth() + m_spacingX;
 			height = std::max(height, child->getHeight());
 		} 
 
 		setWidth((width + (m_paddingX * 2.0f)), true);
-		setHeight((height + (m_paddingY * 2.0f)) / localScale[1], true);
+		setHeight((height + (m_paddingY * 2.0f)) , true);
 		
 		setScale((m_width * localScale[0]) / scale[0], (m_height * localScale[1]) / scale[1]);
 
@@ -144,11 +142,17 @@ void Surface::layoutDefault() {
 			Widget* child = static_cast<Widget*>((*it).get());
 			float posY = (getHeight() - child->getHeight()) * 0.5f;
 			child->setPosition(posX / scale[0], posY / scale[1]);
-			posX += child->getWidth() + m_gap;
+			posX += child->getWidth() + m_spacingX;
 		}
+	}else {
+		Vector2f scale = getWorldScale(true);
+		Vector2f localScale = getScale();
+		setWidth(scale[0] + m_paddingX * 2.0f, true);
+		setHeight(scale[1] + m_paddingY * 2.0f, true);
+		setScale((m_width * localScale[0]) / scale[0], (m_height * localScale[1]) / scale[1]);
 	}
 	m_isLayoutDirty = false;
-}
+}*/
 
 void Surface::createDefault() {
 	UiInstance uiInstance = {};
@@ -165,8 +169,4 @@ void Surface::createDefault() {
 	uiInstance.flipAndTile[1] = 0.0f;
 	uiInstance.flipAndTile[2] = 0.0f;
 	pushWidget(UiPipelineType::Standard, uiInstance);
-}
-
-void Surface::setGap(float gap) {
-	m_gap = gap;
 }

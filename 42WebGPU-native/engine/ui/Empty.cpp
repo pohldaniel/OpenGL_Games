@@ -20,9 +20,9 @@ void Empty::inputDefault(int mouseX, int mouseY, bool buttonLeft) {
 
 }
 
-void Empty::layoutDefault() {
+/*void Empty::layoutDefault() {
 
-}
+}*/
 
 void Empty::createDefault() {
 

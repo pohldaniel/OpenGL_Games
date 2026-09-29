@@ -12,6 +12,11 @@
 #include "../Vector.h"
 #include "../Object.h"
 
+enum class Layout {
+	HORIZONTAL,
+	VERTICAL
+};
+
 class Widget : public Node, public Object2D {
 
 public:
@@ -68,7 +73,9 @@ public:
 	void setWidth(float width, bool silent = false);
 	void setHeight(float height, bool silent = false);
 	virtual void setPadding(float paddingX, float paddingY, bool silent = false);
-	
+	void setSpacing(float spacingX, float spacingY, bool silent = false);
+	void setLayout(Layout layout, bool silent = false);
+
 protected:
 
 	void OnTransformChanged();
@@ -83,8 +90,13 @@ protected:
 	mutable bool m_isLayoutDirty;
 	float m_width;
 	float m_height;
+
 	float m_paddingX;
 	float m_paddingY;
+
+	float m_spacingX;
+	float m_spacingY;
+	Layout m_layout;
 
 private:
 

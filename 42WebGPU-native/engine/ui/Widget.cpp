@@ -5,7 +5,17 @@ Vector2f Widget::WorldScale;
 float Widget::WorldOrientation;
 std::set<Widget*> Widget::DirtyWidgets;
 
-Widget::Widget() : Node(), Object2D(), m_create(nullptr), m_isDirty(true), m_width(0.0f), m_height(0.0f), m_paddingX(0.0f), m_paddingY(0.0f), m_isLayoutDirty(true){
+Widget::Widget() : Node(), Object2D(), 
+m_create(nullptr), 
+m_isDirty(true), 
+m_width(0.0f), 
+m_height(0.0f), 
+m_paddingX(0.0f), 
+m_paddingY(0.0f), 
+m_spacingX(0.0f), 
+m_spacingY(0.0f), 
+m_isLayoutDirty(true),
+m_layout(Layout::HORIZONTAL){
 	MarkAsDirty(this);
 }
 
@@ -15,7 +25,10 @@ Widget::Widget(const Widget& rhs) : Node(rhs), Object2D(rhs), m_create(rhs.m_cre
 	m_height = rhs.m_height;
 	m_paddingX = rhs.m_paddingX;
 	m_paddingY = rhs.m_paddingY;
+	m_spacingX = rhs.m_spacingX;
+	m_spacingY = rhs.m_spacingY;
 	m_isLayoutDirty = rhs.m_isLayoutDirty;
+	m_layout = rhs.m_layout;
 }
 
 Widget::Widget(Widget&& rhs) noexcept : Node(rhs), Object2D(rhs), m_create(std::move(rhs.m_create)) {
@@ -24,7 +37,10 @@ Widget::Widget(Widget&& rhs) noexcept : Node(rhs), Object2D(rhs), m_create(std::
 	m_height = rhs.m_height;
 	m_paddingX = rhs.m_paddingX;
 	m_paddingY = rhs.m_paddingY;
+	m_spacingX = rhs.m_spacingX;
+	m_spacingY = rhs.m_spacingY;
 	m_isLayoutDirty = rhs.m_isLayoutDirty;
+	m_layout = rhs.m_layout;
 }
 
 Widget::~Widget() {
@@ -243,30 +259,82 @@ void Widget::layoutDefault() {
 		return;
 
 	if (!m_children.empty()) {
-		Vector2f scale = m_parent ? static_cast<Widget*>(m_parent)->getWorldScale() : getScale();
-		Vector2f position = getPosition();
+		if (m_layout == Layout::HORIZONTAL) {
+			Vector2f scale = getWorldScale(true);
+			Vector2f localScale = getScale();
+			Vector2f position = getPosition();
 
-		float width = 0.0f;
-		float height = 0.0f;
+			float prevWidth = localScale[0] * scale[0];
+			float prevHeight = localScale[1] * scale[1];
+			float width = 0.0f;
+			float height = 0.0f;
 
-		for (std::list<std::unique_ptr<Node, std::function<void(Node* node)>>>::iterator it = getChildren().begin(); it != getChildren().end(); ++it) {
-			Widget* child = static_cast<Widget*>((*it).get());
-			width += child->getWidth();
-			height = std::max(height, child->getHeight());
+			for (std::list<std::unique_ptr<Node, std::function<void(Node* node)>>>::iterator it = getChildren().begin(); it != getChildren().end(); ++it) {
+				Widget* child = static_cast<Widget*>((*it).get());
+				width += child->getWidth() + m_spacingX;
+				height = std::max(height, child->getHeight());
+			}
+			width -= m_spacingX;
+			setWidth((width + (m_paddingX * 2.0f)), true);
+			setHeight((height + (m_paddingY * 2.0f)), true);
+
+			setScale((m_width * localScale[0]) / scale[0], (m_height * localScale[1]) / scale[1]);
+
+			for (std::list<std::unique_ptr<Node, std::function<void(Node* node)>>>::iterator it = getChildren().begin(); it != getChildren().end(); ++it) {
+				Widget* child = static_cast<Widget*>((*it).get());
+				child->scale(prevWidth / (m_width * localScale[0]), prevHeight / (m_height * localScale[1]));
+			}
+
+			scale = getWorldScale(true);
+
+			float posX = m_paddingX;
+			for (std::list<std::unique_ptr<Node, std::function<void(Node* node)>>>::iterator it = getChildren().begin(); it != getChildren().end(); ++it) {
+				Widget* child = static_cast<Widget*>((*it).get());
+				float posY = (getHeight() - child->getHeight()) * 0.5f;
+				child->setPosition(posX / scale[0], posY / scale[1]);
+				posX += child->getWidth() + m_spacingX;
+			}
+		}else if (m_layout == Layout::VERTICAL) {
+			Vector2f scale = getWorldScale(true);
+			Vector2f localScale = getScale();
+			Vector2f position = getPosition();
+
+			float prevWidth = localScale[0] * scale[0];
+			float prevHeight = localScale[1] * scale[1];
+			float width = 0.0f;
+			float height = 0.0f;
+
+			for (std::list<std::unique_ptr<Node, std::function<void(Node* node)>>>::iterator it = getChildren().begin(); it != getChildren().end(); ++it) {
+				Widget* child = static_cast<Widget*>((*it).get());
+				height += child->getHeight() + m_spacingY;
+				width = std::max(width, child->getWidth());
+			}
+			height -= m_spacingY;
+			setWidth((width + (m_paddingX * 2.0f)), true);
+			setHeight((height + (m_paddingY * 2.0f)), true);
+
+			setScale((m_width * localScale[0]) / scale[0], (m_height * localScale[1]) / scale[1]);
+			for (std::list<std::unique_ptr<Node, std::function<void(Node* node)>>>::iterator it = getChildren().begin(); it != getChildren().end(); ++it) {
+				Widget* child = static_cast<Widget*>((*it).get());
+				child->scale(prevWidth / (m_width * localScale[0]), prevHeight / (m_height * localScale[1]));
+			}
+
+			scale = getWorldScale(true);
+
+			float posX = m_paddingX;
+			float posY = m_paddingY;			
+			for (std::list<std::unique_ptr<Node, std::function<void(Node* node)>>>::iterator it = getChildren().begin(); it != getChildren().end(); ++it) {
+				Widget* child = static_cast<Widget*>((*it).get());
+				child->setPosition(posX / scale[0], posY / scale[1]);
+				posY += child->getHeight() + m_spacingY;
+			}
 		}
-
-		setWidth(width + (m_paddingX * 2.0f), true);
-		setHeight(height + (m_paddingY * 2.0f), true);
-		setScale(m_width / scale[0], m_height / scale[1]);
-		scale = getWorldScale();
-
-		float posX = m_paddingX;
-		for (std::list<std::unique_ptr<Node, std::function<void(Node* node)>>>::iterator it = getChildren().begin(); it != getChildren().end(); ++it) {
-			Widget* child = static_cast<Widget*>((*it).get());
-			float posY = (getHeight() - child->getHeight()) * 0.5f;
-			child->setPosition(posX / scale[0], posY / scale[1]);
-			posX += child->getWidth();
-		}
+	}else {
+		Vector2f scale = getWorldScale(true);
+		Vector2f localScale = getScale();
+		setWidth(scale[0] + m_paddingX * 2.0f, true);
+		setHeight(scale[1] + m_paddingY * 2.0f, true);
+		setScale((m_width * localScale[0]) / scale[0], (m_height * localScale[1]) / scale[1]);
 	}
 	m_isLayoutDirty = false;
 }
@@ -294,6 +362,19 @@ void Widget::setHeight(float height, bool silent) {
 void Widget::setPadding(float paddingX, float paddingY, bool silent) {
 	m_paddingX = paddingX;
 	m_paddingY = paddingY;
+	if (!silent)
+		OnInvalidate();
+}
+
+void Widget::setSpacing(float spacingX, float spacingY, bool silent) {
+	m_spacingX = spacingX;
+	m_spacingY = spacingY;
+	if (!silent)
+		OnInvalidate();
+}
+
+void Widget::setLayout(Layout layout, bool silent) {
+	m_layout = layout;
 	if (!silent)
 		OnInvalidate();
 }
