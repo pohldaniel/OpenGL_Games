@@ -54,7 +54,7 @@ void Button::setOutlineThickness(float thickness) {
 
 void Button::createDefault() {
 	UiInstance buttonInst = {};
-	std::memcpy(buttonInst.transform, (getWorldTransformation() * Matrix4f::Scale(m_width, m_height)).getData(), sizeof(Matrix4f));
+	std::memcpy(buttonInst.transform, getWorldTransformation().getData(), sizeof(Matrix4f));
 	std::memcpy(buttonInst.color, m_color.getData(), sizeof(Vector4f));
 
 	buttonInst.textureRect[0] = 0.0f;

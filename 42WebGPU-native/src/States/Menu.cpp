@@ -26,10 +26,10 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	surface->setColor(Vector4f(0.2f, 0.7f, 0.2f, 1.0f));
 	surface->setScale(0.5f, 0.5f);
 
-	surface  = m_uiScene->addChild<Surface>();
+	surface = m_uiScene->addChild<Surface>();
 	surface->setScale( 0.5f,  0.5f);
 	surface->setColor(Vector4f(0.2f, 0.2f, 0.2f, 1.0f));
-	surface->setPadding(10.0f, 5.0f);
+	surface->setPadding(20.0f, 20.0f);
 	surface->setSpacing(15.0f, 0.0f);
 	surface->setDrag(true);
 	surface->setPosition(200.0f / static_cast<float>(Application::Width), 200.0f / static_cast<float>(Application::Height));
@@ -62,10 +62,10 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 		m_machine.addStateAtBottom(new Compute(m_machine));
 	});
 
-	/*label = button->addChild<Label>(m_characterSet);
+	label = button->addChild<Label>(m_characterSet);
 	label->setText("Compute");
 	label->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-	label->setPadding(5.0f, 5.0f);*/
+	label->setPadding(5.0f, 5.0f);
 
 	button = surface->addChild<Button>();
 	button->setScale(0.1f, 0.1f);
