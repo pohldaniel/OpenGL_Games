@@ -11,6 +11,8 @@
 
 #include <Physics/Physics.h>
 
+#include <States/Menu.h>
+
 #include <engine/scene/CollisionNode.h>
 #include <engine/sound/SoundDevice.h>
 #include <engine/sound/AudioEffect.h>
@@ -104,8 +106,6 @@ Cubes::~Cubes() {
 	delete m_scene;
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
-	nkShutDown();
-	Physics::DebugDrawer.shutDown();
 	m_uniformBuffer.markForDelete();
 	m_storageBuffer.markForDelete();
 }
@@ -301,7 +301,11 @@ void Cubes::OnKeyDown(const Event::KeyboardEvent& event) {
 #endif
 
 	if (event.keyCode == VK_ESCAPE) {
+		nkShutDown();
+		wgpCleanState();
+		Physics::DebugDrawer.shutDown();
 		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
 	}
 }
 

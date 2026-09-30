@@ -38,24 +38,22 @@ void Label::setText(const std::string& text) {
 void Label::layoutDefault() {
 	if (!m_isLayoutDirty)
 		return;
-
-	Vector2f worldScale = getWorldScale();
-	setScale(m_width / worldScale[0], m_height / worldScale[1]);
+	if (m_height == 0.0f && m_width == 0.0f) {
+		Vector2f worldScale = getWorldScale();
+		setScale(m_width / worldScale[0], m_height / worldScale[1]);
+	}
 	m_isLayoutDirty = false;
 }
 
 void Label::createDefault() {
 	Vector2f currentCursor = { 0.0f, 0.0f };
-	Vector2f scale = getWorldScale();
-	//float rotationAngle = 90.0f;
-
 	for (char c : m_text) {
 		
 		const Char& ch = characterSet.getCharacter(c);
-		float dx = (m_paddingX + ch.pos[0]) / scale[0];
-		float dy = m_paddingY / scale[1];
-		float gw = ch.size[0] / scale[0];
-		float gh = ch.size[1] / scale[1];
+		float dx = (m_paddingX + ch.pos[0]);
+		float dy = m_paddingY;
+		float gw = ch.size[0];
+		float gh = ch.size[1];
 
 		UiInstance uiInstance = {};
 		Matrix4f glyphTransform = Matrix4f::Translate(currentCursor[0] + dx, dy, 0.0f) * Matrix4f::Scale(gw, gh, 1.0f);
@@ -70,40 +68,12 @@ void Label::createDefault() {
 		uiInstance.textureLayer = static_cast<float>(characterSet.layer);
 		pushWidget(UiPipelineType::Text, uiInstance);
 
-		currentCursor[0] += ch.advance / scale[0];
-
-		/*const Char& ch = characterSet.getCharacter(c);
-		float dx = ch.pos[0] / scale[0];
-		float dy = ch.pos[1] / scale[1];
-		float gw = ch.size[0] / scale[0];
-		float gh = ch.size[1] / scale[1];
-
-		UiInstance uiInstance = {};
-
-		// 1. Erstelle die Basis-Transformation der einzelnen Glyphe (Verschiebung & Größe)
-		float glyphY = (paddingY + dy) / scale[1];
-		Matrix4f glyphBase = Matrix4f::Translate(currentCursor[0] + dx, glyphY, 0.0f) * Matrix4f::Scale(gw, gh, 1.0f);
-
-		// 2. Jetzt die magische Multiplikation:
-		// Wenn das WIDGET selbst rotiert ist, steckt das in getWorldTransformation().
-		// Wenn du zusätzlich die Glyphen einzeln im Label rotieren willst:
-		Matrix4f rotationMatrix = Matrix4f::RotateZ(rotationAngle); // Rotation um die Z-Achse (2D)
-
-		// Die finale Matrix für diese Glyphe
-		Matrix4f finalTransform = getWorldTransformation() * rotationMatrix * glyphBase;
-
-		std::memcpy(uiInstance.transform, finalTransform.getData(), sizeof(Matrix4f));
-		std::memcpy(uiInstance.color, m_color.getData(), sizeof(Vector4f));
-
-		// ... Texture-Rects zuweisen wie gehabt ...
-		pushWidget(UiPipelineType::Text, uiInstance);
-
-		currentCursor[0] += ch.advance / scale[0];*/
+		currentCursor[0] += ch.advance;
 	}
 }
 
-void Label::inputDefault(int mouseX, int mouseY, bool buttonLeft) {
-
+bool Label::inputDefault(int mouseX, int mouseY, bool buttonLeft) {
+	return false;
 }
 
 void Label::setPadding(float paddingX, float paddingY, bool silent) {

@@ -12,18 +12,17 @@ public:
 	virtual ~Surface();
 
 	void setColor(const Vector4f& color);
-	void setDrag(bool drag);
 
 private:
 	
-	void inputDefault(int mouseX, int mouseY, bool buttonLeft) override;
-	//void layoutDefault() override;
+	bool inputDefault(int mouseX, int mouseY, bool buttonLeft) override;
 	void createDefault() override;
+	void resetDefault() override;
 
 	Vector4f m_defaultColor;
 	Vector4f m_color;
 
-	bool m_hasDrag;
-	bool m_isDragged = false, m_isResizing = false;
+	bool m_isDragged;
+	bool m_isResizing;
 	int m_mouseX, m_mouseY;
 };

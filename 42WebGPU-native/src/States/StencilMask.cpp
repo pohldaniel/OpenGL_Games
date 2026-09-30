@@ -5,6 +5,7 @@
 
 #include <WebGPU/WgpContext.h>
 #include <WebGPU/WgpRenderer.h>
+#include <States/Menu.h>
 
 #include "StencilMask.h"
 #include "Application.h"
@@ -294,7 +295,9 @@ void StencilMask::OnKeyDown(const Event::KeyboardEvent& event) {
 #endif
 
 	if (event.keyCode == VK_ESCAPE) {
+		wgpCleanState();
 		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
 	}
 }
 

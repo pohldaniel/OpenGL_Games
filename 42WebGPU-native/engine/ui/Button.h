@@ -19,9 +19,9 @@ public:
 
 private:
 
-	void inputDefault(int mouseX, int mouseY, bool buttonLeft) override;
-	//void layoutDefault() override;
+	bool inputDefault(int mouseX, int mouseY, bool buttonLeft) override;
 	void createDefault() override;
+	void resetDefault() override;
 
 	Vector4f m_color;
 	Vector4f m_outlineColor;

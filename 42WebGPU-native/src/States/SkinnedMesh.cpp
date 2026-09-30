@@ -5,9 +5,9 @@
 
 #include <WebGPU/WgpContext.h>
 #include <WebGPU/WgpRenderer.h>
+#include <States/Menu.h>
 
 #include <engine/utils/BinaryIO.h>
-#include <States/Wireframe.h>
 
 #include "SkinnedMesh.h"
 #include "Application.h"
@@ -168,14 +168,6 @@ void SkinnedMesh::update() {
 		move |= true;
 	}
 
-	if (keyboard.keyPressed(Keyboard::KEY_T)) {
-		wgpPipelineLayoutsRelease();
-		wgpPipelinesRelease();
-		wgpShaderModulesRelease();
-		m_isRunning = false;
-		m_machine.addStateAtBottom(new Wireframe(m_machine));
-	}
-
 	Mouse& mouse = Mouse::instance();
 
 	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {
@@ -281,7 +273,9 @@ void SkinnedMesh::OnKeyDown(const Event::KeyboardEvent& event) {
 #endif
 
 	if (event.keyCode == VK_ESCAPE) {
+		wgpCleanState();
 		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
 	}
 }
 

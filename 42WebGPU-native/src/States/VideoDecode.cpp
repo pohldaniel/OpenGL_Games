@@ -6,6 +6,8 @@
 #include <WebGPU/WgpContext.h>
 #include <WebGPU/WgpRenderer.h>
 
+#include <States/Menu.h>
+
 #include <engine/sound/SoundDevice.h>
 
 #include "VideoDecode.h"
@@ -74,8 +76,6 @@ VideoDecode::VideoDecode(StateMachine& machine) : State(machine, States::VIDEO_D
 VideoDecode::~VideoDecode() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
-	m_cameraBuffer.markForDelete();
-	SoundDevice::ShutDown();
 }
 
 void VideoDecode::fixedUpdate() {
@@ -238,7 +238,10 @@ void VideoDecode::OnKeyDown(const Event::KeyboardEvent& event) {
 #endif
 
 	if (event.keyCode == VK_ESCAPE) {
+		SoundDevice::ShutDown();
+		wgpCleanState();
 		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
 	}
 }
 

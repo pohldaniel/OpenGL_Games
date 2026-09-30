@@ -10,6 +10,8 @@
 #include <Nuklear/NkNodeEditor.h>
 #include <Nuklear/NkCalculator.h>
 
+#include <States/Menu.h>
+
 #include "NuklearUi.h"
 #include "Application.h"
 #include "Globals.h"
@@ -63,7 +65,6 @@ NuklearUi::NuklearUi(StateMachine& machine) : State(machine, States::NUKLEAR_UI)
 NuklearUi::~NuklearUi() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
-	nkShutDown();
 }
 
 void NuklearUi::fixedUpdate() {
@@ -233,7 +234,10 @@ void NuklearUi::OnKeyDown(const Event::KeyboardEvent& event) {
 #endif
 
 	if (event.keyCode == VK_ESCAPE) {
+		nkShutDown();
+		wgpCleanState();
 		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
 	}
 }
 

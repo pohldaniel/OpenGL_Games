@@ -9,6 +9,8 @@
 #include <Nuklear/NkContext.h>
 #include <Nuklear/NkStyle.h>
 
+#include <States/Menu.h>
+
 #include <engine/scene/CollisionNode.h>
 #include <engine/sound/SoundDevice.h>
 #include <engine/sound/AudioEffect.h>
@@ -355,8 +357,7 @@ Isometric::~Isometric() {
 	delete m_scene;
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
-	nkShutDown();
-	Physics::DebugDrawer.shutDown();
+	
 	m_uniformBuffer.markForDelete();
 	m_infoBufferBillboard.markForDelete();
 	m_infoBufferMuzzle.markForDelete();
@@ -810,7 +811,11 @@ void Isometric::OnKeyDown(const Event::KeyboardEvent& event) {
 #endif
 
 	if (event.keyCode == VK_ESCAPE) {
+		nkShutDown();
+		Physics::DebugDrawer.shutDown();
+		wgpCleanState();
 		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
 	}
 }
 

@@ -24,7 +24,7 @@ protected:
 
 private:
 
-	void inputDefault(int mouseX, int mouseY, bool buttonLeft) override;
+	bool inputDefault(int mouseX, int mouseY, bool buttonLeft) override;
 	void layoutDefault() override;
 	void createDefault() override;
 };

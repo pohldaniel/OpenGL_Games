@@ -749,6 +749,9 @@ void wgpCleanState() {
 	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm, Application::OnSurfaceChange);
 	wgpSetSurfaceDepthFormat(WGPUTextureFormat::WGPUTextureFormat_Depth24PlusStencil8, Application::OnSurfaceChange);
 	wgpSetMSAASampleCount(1u, Application::OnSurfaceChange);
+
+	wgpContext.OnDraw = NULL;
+	wgpContext.OnPostDraw = NULL;
 }
 
 void wgpShutDown() {

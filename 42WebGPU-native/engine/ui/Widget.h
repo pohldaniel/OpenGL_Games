@@ -26,7 +26,7 @@ public:
 	Widget(Widget&& rhs) noexcept;
 	virtual ~Widget();
 
-	void inputTree(int mouseX, int mouseY, bool buttonLeft = false);
+	void input(int mouseX, int mouseY, bool buttonLeft = false);
 	void updateLayout();
 	void createTree();
 
@@ -65,7 +65,7 @@ public:
 	void updateWorldTransformation() const;
 	
 	void setCreateFunction(std::function<void()> fun);
-	void setInputFunction(std::function<void(int mouseX, int mouseY, bool buttonLeft)> fun);
+	void setInputFunction(std::function<bool(int mouseX, int mouseY, bool buttonLeft)> fun);
 	
 	float getWidth();
 	float getHeight();
@@ -75,18 +75,23 @@ public:
 	virtual void setPadding(float paddingX, float paddingY, bool silent = false);
 	void setSpacing(float spacingX, float spacingY, bool silent = false);
 	void setLayout(Layout layout, bool silent = false);
-
+	
 protected:
 
 	void OnTransformChanged();
 	void OnInvalidate();
 
+	virtual bool inputDefault(int mouseX, int mouseY, bool buttonLeft = false) = 0;
+	virtual void layoutDefault();
+	virtual void createDefault() = 0;
+	virtual bool isMouseOverDefault(int mouseX, int mouseY);
+	virtual void resetDefault();
+
 	void createChildren();
-	void inputChildren(int mouseX, int mouseY, bool buttonLeft = false);
 			
 	void pushWidget(UiPipelineType type, const UiInstance& instance);
 	std::function<void()> m_create;
-	std::function<void(const int mouseX, const int mouseY, bool buttonLeft)> m_input;
+	std::function<bool(const int mouseX, const int mouseY, bool buttonLeft)> m_input;
 	mutable bool m_isLayoutDirty;
 	float m_width;
 	float m_height;
@@ -97,22 +102,22 @@ protected:
 	float m_spacingX;
 	float m_spacingY;
 	Layout m_layout;
+	mutable bool m_isDirty;
+	Vector4f m_focusColor = Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
+	bool m_hasFocus;
+
+	static Widget* ActiveWidget;
 
 private:
 
-	virtual void inputDefault(int mouseX, int mouseY, bool buttonLeft = false) = 0;
-	virtual void layoutDefault();
-	virtual void createDefault() = 0;
-	
-	mutable Matrix4f m_modelMatrix;
-	mutable bool m_isDirty;
-	
-	static void MarkAsDirty(Widget* widget);
-	static void ProcessLayoutQueue();
+	bool inputTree(const int mouseX, const int mouseY, bool buttonLeft);
+	void resetTree();
+	void pushToFront();
 
+	mutable Matrix4f m_modelMatrix;
+	
 	static Vector2f WorldPosition;
 	static Vector2f WorldScale;
 	static float WorldOrientation;
-	static std::set<Widget*> DirtyWidgets;
 };
 

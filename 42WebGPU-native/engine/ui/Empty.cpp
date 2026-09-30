@@ -16,14 +16,14 @@ Empty::~Empty() {
 
 }
 
-void Empty::inputDefault(int mouseX, int mouseY, bool buttonLeft) {
-
+bool Empty::inputDefault(int mouseX, int mouseY, bool buttonLeft) {
+	return false;
 }
-
-/*void Empty::layoutDefault() {
-
-}*/
 
 void Empty::createDefault() {
 
+}
+
+bool Empty::isMouseOverDefault(int mouseX, int mouseY) {
+	return true;
 }

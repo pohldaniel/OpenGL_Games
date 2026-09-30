@@ -5,6 +5,7 @@
 
 #include <WebGPU/WgpContext.h>
 #include <WebGPU/WgpRenderer.h>
+#include <States/Menu.h>
 
 #include <engine/utils/BinaryIO.h>
 
@@ -289,7 +290,9 @@ void PrimitivePicking::OnKeyDown(const Event::KeyboardEvent& event) {
 #endif
 
 	if (event.keyCode == VK_ESCAPE) {
+		wgpCleanState();
 		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
 	}
 }
 

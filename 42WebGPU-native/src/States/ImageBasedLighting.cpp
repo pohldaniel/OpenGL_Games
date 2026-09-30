@@ -4,6 +4,7 @@
 #include <imgui_internal.h>
 
 #include <WebGPU/WgpContext.h>
+#include <States/Menu.h>
 
 #include "ImageBasedLighting.h"
 #include "Application.h"
@@ -343,7 +344,9 @@ void ImageBasedLighting::OnKeyDown(const Event::KeyboardEvent& event) {
 #endif
 
 	if (event.keyCode == VK_ESCAPE) {
+		wgpCleanState();
 		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
 	}
 }
 

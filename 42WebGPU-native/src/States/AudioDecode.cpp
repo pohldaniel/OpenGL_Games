@@ -8,6 +8,8 @@
 #include <Nuklear/NkJoystick.h>
 #include <Nuklear/NkStyle.h>
 
+#include <States/Menu.h>
+
 #include <engine/sound/SoundDevice.h>
 
 #include "AudioDecode.h"
@@ -58,7 +60,6 @@ AudioDecode::AudioDecode(StateMachine& machine) : State(machine, States::AUDIO_D
 AudioDecode::~AudioDecode() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
-	nkShutDown();
 }
 
 void AudioDecode::fixedUpdate() {
@@ -215,7 +216,18 @@ void AudioDecode::OnMouseWheel(const Event::MouseWheelEvent& event) {
 }
 
 void AudioDecode::OnKeyDown(const Event::KeyboardEvent& event) {
+#if DEVBUILD
+	if (event.keyCode == VK_LMENU) {
+		m_drawUi = !m_drawUi;
+	}
+#endif
 
+	if (event.keyCode == VK_ESCAPE) {
+		nkShutDown();
+		wgpCleanState();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
+	}
 }
 
 void AudioDecode::OnKeyUp(const Event::KeyboardEvent& event) {

@@ -5,6 +5,7 @@
 
 #include <WebGPU/WgpContext.h>
 #include <WebGPU/WgpRenderer.h>
+#include <States/Menu.h>
 
 #include "OcclusionQuery.h"
 #include "Application.h"
@@ -256,7 +257,12 @@ void OcclusionQuery::OnKeyDown(const Event::KeyboardEvent& event) {
 #endif
 
 	if (event.keyCode == VK_ESCAPE) {
+		while (wgpuBufferGetMapState(m_resultBuffer.getBuffer()) == WGPUBufferMapState_Pending) {
+			wgpuInstanceProcessEvents(wgpContext.instance);
+		}
+		wgpCleanState();
 		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
 	}
 }
 

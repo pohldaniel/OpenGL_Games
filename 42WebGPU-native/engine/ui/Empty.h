@@ -13,7 +13,7 @@ public:
 
 private:
 	
-	void inputDefault(int mouseX, int mouseY, bool buttonLeft) override;
-	//void layoutDefault() override;
+	bool inputDefault(int mouseX, int mouseY, bool buttonLeft) override;
+	bool isMouseOverDefault(int mouseX, int mouseY) override;
 	void createDefault() override;
 };
