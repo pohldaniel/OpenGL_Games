@@ -59,6 +59,7 @@ void uiInit(float width, float height) {
 	uiCreateRenderPipeline(uiContext.renderPipeline);
 	uiCreateRenderPipelineMask(uiContext.renderPipelineMask);
 	uiCreateRenderPipelineRead(uiContext.renderPipelineRead);
+	uiCreateRenderPipelineClear(uiContext.renderPipelineClear);
 	uiCreateRenderPipelineText(uiContext.renderPipelineText);
 
 	uiCreateBindGroup(uiContext.bindgroup);
@@ -119,13 +120,24 @@ void uiShutDown() {
 		uiContext.renderPipelineRead = NULL;
 	}
 
+	if (uiContext.renderPipelineClear) {
+		wgpuRenderPipelineRelease(uiContext.renderPipelineClear);
+		uiContext.renderPipelineClear = NULL;
+	}
+
 	if (uiContext.renderPipelineText) {
 		wgpuRenderPipelineRelease(uiContext.renderPipelineText);
 		uiContext.renderPipelineText = NULL;
 	}
 
-	uiContext.uiBatches.clear();
-	uiContext.uiBatches.shrink_to_fit();
+	
+	for (auto& layer : uiContext.uiLayers) {
+		layer.batches.clear();
+		layer.batches.shrink_to_fit();
+	}
+
+	uiContext.uiLayers.clear();
+	uiContext.uiLayers.shrink_to_fit();
 
 	uiContext.uiInstances.clear();
 	uiContext.uiInstances.shrink_to_fit();
@@ -138,46 +150,51 @@ void uiDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescri
 	depthStencilAttachment.stencilReadOnly = WGPUOptionalBool_False;
 	depthStencilAttachment.stencilLoadOp = WGPULoadOp_Clear;
 	depthStencilAttachment.stencilStoreOp = WGPUStoreOp_Store;
-	depthStencilAttachment.stencilClearValue = 0;
+	depthStencilAttachment.stencilClearValue = 0u;
 
 	WGPURenderPassDescriptor rndrPssDscrptor = renderPassDescriptor;
 	rndrPssDscrptor.depthStencilAttachment = &depthStencilAttachment;
 
 	WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &rndrPssDscrptor);
-	
 
-	wgpuRenderPassEncoderSetStencilReference(renderPassEncoder, 1);
+	for (const auto& layer : uiContext.uiLayers) {
+		wgpuRenderPassEncoderSetStencilReference(renderPassEncoder, 1u);
 
-	for (const auto& batch : uiContext.uiBatches) {
-		if (batch.instanceCount == 0) continue;
+		const auto& batch = layer.batches.front();
+		wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, uiContext.bindgroup, 0u, nullptr);
+		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, uiContext.renderPipelineClear);
+		wgpuRenderPassEncoderDraw(renderPassEncoder, 6u, batch.instanceCount, 0u, batch.startIndex);		
 
-		switch (batch.pipelineType) {
-		case UiPipelineType::Standard:
-			wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, uiContext.bindgroup, 0u, nullptr);
-			wgpuRenderPassEncoderSetPipeline(renderPassEncoder, uiContext.renderPipeline);
-			break;
-		case UiPipelineType::MaskWrite:
-			wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, uiContext.bindgroup, 0u, nullptr);
-			wgpuRenderPassEncoderSetPipeline(renderPassEncoder, uiContext.renderPipelineMask);
-			break;
-		case UiPipelineType::OutlineRead:
-			wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, uiContext.bindgroup, 0u, nullptr);
-			wgpuRenderPassEncoderSetPipeline(renderPassEncoder, uiContext.renderPipelineRead);
-			break;
-		case UiPipelineType::Text:
-			wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, uiContext.bindgroupText, 0u, nullptr);
-			wgpuRenderPassEncoderSetPipeline(renderPassEncoder, uiContext.renderPipelineText);
-			break;
-		}
+		for (const auto& batch : layer.batches) {
+			if (batch.instanceCount == 0) continue;
 
-		wgpuRenderPassEncoderDraw(renderPassEncoder, 6u, batch.instanceCount, 0u, batch.startIndex);
+			switch (batch.pipelineType) {
+			case UiPipelineType::Standard:
+				wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, uiContext.bindgroup, 0u, nullptr);
+				wgpuRenderPassEncoderSetPipeline(renderPassEncoder, uiContext.renderPipeline);
+				break;
+			case UiPipelineType::MaskWrite:
+				wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, uiContext.bindgroup, 0u, nullptr);
+				wgpuRenderPassEncoderSetPipeline(renderPassEncoder, uiContext.renderPipelineMask);
+				break;
+			case UiPipelineType::OutlineRead:
+				wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, uiContext.bindgroup, 0u, nullptr);
+				wgpuRenderPassEncoderSetPipeline(renderPassEncoder, uiContext.renderPipelineRead);
+				break;
+			case UiPipelineType::Text:
+				wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, uiContext.bindgroupText, 0u, nullptr);
+				wgpuRenderPassEncoderSetPipeline(renderPassEncoder, uiContext.renderPipelineText);
+				break;
+			}
+			wgpuRenderPassEncoderDraw(renderPassEncoder, 6u, batch.instanceCount, 0u, batch.startIndex);		
+		}		
 	}
 
 	wgpuRenderPassEncoderEnd(renderPassEncoder);
 	wgpuRenderPassEncoderRelease(renderPassEncoder);
-	//std::cout << "SIZE: " << uiContext.uiInstances.size() << std::endl;
 	uiContext.uiInstances.clear();
-	uiContext.uiBatches.clear();
+	uiContext.uiLayers.clear();
+	uiContext.currentActiveLayer = nullptr;
 }
 
 void uiCreateBindGroup(WGPUBindGroup& bindgroup) {
@@ -442,6 +459,86 @@ void uiCreateRenderPipelineRead(WGPURenderPipeline& renderPipeline) {
 	depthStencilState.stencilBack.failOp = WGPUStencilOperation::WGPUStencilOperation_Keep;
 	depthStencilState.stencilBack.depthFailOp = WGPUStencilOperation::WGPUStencilOperation_Keep;
 	depthStencilState.stencilBack.passOp = WGPUStencilOperation::WGPUStencilOperation_Keep;
+
+	depthStencilState.stencilReadMask = 0xFFFFFFFF;
+	depthStencilState.stencilWriteMask = 0xFFFFFFFF;
+	depthStencilState.depthBias = 0;
+	depthStencilState.depthBiasSlopeScale = 0.0f;
+	depthStencilState.depthBiasClamp = 0.0f;
+
+	WGPURenderPipelineDescriptor renderPipelineDescriptor = {};
+	renderPipelineDescriptor.layout = pipelineLayout;
+	renderPipelineDescriptor.multisample.count = wgpContext.msaaSampleCount;
+	renderPipelineDescriptor.multisample.mask = ~0u;
+	renderPipelineDescriptor.multisample.alphaToCoverageEnabled = WGPUOptionalBool::WGPUOptionalBool_False;
+
+	renderPipelineDescriptor.vertex = vertexState;
+	renderPipelineDescriptor.fragment = &fragmentState;
+	renderPipelineDescriptor.depthStencil = &depthStencilState;
+
+	renderPipelineDescriptor.primitive.topology = WGPUPrimitiveTopology_TriangleList;
+	renderPipelineDescriptor.primitive.stripIndexFormat = WGPUIndexFormat::WGPUIndexFormat_Undefined;
+	renderPipelineDescriptor.primitive.frontFace = WGPUFrontFace::WGPUFrontFace_CCW;
+	renderPipelineDescriptor.primitive.cullMode = WGPUCullMode_None;
+
+	renderPipeline = wgpuDeviceCreateRenderPipeline(wgpContext.device, &renderPipelineDescriptor);
+
+	wgpuShaderModuleRelease(shaderModule);
+	wgpuPipelineLayoutRelease(pipelineLayout);
+}
+
+void uiCreateRenderPipelineClear(WGPURenderPipeline& renderPipeline) {
+	WGPUShaderModule shaderModule = wgpCreateShaderFromFile("res/shader/ui.wgsl");
+
+	WGPUPipelineLayoutDescriptor pipelineLayoutDescriptor = {};
+	pipelineLayoutDescriptor.bindGroupLayoutCount = 1u;
+	pipelineLayoutDescriptor.bindGroupLayouts = &uiContext.bindgroupLayout;
+	WGPUPipelineLayout pipelineLayout = wgpuDeviceCreatePipelineLayout(wgpContext.device, &pipelineLayoutDescriptor);
+
+	WGPUVertexState vertexState = {};
+	vertexState.module = shaderModule;
+	vertexState.entryPoint = WGPU_STR("vs_main");
+	vertexState.constantCount = 0u;
+	vertexState.constants = nullptr;
+	vertexState.bufferCount = 0u;
+	vertexState.buffers = nullptr;
+
+	WGPUBlendState blendState = {};
+	blendState.color.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
+	blendState.color.srcFactor = WGPUBlendFactor::WGPUBlendFactor_SrcAlpha;
+	blendState.color.dstFactor = WGPUBlendFactor::WGPUBlendFactor_OneMinusSrcAlpha;
+	blendState.alpha.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
+	blendState.alpha.srcFactor = WGPUBlendFactor::WGPUBlendFactor_One;
+	blendState.alpha.dstFactor = WGPUBlendFactor::WGPUBlendFactor_Zero;
+
+	WGPUColorTargetState colorTargetState = {};
+	colorTargetState.nextInChain = NULL;
+	colorTargetState.format = wgpContext.colorFormat;
+	colorTargetState.blend = &blendState;
+	colorTargetState.writeMask = WGPUColorWriteMask_None;
+
+	WGPUFragmentState fragmentState = {};
+	fragmentState.module = shaderModule;
+	fragmentState.entryPoint = WGPU_STR("fs_main");
+	fragmentState.constantCount = 0u;
+	fragmentState.constants = NULL;
+	fragmentState.targetCount = 1u;
+	fragmentState.targets = &colorTargetState;
+
+	WGPUDepthStencilState depthStencilState = {};
+	depthStencilState.nextInChain = NULL;
+	depthStencilState.format = wgpContext.depthFormat;
+	depthStencilState.depthWriteEnabled = WGPUOptionalBool::WGPUOptionalBool_False;
+	depthStencilState.depthCompare = WGPUCompareFunction::WGPUCompareFunction_Less;
+
+	depthStencilState.stencilFront.compare = WGPUCompareFunction::WGPUCompareFunction_Always;
+	depthStencilState.stencilFront.failOp = WGPUStencilOperation::WGPUStencilOperation_Keep;
+	depthStencilState.stencilFront.depthFailOp = WGPUStencilOperation::WGPUStencilOperation_Keep;
+	depthStencilState.stencilFront.passOp = WGPUStencilOperation::WGPUStencilOperation_Zero;
+	depthStencilState.stencilBack.compare = WGPUCompareFunction::WGPUCompareFunction_Always;
+	depthStencilState.stencilBack.failOp = WGPUStencilOperation::WGPUStencilOperation_Keep;
+	depthStencilState.stencilBack.depthFailOp = WGPUStencilOperation::WGPUStencilOperation_Keep;
+	depthStencilState.stencilBack.passOp = WGPUStencilOperation::WGPUStencilOperation_Zero;
 
 	depthStencilState.stencilReadMask = 0xFFFFFFFF;
 	depthStencilState.stencilWriteMask = 0xFFFFFFFF;

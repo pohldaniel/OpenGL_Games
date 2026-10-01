@@ -16,14 +16,10 @@ Empty::~Empty() {
 
 }
 
-bool Empty::inputDefault(int mouseX, int mouseY, bool buttonLeft) {
-	return false;
-}
-
-void Empty::createDefault() {
+void Empty::OnDraw() {
 
 }
 
-bool Empty::isMouseOverDefault(int mouseX, int mouseY) {
+bool Empty::OnMouseOver(int mouseX, int mouseY) {
 	return true;
 }

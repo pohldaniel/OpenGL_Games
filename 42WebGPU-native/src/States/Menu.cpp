@@ -36,13 +36,15 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	uiInit(static_cast<float>(Application::Width), static_cast<float>(Application::Height));
 
 	m_uiScene = new Empty();
-	m_uiScene->setLayout(Layout::VERTICAL);
-	m_uiScene->setSpacing(0.0f, 50.0f);
+	m_uiScene->setPadding(20.0f, 20.0f);
+	m_uiScene->setSpacing(25.0f, 25.0f);
+	m_uiScene->setLayout(Layout::MASONRY);
 
 	Surface* surface = m_uiScene->addChild<Surface>();
 	surface->setColor(Vector4f(0.2f, 0.7f, 0.2f, 1.0f));
 	surface->setPadding(20.0f, 20.0f);
-	surface->setSpacing(15.0f, 0.0f);
+	surface->setSpacing(25.0f, 25.0f);
+	surface->setLayout(Layout::GRID);
 
 	Button* button = surface->addChild<Button>();
 	button->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
@@ -112,7 +114,8 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	surface = m_uiScene->addChild<Surface>();
 	surface->setColor(Vector4f(0.2f, 0.2f, 0.2f, 1.0f));
 	surface->setPadding(20.0f, 20.0f);
-	surface->setSpacing(15.0f, 0.0f);
+	surface->setSpacing(25.0f, 25.0f);
+	surface->setLayout(Layout::GRID);
 
 	button = surface->addChild<Button>();
 	button->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
@@ -177,7 +180,8 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	surface = m_uiScene->addChild<Surface>();
 	surface->setColor(Vector4f(0.2f, 0.2f, 0.2f, 1.0f));
 	surface->setPadding(20.0f, 20.0f);
-	surface->setSpacing(15.0f, 0.0f);
+	surface->setSpacing(25.0f, 25.0f);
+	surface->setLayout(Layout::GRID);
 
 	button = surface->addChild<Button>();
 	button->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
@@ -242,7 +246,8 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	surface = m_uiScene->addChild<Surface>();
 	surface->setColor(Vector4f(0.2f, 0.2f, 0.2f, 1.0f));
 	surface->setPadding(20.0f, 20.0f);
-	surface->setSpacing(15.0f, 0.0f);
+	surface->setSpacing(25.0f, 25.0f);
+	surface->setLayout(Layout::GRID);
 
 	button = surface->addChild<Button>();
 	button->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
@@ -252,7 +257,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 		wgpCleanState();
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new DeferredRendering(m_machine));
-		});
+	});
 
 	label = button->addChild<Label>(m_characterSet);
 	label->setText("Defferred Rendering");
@@ -307,7 +312,8 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	surface = m_uiScene->addChild<Surface>();
 	surface->setColor(Vector4f(0.2f, 0.2f, 0.2f, 1.0f));
 	surface->setPadding(20.0f, 20.0f);
-	surface->setSpacing(15.0f, 0.0f);
+	surface->setSpacing(25.0f, 25.0f);
+	surface->setLayout(Layout::GRID);
 
 	button = surface->addChild<Button>();
 	button->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
@@ -405,7 +411,7 @@ void Menu::fixedUpdate() {
 void Menu::update() {
 	Mouse& mouse = Mouse::instance();
 	m_uiScene->input(mouse.xPos(), mouse.yPos(), mouse.buttonDown(Mouse::MouseButton::BUTTON_LEFT));
-	m_uiScene->createTree();
+	m_uiScene->draw();
 }
 
 void Menu::render() {

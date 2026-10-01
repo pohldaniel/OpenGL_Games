@@ -51,7 +51,7 @@ void Button::setOutlineThickness(float thickness) {
 	m_thickness = thickness;
 }
 
-void Button::createDefault() {
+void Button::OnDraw() {
 	UiInstance buttonInst = {};
 	std::memcpy(buttonInst.transform, (getWorldTransformation() * Matrix4f::Scale(m_width, m_height, 1.0f)).getData(), sizeof(Matrix4f));
 	std::memcpy(buttonInst.color, m_color.getData(), sizeof(Vector4f));
@@ -92,17 +92,8 @@ void Button::createDefault() {
 	pushWidget(UiPipelineType::OutlineRead, outlineInst);
 }
 
-bool Button::inputDefault(int mouseX, int mouseY, bool buttonLeft) {
-
-	Vector2f scale = getWorldScale();
-	float visualWidth = m_width * scale[0];
-	float visualHeight = m_height * scale[1];
-	float visualThickness = m_thickness * scale[0];
-
-	Vector2f position = getWorldPosition();
-
-	bool isHovered = (mouseX > position[0] - visualThickness && mouseX < position[0] + visualWidth + visualThickness &&
-		mouseY > position[1] - visualThickness && mouseY < position[1] + visualHeight + visualThickness);
+bool Button::OnInput(int mouseX, int mouseY, bool buttonLeft) {
+	bool isHovered = OnMouseOver(mouseX, mouseY);
 
 	if (isHovered) {
 		m_outlineColor = m_outlineColorHover;
@@ -134,8 +125,19 @@ void Button::setOnClick(std::function<void()> fun) {
 	m_onClick = fun;
 }
 
-void Button::resetDefault() {
-	Widget::resetDefault();
-	m_wasPressed = false;
+void Button::OnReset() {
+	Widget::OnReset();
 	m_outlineColor = Vector4f(1.0f, 1.0f, 0.0f, 1.0f);
+}
+
+bool Button::OnMouseOver(int mouseX, int mouseY) {
+	Vector2f scale = getWorldScale();
+	float visualWidth = m_width * scale[0];
+	float visualHeight = m_height * scale[1];
+	float visualThickness = m_thickness * scale[0];
+
+	Vector2f position = getWorldPosition();
+
+	return (mouseX > position[0] - visualThickness && mouseX < position[0] + visualWidth + visualThickness &&
+		mouseY > position[1] - visualThickness && mouseY < position[1] + visualHeight + visualThickness);
 }

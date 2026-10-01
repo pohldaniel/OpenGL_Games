@@ -35,7 +35,7 @@ void Label::setText(const std::string& text) {
 	OnInvalidate();
 }
 
-void Label::layoutDefault() {
+void Label::OnLayoutChanged() {
 	if (!m_isLayoutDirty)
 		return;
 	if (m_height == 0.0f && m_width == 0.0f) {
@@ -45,7 +45,7 @@ void Label::layoutDefault() {
 	m_isLayoutDirty = false;
 }
 
-void Label::createDefault() {
+void Label::OnDraw() {
 	Vector2f currentCursor = { 0.0f, 0.0f };
 	for (char c : m_text) {
 		
@@ -70,10 +70,6 @@ void Label::createDefault() {
 
 		currentCursor[0] += ch.advance;
 	}
-}
-
-bool Label::inputDefault(int mouseX, int mouseY, bool buttonLeft) {
-	return false;
 }
 
 void Label::setPadding(float paddingX, float paddingY, bool silent) {

@@ -24,7 +24,6 @@ protected:
 
 private:
 
-	bool inputDefault(int mouseX, int mouseY, bool buttonLeft) override;
-	void layoutDefault() override;
-	void createDefault() override;
+	void OnLayoutChanged() override;
+	void OnDraw() override;
 };

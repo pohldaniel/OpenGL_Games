@@ -15,9 +15,9 @@ public:
 
 private:
 	
-	bool inputDefault(int mouseX, int mouseY, bool buttonLeft) override;
-	void createDefault() override;
-	void resetDefault() override;
+	bool OnInput(int mouseX, int mouseY, bool buttonLeft) override;
+	void OnDraw() override;
+	void OnReset() override;
 
 	Vector4f m_defaultColor;
 	Vector4f m_color;

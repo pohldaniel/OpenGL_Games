@@ -14,7 +14,9 @@
 
 enum class Layout {
 	HORIZONTAL,
-	VERTICAL
+	VERTICAL,
+	GRID,
+	MASONRY
 };
 
 class Widget : public Node, public Object2D {
@@ -28,7 +30,7 @@ public:
 
 	void input(int mouseX, int mouseY, bool buttonLeft = false);
 	void updateLayout();
-	void createTree();
+	void draw();
 
 	virtual void setScale(float sx, float sy) override;
 	void setScale(const Vector2f& scale) override;
@@ -64,49 +66,38 @@ public:
 	const float getWorldOrientation(bool update = true) const;
 	void updateWorldTransformation() const;
 	
-	void setCreateFunction(std::function<void()> fun);
-	void setInputFunction(std::function<bool(int mouseX, int mouseY, bool buttonLeft)> fun);
-	
 	float getWidth();
 	float getHeight();
 
 	void setWidth(float width, bool silent = false);
 	void setHeight(float height, bool silent = false);
-	virtual void setPadding(float paddingX, float paddingY, bool silent = false);
+	
 	void setSpacing(float spacingX, float spacingY, bool silent = false);
 	void setLayout(Layout layout, bool silent = false);
-	
+	virtual void setPadding(float paddingX, float paddingY, bool silent = false);
+
 protected:
 
 	void OnTransformChanged();
 	void OnInvalidate();
 
-	virtual bool inputDefault(int mouseX, int mouseY, bool buttonLeft = false) = 0;
-	virtual void layoutDefault();
-	virtual void createDefault() = 0;
-	virtual bool isMouseOverDefault(int mouseX, int mouseY);
-	virtual void resetDefault();
+	virtual bool OnInput(int mouseX, int mouseY, bool buttonLeft = false);
+	virtual void OnLayoutChanged();
+	virtual void OnDraw() = 0;
+	virtual bool OnMouseOver(int mouseX, int mouseY);
+	virtual void OnReset();
 
-	void createChildren();
-			
+	void drawTree();			
 	void pushWidget(UiPipelineType type, const UiInstance& instance);
-	std::function<void()> m_create;
-	std::function<bool(const int mouseX, const int mouseY, bool buttonLeft)> m_input;
+
 	mutable bool m_isLayoutDirty;
+
 	float m_width;
 	float m_height;
 
 	float m_paddingX;
 	float m_paddingY;
-
-	float m_spacingX;
-	float m_spacingY;
-	Layout m_layout;
-	mutable bool m_isDirty;
-	Vector4f m_focusColor = Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
-	bool m_hasFocus;
-
-	static Widget* ActiveWidget;
+	bool m_isMovable;
 
 private:
 
@@ -115,9 +106,18 @@ private:
 	void pushToFront();
 
 	mutable Matrix4f m_modelMatrix;
+	mutable bool m_isDirty;
+	
+	float m_spacingX;
+	float m_spacingY;
+	Layout m_layout;
+	
+	Vector4f m_focusColor = Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
+	bool m_hasFocus;
 	
 	static Vector2f WorldPosition;
 	static Vector2f WorldScale;
 	static float WorldOrientation;
+	static Widget* ActiveWidget;
 };
 

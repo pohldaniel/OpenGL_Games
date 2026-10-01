@@ -16,6 +16,7 @@ extern "C" {
 	void uiCreateRenderPipeline(WGPURenderPipeline& renderPipeline);
 	void uiCreateRenderPipelineMask(WGPURenderPipeline& renderPipeline);
 	void uiCreateRenderPipelineRead(WGPURenderPipeline& renderPipeline);
+	void uiCreateRenderPipelineClear(WGPURenderPipeline& renderPipeline);
 	void uiCreateRenderPipelineText(WGPURenderPipeline& renderPipeline);
 	void uiCreateBindGroup(WGPUBindGroup& bindgroup);
 	void uiCreateBindGroupText(WGPUBindGroup& bindgroup);
@@ -42,17 +43,22 @@ struct UiBatch {
 	uint32_t instanceCount;
 };
 
+struct UiLayer {
+	std::vector<UiBatch> batches;
+};
+
 struct UiContext {
 	float width;
 	float height;
 
 	WGPUBindGroup bindgroup = nullptr, bindgroupText = nullptr;
 	WGPUBindGroupLayout bindgroupLayout = nullptr, bindgroupLayoutText = nullptr;
-	WGPURenderPipeline renderPipeline = nullptr, renderPipelineMask = nullptr, renderPipelineRead = nullptr, renderPipelineText = nullptr;
+	WGPURenderPipeline renderPipeline = nullptr, renderPipelineMask = nullptr, renderPipelineRead = nullptr, renderPipelineClear = nullptr, renderPipelineText = nullptr;
 	WGPUTextureView textureView = nullptr;
 
 	WgpBuffer wgpStorageBuffer, wgpUniformBuffer;
 
 	std::vector<UiInstance> uiInstances;
-	std::vector<UiBatch> uiBatches;
+	std::vector<UiLayer> uiLayers;
+	UiLayer* currentActiveLayer = nullptr;
 };

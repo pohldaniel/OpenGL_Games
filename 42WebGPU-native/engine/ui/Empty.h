@@ -13,7 +13,6 @@ public:
 
 private:
 	
-	bool inputDefault(int mouseX, int mouseY, bool buttonLeft) override;
-	bool isMouseOverDefault(int mouseX, int mouseY) override;
-	void createDefault() override;
+	bool OnMouseOver(int mouseX, int mouseY) override;
+	void OnDraw() override;
 };

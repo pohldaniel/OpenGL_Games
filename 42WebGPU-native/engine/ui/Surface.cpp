@@ -2,7 +2,7 @@
 #include "Application.h"
 
 Surface::Surface() : Widget(), m_color(Vector4f::ONE), m_defaultColor(Vector4f::ONE), m_isDragged(false), m_isResizing(false), m_mouseX(0), m_mouseY(0) {
-	
+	m_isMovable = true;
 }
 
 Surface::Surface(const Surface& rhs) :
@@ -34,7 +34,7 @@ void Surface::setColor(const Vector4f& color) {
 	m_defaultColor = color;
 }
 
-bool Surface::inputDefault(int mouseX, int mouseY, bool buttonLeft) {
+bool Surface::OnInput(int mouseX, int mouseY, bool buttonLeft) {
 
 	float currentVisualWidth = m_width * m_scale[0];
 	float currentVisualHeight = m_height * m_scale[1];
@@ -114,7 +114,7 @@ bool Surface::inputDefault(int mouseX, int mouseY, bool buttonLeft) {
 	return true;
 }
 
-void Surface::createDefault() {
+void Surface::OnDraw() {
 	UiInstance uiInstance = {};
 
 	Vector2f scale = getScale();
@@ -133,7 +133,7 @@ void Surface::createDefault() {
 	pushWidget(UiPipelineType::Standard, uiInstance);
 }
 
-void Surface::resetDefault() {
-	Widget::resetDefault();
+void Surface::OnReset() {
+	Widget::OnReset();
 	m_color = m_defaultColor;
 }

@@ -1,3 +1,4 @@
+#include <iostream>
 #include "Widget.h"
 
 Vector2f Widget::WorldPosition;
@@ -5,8 +6,7 @@ Vector2f Widget::WorldScale;
 float Widget::WorldOrientation;
 Widget* Widget::ActiveWidget = nullptr;
 
-Widget::Widget() : Node(), Object2D(), 
-m_create(nullptr), 
+Widget::Widget() : Node(), Object2D(),
 m_isDirty(true), 
 m_hasFocus(false),
 m_width(0.0f), 
@@ -16,11 +16,12 @@ m_paddingY(0.0f),
 m_spacingX(0.0f), 
 m_spacingY(0.0f), 
 m_isLayoutDirty(true),
-m_layout(Layout::HORIZONTAL){
+m_layout(Layout::HORIZONTAL),
+m_isMovable(false){
 	
 }
 
-Widget::Widget(const Widget& rhs) : Node(rhs), Object2D(rhs), m_create(rhs.m_create) {
+Widget::Widget(const Widget& rhs) : Node(rhs), Object2D(rhs) {
 	m_isDirty = rhs.m_isDirty;
 	m_hasFocus = rhs.m_hasFocus;
 	m_width = rhs.m_width;
@@ -31,9 +32,10 @@ Widget::Widget(const Widget& rhs) : Node(rhs), Object2D(rhs), m_create(rhs.m_cre
 	m_spacingY = rhs.m_spacingY;
 	m_isLayoutDirty = rhs.m_isLayoutDirty;
 	m_layout = rhs.m_layout;
+	m_isMovable = rhs.m_isMovable;
 }
 
-Widget::Widget(Widget&& rhs) noexcept : Node(rhs), Object2D(rhs), m_create(std::move(rhs.m_create)) {
+Widget::Widget(Widget&& rhs) noexcept : Node(rhs), Object2D(rhs) {
 	m_isDirty = rhs.m_isDirty;
 	m_hasFocus = rhs.m_hasFocus;
 	m_width = rhs.m_width;
@@ -44,33 +46,54 @@ Widget::Widget(Widget&& rhs) noexcept : Node(rhs), Object2D(rhs), m_create(std::
 	m_spacingY = rhs.m_spacingY;
 	m_isLayoutDirty = rhs.m_isLayoutDirty;
 	m_layout = rhs.m_layout;
+	m_isMovable = rhs.m_isMovable;
 }
 
 Widget::~Widget() {
 
 }
 
-void Widget::createTree() {
-	updateLayout();
-	if (m_create) {
-		return m_create();
-	}
-	createDefault();
-	createChildren();
+void Widget::draw() {	
+	drawTree();
 }
 
-void Widget::createChildren() {
+void Widget::drawTree() {
+	bool openedNewLayer = false;
+	if (m_isMovable) {
+		UiLayer newLayer;
+		uiContext.uiLayers.push_back(newLayer);
+		uiContext.currentActiveLayer = &uiContext.uiLayers.back();
+		openedNewLayer = true;
+	}
+
+	OnDraw();
+
 	if (m_children.size() > 0) {
 		for (std::list<std::unique_ptr<Node, std::function<void(Node* node)>>>::iterator it = getChildren().begin(); it != getChildren().end(); ++it) {
-			static_cast<Widget*>((*it).get())->createTree();
+			static_cast<Widget*>((*it).get())->drawTree();
 		}
 	}
+
+	if (openedNewLayer) {
+		if (uiContext.uiLayers.size() > 1) {
+			uiContext.currentActiveLayer = &uiContext.uiLayers[uiContext.uiLayers.size() - 2];
+		}else {
+			uiContext.currentActiveLayer = nullptr;
+		}
+	}
+}
+
+void Widget::resetTree() {
+	for (auto it = m_children.begin(); it != m_children.end(); ++it) {
+		static_cast<Widget*>(it->get())->resetTree();
+	}
+	OnReset();
 }
 
 void Widget::input(const int mouseX, const int mouseY, bool buttonLeft) {
 	resetTree();
 	if (Widget::ActiveWidget != nullptr) {
-		Widget::ActiveWidget->inputDefault(mouseX, mouseY, buttonLeft);
+		Widget::ActiveWidget->OnInput(mouseX, mouseY, buttonLeft);
 		if (!buttonLeft) {
 			Widget::ActiveWidget = nullptr;
 			
@@ -78,18 +101,11 @@ void Widget::input(const int mouseX, const int mouseY, bool buttonLeft) {
 		return;
 	}
 	inputTree(mouseX, mouseY, buttonLeft);
-	
-}
-
-void Widget::resetTree() {
-	for (auto it = m_children.begin(); it != m_children.end(); ++it) {
-		static_cast<Widget*>(it->get())->resetTree();
-	}
-	resetDefault();
+	updateLayout();
 }
 
 bool Widget::inputTree(const int mouseX, const int mouseY, bool buttonLeft) {
-	if(!isMouseOverDefault(mouseX, mouseY)) {
+	if(!OnMouseOver(mouseX, mouseY)) {
 		return false;
 	}
 
@@ -108,7 +124,7 @@ bool Widget::inputTree(const int mouseX, const int mouseY, bool buttonLeft) {
 		pushToFront();
 	}
 
-	return inputDefault(mouseX, mouseY, buttonLeft);
+	return OnInput(mouseX, mouseY, buttonLeft);
 }
 
 void Widget::OnTransformChanged() {
@@ -253,34 +269,37 @@ void Widget::rotate(float degrees) {
 	OnTransformChanged();
 }
 
-void Widget::setCreateFunction(std::function<void()> fun) {
-	m_create = fun;
-}
-
-void Widget::setInputFunction(std::function<bool(const int mouseX, const int mouseY, bool buttonLeft)> fun) {
-	m_input = fun;
-}
-
 void Widget::pushWidget(UiPipelineType type, const UiInstance& instance) {
-	if (uiContext.uiBatches.empty() || uiContext.uiBatches.back().pipelineType != type) {
+	if (!uiContext.currentActiveLayer) {
+		if (uiContext.uiLayers.empty()) {
+			UiLayer defaultLayer;
+			uiContext.uiLayers.push_back(defaultLayer);
+		}
+		uiContext.currentActiveLayer = &uiContext.uiLayers.back();
+	}
+
+	auto& currentBatches = uiContext.currentActiveLayer->batches;
+
+	if (currentBatches.empty() || currentBatches.back().pipelineType != type) {
 		UiBatch uiBatch;
 		uiBatch.pipelineType = type;
 		uiBatch.startIndex = static_cast<uint32_t>(uiContext.uiInstances.size());
 		uiBatch.instanceCount = 0;
-		uiContext.uiBatches.push_back(uiBatch);
+		currentBatches.push_back(uiBatch);
 	}
+
 	uiContext.uiInstances.push_back(instance);
-	uiContext.uiBatches.back().instanceCount++;
+	currentBatches.back().instanceCount++;
 }
 
 void Widget::updateLayout() {
 	for (std::list<std::unique_ptr<Node, std::function<void(Node* node)>>>::iterator it = getChildren().begin(); it != getChildren().end(); ++it) {
 		static_cast<Widget*>((*it).get())->updateLayout();
 	}
-	layoutDefault();
+	OnLayoutChanged();
 }
 
-void Widget::layoutDefault() {	
+void Widget::OnLayoutChanged() {
 	if (!m_isLayoutDirty)
 		return;
 
@@ -328,6 +347,171 @@ void Widget::layoutDefault() {
 				Widget* child = static_cast<Widget*>(childNode.get());
 				child->setPosition(Vector2f(posX, posY));
 				posY += child->getHeight() + m_spacingY;
+			}
+		}else if (m_layout == Layout::GRID) {
+			const int widgetCount = static_cast<int>(getChildren().size());
+			const int maxRows = static_cast<int>(std::ceil(std::sqrt(widgetCount)));
+			const int maxCols = static_cast<int>(std::ceil(static_cast<float>(widgetCount) / maxRows));
+			struct SortedWidget {
+				Widget* widget;
+				float area;
+			};
+			std::vector<SortedWidget> sortedChildren;
+			sortedChildren.reserve(getChildren().size());
+
+			for (const auto& childNode : getChildren()) {
+				Widget* child = static_cast<Widget*>(childNode.get());
+				float area = child->getWidth() * child->getHeight();
+				sortedChildren.push_back({ child, area });
+			}
+
+			std::sort(sortedChildren.begin(), sortedChildren.end(), [](const SortedWidget& a, const SortedWidget& b) {
+				return a.area > b.area;
+			});
+
+			struct PlacedWidget {
+				Widget* widget;
+				int row;
+				int col;
+			};
+			std::vector<PlacedWidget> placedWidgets;
+			placedWidgets.reserve(sortedChildren.size());
+
+			std::vector<float> colWidths(maxCols, 0.0f);
+			std::vector<float> rowHeights(maxRows, 0.0f);
+
+			int currentIdx = 0;
+			for (const auto& item : sortedChildren) {
+				if (currentIdx >= maxCols * maxRows) break;
+
+				int r = currentIdx / maxCols;
+				int c = currentIdx % maxCols;
+
+				placedWidgets.push_back({ item.widget, r, c });
+				colWidths[c] = std::max(colWidths[c], item.widget->getWidth());
+				rowHeights[r] = std::max(rowHeights[r], item.widget->getHeight());
+
+				currentIdx++;
+			}
+
+			float totalWidth = 0.0f;
+			for (float w : colWidths) totalWidth += w;
+			totalWidth += std::max(0, maxCols - 1) * m_spacingX;
+
+			float totalHeight = 0.0f;
+			for (float h : rowHeights) totalHeight += h;
+			totalHeight += std::max(0, maxRows - 1) * m_spacingY;
+
+			setWidth(totalWidth + (m_paddingX * 2.0f), true);
+			setHeight(totalHeight + (m_paddingY * 2.0f), true);
+
+			std::vector<float> colOffsets(maxCols, 0.0f);
+			float currentX = m_paddingX;
+			for (int c = 0; c < maxCols; ++c) {
+				colOffsets[c] = currentX;
+				currentX += colWidths[c] + m_spacingX;
+			}
+
+			std::vector<float> rowOffsets(maxRows, 0.0f);
+			float currentY = m_paddingY;
+			for (int r = 0; r < maxRows; ++r) {
+				rowOffsets[r] = currentY;
+				currentY += rowHeights[r] + m_spacingY;
+			}
+
+			for (const auto& placed : placedWidgets) {
+				Widget* child = placed.widget;
+				int r = placed.row;
+				int c = placed.col;
+				float posX = colOffsets[c];
+				float targetHeight = rowHeights[r];
+				float posY = rowOffsets[r] + (targetHeight - child->getHeight()) * 0.5f;
+
+				child->setPosition(Vector2f(posX, posY));
+			}
+		}else if (m_layout == Layout::MASONRY) {
+			const int widgetCount = static_cast<int>(getChildren().size());
+			if (widgetCount == 0) return;
+
+			std::vector<Widget*> sortedWidgets;
+			sortedWidgets.reserve(widgetCount);
+			for (const auto& childNode : getChildren()) {
+				sortedWidgets.push_back(static_cast<Widget*>(childNode.get()));
+			}
+
+			std::sort(sortedWidgets.begin(), sortedWidgets.end(), [](Widget* a, Widget* b) {
+				return a->getWidth() > b->getWidth();
+			});
+
+			float baseWidth = sortedWidgets.front()->getWidth();
+			float minWidth = sortedWidgets.back()->getWidth();
+			float targetQuaderWidth = baseWidth + minWidth + m_spacingX;
+
+			struct PlacedRow {
+				Widget* leftWidget = nullptr;
+				Widget* rightWidget = nullptr;
+				float height = 0.0f;
+			};
+			std::vector<PlacedRow> rows;
+
+			int leftIdx = 0;
+			int rightIdx = widgetCount - 1;
+
+			while (leftIdx <= rightIdx) {
+				PlacedRow row;
+				row.leftWidget = sortedWidgets[leftIdx];
+				float rowHeight = row.leftWidget->getHeight();
+				leftIdx++;
+
+				if (leftIdx <= rightIdx) {
+					row.rightWidget = sortedWidgets[rightIdx];
+					rowHeight = std::max(rowHeight, row.rightWidget->getHeight());
+					rightIdx--;
+				}
+
+				row.height = rowHeight;
+				rows.push_back(row);
+			}
+
+			float maxQuaderWidth = 0.0f;
+			for (const auto& row : rows) {
+				float leftWidth = row.leftWidget ? row.leftWidget->getWidth() : 0.0f;
+				float rightWidth = row.rightWidget ? row.rightWidget->getWidth() : 0.0f;
+
+				float rowWidth = leftWidth + rightWidth + m_spacingX;
+				maxQuaderWidth = std::max(maxQuaderWidth, rowWidth);
+			}
+
+			float totalWidth = maxQuaderWidth + (m_paddingX * 2.0f);
+
+			float totalHeight = 0.0f;
+			for (const auto& row : rows) {
+				totalHeight += row.height + m_spacingY;
+			}
+			if (!rows.empty()) {
+				totalHeight -= m_spacingY;
+			}
+			totalHeight += (m_paddingY * 2.0f);
+
+			setWidth(totalWidth, true);
+			setHeight(totalHeight, true);
+
+			float currentY = m_paddingY;
+
+			for (const auto& row : rows) {
+				if (row.leftWidget) {
+					float posX = m_paddingX;
+					float posY = currentY ;
+					row.leftWidget->setPosition(Vector2f(posX, posY));
+				}
+
+				if (row.rightWidget) {
+					float posX = m_paddingX + maxQuaderWidth - row.rightWidget->getWidth();
+					float posY = currentY ;
+					row.rightWidget->setPosition(Vector2f(posX, posY));
+				}
+
+				currentY += row.height + m_spacingY;
 			}
 		}
 	}
@@ -387,7 +571,7 @@ void Widget::pushToFront() {
 	}
 }
 
-bool Widget::isMouseOverDefault(int mouseX, int mouseY) {
+bool Widget::OnMouseOver(int mouseX, int mouseY) {
 	Vector2f scale = getWorldScale(true);
 	float visualWidth = m_width * scale[0];
 	float visualHeight = m_height * scale[1];
@@ -399,6 +583,10 @@ bool Widget::isMouseOverDefault(int mouseX, int mouseY) {
 	return check;
 }
 
-void Widget::resetDefault() {
+void Widget::OnReset() {
 	m_hasFocus = false;
+}
+
+bool Widget::OnInput(int mouseX, int mouseY, bool buttonLeft) {
+	return false;
 }
