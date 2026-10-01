@@ -125,7 +125,7 @@ void CharacterSet::loadMsdfBmFromFile(const std::string& pathJson, const std::st
 
 void CharacterSet::loadFromFile(const std::string& path, uint32_t characterSize) {
 	unsigned int paddingX = 0u;
-	unsigned int paddingY = 0u;
+	unsigned int paddingY = 10u;
 	bool flipVertical = false;
 	int spacing = 0;
 
@@ -140,7 +140,7 @@ void CharacterSet::loadFromFile(const std::string& path, uint32_t characterSize)
 		std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
 		return;
 	}
-
+	
 	FT_Set_Pixel_Sizes(face, 0, characterSize);
 	FT_GlyphSlot glyph = face->glyph;
 
@@ -167,7 +167,6 @@ void CharacterSet::loadFromFile(const std::string& path, uint32_t characterSize)
 		}
 		roww += glyph->bitmap.width + paddingX;
 		rowh = std::max(rowh, glyph->bitmap.rows + paddingY);
-		//lineHeight = std::max(lineHeight, g->bitmap.rows);
 
 		maxAscent = std::max(glyph->bitmap_top, maxAscent);
 		maxDescent = std::max((int)glyph->bitmap.rows - glyph->bitmap_top, maxDescent);
@@ -192,7 +191,7 @@ void CharacterSet::loadFromFile(const std::string& path, uint32_t characterSize)
 	unsigned int oy = paddingY;
 	int yOffset = 0;
 	rowh = 0u;
-
+	
 	for (int i = 32; i < 128; i++) {
 		if (FT_Load_Char(face, i, FT_LOAD_RENDER)) {
 			continue;
@@ -222,40 +221,17 @@ void CharacterSet::loadFromFile(const std::string& path, uint32_t characterSize)
 			}
 		}
 
-		yOffset = glyph->bitmap.rows - glyph->bitmap_top;
-		unsigned int height = yOffset >= 0 ? glyph->bitmap.rows + maxDescent : glyph->bitmap.rows + maxDescent - yOffset;
-
-		std::vector<uint8_t> glyphBox(glyph->bitmap.width * height, 0);
-		unsigned int index = 0;
-		int paddingTop = (i == '\'') ? (maxAscent - (glyph->bitmap_top - (int)glyph->bitmap.rows)) : (maxDescent - yOffset);
-
-		if (paddingTop < 0) paddingTop = 0;
-		unsigned int uPaddingTop = std::min(static_cast<unsigned int>(paddingTop), height - glyph->bitmap.rows);
-
-		for (unsigned int j = 0; j < glyph->bitmap.width * uPaddingTop; j++, index++) {
-			glyphBox[index] = 0;
-		}
-
-		for (unsigned int j = 0; j < glyph->bitmap.width * glyph->bitmap.rows; j++, index++) {
-			glyphBox[index] = glyph->bitmap.buffer[j];
-		}
-
-		while (index < glyphBox.size()) {
-			glyphBox[index] = 0;
-			index++;
-		}
-
-		for (unsigned int r = 0; r < height; ++r) {
+		for (unsigned int r = 0; r < glyph->bitmap.rows; ++r) {
 			uint8_t* destRow = &atlasBuffer[(oy + r) * maxWidth + ox];
-			uint8_t* srcRow = &glyphBox[r * glyph->bitmap.width];
+			uint8_t* srcRow = &glyph->bitmap.buffer[r * glyph->bitmap.width];
 			std::memcpy(destRow, srcRow, glyph->bitmap.width);
 		}
 
 		Char character = {
-			{ (float)glyph->bitmap_left, (float)glyph->bitmap_top },
-			{ (float)glyph->bitmap.width, (float)height },
+			{ (float)glyph->bitmap_left, (float)glyph->bitmap_top - (float)lineHeight },
+			{ (float)glyph->bitmap.width, (float)glyph->bitmap.rows },
 			{ (static_cast<float>(ox) + 0.5f) / (float)maxWidth, (static_cast<float>(oy) + 0.5f) / (float)maxHeight },
-			{ (static_cast<float>(glyph->bitmap.width) - 1.0f) / static_cast<float>(maxWidth), (static_cast<float>(height) - 1.0f) / static_cast<float>(maxHeight) },
+			{ (static_cast<float>(glyph->bitmap.width) - 1.0f) / static_cast<float>(maxWidth), (static_cast<float>(glyph->bitmap.rows) - 1.0f) / static_cast<float>(maxHeight) },
 			static_cast<float>((glyph->advance.x >> 6) + spacing)
 		};
 

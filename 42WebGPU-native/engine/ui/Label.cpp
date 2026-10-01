@@ -30,33 +30,32 @@ void Label::setColor(const Vector4f& textColor) {
 
 void Label::setText(const std::string& text) {
 	m_text = text;
-	m_width = characterSet.getWidth(m_text) + m_paddingX * 2.0f;
-	m_height = characterSet.lineHeight + m_paddingY * 2.0f;
+	m_width = characterSet.getWidth(m_text);
+	m_height = characterSet.lineHeight;
 	OnInvalidate();
 }
 
 void Label::OnLayoutChanged() {
 	if (!m_isLayoutDirty)
 		return;
-	if (m_height == 0.0f && m_width == 0.0f) {
-		Vector2f worldScale = getWorldScale();
-		setScale(m_width / worldScale[0], m_height / worldScale[1]);
-	}
+	m_width = characterSet.getWidth(m_text);
+	m_height = characterSet.lineHeight;
+
 	m_isLayoutDirty = false;
 }
 
 void Label::OnDraw() {
-	Vector2f currentCursor = { 0.0f, 0.0f };
+	Vector2f currentCursor = { m_paddingX, 0.0f };
 	for (char c : m_text) {
 		
 		const Char& ch = characterSet.getCharacter(c);
-		float dx = (m_paddingX + ch.pos[0]);
-		float dy = m_paddingY;
+		float dx = ch.pos[0];
+		float dy = (m_paddingY + ch.pos[1]);
 		float gw = ch.size[0];
 		float gh = ch.size[1];
 
 		UiInstance uiInstance = {};
-		Matrix4f glyphTransform = Matrix4f::Translate(currentCursor[0] + dx, dy, 0.0f) * Matrix4f::Scale(gw, gh, 1.0f);
+		Matrix4f glyphTransform = Matrix4f::Translate(currentCursor[0] + dx, -dy, 0.0f) * Matrix4f::Scale(gw, gh, 1.0f);
 
 		std::memcpy(uiInstance.transform, (getWorldTransformation() * glyphTransform).getData(), sizeof(Matrix4f));
 		std::memcpy(uiInstance.color, m_color.getData(), sizeof(Vector4f));
@@ -74,6 +73,6 @@ void Label::OnDraw() {
 
 void Label::setPadding(float paddingX, float paddingY, bool silent) {
 	Widget::setPadding(paddingX, paddingY, silent);
-	m_width = characterSet.getWidth(m_text) + m_paddingX * 2.0f;
-	m_height = characterSet.lineHeight + m_paddingY * 2.0f;
+	m_width = characterSet.getWidth(m_text);
+	m_height = characterSet.lineHeight;
 }

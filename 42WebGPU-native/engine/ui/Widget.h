@@ -97,6 +97,7 @@ protected:
 
 	float m_paddingX;
 	float m_paddingY;
+	
 	bool m_isMovable;
 
 private:

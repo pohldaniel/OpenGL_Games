@@ -17,7 +17,10 @@ void SoundDevice::Init(){
 }
 
 void SoundDevice::ShutDown() {
-	delete Instance;
+	if (Instance) {
+		delete Instance;
+		Instance = nullptr;
+	}
 }
 
 SoundDevice::SoundDevice(){

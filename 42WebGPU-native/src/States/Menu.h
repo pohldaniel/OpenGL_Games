@@ -14,7 +14,11 @@
 #include <States/StateMachine.h>
 
 class Menu : public State, public MouseEventListener, public KeyboardEventListener {
-
+	enum SelectedLayout {
+		M_HORIZONTAL,
+		M_VERTICAL,
+		M_GRID
+	};
 public:
 
 	Menu(StateMachine& machine);
@@ -30,6 +34,12 @@ public:
 
 private:
 
+	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
+
+	bool m_initUi = true;
+	bool m_drawUi = true;
+
 	Empty* m_uiScene;
 	CharacterSet m_characterSet;
+	SelectedLayout m_layout = SelectedLayout::M_GRID;
 };

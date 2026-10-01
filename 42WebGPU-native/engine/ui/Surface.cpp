@@ -1,28 +1,31 @@
 #include "Surface.h"
-#include "Application.h"
 
-Surface::Surface() : Widget(), m_color(Vector4f::ONE), m_defaultColor(Vector4f::ONE), m_isDragged(false), m_isResizing(false), m_mouseX(0), m_mouseY(0) {
+Surface::Surface() : Widget(), m_color(Vector4f::ONE), m_dragColor(Vector4f(0.2f, 0.45f, 0.85f, 1.0f)), m_gripColor(Vector4f(0.85f, 0.45f, 0.2f, 1.0f)), m_isDragged(false), m_isResizing(false), m_mouseX(0), m_mouseY(0), m_border(10.0f) {
 	m_isMovable = true;
 }
 
 Surface::Surface(const Surface& rhs) :
 	Widget(rhs),
 	m_color(rhs.m_color),
-	m_defaultColor(rhs.m_defaultColor),
+	m_dragColor(rhs.m_dragColor),
+	m_gripColor(rhs.m_gripColor),
 	m_isDragged(rhs.m_isDragged),
 	m_isResizing(rhs.m_isResizing),
 	m_mouseX(rhs.m_mouseX),
-	m_mouseY(rhs.m_mouseY) {
+	m_mouseY(rhs.m_mouseY),
+	m_border(rhs.m_border) {
 }
 
 Surface::Surface(Surface&& rhs) noexcept :
 	Widget(rhs),	
 	m_color(rhs.m_color),
-	m_defaultColor(rhs.m_defaultColor),
+	m_dragColor(rhs.m_dragColor),
+	m_gripColor(rhs.m_gripColor),
 	m_isDragged(rhs.m_isDragged),
 	m_isResizing(rhs.m_isResizing),
 	m_mouseX(rhs.m_mouseX),
-	m_mouseY(rhs.m_mouseY) {
+	m_mouseY(rhs.m_mouseY),
+	m_border(rhs.m_border) {
 }
 
 Surface::~Surface() {
@@ -31,7 +34,6 @@ Surface::~Surface() {
 
 void Surface::setColor(const Vector4f& color) {
 	m_color = color;
-	m_defaultColor = color;
 }
 
 bool Surface::OnInput(int mouseX, int mouseY, bool buttonLeft) {
@@ -40,22 +42,15 @@ bool Surface::OnInput(int mouseX, int mouseY, bool buttonLeft) {
 	float currentVisualHeight = m_height * m_scale[1];
 
 	Vector2f position = getWorldPosition(true);
-	const float resizeBorder = 8.0f;
+	
 
 	bool isOverDragZone = (mouseX >= position[0] && mouseX <= position[0] + currentVisualWidth &&
-		mouseY >= position[1] && mouseY <= position[1] + currentVisualHeight * 0.1f);
+		mouseY >= position[1] && mouseY <= position[1] + m_border);
 
-	bool isOverResizeZone = (mouseX >= position[0] + currentVisualWidth - resizeBorder && mouseX <= position[0] + currentVisualWidth)
-		&& (mouseY >= position[1] + currentVisualHeight - resizeBorder && mouseY <= position[1] + currentVisualHeight);
+	bool isOverResizeZone = (mouseX >= position[0] + currentVisualWidth - m_border && mouseX <= position[0] + currentVisualWidth)
+		&& (mouseY >= position[1] + currentVisualHeight - m_border && mouseY <= position[1] + currentVisualHeight);
 
-	if (m_isResizing) {
-		m_color = Vector4f(0.85f, 0.45f, 0.2f, 1.0f);
-	}else if (isOverDragZone || m_isDragged) {
-		m_color = Vector4f(0.2f, 0.45f, 0.85f, 1.0f);
-	}else {
-		m_color = m_defaultColor;
-	}
-
+	
 	if (buttonLeft) {
 		if (!m_isDragged && !m_isResizing) {
 			if (isOverResizeZone) {
@@ -131,9 +126,36 @@ void Surface::OnDraw() {
 	uiInstance.flipAndTile[1] = 0.0f;
 	uiInstance.flipAndTile[2] = 0.0f;
 	pushWidget(UiPipelineType::Standard, uiInstance);
-}
 
-void Surface::OnReset() {
-	Widget::OnReset();
-	m_color = m_defaultColor;
+	UiInstance dragInst = {};
+	std::memcpy(dragInst.transform, (getWorldTransformation() * Matrix4f::Scale(m_width, m_border / scale[1], 1.0f)).getData(), sizeof(Matrix4f));
+	std::memcpy(dragInst.color, m_dragColor.getData(), sizeof(Vector4f));
+
+	dragInst.textureRect[0] = 0.0f;
+	dragInst.textureRect[1] = 0.0f;
+	dragInst.textureRect[2] = 1.0f;
+	dragInst.textureRect[3] = 1.0f;
+	dragInst.textureLayer = 0.0f;
+
+	dragInst.flipAndTile[0] = 0.0f;
+	dragInst.flipAndTile[1] = 0.0f;
+	dragInst.flipAndTile[2] = 0.0f;
+
+	pushWidget(UiPipelineType::Standard, dragInst);
+
+	UiInstance gripInst = {};
+	std::memcpy(gripInst.transform, (getWorldTransformation() * Matrix4f::Translate(m_width - m_border / scale[0], m_height - m_border / scale[1], 0.0f) * Matrix4f::Scale(m_border / scale[0], m_border / scale[1], 1.0f)).getData(), sizeof(Matrix4f));
+	std::memcpy(gripInst.color, m_gripColor.getData(), sizeof(Vector4f));
+
+	gripInst.textureRect[0] = 0.0f;
+	gripInst.textureRect[1] = 0.0f;
+	gripInst.textureRect[2] = 1.0f;
+	gripInst.textureRect[3] = 1.0f;
+	gripInst.textureLayer = 0.0f;
+
+	gripInst.flipAndTile[0] = 0.0f;
+	gripInst.flipAndTile[1] = 0.0f;
+	gripInst.flipAndTile[2] = 0.0f;
+
+	pushWidget(UiPipelineType::Standard, gripInst);
 }

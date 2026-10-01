@@ -17,12 +17,13 @@ private:
 	
 	bool OnInput(int mouseX, int mouseY, bool buttonLeft) override;
 	void OnDraw() override;
-	void OnReset() override;
 
-	Vector4f m_defaultColor;
 	Vector4f m_color;
+	Vector4f m_dragColor;
+	Vector4f m_gripColor;
 
 	bool m_isDragged;
 	bool m_isResizing;
 	int m_mouseX, m_mouseY;
+	float m_border;
 };
