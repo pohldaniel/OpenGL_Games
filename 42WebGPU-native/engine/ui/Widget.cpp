@@ -1,4 +1,3 @@
-#include <iostream>
 #include "Widget.h"
 
 Vector2f Widget::WorldPosition;
@@ -17,7 +16,8 @@ m_spacingX(0.0f),
 m_spacingY(0.0f), 
 m_isLayoutDirty(true),
 m_layout(Layout::HORIZONTAL),
-m_isMovable(false){
+m_isMovable(false),
+m_border(0.0f){
 	
 }
 
@@ -33,6 +33,7 @@ Widget::Widget(const Widget& rhs) : Node(rhs), Object2D(rhs) {
 	m_isLayoutDirty = rhs.m_isLayoutDirty;
 	m_layout = rhs.m_layout;
 	m_isMovable = rhs.m_isMovable;
+	m_border = rhs.m_border;
 }
 
 Widget::Widget(Widget&& rhs) noexcept : Node(rhs), Object2D(rhs) {
@@ -47,6 +48,7 @@ Widget::Widget(Widget&& rhs) noexcept : Node(rhs), Object2D(rhs) {
 	m_isLayoutDirty = rhs.m_isLayoutDirty;
 	m_layout = rhs.m_layout;
 	m_isMovable = rhs.m_isMovable;
+	m_border = rhs.m_border;
 }
 
 Widget::~Widget() {
@@ -68,11 +70,47 @@ void Widget::drawTree() {
 
 	OnDraw();
 
+	uint32_t prevSiccorX = uiContext.activeScissorX;
+	uint32_t prevSiccorY = uiContext.activeScissorY;
+	uint32_t prevSiccorW = uiContext.activeScissorWidth;
+	uint32_t prevSiccorH = uiContext.activeScissorHeight;
+
+	if (m_border > 0.0f) {	
+		Vector2f pos = getWorldPosition(true);
+		Vector2f scale = getWorldScale(true);
+		float scaledBorder = m_border * m_scale[0];
+
+		float currentX = std::max(pos[0], static_cast<float>(prevSiccorX));
+		float currentY = std::max(pos[1], static_cast<float>(prevSiccorY));
+
+		uiContext.activeScissorX = std::min(static_cast<uint32_t>(std::max(0.0f, currentX)), static_cast<uint32_t>(uiContext.width));
+		uiContext.activeScissorY = std::min(static_cast<uint32_t>(std::max(0.0f, currentY)), static_cast<uint32_t>(uiContext.height));
+
+		float parentEndX = static_cast<float>(prevSiccorX + prevSiccorW);
+		float parentEndY = static_cast<float>(prevSiccorY + prevSiccorH);
+
+		float maxAllowedX = parentEndX - scaledBorder;
+		float maxAllowedY = parentEndY - scaledBorder;
+		float finalEndX = std::min(pos[0] + (m_width - m_border) * scale[0], maxAllowedX);
+		float finalEndY = std::min(pos[1] + (m_height - m_border) * scale[1], maxAllowedY);
+
+		uint32_t clampedEndX = std::min(static_cast<uint32_t>(std::max(0.0f, finalEndX)), static_cast<uint32_t>(uiContext.width));
+		uint32_t clampedEndY = std::min(static_cast<uint32_t>(std::max(0.0f, finalEndY)), static_cast<uint32_t>(uiContext.height));
+
+		uiContext.activeScissorWidth = (clampedEndX > uiContext.activeScissorX) ? (clampedEndX - uiContext.activeScissorX) : 0u;
+		uiContext.activeScissorHeight = (clampedEndY > uiContext.activeScissorY) ? (clampedEndY - uiContext.activeScissorY) : 0u;
+	}
+
 	if (m_children.size() > 0) {
 		for (std::list<std::unique_ptr<Node, std::function<void(Node* node)>>>::iterator it = getChildren().begin(); it != getChildren().end(); ++it) {
 			static_cast<Widget*>((*it).get())->drawTree();
 		}
 	}
+
+	uiContext.activeScissorX = prevSiccorX;
+	uiContext.activeScissorY = prevSiccorY;
+	uiContext.activeScissorWidth = prevSiccorW;
+	uiContext.activeScissorHeight = prevSiccorH;
 
 	if (openedNewLayer) {
 		if (uiContext.uiLayers.size() > 1) {
@@ -280,16 +318,35 @@ void Widget::pushWidget(UiPipelineType type, const UiInstance& instance) {
 
 	auto& currentBatches = uiContext.currentActiveLayer->batches;
 
-	if (currentBatches.empty() || currentBatches.back().pipelineType != type) {
-		UiBatch uiBatch;
-		uiBatch.pipelineType = type;
-		uiBatch.startIndex = static_cast<uint32_t>(uiContext.uiInstances.size());
-		uiBatch.instanceCount = 0;
-		currentBatches.push_back(uiBatch);
-	}
+	uint32_t targetX = uiContext.activeScissorX;
+    uint32_t targetY = uiContext.activeScissorY;
+    uint32_t targetW = uiContext.activeScissorWidth;
+    uint32_t targetH = uiContext.activeScissorHeight;
 
-	uiContext.uiInstances.push_back(instance);
-	currentBatches.back().instanceCount++;
+    bool scissorChanged = false;
+    if (!currentBatches.empty()) {
+        const auto& lastBatch = currentBatches.back();
+        if (lastBatch.scissorX != targetX || lastBatch.scissorY != targetY || lastBatch.scissorWidth != targetW || lastBatch.scissorHeight != targetH) {
+            scissorChanged = true;
+        }
+    }
+
+    if (currentBatches.empty() || currentBatches.back().pipelineType != type || scissorChanged) {
+        UiBatch uiBatch;
+        uiBatch.pipelineType = type;
+        uiBatch.startIndex = static_cast<uint32_t>(uiContext.uiInstances.size());
+        uiBatch.instanceCount = 0;
+        
+		uiBatch.scissorX = targetX;
+		uiBatch.scissorY = targetY;
+		uiBatch.scissorWidth = targetW;
+		uiBatch.scissorHeight = targetH;
+
+        currentBatches.push_back(uiBatch);
+    }
+
+    uiContext.uiInstances.push_back(instance);
+    currentBatches.back().instanceCount++;
 }
 
 void Widget::updateLayout() {
@@ -556,6 +613,10 @@ void Widget::setLayout(Layout layout, bool silent) {
 	m_layout = layout;
 	if (!silent)
 		OnInvalidate();
+}
+
+void Widget::setBorder(float border) {
+	m_border = border;
 }
 
 void Widget::pushToFront() {	

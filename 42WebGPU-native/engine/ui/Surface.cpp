@@ -1,6 +1,6 @@
 #include "Surface.h"
 
-Surface::Surface() : Widget(), m_color(Vector4f::ONE), m_dragColor(Vector4f(0.2f, 0.45f, 0.85f, 1.0f)), m_gripColor(Vector4f(0.85f, 0.45f, 0.2f, 1.0f)), m_isDragged(false), m_isResizing(false), m_mouseX(0), m_mouseY(0), m_border(10.0f) {
+Surface::Surface() : Widget(), m_color(Vector4f::ONE), m_dragColor(Vector4f(0.2f, 0.45f, 0.85f, 1.0f)), m_gripColor(Vector4f(0.85f, 0.45f, 0.2f, 1.0f)), m_isDragged(false), m_isResizing(false), m_mouseX(0), m_mouseY(0), m_controlSize(10.0f) {
 	m_isMovable = true;
 }
 
@@ -13,7 +13,7 @@ Surface::Surface(const Surface& rhs) :
 	m_isResizing(rhs.m_isResizing),
 	m_mouseX(rhs.m_mouseX),
 	m_mouseY(rhs.m_mouseY),
-	m_border(rhs.m_border) {
+	m_controlSize(rhs.m_controlSize) {
 }
 
 Surface::Surface(Surface&& rhs) noexcept :
@@ -25,7 +25,7 @@ Surface::Surface(Surface&& rhs) noexcept :
 	m_isResizing(rhs.m_isResizing),
 	m_mouseX(rhs.m_mouseX),
 	m_mouseY(rhs.m_mouseY),
-	m_border(rhs.m_border) {
+	m_controlSize(rhs.m_controlSize) {
 }
 
 Surface::~Surface() {
@@ -45,10 +45,10 @@ bool Surface::OnInput(int mouseX, int mouseY, bool buttonLeft) {
 	
 
 	bool isOverDragZone = (mouseX >= position[0] && mouseX <= position[0] + currentVisualWidth &&
-		mouseY >= position[1] && mouseY <= position[1] + m_border);
+		mouseY >= position[1] && mouseY <= position[1] + m_controlSize);
 
-	bool isOverResizeZone = (mouseX >= position[0] + currentVisualWidth - m_border && mouseX <= position[0] + currentVisualWidth)
-		&& (mouseY >= position[1] + currentVisualHeight - m_border && mouseY <= position[1] + currentVisualHeight);
+	bool isOverResizeZone = (mouseX >= position[0] + currentVisualWidth - m_controlSize && mouseX <= position[0] + currentVisualWidth)
+		&& (mouseY >= position[1] + currentVisualHeight - m_controlSize && mouseY <= position[1] + currentVisualHeight);
 
 	
 	if (buttonLeft) {
@@ -112,7 +112,6 @@ bool Surface::OnInput(int mouseX, int mouseY, bool buttonLeft) {
 void Surface::OnDraw() {
 	UiInstance uiInstance = {};
 
-	Vector2f scale = getScale();
 	std::memcpy(uiInstance.transform, (getWorldTransformation() * Matrix4f::Scale(m_width, m_height, 1.0f)).getData(), sizeof(Matrix4f));
 	std::memcpy(uiInstance.color, m_color.getData(), sizeof(Vector4f));
 
@@ -125,10 +124,10 @@ void Surface::OnDraw() {
 	uiInstance.flipAndTile[0] = 0.0f;
 	uiInstance.flipAndTile[1] = 0.0f;
 	uiInstance.flipAndTile[2] = 0.0f;
-	pushWidget(UiPipelineType::Standard, uiInstance);
+	pushWidget(UiPipelineType::Clear, uiInstance);
 
 	UiInstance dragInst = {};
-	std::memcpy(dragInst.transform, (getWorldTransformation() * Matrix4f::Scale(m_width, m_border / scale[1], 1.0f)).getData(), sizeof(Matrix4f));
+	std::memcpy(dragInst.transform, (getWorldTransformation() * Matrix4f::Scale(m_width, m_controlSize / m_scale[1], 1.0f)).getData(), sizeof(Matrix4f));
 	std::memcpy(dragInst.color, m_dragColor.getData(), sizeof(Vector4f));
 
 	dragInst.textureRect[0] = 0.0f;
@@ -144,7 +143,7 @@ void Surface::OnDraw() {
 	pushWidget(UiPipelineType::Standard, dragInst);
 
 	UiInstance gripInst = {};
-	std::memcpy(gripInst.transform, (getWorldTransformation() * Matrix4f::Translate(m_width - m_border / scale[0], m_height - m_border / scale[1], 0.0f) * Matrix4f::Scale(m_border / scale[0], m_border / scale[1], 1.0f)).getData(), sizeof(Matrix4f));
+	std::memcpy(gripInst.transform, (getWorldTransformation() * Matrix4f::Translate(m_width - m_controlSize / m_scale[0], m_height - m_controlSize / m_scale[1], 0.0f) * Matrix4f::Scale(m_controlSize / m_scale[0], m_controlSize / m_scale[1], 1.0f)).getData(), sizeof(Matrix4f));
 	std::memcpy(gripInst.color, m_gripColor.getData(), sizeof(Vector4f));
 
 	gripInst.textureRect[0] = 0.0f;

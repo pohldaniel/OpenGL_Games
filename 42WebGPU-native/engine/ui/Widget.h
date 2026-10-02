@@ -75,6 +75,8 @@ public:
 	void setSpacing(float spacingX, float spacingY, bool silent = false);
 	void setLayout(Layout layout, bool silent = false);
 	virtual void setPadding(float paddingX, float paddingY, bool silent = false);
+	
+	void setBorder(float border);
 
 protected:
 
@@ -99,6 +101,7 @@ protected:
 	float m_paddingY;
 	
 	bool m_isMovable;
+	float m_border;
 
 private:
 

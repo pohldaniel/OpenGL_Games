@@ -7,6 +7,9 @@ void uiInit(float width, float height) {
 	uiContext.width = width;
 	uiContext.height = height;
 
+	uiContext.activeScissorWidth = static_cast<uint32_t>(width);
+	uiContext.activeScissorHeight = static_cast<uint32_t>(height);
+
 	uiContext.wgpStorageBuffer.createBuffer(400u * sizeof(UiInstance), WGPUBufferUsage_Storage | WGPUBufferUsage_CopyDst);
 	uiContext.wgpUniformBuffer.createBuffer(16 * sizeof(float), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	uiResize(width, height);
@@ -161,15 +164,19 @@ void uiDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescri
 		wgpuRenderPassEncoderSetStencilReference(renderPassEncoder, 1u);
 
 		const auto& batch = layer.batches.front();
-		wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, uiContext.bindgroup, 0u, nullptr);
-		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, uiContext.renderPipelineClear);
-		wgpuRenderPassEncoderDraw(renderPassEncoder, 6u, batch.instanceCount, 0u, batch.startIndex);		
+		if (batch.pipelineType == UiPipelineType::Clear) {
+			wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, uiContext.bindgroup, 0u, nullptr);
+			wgpuRenderPassEncoderSetPipeline(renderPassEncoder, uiContext.renderPipelineClear);
+			wgpuRenderPassEncoderDraw(renderPassEncoder, 6u, batch.instanceCount, 0u, batch.startIndex);
+		}
 
 		for (const auto& batch : layer.batches) {
 			if (batch.instanceCount == 0) continue;
 
+			wgpuRenderPassEncoderSetScissorRect(renderPassEncoder, batch.scissorX, batch.scissorY, batch.scissorWidth, batch.scissorHeight);
+
 			switch (batch.pipelineType) {
-			case UiPipelineType::Standard:
+			case UiPipelineType::Standard: case UiPipelineType::Clear:
 				wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, uiContext.bindgroup, 0u, nullptr);
 				wgpuRenderPassEncoderSetPipeline(renderPassEncoder, uiContext.renderPipeline);
 				break;
@@ -186,8 +193,8 @@ void uiDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescri
 				wgpuRenderPassEncoderSetPipeline(renderPassEncoder, uiContext.renderPipelineText);
 				break;
 			}
-			wgpuRenderPassEncoderDraw(renderPassEncoder, 6u, batch.instanceCount, 0u, batch.startIndex);		
-		}		
+			wgpuRenderPassEncoderDraw(renderPassEncoder, 6u, batch.instanceCount, 0u, batch.startIndex);
+		}	
 	}
 
 	wgpuRenderPassEncoderEnd(renderPassEncoder);

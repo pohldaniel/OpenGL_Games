@@ -115,10 +115,7 @@ bool Button::OnInput(int mouseX, int mouseY, bool buttonLeft) {
 
 	m_wasPressed = buttonLeft;
 
-	if (m_isPressed)
-		return true;
-
-	return false;
+	return !m_isPressed;
 }
 
 void Button::setOnClick(std::function<void()> fun) {

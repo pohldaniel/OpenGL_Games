@@ -46,6 +46,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	m_uiScene->setPadding(20.0f, 20.0f);
 	m_uiScene->setSpacing(25.0f, 25.0f);
 	m_uiScene->setLayout(Layout::MASONRY);
+	m_uiScene->setBorder(10.0f);
 
 	Surface* surface = m_uiScene->addChild<Surface>();
 	surface->setColor(Vector4f(0.2f, 0.2f, 0.2f, 1.0f));
@@ -421,6 +422,15 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	label->setText("Isomeric");
 	label->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 	label->setPadding(0.0f, paddingBottom);
+
+	if (m_layout == SelectedLayout::M_VERTICAL) {
+		std::vector<Surface*>& surfaces = m_uiScene->getChildren<Surface>();
+		for (auto& surface : surfaces) {
+			surface->setLayout(Layout::VERTICAL);
+			m_uiScene->setLayout(Layout::HORIZONTAL);
+		}
+		m_uiScene->updateLayout();
+	}
 
 	wgpContext.setClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
 	wgpContext.OnDraw = std::bind(&Menu::OnDraw, this, std::placeholders::_1, std::placeholders::_2);

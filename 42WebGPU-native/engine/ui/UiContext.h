@@ -32,6 +32,7 @@ struct UiInstance {
 
 enum class UiPipelineType {
 	Standard,
+	Clear,
 	MaskWrite,
 	OutlineRead,
 	Text
@@ -41,6 +42,10 @@ struct UiBatch {
 	UiPipelineType pipelineType;
 	uint32_t startIndex;
 	uint32_t instanceCount;
+	uint32_t scissorX = 0;
+	uint32_t scissorY = 0;
+	uint32_t scissorWidth = 0;
+	uint32_t scissorHeight = 0;
 };
 
 struct UiLayer {
@@ -61,4 +66,9 @@ struct UiContext {
 	std::vector<UiInstance> uiInstances;
 	std::vector<UiLayer> uiLayers;
 	UiLayer* currentActiveLayer = nullptr;
+
+	uint32_t activeScissorX = 0u;
+	uint32_t activeScissorY = 0u;
+	uint32_t activeScissorWidth = 0u;
+	uint32_t activeScissorHeight = 0u;
 };

@@ -25,5 +25,5 @@ private:
 	bool m_isDragged;
 	bool m_isResizing;
 	int m_mouseX, m_mouseY;
-	float m_border;
+	float m_controlSize;
 };

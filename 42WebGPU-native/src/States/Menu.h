@@ -37,9 +37,9 @@ private:
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 
 	bool m_initUi = true;
-	bool m_drawUi = true;
+	bool m_drawUi = false;
 
 	Empty* m_uiScene;
 	CharacterSet m_characterSet;
-	SelectedLayout m_layout = SelectedLayout::M_GRID;
+	SelectedLayout m_layout = SelectedLayout::M_VERTICAL;
 };
