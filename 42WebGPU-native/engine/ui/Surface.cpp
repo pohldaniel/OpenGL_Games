@@ -1,4 +1,5 @@
 #include "Surface.h"
+#include "Empty.h"
 
 Surface::Surface() : Widget(), m_color(Vector4f::ONE), m_dragColor(Vector4f(0.2f, 0.45f, 0.85f, 1.0f)), m_gripColor(Vector4f(0.85f, 0.45f, 0.2f, 1.0f)), m_isDragged(false), m_isResizing(false), m_mouseX(0), m_mouseY(0), m_controlSize(10.0f) {
 	m_isMovable = true;
@@ -35,14 +36,12 @@ Surface::~Surface() {
 void Surface::setColor(const Vector4f& color) {
 	m_color = color;
 }
-
+#include <iostream>
 bool Surface::OnInput(int mouseX, int mouseY, bool buttonLeft) {
-
 	float currentVisualWidth = m_width * m_scale[0];
 	float currentVisualHeight = m_height * m_scale[1];
 
 	Vector2f position = getWorldPosition(true);
-	
 
 	bool isOverDragZone = (mouseX >= position[0] && mouseX <= position[0] + currentVisualWidth &&
 		mouseY >= position[1] && mouseY <= position[1] + m_controlSize);
@@ -50,7 +49,6 @@ bool Surface::OnInput(int mouseX, int mouseY, bool buttonLeft) {
 	bool isOverResizeZone = (mouseX >= position[0] + currentVisualWidth - m_controlSize && mouseX <= position[0] + currentVisualWidth)
 		&& (mouseY >= position[1] + currentVisualHeight - m_controlSize && mouseY <= position[1] + currentVisualHeight);
 
-	
 	if (buttonLeft) {
 		if (!m_isDragged && !m_isResizing) {
 			if (isOverResizeZone) {
@@ -64,7 +62,8 @@ bool Surface::OnInput(int mouseX, int mouseY, bool buttonLeft) {
 				m_mouseY = mouseY;
 			}
 		}
-	}else {
+	}
+	else {
 		m_isDragged = false;
 		m_isResizing = false;
 	}
@@ -74,11 +73,29 @@ bool Surface::OnInput(int mouseX, int mouseY, bool buttonLeft) {
 
 	if (m_isDragged && (deltaX != 0 || deltaY != 0)) {
 		Vector2f parentScale = m_parent ? static_cast<Widget*>(m_parent)->getWorldScale() : Vector2f(1.0f, 1.0f);
+		Vector2f nextLocalPos = getPosition() + Vector2f(static_cast<float>(deltaX) / parentScale[0], static_cast<float>(deltaY) / parentScale[1]);
 
-		setPosition(getPosition() + Vector2f(static_cast<float>(deltaX) / parentScale[0], static_cast<float>(deltaY) / parentScale[1]));
+		if (nextLocalPos[0] < 0.0f) nextLocalPos[0] = 0.0f;
+		if (nextLocalPos[1] < 0.0f) nextLocalPos[1] = 0.0f;
+
+		setPosition(nextLocalPos);
 
 		m_mouseX = mouseX;
 		m_mouseY = mouseY;
+
+		if (m_parent) {
+			Widget* parentWidget = static_cast<Widget*>(m_parent);
+
+			float widgetRightEdge = nextLocalPos[0] + m_width * m_scale[0];
+			float widgetBottomEdge = nextLocalPos[1] + m_height * m_scale[1];
+
+			if (widgetRightEdge > parentWidget->getWidth()) {
+				parentWidget->setWidth(widgetRightEdge, true);
+			}
+			if (widgetBottomEdge > parentWidget->getHeight()) {
+				parentWidget->setHeight(widgetBottomEdge, true);
+			}
+		}
 	}
 
 	if (m_isResizing && (deltaX != 0 || deltaY != 0)) {
@@ -88,28 +105,38 @@ bool Surface::OnInput(int mouseX, int mouseY, bool buttonLeft) {
 		const float minVisualWidth = 50.0f;
 		const float minVisualHeight = 50.0f;
 
-		float newScaleX = m_scale[0];
-		float newScaleY = m_scale[1];
+		if (newVisualWidth < minVisualWidth) newVisualWidth = minVisualWidth;
+		if (newVisualHeight < minVisualHeight) newVisualHeight = minVisualHeight;
 
-		if (newVisualWidth >= minVisualWidth) {
-			newScaleX = newVisualWidth / m_width;
-			m_mouseX = mouseX;
-		}
-		if (newVisualHeight >= minVisualHeight) {
-			newScaleY = newVisualHeight / m_height;
-			m_mouseY = mouseY;
-		}
+		float newScaleX = newVisualWidth / m_width;
+		float newScaleY = newVisualHeight / m_height;
+
 		scale(newScaleX / m_scale[0], newScaleY / m_scale[1]);
-	}
 
-	if (m_isDragged || m_isResizing || isOverDragZone || isOverResizeZone) {
-		return true;
+		m_mouseX = mouseX;
+		m_mouseY = mouseY;
+
+		if (m_parent) {
+			Widget* parentWidget = static_cast<Widget*>(m_parent);
+			Vector2f localPos = getPosition();
+
+			float widgetRightEdge = localPos[0] + m_width * newScaleX;
+			float widgetBottomEdge = localPos[1] + m_height * newScaleY;
+
+			if (widgetRightEdge > parentWidget->getWidth()) {
+				parentWidget->setWidth(widgetRightEdge, true);
+			}
+			if (widgetBottomEdge > parentWidget->getHeight()) {
+				parentWidget->setHeight(widgetBottomEdge, true);
+			}
+		}
 	}
 
 	return true;
 }
 
 void Surface::OnDraw() {
+
 	UiInstance uiInstance = {};
 
 	std::memcpy(uiInstance.transform, (getWorldTransformation() * Matrix4f::Scale(m_width, m_height, 1.0f)).getData(), sizeof(Matrix4f));

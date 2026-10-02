@@ -28,7 +28,10 @@ public:
 	Widget(Widget&& rhs) noexcept;
 	virtual ~Widget();
 
+	
 	void input(int mouseX, int mouseY, bool buttonLeft = false);
+	void wheelInput(int mouseX, int mouseY, float delta);
+
 	void updateLayout();
 	void draw();
 
@@ -69,8 +72,8 @@ public:
 	float getWidth();
 	float getHeight();
 
-	void setWidth(float width, bool silent = false);
-	void setHeight(float height, bool silent = false);
+	virtual void setWidth(float width, bool silent = false);
+	virtual void setHeight(float height, bool silent = false);
 	
 	void setSpacing(float spacingX, float spacingY, bool silent = false);
 	void setLayout(Layout layout, bool silent = false);
@@ -84,13 +87,18 @@ protected:
 	void OnInvalidate();
 
 	virtual bool OnInput(int mouseX, int mouseY, bool buttonLeft = false);
+	virtual void OnMouseWheel(int mouseX, int mouseY, float delta);
 	virtual void OnLayoutChanged();
 	virtual void OnDraw() = 0;
 	virtual bool OnMouseOver(int mouseX, int mouseY);
 	virtual void OnReset();
 
+	virtual bool inputTree(int mouseX, int mouseY, bool buttonLeft);
+	
+
 	void drawTree();			
 	void pushWidget(UiPipelineType type, const UiInstance& instance);
+	void pushToFront();
 
 	mutable bool m_isLayoutDirty;
 
@@ -102,12 +110,15 @@ protected:
 	
 	bool m_isMovable;
 	float m_border;
+	bool m_hasFocus;
+
+	static Widget* ActiveWidget;
 
 private:
 
-	bool inputTree(const int mouseX, const int mouseY, bool buttonLeft);
+	
 	void resetTree();
-	void pushToFront();
+	
 
 	mutable Matrix4f m_modelMatrix;
 	mutable bool m_isDirty;
@@ -117,11 +128,11 @@ private:
 	Layout m_layout;
 	
 	Vector4f m_focusColor = Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
-	bool m_hasFocus;
+	
 	
 	static Vector2f WorldPosition;
 	static Vector2f WorldScale;
 	static float WorldOrientation;
-	static Widget* ActiveWidget;
+	
 };
 

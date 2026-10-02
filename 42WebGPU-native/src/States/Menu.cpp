@@ -35,6 +35,7 @@
 Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
+	EventDispatcher::AddMouseListener(this);
 	Mouse::instance().attach(Application::GetWindow(), false, true);
 
 	m_characterSet.loadFromFile("res/fonts/upheavtt.ttf", 24.0f);
@@ -432,12 +433,23 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 		m_uiScene->updateLayout();
 	}
 
+
+	if (m_layout == SelectedLayout::M_HORIZONTAL) {
+		std::vector<Surface*>& surfaces = m_uiScene->getChildren<Surface>();
+		for (auto& surface : surfaces) {
+			surface->setLayout(Layout::HORIZONTAL);
+			m_uiScene->setLayout(Layout::VERTICAL);
+		}
+		m_uiScene->updateLayout();
+	}
+
 	wgpContext.setClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
 	wgpContext.OnDraw = std::bind(&Menu::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
 }
 
 Menu::~Menu() {
 	EventDispatcher::RemoveKeyboardListener(this);
+	EventDispatcher::RemoveMouseListener(this);
 	delete m_uiScene;
 }
 
@@ -562,4 +574,8 @@ void Menu::OnKeyDown(const Event::KeyboardEvent& event) {
 		wgpCleanState();
 		m_isRunning = false;
 	}
+}
+
+void Menu::OnMouseWheel(const Event::MouseWheelEvent& event) {
+	m_uiScene->wheelInput(event.x, event.y, event.delta);
 }

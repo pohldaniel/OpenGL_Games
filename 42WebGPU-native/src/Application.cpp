@@ -1,3 +1,4 @@
+#include <windowsx.h>
 #include <iostream>
 #include <time.h>
 #include <imgui.h>
@@ -474,8 +475,13 @@ void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
 			}
 			break;
 		}case WM_MOUSEWHEEL: {
+			POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
+			ScreenToClient(hWnd, &pt); 
+
 			Event event;
 			event.type = Event::MOUSEWHEEL;
+			event.data.mouseWheel.x = pt.x;
+			event.data.mouseWheel.y = pt.y;
 			event.data.mouseWheel.delta = static_cast<float>(GET_WHEEL_DELTA_WPARAM(wParam)) / static_cast<float>(WHEEL_DELTA);
 			event.data.mouseWheel.direction = event.data.mouseWheel.delta > 0 ? Event::MouseWheelEvent::WheelDirection::UP : Event::MouseWheelEvent::WheelDirection::DOWN;
 			ScrollDelta = event.data.mouseWheel.delta;

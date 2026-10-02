@@ -38,6 +38,8 @@ public:
 		};
 		WheelDirection direction;
 		float delta;
+		int x;
+		int y;
 	};
 
 	struct KeyboardEvent {

@@ -28,8 +28,9 @@ public:
 	void update() override;
 	void render() override;
 	void OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor);
-
+	
 	void OnKeyDown(const Event::KeyboardEvent& event) override;
+	void OnMouseWheel(const Event::MouseWheelEvent& event) override;
 	void resize(int deltaW, int deltaH) override;
 
 private:
@@ -41,5 +42,5 @@ private:
 
 	Empty* m_uiScene;
 	CharacterSet m_characterSet;
-	SelectedLayout m_layout = SelectedLayout::M_VERTICAL;
+	SelectedLayout m_layout = SelectedLayout::M_GRID;
 };

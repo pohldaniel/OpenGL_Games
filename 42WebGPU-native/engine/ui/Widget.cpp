@@ -78,24 +78,24 @@ void Widget::drawTree() {
 	if (m_border > 0.0f) {	
 		Vector2f pos = getWorldPosition(true);
 		Vector2f scale = getWorldScale(true);
-		float scaledBorder = m_border * m_scale[0];
+		float border = m_border * m_scale[0];
 
 		float currentX = std::max(pos[0], static_cast<float>(prevSiccorX));
 		float currentY = std::max(pos[1], static_cast<float>(prevSiccorY));
 
-		uiContext.activeScissorX = std::min(static_cast<uint32_t>(std::max(0.0f, currentX)), static_cast<uint32_t>(uiContext.width));
-		uiContext.activeScissorY = std::min(static_cast<uint32_t>(std::max(0.0f, currentY)), static_cast<uint32_t>(uiContext.height));
+		uiContext.activeScissorX = static_cast<uint32_t>(std::min(std::max(0.0f, currentX),uiContext.width));
+		uiContext.activeScissorY = static_cast<uint32_t>(std::min(std::max(0.0f, currentY),uiContext.height));
 
 		float parentEndX = static_cast<float>(prevSiccorX + prevSiccorW);
 		float parentEndY = static_cast<float>(prevSiccorY + prevSiccorH);
 
-		float maxAllowedX = parentEndX - scaledBorder;
-		float maxAllowedY = parentEndY - scaledBorder;
-		float finalEndX = std::min(pos[0] + (m_width - m_border) * scale[0], maxAllowedX);
-		float finalEndY = std::min(pos[1] + (m_height - m_border) * scale[1], maxAllowedY);
+		float maxAllowedX = parentEndX - border;
+		float maxAllowedY = parentEndY - border;
+		float endX = std::min(pos[0] + (m_width - m_border) * scale[0], maxAllowedX);
+		float endY = std::min(pos[1] + (m_height - m_border) * scale[1], maxAllowedY);
 
-		uint32_t clampedEndX = std::min(static_cast<uint32_t>(std::max(0.0f, finalEndX)), static_cast<uint32_t>(uiContext.width));
-		uint32_t clampedEndY = std::min(static_cast<uint32_t>(std::max(0.0f, finalEndY)), static_cast<uint32_t>(uiContext.height));
+		uint32_t clampedEndX = static_cast<uint32_t>(std::min(std::max(0.0f, endX), uiContext.width));
+		uint32_t clampedEndY = static_cast<uint32_t>(std::min(std::max(0.0f, endY), uiContext.height));
 
 		uiContext.activeScissorWidth = (clampedEndX > uiContext.activeScissorX) ? (clampedEndX - uiContext.activeScissorX) : 0u;
 		uiContext.activeScissorHeight = (clampedEndY > uiContext.activeScissorY) ? (clampedEndY - uiContext.activeScissorY) : 0u;
@@ -128,7 +128,7 @@ void Widget::resetTree() {
 	OnReset();
 }
 
-void Widget::input(const int mouseX, const int mouseY, bool buttonLeft) {
+void Widget::input(int mouseX, int mouseY, bool buttonLeft) {
 	resetTree();
 	if (Widget::ActiveWidget != nullptr) {
 		Widget::ActiveWidget->OnInput(mouseX, mouseY, buttonLeft);
@@ -142,7 +142,7 @@ void Widget::input(const int mouseX, const int mouseY, bool buttonLeft) {
 	updateLayout();
 }
 
-bool Widget::inputTree(const int mouseX, const int mouseY, bool buttonLeft) {
+bool Widget::inputTree(int mouseX, int mouseY, bool buttonLeft) {
 	if(!OnMouseOver(mouseX, mouseY)) {
 		return false;
 	}
@@ -163,6 +163,20 @@ bool Widget::inputTree(const int mouseX, const int mouseY, bool buttonLeft) {
 	}
 
 	return OnInput(mouseX, mouseY, buttonLeft);
+}
+
+void Widget::wheelInput(int mouseX, int mouseY, float delta) {
+	if (!OnMouseOver(mouseX, mouseY)) {
+		return;
+	}
+
+	if (!m_children.empty()) {
+		for (auto it = m_children.rbegin(); it != m_children.rend(); ++it) {
+			static_cast<Widget*>(it->get())->wheelInput(mouseX, mouseY, delta);
+		}
+	}
+
+	OnMouseWheel(mouseX, mouseY, delta);
 }
 
 void Widget::OnTransformChanged() {
@@ -650,4 +664,8 @@ void Widget::OnReset() {
 
 bool Widget::OnInput(int mouseX, int mouseY, bool buttonLeft) {
 	return false;
+}
+
+void Widget::OnMouseWheel(int mouseX, int mouseY, float delta) {
+
 }
