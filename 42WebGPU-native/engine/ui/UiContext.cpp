@@ -73,6 +73,9 @@ void uiResize(float width, float height) {
 	uiContext.width = width;
 	uiContext.height = height;
 
+	uiContext.activeScissorWidth = static_cast<uint32_t>(width);
+	uiContext.activeScissorHeight = static_cast<uint32_t>(height);
+
 	float ortho[16] = { 2.0f / width, 0.0f,   0.0f, 0.0f,
 						0.0f, -2.0f / height, 0.0f, 0.0f,
 						0.0f, 0.0f, -1.0f, 0.0f,
