@@ -425,7 +425,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	label->setPadding(0.0f, paddingBottom);
 
 	if (m_layout == SelectedLayout::M_VERTICAL) {
-		std::vector<Surface*>& surfaces = m_uiScene->getChildren<Surface>();
+		const std::vector<Surface*>& surfaces = m_uiScene->getChildren<Surface>();
 		for (auto& surface : surfaces) {
 			surface->setLayout(Layout::VERTICAL);
 			m_uiScene->setLayout(Layout::HORIZONTAL);
@@ -435,7 +435,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 
 
 	if (m_layout == SelectedLayout::M_HORIZONTAL) {
-		std::vector<Surface*>& surfaces = m_uiScene->getChildren<Surface>();
+		const std::vector<Surface*>& surfaces = m_uiScene->getChildren<Surface>();
 		for (auto& surface : surfaces) {
 			surface->setLayout(Layout::HORIZONTAL);
 			m_uiScene->setLayout(Layout::VERTICAL);

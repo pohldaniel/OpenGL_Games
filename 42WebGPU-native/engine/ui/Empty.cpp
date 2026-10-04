@@ -97,9 +97,6 @@ bool Empty::OnInput(int mouseX, int mouseY, bool buttonLeft) {
 					if (m_sliderPosX > maxSliderDeltaX) m_sliderPosX = maxSliderDeltaX;
 
 					float sliderDelta = m_sliderPosX - prevSliderPos;
-
-					//std::cout << "Scroll Factor: " << scrollFactor << "  " << sliderDelta * scrollFactor << std::endl;
-
 					setPosition(getPosition() - Vector2f(sliderDelta * scrollFactor, 0.0f));
 				}
 			}

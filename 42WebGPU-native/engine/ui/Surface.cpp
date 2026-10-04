@@ -36,7 +36,7 @@ Surface::~Surface() {
 void Surface::setColor(const Vector4f& color) {
 	m_color = color;
 }
-#include <iostream>
+
 bool Surface::OnInput(int mouseX, int mouseY, bool buttonLeft) {
 	float currentVisualWidth = m_width * m_scale[0];
 	float currentVisualHeight = m_height * m_scale[1];

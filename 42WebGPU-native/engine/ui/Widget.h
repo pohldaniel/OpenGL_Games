@@ -6,7 +6,6 @@
 #include <set>
 #include <unordered_set>
 
-#include <webgpu.h>
 #include "../ui/UiContext.h"
 #include "../scene/Node.h"
 #include "../Vector.h"
@@ -126,9 +125,6 @@ private:
 	float m_spacingX;
 	float m_spacingY;
 	Layout m_layout;
-	
-	Vector4f m_focusColor = Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
-	
 	
 	static Vector2f WorldPosition;
 	static Vector2f WorldScale;
