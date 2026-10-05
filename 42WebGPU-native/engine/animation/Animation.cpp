@@ -25,7 +25,7 @@ Animation::Animation() : m_length(0.0f) {
 }
 
 Animation::~Animation() {
-
+	m_tracks.clear();
 }
 
 void Animation::loadAnimation(const std::string& filename) {
@@ -176,7 +176,6 @@ void Animation::scaleTrack(const std::string& name, float sx, float sy, float sz
 void  Animation::shift(unsigned int ticks) {
 	for (std::map<std::string, AnimationTrack>::iterator it = m_tracks.begin(); it != m_tracks.end();) {
 		AnimationTrack& track = it->second;
-
 		std::vector<AnimationKeyFrame> keyFrames;
 		for (size_t frame = 0u; frame < track.m_keyFrames.size(); frame++) {			
 			size_t current = frame + ticks < track.m_keyFrames.size() ? frame + ticks :  (ticks + frame) - track.m_keyFrames.size();			

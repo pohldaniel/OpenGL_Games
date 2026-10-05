@@ -61,6 +61,7 @@ public:
 	static AnimationManager& Get();
 
 	bool containsAnimation(const std::string& name);
+	void clear();
 
 private:
 	AnimationManager() = default;

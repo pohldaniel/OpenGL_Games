@@ -210,3 +210,7 @@ void AnimationManager::removeAnimation(const std::string& name) {
 AnimationManager& AnimationManager::Get() {
 	return Instance;
 }
+
+void AnimationManager::clear() {
+	m_animations.clear();
+}

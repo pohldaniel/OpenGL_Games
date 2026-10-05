@@ -194,13 +194,13 @@ void SkinnedMesh::update() {
 	m_uniforms.camPosition = m_camera.getPosition();
 	m_uniforms.lightVP = m_lightProjection * m_lightView;
 	m_uniforms.shadow = Matrix4f::BIAS * m_uniforms.lightVP;
-	
+
 	const AnimatedMesh* mesh;
-	if (m_model == SelectedModel::WHALE) {	
+	if(m_model == SelectedModel::WHALE) {
 		mesh = static_cast<const AnimatedMesh*>(m_whale.getMesh());
-		if(m_skinMode)
+		if (m_skinMode)
 			m_animation == SelectedAnimation::PROCEDURAL ? proceduralSkinning(mesh->bones(), mesh->getNumBones(), m_fadeValue) : m_whale.update(m_dt);
-		m_whale.updateSkinning();		
+		m_whale.updateSkinning();
 	}else {
 		if (m_skinMode)
 			m_vampire.update(m_dt);
@@ -231,13 +231,13 @@ void SkinnedMesh::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURen
 	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
 
 	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_ANIMATION"));
-	if (m_model == SelectedModel::WHALE) {
+	if(m_model == SelectedModel::WHALE) {
 		m_wgpWhale.draw(renderPassEncoder);
 		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_SKYBOX"));
 		m_wgpCube.draw(renderPassEncoder);
 	}else
 		m_wgpVampire.draw(renderPassEncoder);
-	
+
 	if (m_drawUi)
 		renderUi(renderPassEncoder);
 
@@ -335,7 +335,7 @@ void SkinnedMesh::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 	}else {
 		if (ImGui::Button("Skin Mode Off")) {
 			m_skinMode = !m_skinMode;
-			
+
 			m_whale.applyBindPose(true);
 			m_whale.getAnimationState(0)->reset();
 
@@ -362,7 +362,7 @@ void SkinnedMesh::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 					m_whale.scale(0.25f, 0.25f, 0.25f);
 					m_whale.translate(0.0f, 20.0f, 0.0f);
 				}
-			}else if(m_animation == SelectedAnimation::SWIM) {
+			}else if (m_animation == SelectedAnimation::SWIM) {
 				m_whale.removeAllAnimationStates();
 				m_whale.addAnimationState(m_swim);
 				m_whale.getAnimationState(0)->setLooped(true);
@@ -384,7 +384,7 @@ void SkinnedMesh::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 			ImGui::SliderFloat("Angle", &m_angle, 0.05f, 0.5f);
 		}
 	}
-	
+
 
 	ImGui::End();
 
@@ -504,13 +504,13 @@ void SkinnedMesh::proceduralSkinning(Bone**& bones, unsigned short numBones, flo
 	angle = (angle - 0.5f) * 2.0f * m_angle * 0.5f * m_fade.getTransitionSpeed();
 
 	for (size_t i = 0u; i < numBones; ++i) {
-		Bone* bone = bones[i];	
+		Bone* bone = bones[i];
 
 		if (i == 3 || i == 4) {
 			bone->rotate(0.0f, 0.0f, angle);
 		}else if (i == 5 || i == 6) {
 			bone->rotate(0.0f, 0.0f, angle);
-		}else if(i == 1 || i == 2) {
+		}else if (i == 1 || i == 2) {
 			bone->rotate(0.0f, i == 1 ? angle : -angle, 0.0f);
 		}
 	}

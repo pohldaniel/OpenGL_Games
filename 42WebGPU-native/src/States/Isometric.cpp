@@ -23,25 +23,6 @@
 #include "Application.h"
 #include "Globals.h"
 
-//For getting this matrices load the model with 
-// importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, true); 
-// and call printAiHierarchy(pScene->mRootNode);.
-// The used ones are Gun_$AssimpFbx$_RotationOffset, Gun_$AssimpFbx$_RotationPivot and Gun_$AssimpFbx$_RotationPivotInverse
-Matrix4f offset = Matrix4f(1.0f, 0.0f, 0.0f, 0.0f,
-	0.0f, 1.0f, 0.0f, 0.0f,
-	0.0f, 0.0f, 1.0f, 0.0f,
-	-156.85f, -32.2427f, 144.702f, 1.0f);
-
-Matrix4f pivot = Matrix4f(1.0f, 0.0f, 0.0f, 0.0f,
-	0.0f, 1.0f, 0.0f, 0.0f,
-	0.0f, 0.0f, 1.0f, 0.0f,
-	130.762f, 70.4033f, -3.52485f, 1.0f);
-
-Matrix4f invPivot = Matrix4f(1.0f, 0.0f, 0.0f, 0.0f,
-	0.0f, 1.0f, 0.0f, 0.0f,
-	0.0f, 0.0f, 1.0f, 0.0f,
-	-130.762f, -70.4033f, 3.52485f, 1.0f);
-
 ThreadPool threadPool(4);
 
 Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC), m_bulletStore(&threadPool), m_enemySpawner(120.0f * 0.0044f, m_player) {
@@ -57,49 +38,35 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 	nkInit(static_cast<float>(Application::Width), static_cast<float>(Application::Height));
 	nkInitFont("res/fonts/upheavtt.ttf");
 
-	AnimationManager::Get().getAnimation("full").loadAnimationAssimp("res/models/Player.fbx", "Player", "full", 0u, 245u);
-	AnimationManager::Get().getAnimation("idle").loadAnimationAssimp("res/models/Player.fbx", "Player", "idle", 5u, 81u);
-	AnimationManager::Get().getAnimation("forward").loadAnimationAssimp("res/models/Player.fbx", "Player", "forward", 85u, 105u);
-	AnimationManager::Get().getAnimation("backward").loadAnimationAssimp("res/models/Player.fbx", "Player", "backward", 110u, 130u);
-	AnimationManager::Get().getAnimation("backward").shift(10u);
-	AnimationManager::Get().getAnimation("right").loadAnimationAssimp("res/models/Player.fbx", "Player", "right", 135u, 155u);
-	AnimationManager::Get().getAnimation("right").shift(10u);
-	AnimationManager::Get().getAnimation("left").loadAnimationAssimp("res/models/Player.fbx", "Player", "left", 160u, 180u);
-	AnimationManager::Get().getAnimation("death").loadAnimationAssimp("res/models/Player.fbx", "Player", "death", 185u, 244u);
+	AnimationManager::Get().getAnimation("full").loadAnimationAssimp("res/models/player/Player.gltf", "Player", "full", 0u, 8125u);
+	AnimationManager::Get().getAnimation("idle").loadAnimationAssimp("res/models/player/Player.gltf", "Player", "idle", 166u, 2686u);
+	AnimationManager::Get().getAnimation("forward").loadAnimationAssimp("res/models/player/Player.gltf", "Player", "forward", 2819u, 3482u);
+	AnimationManager::Get().getAnimation("backward").loadAnimationAssimp("res/models/player/Player.gltf", "Player", "backward", 3648u, 4311u);
+	AnimationManager::Get().getAnimation("backward").shift(8u);
+	AnimationManager::Get().getAnimation("right").loadAnimationAssimp("res/models/player/Player.gltf", "Player", "right", 4477u, 5140u);
+	AnimationManager::Get().getAnimation("right").shift(8u);
+	AnimationManager::Get().getAnimation("left").loadAnimationAssimp("res/models/player/Player.gltf", "Player", "left", 5306, 5969u);
+	AnimationManager::Get().getAnimation("death").loadAnimationAssimp("res/models/player/Player.gltf", "Player", "death", 6135u, 8092u);
 
-	m_player.loadModelAssimp("res/models/Player.fbx", 1u);
-	m_player.scale(0.0044f, 0.0044f, 0.0044f);
+	m_player.loadModelAssimp("res/models/player/Player.gltf", 1u);
+	m_player.scale(0.44f, 0.44f, 0.44f);
 
-	m_rotationButtonResult.degrees = aimTheta * _180_ON_PI;
-
-	m_enemy.loadModel("res/models/EelDog/EelDog.fbx");
-	m_enemy.rotate(90.0f, 0.0f, 0.0f);
-	m_enemy.rotate(0.0f, 0.0f, 0.0f);
-	m_enemy.scale(0.01f);
-
-	Material::CleanupMaterials();
-	static_cast<const AssimpMesh*>(m_enemy.getMesh())->setMaterialIndex(-1);
-
-	//Add additional nodes to the first Mesh, they are presented inside the Animation channels but not at the bone hierarchy from the model.
+	//Add additional nodes to the first Mesh.
 	AnimatedMesh* mesh = static_cast<AnimatedMesh*>(m_player.mesh());
-
 	mesh->boneDescriptions().emplace_back();
-	mesh->boneDescriptions().back().name = "Gun_$AssimpFbx$_Rotation";
-	mesh->boneDescriptions().back().parentIndex = -1;
-	mesh->boneDescriptions().back().offsetMatrix = invPivot;
-
-	mesh->boneDescriptions().emplace_back();
-	mesh->boneDescriptions().back().name = "Gun_$AssimpFbx$_Translation";
+	mesh->boneDescriptions().back().name = "Gun";
 	mesh->boneDescriptions().back().parentIndex = 0;
-	mesh->boneDescriptions().back().offsetMatrix = offset * pivot;
-
 	mesh->createBones();
-
 	mesh = static_cast<AnimatedMesh*>(m_player.mesh(1u));
 	for (size_t index = 0u; index < mesh->getVertexBuffer().size() / mesh->getStride(); index++) {
 		mesh->weights().push_back({ 1.0f, 0.0f, 0.0f, 0.0f });
 		mesh->joints().push_back({ 42u, 0u, 0u, 0u });
 	}
+
+	m_enemy.loadModel("res/models/EelDog/EelDog.gltf");
+	m_enemy.rotate(0.0f, 0.0f, 0.0f);
+
+	m_rotationButtonResult.degrees = aimTheta * _180_ON_PI;
 
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 100.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f,  -1.0f, 1.0f);
@@ -124,7 +91,7 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 	m_rotationBuffer.createBuffer(sizeof(Vector4f) * 400000u, WGPUBufferUsage_Storage | WGPUBufferUsage_CopyDst);
 	m_offsetBuffer.createBuffer(sizeof(Vector4f) * 400000u, WGPUBufferUsage_Storage | WGPUBufferUsage_CopyDst);
 
-	m_spriteBuffer.createBuffer(20u * sizeof(SpriteInstance), WGPUBufferUsage_Storage | WGPUBufferUsage_CopyDst);
+	m_spriteBuffer.createBuffer(40u * sizeof(SpriteInstance), WGPUBufferUsage_Storage | WGPUBufferUsage_CopyDst);
 	m_muzzleBuffer.createBuffer(100u * sizeof(SpriteInstance), WGPUBufferUsage_Storage | WGPUBufferUsage_CopyDst);
 
 	m_directionalLightBuffer.createBuffer(sizeof(DirectionalLight), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
@@ -135,15 +102,15 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 	m_sprite.loadFromFile("res/textures/impact_spritesheet_with_00.png");
 	m_muzzle.loadFromFile("res/textures/muzzle_spritesheet.png");
 
-	m_wgpPlayerD.loadFromFile("res/models/Player_D.tga", true);
-	m_wgpPlayerN.loadFromFile("res/models/Player_N.tga", true);
-	m_wgpPlayerS.loadFromFile("res/models/Player_S.tga", true);
-	m_wgpPlayerE.loadFromFile("res/models/Player_E.tga", true);
+	m_wgpPlayerD.loadFromFile("res/models/player/Player_D.tga", true);
+	m_wgpPlayerN.loadFromFile("res/models/player/Player_N.tga", true);
+	m_wgpPlayerS.loadFromFile("res/models/player/Player_S.tga", true);
+	m_wgpPlayerE.loadFromFile("res/models/player/Player_E.tga", true);
 
-	m_wgpGunD.loadFromFile("res/models/Gun_D.tga", true);
-	m_wgpGunN.loadFromFile("res/models/Gun_N.tga", true);
-	m_wgpGunS.loadFromFile("res/models/Gun_S.tga", true);
-	m_wgpGunE.loadFromFile("res/models/Gun_E.tga", true);
+	m_wgpGunD.loadFromFile("res/models/player/Gun_D.tga", true);
+	m_wgpGunN.loadFromFile("res/models/player/Gun_N.tga", true);
+	m_wgpGunS.loadFromFile("res/models/player/Gun_S.tga", true);
+	m_wgpGunE.loadFromFile("res/models/player/Gun_E.tga", true);
 
 	m_wgpFloorD.loadFromFile("res/textures/floor/Floor_D.psd");
 	m_wgpFloorN.loadFromFile("res/textures/floor/Floor_N.psd");
@@ -152,7 +119,7 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 	m_wgpEnemyD.loadFromFile("res/models/EelDog/Eeldog_Albedo.tif");
 	m_wgpEnemyN.loadFromFile("res/models/EelDog/Eeldog_Normal.tif");
 	m_wgpEnemyS.loadFromFile("res/models/EelDog/Eeldog_MetallicSmooth.tif");
-
+	
 	m_wgpTextureShadow.createEmpty(6u * 1024u, 6u * 1024u, 1u, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_RenderAttachment, WGPUTextureFormat_Depth32Float);
 	
 	m_wgpEmissionTarget.createEmpty(Application::Width, Application::Height, 1u, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_RenderAttachment, WGPUTextureFormat_BGRA8Unorm, 1u, 1u);
@@ -180,7 +147,6 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 	m_uniforms.lightPosition = Vector3f(0.0f, 0.0f, 0.0f) - 20.0f * m_lightDir;
 
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0u, &m_uniforms, sizeof(Uniforms));
-	//wgpuQueueWriteBuffer(wgpContext.queue, m_instanceBuffer.getBuffer(), 0u, &m_uniforms, sizeof(Uniforms));
 
 	FrameInfo sprite;
 	sprite.frameSize[0] = 1.0f / 11.0f;
@@ -195,7 +161,7 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 	muzzle.colRow[0] = 6u;
 	muzzle.colRow[1] = 1u;
 	wgpuQueueWriteBuffer(wgpContext.queue, m_infoBufferMuzzle.getBuffer(), 0u, &muzzle, sizeof(FrameInfo));
-
+	
 	DirectionalLight directional;
 	directional.color[0] = 0.35f * 0.7f * 0.406f; directional.color[1] = 0.35f * 0.7f * 0.723f; directional.color[2] = 0.35f * 0.7f; directional.color[3] = 1.0f;
 	directional.padding = 0.0f;
@@ -296,7 +262,7 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 
 	m_wgpBullet.create(m_bullet);
 	m_wgpBullet.setBindGroups("BG", std::bind(&Isometric::OnBindGroupsBullet, this));
-
+	
 	m_player.addAnimationState(AnimationManager::Get().getAnimation("forward"));
 	m_player.getAnimationState(0u)->setLooped(true);
 
@@ -381,6 +347,8 @@ Isometric::~Isometric() {
 	m_muzzle.markForDelete();
 	m_wgpTextureShadow.markForDelete();
 
+	Material::CleanupMaterials();
+	AnimationManager::Get().clear();
 	wgpuBindGroupRelease(m_bindGroupBillboard);
 	wgpuBindGroupRelease(m_bindGroupMuzzle);
 }
@@ -461,14 +429,10 @@ void Isometric::update() {
 		m_debugCollision = !m_debugCollision;
 	}
 
-	if (keyboard.keyPressed(Keyboard::KEY_R)) {
-		//resetMuzzle();
-	}
-
 	if (!m_isDeath && (m_rotationButtonResult.buttonDown || (mouse.buttonDown(Mouse::MouseButton::BUTTON_LEFT) && !m_rotationButtonResult.isActive && !m_joystickResult.isActive)) && (lastFireTime + 0.1f) < Globals::clock.getElapsedTimeSec()) {
 		const Quaternion orientation = m_player.getOrientation();
 		const Matrix4f trans = m_player.getWorldTransformation();
-		const Vector3f projectileSpawnPoint = trans ^ Vector4f(-20.0f, 120.0f, 140.0f, 1.0f);
+		const Vector3f projectileSpawnPoint = trans ^ Vector4f(-20.0f * 0.01f, 120.0f * 0.01f, 140.0f * 0.01f, 1.0f);
 
 		m_bulletStore.createBullets(projectileSpawnPoint, orientation, m_spreadAmount);
 		lastFireTime = Globals::clock.getElapsedTimeSec();
@@ -605,10 +569,9 @@ void Isometric::update() {
 	updateBillboards(m_dt);
 	
 	const AnimatedMesh* mesh = static_cast<const AnimatedMesh*>(m_player.getMesh());
-	mesh->skinMatrices()[42] ^= mesh->getBone(43u).getWorldTransformation() * offset * pivot;
 	wgpuQueueWriteBuffer(wgpContext.queue, m_skinBuffer.getBuffer(), 0u, mesh->getSkinMatrices(), mesh->getNumBones() * sizeof(Matrix4f));
 
-	Matrix4f muzzleTransform = mesh->skinMatrices()[42] * Matrix4f::Translate(221.0f, 76.143f, -3.054f) ;
+	Matrix4f muzzleTransform = mesh->skinMatrices()[42] * Matrix4f::Translate(221.0f * 0.01f, 76.143f * 0.01f, -3.054f * 0.01f);
 	updateMuzzle(m_dt, muzzleTransform[3][0], muzzleTransform[3][1], muzzleTransform[3][2]);
 
 	float angle = aimTheta;
@@ -618,7 +581,7 @@ void Isometric::update() {
 	float finalCorrectionAngle = 90.0f * std::abs(std::cos(radians));
 	float sign = (angle > 0.0f && angle < 180.0f) ? -1.0f : 1.0f;
 
-	muzzleTransform = muzzleTransform * Matrix4f::Scale(100.0f, 100.0f, 100.0f) * Matrix4f::Rotate(sign * finalCorrectionAngle, 0.0f, 0.0f);
+	muzzleTransform = muzzleTransform * Matrix4f::Rotate(sign * finalCorrectionAngle, 0.0f, 0.0f);
 	
 	m_uniforms.projection = m_camera.getPerspectiveMatrix();
 	m_uniforms.view = m_camera.getViewMatrix();
