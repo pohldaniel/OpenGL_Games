@@ -130,6 +130,15 @@ const std::map<std::string, AnimationTrack>& Animation::getTracks() const {
 	return m_tracks;
 }
 
+const std::vector<AnimationTrack> Animation::getAnimationTracks() const {
+	std::vector<AnimationTrack> animationTracks;
+	std::transform(m_tracks.begin(), m_tracks.end(), std::back_inserter(animationTracks),
+		[](const std::pair<std::string, AnimationTrack>& a) {
+			return a.second;
+		});
+	return animationTracks;
+}
+
 size_t Animation::getNumTracks() const {
 	return m_tracks.size();
 }

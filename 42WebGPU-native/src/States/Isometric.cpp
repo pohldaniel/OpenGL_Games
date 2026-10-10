@@ -14,6 +14,7 @@
 #include <engine/scene/CollisionNode.h>
 #include <engine/sound/SoundDevice.h>
 #include <engine/sound/AudioEffect.h>
+#include <engine/utils/BinaryIO.h>
 
 #include <Entities/CollisionEntity.h>
 #include <Entities/Enemy.h>
@@ -48,6 +49,14 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 	AnimationManager::Get().getAnimation("left").loadAnimationAssimp("res/models/player/Player.gltf", "Player", "left", 5306, 5969u);
 	AnimationManager::Get().getAnimation("death").loadAnimationAssimp("res/models/player/Player.gltf", "Player", "death", 6135u, 8092u);
 
+	//Utils::MdlcIO mdlcIO;
+	//mdlcIO.animationToAnic("res/idle.anic", AnimationManager::Get().getAnimation("idle").getAnimationName(), AnimationManager::Get().getAnimation("idle").getLength(), AnimationManager::Get().getAnimation("idle").getAnimationTracks());
+	//mdlcIO.animationToAnic("res/forward.anic", AnimationManager::Get().getAnimation("forward").getAnimationName(), AnimationManager::Get().getAnimation("forward").getLength(), AnimationManager::Get().getAnimation("forward").getAnimationTracks());
+	//mdlcIO.animationToAnic("res/backward.anic", AnimationManager::Get().getAnimation("backward").getAnimationName(), AnimationManager::Get().getAnimation("backward").getLength(), AnimationManager::Get().getAnimation("backward").getAnimationTracks());
+	//mdlcIO.animationToAnic("res/right.anic", AnimationManager::Get().getAnimation("right").getAnimationName(), AnimationManager::Get().getAnimation("right").getLength(), AnimationManager::Get().getAnimation("right").getAnimationTracks());
+	//mdlcIO.animationToAnic("res/left.anic", AnimationManager::Get().getAnimation("left").getAnimationName(), AnimationManager::Get().getAnimation("left").getLength(), AnimationManager::Get().getAnimation("left").getAnimationTracks());
+	//mdlcIO.animationToAnic("res/death.anic", AnimationManager::Get().getAnimation("death").getAnimationName(), AnimationManager::Get().getAnimation("death").getLength(), AnimationManager::Get().getAnimation("death").getAnimationTracks());
+
 	m_player.loadModelAssimp("res/models/player/Player.gltf", 1u);
 	m_player.scale(0.44f, 0.44f, 0.44f);
 
@@ -57,14 +66,21 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 	mesh->boneDescriptions().back().name = "Gun";
 	mesh->boneDescriptions().back().parentIndex = 0;
 	mesh->createBones();
+	
+	//Utils::MdlcIO mdlcIO;
+	//mdlcIO.meshToMdlc("res/player.mdlc", mesh->getVertexBuffer(), mesh->getIndexBuffer(), mesh->getStride(), mesh->getWeights(), mesh->getJoints(), mesh->getBoneDescriptions());
+
 	mesh = static_cast<AnimatedMesh*>(m_player.mesh(1u));
 	for (size_t index = 0u; index < mesh->getVertexBuffer().size() / mesh->getStride(); index++) {
 		mesh->weights().push_back({ 1.0f, 0.0f, 0.0f, 0.0f });
 		mesh->joints().push_back({ 42u, 0u, 0u, 0u });
 	}
 
-	m_enemy.loadModel("res/models/EelDog/EelDog.gltf");
-	m_enemy.rotate(0.0f, 0.0f, 0.0f);
+	m_enemy.loadModelAssimp("res/models/EelDog/EelDog.gltf");
+
+	//mesh = static_cast<AnimatedMesh*>(m_enemy.mesh());
+	//Utils::MdlcIO mdlcIO;
+	//mdlcIO.meshToMdlc("res/eel_dog.mdlc", mesh->getVertexBuffer(), mesh->getIndexBuffer(), mesh->getStride());
 
 	m_rotationButtonResult.degrees = aimTheta * _180_ON_PI;
 
@@ -347,7 +363,6 @@ Isometric::~Isometric() {
 	m_muzzle.markForDelete();
 	m_wgpTextureShadow.markForDelete();
 
-	Material::CleanupMaterials();
 	AnimationManager::Get().clear();
 	wgpuBindGroupRelease(m_bindGroupBillboard);
 	wgpuBindGroupRelease(m_bindGroupMuzzle);

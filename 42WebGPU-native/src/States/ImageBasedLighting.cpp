@@ -31,7 +31,7 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 	m_spherePBR.buildSphere({ 0.0f, 0.0f, 0.0f }, 1.0f, 0.0f, 49u, 49u, true, true);
 	m_cube.buildCube({ -1.0f, -1.0f, -1.0f }, { 2.0f, 2.0f, 2.0f }, 1u, 1u, false, false);
 	m_cube.rewind();	
-	m_helmet.loadModel("res/models/helmet/helmet.obj", false, false, true);
+	m_helmet.loadModelAssimp("res/models/helmet/helmet.obj", false, false, true);
 
 	wgpContext.addSampler(wgpCreateSampler(WGPUFilterMode_Linear, WGPUAddressMode_ClampToEdge, 1u, WGPUMipmapFilterMode_Undefined), SS_0);
 	wgpContext.addSampler(wgpCreateSampler(WGPUFilterMode_Linear, WGPUAddressMode_Repeat, 1u, WGPUMipmapFilterMode_Undefined), SS_1);

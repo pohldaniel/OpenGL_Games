@@ -27,7 +27,7 @@ DeferredRendering::DeferredRendering(StateMachine& machine) : State(machine, Sta
 	m_camera.setMovingSpeed(20.0f);
 	m_camera.setRotationSpeed(0.1f);
 
-	m_dragon.loadModel("res/models/dragon_vrip_res4.ply");
+	m_dragon.loadModelAssimp("res/models/dragon_vrip_res4.ply");
 	m_dragon.scale(500.0f);
 	m_dragon.translate(0.0f, -45.0, 0.0f);
 	m_dragon.generateNormals();

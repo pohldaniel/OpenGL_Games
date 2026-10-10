@@ -493,7 +493,7 @@ void WgpTexture::loadHDRIFromFile(const std::string& fileName, bool flipVertical
     m_textureView = wgpCreateTextureView(m_texture, WGPUTextureAspect::WGPUTextureAspect_All);
 }
 
-void WgpTexture::loadCubeFromFiles(std::string* fileNames, bool flipVertical) {
+void WgpTexture::loadCubeFromFiles(const std::string* fileNames, bool flipVertical) {
     FreeImage_Initialise();
 
     uint32_t mipLevelCount = 1u;

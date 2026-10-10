@@ -340,8 +340,8 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new AudioDecode(*Machine));
 	//Machine->addStateAtTop(new VideoDecode(*Machine));
 	//Machine->addStateAtTop(new Cubes(*Machine));
-	//Machine->addStateAtTop(new Isometric(*Machine));
-	Machine->addStateAtTop(new Menu(*Machine));
+	Machine->addStateAtTop(new Isometric(*Machine));
+	//Machine->addStateAtTop(new Menu(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

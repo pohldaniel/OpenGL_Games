@@ -26,6 +26,7 @@ struct WeightData {
 struct aiNode;
 class Bone;
 class AnimatedMesh;
+
 class AnimatedModel : public Model {
 
 	friend class AnimatedMesh;
@@ -41,8 +42,8 @@ public:
 	void applyBindPose(bool onTransformChanged = false);
 	void cleanup();
 
+	void loadModel(const std::vector<std::string>& fileNames, short addVirtualRoots = 0);
 	void loadModelAssimp(const std::string& path, short addVirtualRoots = 0, bool reverseBoneList = false);
-	void loadModel(const std::string& path, short addVirtualRoots = 0);
 	
 	void rotate(float pitch, float yaw, float roll);
 	void scale(float sx, float sy, float sz);
@@ -59,13 +60,13 @@ public:
 	AnimationState* findAnimationState(const std::string& name) const;
 	AnimationState* addAnimationState(const Animation& animation);
 	AnimationState* addAnimationStateFront(const Animation& animation);
-	
+
 	AnimationState* getAnimationState(size_t index) const;
 	void removeAnimationState(const Animation& animation);
 	void removeAnimationState(const std::string& name);
 	void removeAnimationState(const AnimationState* state);
 	void removeAllAnimationStates();
-	
+
 	unsigned int getStride() const override;
 	const Mesh* getMesh(unsigned short index = 0u) const;
 	const std::vector<Mesh*>& getMeshes() const;
@@ -133,6 +134,7 @@ public:
 	unsigned int& stride() const;
 	Bone& bone(size_t index = 0u) const;
 	Bone**& bones() const;
+	mutable std::vector<BoneDescription> m_boneDescriptions;
 
 private:
 
@@ -146,7 +148,7 @@ private:
 	std::vector<std::string> m_boneList;
 	mutable std::vector<std::array<float, 4>> m_weights;
 	mutable std::vector<std::array<unsigned int, 4>> m_joints;
-	mutable std::vector<BoneDescription> m_boneDescriptions;
+	
 
 	mutable short m_materialIndex;
 	mutable short m_textureIndex;

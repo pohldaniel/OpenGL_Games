@@ -66,7 +66,87 @@ bool Utils::bytesToBool(unsigned char b0) {
 	return f;
 }
 
-void Utils::MdlcIO::animatedModelToMdlc(const char* out, const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, uint32_t stride, const std::vector<std::array<float, 4>>& weights, const std::vector<std::array<unsigned int, 4>>& joints, const std::vector<BoneDescription>& boneDescriptions) {
+void Utils::MdlcIO::meshToMdlc(const char* out, const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, uint32_t stride) {
+	if (stride != 8u)
+		return;
+
+	std::ofstream file(out, std::ios::binary);
+
+	unsigned int vertexCount = static_cast<unsigned int>(vertexBuffer.size() / stride);
+	file.write(reinterpret_cast<const char*>(&vertexCount), sizeof(unsigned int));
+
+	unsigned int vertexSize = static_cast<unsigned int>(stride);
+	file.write(reinterpret_cast<const char*>(&vertexSize), sizeof(unsigned int));
+	file.write(reinterpret_cast<const char*>(vertexBuffer.data()), vertexCount * vertexSize * sizeof(float));
+
+	unsigned int indexCount = static_cast<unsigned int>(indexBuffer.size());
+	file.write(reinterpret_cast<const char*>(&indexCount), sizeof(unsigned int));
+	file.write(reinterpret_cast<const char*>(indexBuffer.data()), indexCount * sizeof(unsigned int));
+	file.close();
+
+	std::cout << "COUNT 1:" << vertexCount << "  " << indexCount << std::endl;
+}
+
+void Utils::MdlcIO::meshToMdlc(const char* out, const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, uint32_t stride, const std::vector<std::array<float, 4>>& weights, const std::vector<std::array<unsigned int, 4>>& joints) {
+	if (stride != 8u)
+		return;
+
+	std::ofstream file(out, std::ios::binary);
+
+	unsigned int vertexCount = static_cast<unsigned int>(vertexBuffer.size() / stride);
+	file.write(reinterpret_cast<const char*>(&vertexCount), sizeof(unsigned int));
+
+	unsigned int vertexSize = static_cast<unsigned int>(stride);
+	file.write(reinterpret_cast<const char*>(&vertexSize), sizeof(unsigned int));
+
+	char* buffer = new char[16];
+	for (unsigned int i = 0; i < vertexCount; ++i) {
+		std::array<float, 3> position = { vertexBuffer[i * vertexSize], vertexBuffer[i * vertexSize + 1], vertexBuffer[i * vertexSize + 2] };
+		std::array<float, 2> uv = { vertexBuffer[i * vertexSize + 3], vertexBuffer[i * vertexSize + 4] };
+		std::array<float, 3> normal = { vertexBuffer[i * vertexSize + 5], vertexBuffer[i * vertexSize + 6], vertexBuffer[i * vertexSize + 7] };
+
+		Utils::UFloat ret[4];
+
+		ret[0].flt = position[0]; ret[1].flt = position[1]; ret[2].flt = position[2];
+		buffer[0] = ret[0].c[0]; buffer[1] = ret[0].c[1]; buffer[2] = ret[0].c[2]; buffer[3] = ret[0].c[3];
+		buffer[4] = ret[1].c[0]; buffer[5] = ret[1].c[1]; buffer[6] = ret[1].c[2]; buffer[7] = ret[1].c[3];
+		buffer[8] = ret[2].c[0]; buffer[9] = ret[2].c[1]; buffer[10] = ret[2].c[2]; buffer[11] = ret[2].c[3];
+		file.write(buffer, sizeof(float) * 3);
+
+		ret[0].flt = uv[0]; ret[1].flt = uv[1];
+		buffer[0] = ret[0].c[0]; buffer[1] = ret[0].c[1]; buffer[2] = ret[0].c[2]; buffer[3] = ret[0].c[3];
+		buffer[4] = ret[1].c[0]; buffer[5] = ret[1].c[1]; buffer[6] = ret[1].c[2]; buffer[7] = ret[1].c[3];
+		file.write(buffer, sizeof(float) * 2);
+
+		ret[0].flt = normal[0]; ret[1].flt = normal[1]; ret[2].flt = normal[2];
+		buffer[0] = ret[0].c[0]; buffer[1] = ret[0].c[1]; buffer[2] = ret[0].c[2]; buffer[3] = ret[0].c[3];
+		buffer[4] = ret[1].c[0]; buffer[5] = ret[1].c[1]; buffer[6] = ret[1].c[2]; buffer[7] = ret[1].c[3];
+		buffer[8] = ret[2].c[0]; buffer[9] = ret[2].c[1]; buffer[10] = ret[2].c[2]; buffer[11] = ret[2].c[3];
+		file.write(buffer, sizeof(float) * 3);
+
+		std::array<float, 4> weight = { weights[i][0], weights[i][1],  weights[i][2], weights[i][3] };
+
+		ret[0].flt = weight[0]; ret[1].flt = weight[1]; ret[2].flt = weight[2]; ret[3].flt = weight[3];
+		buffer[0] = ret[0].c[0]; buffer[1] = ret[0].c[1]; buffer[2] = ret[0].c[2]; buffer[3] = ret[0].c[3];
+		buffer[4] = ret[1].c[0]; buffer[5] = ret[1].c[1]; buffer[6] = ret[1].c[2]; buffer[7] = ret[1].c[3];
+		buffer[8] = ret[2].c[0]; buffer[9] = ret[2].c[1]; buffer[10] = ret[2].c[2]; buffer[11] = ret[2].c[3];
+		buffer[12] = ret[3].c[0]; buffer[13] = ret[3].c[1]; buffer[14] = ret[3].c[2]; buffer[15] = ret[3].c[3];
+		file.write(buffer, sizeof(float) * 4);
+
+		std::array<unsigned char, 4> joint = { static_cast<unsigned char>(joints[i][0]), static_cast<unsigned char>(joints[i][1]),  static_cast<unsigned char>(joints[i][2]), static_cast<unsigned char>(joints[i][3]) };
+
+		buffer[0] = joint[0]; buffer[1] = joint[1]; buffer[2] = joint[2]; buffer[3] = joint[3];
+		file.write(buffer, sizeof(unsigned char) * 4);
+	}
+	delete[] buffer;
+
+	unsigned int indexCount = static_cast<unsigned int>(indexBuffer.size());
+	file.write(reinterpret_cast<const char*>(&indexCount), sizeof(unsigned int));
+	file.write(reinterpret_cast<const char*>(indexBuffer.data()), indexCount * sizeof(unsigned int));
+	file.close();
+}
+
+void Utils::MdlcIO::meshToMdlc(const char* out, const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, uint32_t stride, const std::vector<std::array<float, 4>>& weights, const std::vector<std::array<unsigned int, 4>>& joints, const std::vector<BoneDescription>& boneDescriptions) {
 	if (stride != 8u)
 		return;
 	
@@ -185,7 +265,86 @@ void Utils::MdlcIO::animatedModelToMdlc(const char* out, const std::vector<float
 	file.close();
 }
 
-void Utils::MdlcIO::mdlcModelToBuffer(const char* in, std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, uint32_t& stride, std::vector<std::array<float, 4>>& weights, std::vector<std::array<unsigned int, 4>>& joints, std::vector<BoneDescription>& boneDescriptions) {
+void Utils::MdlcIO::mdlcMeshToBuffer(const char* in, std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, uint32_t& stride) {
+	std::ifstream file(in, std::ios::binary);
+
+	char metaData[4];
+
+	file.read(metaData, sizeof(unsigned int));
+	unsigned int vertexCount = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+	file.read(metaData, sizeof(unsigned int));
+	unsigned int vertexSize = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+	stride = vertexSize;
+
+	vertexBuffer.resize(vertexCount * vertexSize);
+	file.read(reinterpret_cast<char*>(vertexBuffer.data()), vertexCount * vertexSize * sizeof(float));
+
+	file.read(metaData, sizeof(unsigned int));
+	unsigned int indexCount = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+	indexBuffer.resize(indexCount);
+	file.read(reinterpret_cast<char*>(indexBuffer.data()), indexCount * sizeof(unsigned int));
+
+	file.close();
+
+	std::cout << "COUNT 2:" << vertexCount << "  " << indexCount << std::endl;
+}
+
+void Utils::MdlcIO::mdlcMeshToBuffer(const char* in, std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, uint32_t& stride, std::vector<std::array<float, 4>>& weights, std::vector<std::array<unsigned int, 4>>& joints) {
+	std::ifstream file(in, std::ios::binary);
+
+	char metaData[4];
+
+	file.read(metaData, sizeof(unsigned int));
+	unsigned int vertexCount = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+	file.read(metaData, sizeof(unsigned int));
+	unsigned int vertexSize = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+	stride = vertexSize;
+
+	vertexSize *= sizeof(float);
+	vertexSize += 4 * sizeof(float) + 4 * sizeof(char);
+
+	char* buffer = new char[vertexCount * vertexSize];
+	file.read(buffer, vertexCount * vertexSize);
+
+	Utils::UFloat ret[12];
+	for (unsigned int i = 0; i < vertexCount * vertexSize; i = i + vertexSize) {
+
+		ret[0].c[0] = buffer[i + 0]; ret[0].c[1] = buffer[i + 1]; ret[0].c[2] = buffer[i + 2];  ret[0].c[3] = buffer[i + 3];
+		ret[1].c[0] = buffer[i + 4]; ret[1].c[1] = buffer[i + 5]; ret[1].c[2] = buffer[i + 6];  ret[1].c[3] = buffer[i + 7];
+		ret[2].c[0] = buffer[i + 8]; ret[2].c[1] = buffer[i + 9]; ret[2].c[2] = buffer[i + 10]; ret[2].c[3] = buffer[i + 11];
+		vertexBuffer.push_back(ret[0].flt); vertexBuffer.push_back(ret[1].flt); vertexBuffer.push_back(ret[2].flt);
+
+		ret[0].c[0] = buffer[i + 12]; ret[0].c[1] = buffer[i + 13]; ret[0].c[2] = buffer[i + 14]; ret[0].c[3] = buffer[i + 15];
+		ret[1].c[0] = buffer[i + 16]; ret[1].c[1] = buffer[i + 17]; ret[1].c[2] = buffer[i + 18]; ret[1].c[3] = buffer[i + 19];
+		vertexBuffer.push_back(ret[0].flt); vertexBuffer.push_back(ret[1].flt);
+
+		ret[0].c[0] = buffer[i + 20]; ret[0].c[1] = buffer[i + 21]; ret[0].c[2] = buffer[i + 22]; ret[0].c[3] = buffer[i + 23];
+		ret[1].c[0] = buffer[i + 24]; ret[1].c[1] = buffer[i + 25]; ret[1].c[2] = buffer[i + 26]; ret[1].c[3] = buffer[i + 27];
+		ret[2].c[0] = buffer[i + 28]; ret[2].c[1] = buffer[i + 29]; ret[2].c[2] = buffer[i + 30]; ret[2].c[3] = buffer[i + 31];
+		vertexBuffer.push_back(ret[0].flt); vertexBuffer.push_back(ret[1].flt); vertexBuffer.push_back(ret[2].flt);
+
+		ret[0].c[0] = buffer[i + 32]; ret[0].c[1] = buffer[i + 33]; ret[0].c[2] = buffer[i + 34]; ret[0].c[3] = buffer[i + 35];
+		ret[1].c[0] = buffer[i + 36]; ret[1].c[1] = buffer[i + 37]; ret[1].c[2] = buffer[i + 38]; ret[1].c[3] = buffer[i + 39];
+		ret[2].c[0] = buffer[i + 40]; ret[2].c[1] = buffer[i + 41]; ret[2].c[2] = buffer[i + 42]; ret[2].c[3] = buffer[i + 43];
+		ret[3].c[0] = buffer[i + 44]; ret[3].c[1] = buffer[i + 45]; ret[3].c[2] = buffer[i + 46]; ret[3].c[3] = buffer[i + 47];
+		weights.push_back({ ret[0].flt, ret[1].flt, ret[2].flt, ret[3].flt });
+		joints.push_back({ static_cast<unsigned int>(buffer[i + 48]), static_cast<unsigned int>(buffer[i + 49]), static_cast<unsigned int>(buffer[i + 50]), static_cast<unsigned int>(buffer[i + 51]) });
+	}
+
+	file.read(metaData, sizeof(unsigned int));
+	unsigned int indexCount = Utils::bytesToUIntLE(metaData[0], metaData[1], metaData[2], metaData[3]);
+
+	indexBuffer.resize(indexCount);
+	file.read(reinterpret_cast<char*>(indexBuffer.data()), indexCount * sizeof(unsigned int));
+
+	file.close();
+}
+
+void Utils::MdlcIO::mdlcMeshToBuffer(const char* in, std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, uint32_t& stride, std::vector<std::array<float, 4>>& weights, std::vector<std::array<unsigned int, 4>>& joints, std::vector<BoneDescription>& boneDescriptions) {
+
 	std::ifstream file(in, std::ios::binary);
 
 	char metaData[4];

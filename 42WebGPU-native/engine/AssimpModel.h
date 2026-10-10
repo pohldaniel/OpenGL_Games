@@ -31,9 +31,9 @@ public:
 	AssimpModel& operator=(AssimpModel&& rhs) noexcept;
 	~AssimpModel();
 
-	void loadModel(const char* filename, bool isStacked = false, bool generateNormals = false, bool generateTangents = false, bool flipYZ = false, bool flipWinding = false);
-	void loadModelCpu(const char* filename, bool isStacked = false, bool generateNormals = false, bool generateTangents = false, bool flipYZ = false, bool flipWinding = false);
-
+	void loadModel(const char* filename);
+	void loadModelAssimp(const char* filename, bool isStacked = false, bool generateNormals = false, bool generateTangents = false, bool flipYZ = false, bool flipWinding = false);
+	
 	void scale(float sx, float sy, float sz);
 	void scale(float s);
 	void rotate(float pitch, float yaw, float roll);
@@ -43,6 +43,7 @@ public:
 	unsigned int getStride() const override;
 	const std::string& getModelDirectory();
 	const Mesh* getMesh(unsigned short index = 0u) const;
+	Mesh* mesh(unsigned short index = 0u) const;
 	const std::vector<Mesh*>& getMeshes() const;
 	const std::vector<float>& getVertexBuffer() const;
 	const std::vector<unsigned int>& getIndexBuffer() const;
@@ -65,7 +66,6 @@ private:
 
 	std::string m_modelDirectory;
 	Vector3f m_center;
-	unsigned int m_drawCount;
 
 	std::vector<float> m_vertexBuffer;
 	std::vector<unsigned int> m_indexBuffer;
@@ -93,6 +93,11 @@ public:
 	void setTextureIndex(short index) const;
 
 	const Material& getMaterial() const;
+
+	std::vector<float>& vertexBuffer() const;
+	std::vector<unsigned int>& indexBuffer() const;
+	unsigned int& stride() const;
+
 	void cleanup();
 
 	const std::unordered_map<TextureSlot, std::pair<unsigned char*, unsigned int>>& getEmbeddedTextures() const;
