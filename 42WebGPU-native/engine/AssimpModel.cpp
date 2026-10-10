@@ -328,6 +328,8 @@ void AssimpModel::loadModelAssimp(const char* _filename, bool isStacked, bool ge
 			indexBuffer.push_back(face->mIndices[2]);
 		}
 
+		mesh->m_drawCount = aiMesh->mNumFaces * 3u;
+
 		if (mesh->hasMaterial()) {
 			std::vector<const aiTexture*> oldTextures;
 			for (std::unordered_map<TextureSlot, std::string>::const_iterator it = mesh->getMaterial().getTextures().begin(); it != Material::GetMaterials().back().getTextures().end(); it++) {							
