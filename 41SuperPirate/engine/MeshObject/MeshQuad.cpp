@@ -22,9 +22,10 @@ MeshQuad::MeshQuad(const Vector3f &position, const Vector2f& size, bool generate
 	m_center = m_position + Vector3f(m_size[0], m_size[1], 0.0f) * 0.5f;
 	BuildMeshXY(m_position, m_size, m_uResolution, m_vResolution, m_generateTexels, m_generateNormals, m_generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
 	createBuffer();
+	createBufferWireframe();
 }
 
-void MeshQuad::create(const Vector3f &position, const Vector2f& size, bool generateTexels, bool generateNormals, bool generateTangents, int uResolution, int vResolution) {
+/*void MeshQuad::create(const Vector3f& position, const Vector2f& size, bool generateTexels, bool generateNormals, bool generateTangents, int uResolution, int vResolution) {
 	m_position = position;
 	m_size = size;
 
@@ -40,7 +41,7 @@ void MeshQuad::create(const Vector3f &position, const Vector2f& size, bool gener
 	m_center = m_position + Vector3f(m_size[0], m_size[1], 0.0f) * 0.5f;
 	BuildMeshXY(m_position, m_size, m_uResolution, m_vResolution, m_generateTexels, m_generateNormals, m_generateTangents, m_positions, m_texels, m_normals, m_indexBuffer, m_tangents, m_bitangents);
 	createBuffer();
-}
+}*/
 
 
 MeshQuad::~MeshQuad() {
@@ -336,10 +337,53 @@ void MeshQuad::createBuffer() {
 	m_bitangents.shrink_to_fit();
 }
 
-void MeshQuad::drawRaw() {
-	glBindVertexArray(m_vao);
-	glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
+void MeshQuad::createBufferWireframe() {
+	std::vector<unsigned int> indexBuffer;
+	indexBuffer.push_back(0);
+	indexBuffer.push_back(2);
+	indexBuffer.push_back(3);
+	indexBuffer.push_back(1);
+	indexBuffer.push_back(0);
+
+	m_drawCountWireframe = indexBuffer.size();
+
+	unsigned int ibo;
+	glGenBuffers(1, &ibo);
+	glGenBuffers(1, &m_vboWireframe);
+
+	glGenVertexArrays(1, &m_vaoWireframe);
+	glBindVertexArray(m_vaoWireframe);
+
+	//Position
+	glBindBuffer(GL_ARRAY_BUFFER, m_vboWireframe);
+	glBufferData(GL_ARRAY_BUFFER, m_positions.size() * sizeof(m_positions[0]), &m_positions[0], GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	//Indices
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.size() * sizeof(indexBuffer[0]), &indexBuffer[0], GL_STATIC_DRAW);
+
 	glBindVertexArray(0);
+	glDeleteBuffers(1, &ibo);
+}
+
+void MeshQuad::drawRaw(bool isWireframe, float lineWidth) {
+	if (isWireframe) {
+		if (lineWidth != 1.0f)
+			glLineWidth(lineWidth);
+		glBindVertexArray(m_vaoWireframe);
+		glDrawElements(GL_LINE_STRIP, m_drawCountWireframe, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+		if (lineWidth != 1.0f)
+			glLineWidth(1.0f);
+	}else {
+		glBindVertexArray(m_vao);
+		glDrawElements(GL_TRIANGLES, m_drawCount, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+	}
 }
 
 void MeshQuad::createInstancesStatic(const std::vector<Matrix4f>& modelMTX) {

@@ -251,7 +251,7 @@ void MeshDisk::createBufferWireframe() {
 
 	std::vector<unsigned int> indexBuffer;
 	for (int i = 0; i < m_vResolution; ++i) {
-		indexBuffer.push_back(i);;
+		indexBuffer.push_back(i);
 	}
 	indexBuffer.push_back(0);
 

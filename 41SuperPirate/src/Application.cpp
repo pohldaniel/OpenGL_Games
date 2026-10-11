@@ -6,6 +6,7 @@
 #include <imgui_impl_win32.h>
 #include <imgui_impl_opengl3.h>
 
+#include <engine/input/GamePad.h>
 #include <engine/sound/SoundDevice.h>
 #include <engine/ui/Widget.h>
 #include <engine/Framebuffer.h>
@@ -88,6 +89,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	shader->unuse();
 
 	SetCursorIcon(IDC_ARROW);
+	RawInput::instance().attachRaw(Window);
 	initStates();
 }
 
@@ -95,6 +97,7 @@ Application::~Application() {
 	Fontrenderer::Get().shutdown();
 	DebugRenderer::Get().shutdown();
 	Batchrenderer::Get().shutdown();
+	RawInput::Shutdown();
 
 	delete Machine;
 	Globals::shaderManager.clear();
@@ -263,6 +266,7 @@ LRESULT Application::ApplicationWndProc(HWND hWnd, UINT message, WPARAM wParam, 
 			break;
 		}default: {
 			//Mouse::instance().handleMsg(hWnd, message, wParam, lParam);
+			RawInput::HandleMsg(hWnd, message, wParam, lParam);
 			break;
 		}
 	}
@@ -416,7 +420,12 @@ void Application::update() {
 	Mouse::instance().update();
 	Keyboard::instance().update();
 	XInputController::instance().update();
-	
+	for (int i = 0; i < 4; ++i) {
+		RawInput* pad = RawInput::GetPlayer(i);
+		if (pad) {
+			pad->update();
+		}
+	}
 	Machine->update();
 
 	if (!Machine->isRunning()) {

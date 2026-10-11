@@ -16,9 +16,9 @@ public:
 	MeshQuad(const Vector3f &position, const Vector2f& size, bool generateTexels, bool generateNormals, bool generateTangents, int uResolution = 1, int vResolution = 1);
 	~MeshQuad();
 
-	void drawRaw();
+	void drawRaw(bool isWireframe = false, float lineWidth = 1.0f);
 	void drawRawInstanced();
-	void create(const Vector3f &position, const Vector2f& size, bool generateTexels, bool generateNormals, bool generateTangents, int uResolution = 1, int vResolution = 1);
+	//void create(const Vector3f &position, const Vector2f& size, bool generateTexels, bool generateNormals, bool generateTangents, int uResolution = 1, int vResolution = 1);
 
 	void createInstancesStatic(const std::vector<Matrix4f>& modelMTX);
 	void addInstance(const Matrix4f& modelMTX);
@@ -53,8 +53,10 @@ private:
 	short m_numBuffers;
 	unsigned int m_vao;
 	unsigned int m_vbo[5];
-	unsigned int m_drawCount;
+	unsigned int m_drawCount, m_drawCountWireframe;
 	unsigned int m_vboInstances = 0;
+	unsigned int m_vaoWireframe;
+	unsigned int m_vboWireframe;
 	unsigned int m_instanceCount = 0;
 
 	std::vector<unsigned int> m_indexBuffer;
@@ -66,5 +68,6 @@ private:
 	std::vector<Matrix4f> m_instances;
 
 	void createBuffer();
+	void createBufferWireframe();
 };
 #endif

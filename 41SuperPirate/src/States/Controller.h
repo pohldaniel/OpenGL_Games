@@ -5,6 +5,7 @@
 #include <engine/Camera.h>
 #include <engine/Background.h>
 #include <engine//MeshObject/MeshDisk.h>
+#include <engine//MeshObject/MeshQuad.h>
 #include <States/StateMachine.h>
 
 class Controller : public State, public MouseEventListener, public KeyboardEventListener {
@@ -30,10 +31,17 @@ private:
 	void renderUi();
 	void renderPad(float x, float y, long value);
 	void renderButton(float x, float y, long value, int index);
+	void renderRectangle(float x, float y, float stickX, float stickY);
 
 	bool m_initUi = true;
 	bool m_drawUi = false;
 	long m_state = 0;
 	Camera m_camera;
 	MeshDisk m_meshDisk;
+	MeshQuad m_meshQuad;
+
+	float m_RightStickX = 0.0f;
+	float m_RightStickY = 0.0f;
+	float m_LeftStickX = 0.0f;
+	float m_LeftStickY = 0.0f;
 };
