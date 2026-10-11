@@ -89,7 +89,8 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	shader->unuse();
 
 	SetCursorIcon(IDC_ARROW);
-	RawInput::instance().attachRaw(Window);
+	//RawInput::instance().attachRaw(Window);
+	XInputController::InitializePlayers();
 	initStates();
 }
 
@@ -419,7 +420,7 @@ void Application::render() {
 void Application::update() {
 	Mouse::instance().update();
 	Keyboard::instance().update();
-	XInputController::instance().update();
+	XInputController::UpdateAll();
 	for (int i = 0; i < 4; ++i) {
 		RawInput* pad = RawInput::GetPlayer(i);
 		if (pad) {

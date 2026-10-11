@@ -20,66 +20,69 @@ public:
 		DPAD_DOWN = 2,
 		DPAD_LEFT = 3,
 		DPAD_RIGHT = 4,
+		DPAD_UP_RIGHT = 5,
+		DPAD_DOWN_RIGHT = 6,
+		DPAD_UP_LEFT = 7,
+		DPAD_DOWN_LEFT = 8,
+		GAMEPAD_START = 9,
+		GAMEPAD_BACK = 10,
+		GAMEPAD_LEFT_THUMB = 11,
+		GAMEPAD_RIGHT_THUMB = 12,
 
-		GAMEPAD_START = 5,
-		GAMEPAD_BACK = 6,
-		GAMEPAD_LEFT_THUMB = 7,
-		GAMEPAD_RIGHT_THUMB = 8,
-
-		GAMEPAD_LEFT_SHOULDER = 9,
-		GAMEPAD_RIGHT_SHOULDER = 10,
-		GAMEPAD_A = 11,
-		GAMEPAD_B = 12,
-		GAMEPAD_X = 13,
-		GAMEPAD_Y = 14,
-		GAMEPAD_LEFT_TRIGGER = 15,
-		GAMEPAD_RIGHT_TRIGGER = 16,
+		GAMEPAD_LEFT_SHOULDER = 13,
+		GAMEPAD_RIGHT_SHOULDER = 14,
+		GAMEPAD_A = 15,
+		GAMEPAD_B = 16,
+		GAMEPAD_X = 17,
+		GAMEPAD_Y = 18,
+		GAMEPAD_LEFT_TRIGGER = 19,
+		GAMEPAD_RIGHT_TRIGGER = 20,
 	};
 
 	static XInputController& instance();
 	static XInputController s_instance;
 
 	void update();
+	void setVibration(float leftMotor, float rightMotor);
+	float getRightStickX() const { return m_RightStickX; }
+	float getRightStickY() const { return m_RightStickY; }
 
-	XINPUT_STATE GetState()
-	{
-		ZeroMemory(&state, sizeof(XINPUT_STATE));
-		XInputGetState(n, &state);
-		return state;
-	}
+	float getLeftStickX() const { return m_LeftStickX; }
+	float getLeftStickY() const { return m_LeftStickY; }
 
-	bool IsConnected()
-	{
-		ZeroMemory(&state, sizeof(XINPUT_STATE));
-		DWORD statenow = XInputGetState(n, &state);
+	float getLeftTrigger() const { return m_LeftTrigger; }
+	float getRightTrigger() const { return m_RightTrigger; }
 
-		if (statenow == ERROR_SUCCESS) return true;
 
-		return false;
-	}
-
-	void vibrate(int LV = 0, int RV = 0)
-	{
-		XINPUT_VIBRATION vibration;
-		ZeroMemory(&vibration, sizeof(XINPUT_VIBRATION));
-
-		vibration.wLeftMotorSpeed = LV;
-		vibration.wRightMotorSpeed = RV;
-
-		XInputSetState(n, &vibration);
-	}
 	bool buttonPressed(GamepadButton button) const;
 	bool buttonDown(GamepadButton button) const;
 	bool buttonUp(GamepadButton button) const;
+	void ResetState();
+	XINPUT_STATE GetState();
+	bool IsConnected();
+	static XInputController* GetPlayer(int playerIndex);
+	static void UpdateAll();
+	static void InitializePlayers();
+	static void Shutdown();
 
 private:
-	XInputController(int num);
 
+	XInputController();
+	int m_PlayerIndex;
 	bool m_buttonStates[2][17];
 	bool* m_pCurrButtonStates;
 	bool* m_pPrevButtonStates;
-	int n;
+	
 	XINPUT_STATE state;
+	bool m_Connected;
+	float m_LeftStickX;
+	float m_LeftStickY;
+	float m_RightStickX;
+	float m_RightStickY;
+	float m_LeftTrigger;
+	float m_RightTrigger;
+
+	static XInputController* s_Players[4];
 };
 
 class RawInput {	
@@ -144,7 +147,7 @@ private:
 	float m_LeftStickY = 0.0f;
 	const float DEADZONE = 0.15f;
 
-	static int FindNextFreePlayerIndex();
+	static int NextIndex();
 	static std::unordered_map<HANDLE, RawInput*> ConnectedControllers;
 	static RawInput s_instance;
 };

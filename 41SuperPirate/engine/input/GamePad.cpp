@@ -1,15 +1,16 @@
 #include <iostream>
 #include "GamePad.h"
 
-XInputController XInputController::s_instance(0);
-
+XInputController XInputController::s_instance;
+XInputController* XInputController::s_Players[4] = { nullptr, nullptr, nullptr, nullptr };
 XInputController& XInputController::instance() {
 	return s_instance;
 }
 
-XInputController::XInputController(int num){
-	n = num;
+XInputController::XInputController(){
+	m_PlayerIndex = -1;
 	state = {};
+
 	m_pCurrButtonStates = m_buttonStates[0];
 	m_pPrevButtonStates = m_buttonStates[1];
 
@@ -17,42 +18,112 @@ XInputController::XInputController(int num){
 	memset(m_pPrevButtonStates, false, 17);
 }
 
+void XInputController::InitializePlayers() {
+	for (int i = 0; i < 4; ++i) {
+		s_Players[i] = new XInputController();
+		s_Players[i]->m_PlayerIndex = i;
+	}
+}
+
+void XInputController::ResetState() {
+	m_LeftStickX = m_LeftStickY = m_RightStickX = m_RightStickY = 0.0f;
+	m_LeftTrigger = m_RightTrigger = 0.0f;
+	for (int i = 0; i < 32; ++i) m_pCurrButtonStates[i] = false;
+}
+
+XINPUT_STATE XInputController::GetState(){
+	ZeroMemory(&state, sizeof(XINPUT_STATE));
+	XInputGetState(m_PlayerIndex, &state);
+	return state;
+}
+
+bool XInputController::IsConnected(){
+	ZeroMemory(&state, sizeof(XINPUT_STATE));
+	DWORD statenow = XInputGetState(m_PlayerIndex, &state);
+
+	if (statenow == ERROR_SUCCESS) return true;
+
+	return false;
+}
+
 void XInputController::update() {
-	XInputController& gamepad = XInputController::instance();
+	bool* pTempGamePadStates = m_pPrevButtonStates;
+	m_pPrevButtonStates = m_pCurrButtonStates;
+	m_pCurrButtonStates = pTempGamePadStates;
+	ZeroMemory(&state, sizeof(XINPUT_STATE));
+	if (XInputGetState(m_PlayerIndex, &state) == ERROR_SUCCESS) {
+		m_Connected = true;
+		WORD wButtons = state.Gamepad.wButtons;
 
-	if (gamepad.IsConnected()){
-		bool* pTempGamePadStates = m_pPrevButtonStates;
+		m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_A)] = (wButtons & XINPUT_GAMEPAD_A);
+		m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_B)] = (wButtons & XINPUT_GAMEPAD_B);
+		m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_X)] = (wButtons & XINPUT_GAMEPAD_X);
+		m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_Y)] = (wButtons & XINPUT_GAMEPAD_Y);
 
-		m_pPrevButtonStates = m_pCurrButtonStates;
-		m_pCurrButtonStates = pTempGamePadStates;
+		m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_LEFT_SHOULDER)] = (wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER);
+		m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_RIGHT_SHOULDER)] = (wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER);
+		m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_LEFT_THUMB)] = (wButtons & XINPUT_GAMEPAD_LEFT_THUMB);
+		m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_RIGHT_THUMB)] = (wButtons & XINPUT_GAMEPAD_RIGHT_THUMB);
 
-		ZeroMemory(&state, sizeof(XINPUT_STATE));
-		DWORD result = XInputGetState(n, &state);
-		if (result == ERROR_SUCCESS && state.dwPacketNumber){
+		m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_BACK)] = (wButtons & XINPUT_GAMEPAD_BACK);
+		m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_START)] = (wButtons & XINPUT_GAMEPAD_START);
 
-			m_pCurrButtonStates[1] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) ? true : false;
-			m_pCurrButtonStates[2] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) ? true : false;
-			m_pCurrButtonStates[3] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT) ? true : false;
-			m_pCurrButtonStates[4] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) ? true : false;
+		bool up = (wButtons & XINPUT_GAMEPAD_DPAD_UP) != 0;
+		bool down = (wButtons & XINPUT_GAMEPAD_DPAD_DOWN) != 0;
+		bool left = (wButtons & XINPUT_GAMEPAD_DPAD_LEFT) != 0;
+		bool right = (wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) != 0;
 
-			m_pCurrButtonStates[5] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_START) ? true : false;
-			m_pCurrButtonStates[6] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_BACK) ? true : false;
+		m_pCurrButtonStates[static_cast<int>(GamepadButton::DPAD_UP)] = up;
+		m_pCurrButtonStates[static_cast<int>(GamepadButton::DPAD_DOWN)] = down;
+		m_pCurrButtonStates[static_cast<int>(GamepadButton::DPAD_LEFT)] = left;
+		m_pCurrButtonStates[static_cast<int>(GamepadButton::DPAD_RIGHT)] = right;
 
-			m_pCurrButtonStates[7] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_THUMB) ? true : false;
-			m_pCurrButtonStates[8] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_THUMB) ? true : false;
+		m_pCurrButtonStates[static_cast<int>(GamepadButton::DPAD_UP_RIGHT)] = up && right;
+		m_pCurrButtonStates[static_cast<int>(GamepadButton::DPAD_DOWN_RIGHT)] = down && right;
+		m_pCurrButtonStates[static_cast<int>(GamepadButton::DPAD_UP_LEFT)] = up && left;
+		m_pCurrButtonStates[static_cast<int>(GamepadButton::DPAD_DOWN_LEFT)] = down && left;
 
-			m_pCurrButtonStates[9] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) ? true : false;
-			m_pCurrButtonStates[10] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) ? true : false;
+		float normLX = state.Gamepad.sThumbLX / 32767.0f;
+		float normLY = state.Gamepad.sThumbLY / 32767.0f;
+		float normRX = state.Gamepad.sThumbRX / 32767.0f;
+		float normRY = state.Gamepad.sThumbRY / 32767.0f;
 
-			m_pCurrButtonStates[11] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_A) ? true : false;
-			m_pCurrButtonStates[12] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_B) ? true : false;
-			m_pCurrButtonStates[13] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_X) ? true : false;
-			m_pCurrButtonStates[14] = (state.Gamepad.wButtons & XINPUT_GAMEPAD_Y) ? true : false;	
+		m_LeftStickX = (abs(state.Gamepad.sThumbRX) < XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) ? 0.0f : normRX;
+		m_LeftStickY = (abs(state.Gamepad.sThumbRY) < XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) ? 0.0f : normRY;
 
-			m_pCurrButtonStates[15] = (state.Gamepad.bLeftTrigger > 0) ? true : false;
-			m_pCurrButtonStates[16] = (state.Gamepad.bRightTrigger > 0) ? true : false;
+		m_RightStickX = (abs(state.Gamepad.sThumbLX) < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) ? 0.0f : normLX;
+		m_RightStickY = (abs(state.Gamepad.sThumbLY) < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) ? 0.0f : normLY;
+
+		m_LeftTrigger = (state.Gamepad.bLeftTrigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD) ? (state.Gamepad.bLeftTrigger / 255.0f) : 0.0f;
+		m_RightTrigger = (state.Gamepad.bRightTrigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD) ? (state.Gamepad.bRightTrigger / 255.0f) : 0.0f;
+
+		m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_LEFT_TRIGGER)] = (state.Gamepad.bLeftTrigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD);
+		m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_RIGHT_TRIGGER)] = (state.Gamepad.bRightTrigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD);
+	}else {
+		if (m_Connected) {
+			m_Connected = false;
+			state = {};
+			memset(m_pCurrButtonStates, false, 17);
 		}
-	}	
+	}
+}
+
+void XInputController::setVibration(float leftMotor, float rightMotor) {
+	// Sicherstellen, dass die Werte im Bereich 0.0f bis 1.0f liegen
+	if (leftMotor < 0.0f) leftMotor = 0.0f;
+	if (leftMotor > 1.0f) leftMotor = 1.0f;
+	if (rightMotor < 0.0f) rightMotor = 0.0f;
+	if (rightMotor > 1.0f) rightMotor = 1.0f;
+
+	XINPUT_VIBRATION vibration;
+	ZeroMemory(&vibration, sizeof(XINPUT_VIBRATION));
+
+	// Skalierung auf den WORD-Bereich (0 - 65535)
+	vibration.wLeftMotorSpeed = static_cast<WORD>(leftMotor * 65535.0f); // Grober/starker Motor
+	vibration.wRightMotorSpeed = static_cast<WORD>(rightMotor * 65535.0f); // Feiner/hoher Motor
+
+	// Wichtig: Nutze den exakten Variablennamen deines Player-Slots (z. B. m_UserIndex)
+	XInputSetState(m_PlayerIndex, &vibration);
 }
 
 bool XInputController::buttonPressed(GamepadButton button) const {
@@ -66,6 +137,34 @@ bool XInputController::buttonDown(GamepadButton button) const {
 bool XInputController::buttonUp(GamepadButton button) const {
 	return !m_pCurrButtonStates[button];
 }
+
+XInputController* XInputController::GetPlayer(int playerIndex) {
+	if (playerIndex >= 0 && playerIndex < 4) return s_Players[playerIndex];
+	return nullptr;
+}
+
+void XInputController::UpdateAll() {
+	for (int i = 0; i < 4; ++i) {
+		XInputController* player = XInputController::GetPlayer(i);
+		if (player) {
+			player->update();
+		}
+	}
+}
+
+void XInputController::Shutdown() {
+	for (int i = 0; i < 4; ++i) {
+		if (s_Players[i] != nullptr) {
+			if (s_Players[i]->m_Connected) {
+				XINPUT_VIBRATION stopVibration = { 0, 0 };
+				XInputSetState(static_cast<DWORD>(i), &stopVibration);
+			}
+			delete s_Players[i];
+			s_Players[i] = nullptr;
+		}
+	}
+}
+
 //########################################################
 RawInput RawInput::s_instance;
 std::unordered_map<HANDLE, RawInput*> RawInput::ConnectedControllers;
@@ -75,7 +174,7 @@ RawInput& RawInput::instance() {
 }
 
 RawInput::RawInput() {
-	m_PlayerIndex = FindNextFreePlayerIndex();
+	m_PlayerIndex = NextIndex();
 	m_pCurrButtonStates = m_ButtonStatesA;
 	m_pPrevButtonStates = m_ButtonStatesB;
 }
@@ -188,13 +287,14 @@ void RawInput::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 }
 
 void RawInput::processInput(RAWINPUT* raw) {
+	
 	UINT pcbPreparsedData = 0;
 	GetRawInputDeviceInfo(raw->header.hDevice, RIDI_PREPARSEDDATA, NULL, &pcbPreparsedData);
 	if (pcbPreparsedData == 0) return;
 
 	PHIDP_PREPARSED_DATA pPreparsedData = (PHIDP_PREPARSED_DATA)new BYTE[pcbPreparsedData];
 	GetRawInputDeviceInfo(raw->header.hDevice, RIDI_PREPARSEDDATA, pPreparsedData, &pcbPreparsedData);
-
+	
 	HIDP_CAPS caps;
 	HidP_GetCaps(pPreparsedData, &caps);
 
@@ -207,7 +307,6 @@ void RawInput::processInput(RAWINPUT* raw) {
 
 		for (ULONG i = 0; i < usageLength; i++) {
 			USAGE buttonId = usage[i];
-			
 			if (buttonId == 1) m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_Y)] = true;
 			if (buttonId == 2) m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_B)] = true;
 			if (buttonId == 3) m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_A)] = true;
@@ -295,7 +394,7 @@ void RawInput::processInput(RAWINPUT* raw) {
 	delete[](BYTE*)pPreparsedData;
 }
 
-int RawInput::FindNextFreePlayerIndex() {
+int RawInput::NextIndex() {
 	if (ConnectedControllers.empty())
 		return 0;
 
