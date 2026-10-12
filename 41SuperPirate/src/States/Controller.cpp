@@ -20,7 +20,6 @@ Controller::Controller(StateMachine& machine) :
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 
-	//Vector3f position = { -static_cast<float>(Application::Width) * 0.5f + 100.0f, -static_cast<float>(Application::Height) * 0.5f + 100.0f, 0.0f };
 	Vector3f position = { 0.0f, 0.0f, 0.0f };
 	m_camera.lookAt(position, position + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
@@ -98,8 +97,8 @@ void Controller::update() {
 	XInputController* player1X = XInputController::GetPlayer(0);
 	XInputController* player2X = XInputController::GetPlayer(1);
 
-	RawInput* player1 = RawInput::GetPlayer(0);
-	RawInput* player2 = RawInput::GetPlayer(1);
+	RawInputController* player1 = RawInputController::GetPlayer(0);
+	RawInputController* player2 = RawInputController::GetPlayer(1);
 	
 	m_RightStickX = player1 ? player1->getRightStickX() : 0.0f;
 	m_RightStickY = player1 ? player1->getRightStickY() : 0.0f;
@@ -130,153 +129,154 @@ void Controller::update() {
 	
 	
 	m_state = 0;
-	if ((player1X && player1X->buttonDown(XInputController::GamepadButton::DPAD_UP)) ||
-		(player2X && player2X->buttonDown(XInputController::GamepadButton::DPAD_UP)) ||
-		(player1 && player1->buttonDown(RawInput::GamepadButton::DPAD_UP)) ||
-		(player2 && player2->buttonDown(RawInput::GamepadButton::DPAD_UP))) {
+	if ((player1X && player1X->buttonDown(GamepadButton::DPAD_UP)) ||
+		(player2X && player2X->buttonDown(GamepadButton::DPAD_UP)) ||
+		(player1 && player1->buttonDown(GamepadButton::DPAD_UP)) ||
+		(player2 && player2->buttonDown(GamepadButton::DPAD_UP))) {
 		m_state = 1;
 	}
 
-	if ((player1X && player1X->buttonDown(XInputController::GamepadButton::DPAD_RIGHT)) ||
-		(player2X && player2X->buttonDown(XInputController::GamepadButton::DPAD_RIGHT)) ||
-		(player1 && player1->buttonDown(RawInput::GamepadButton::DPAD_RIGHT)) ||
-		(player2 && player2->buttonDown(RawInput::GamepadButton::DPAD_RIGHT))) {
+	if ((player1X && player1X->buttonDown(GamepadButton::DPAD_RIGHT)) ||
+		(player2X && player2X->buttonDown(GamepadButton::DPAD_RIGHT)) ||
+		(player1 && player1->buttonDown(GamepadButton::DPAD_RIGHT)) ||
+		(player2 && player2->buttonDown(GamepadButton::DPAD_RIGHT))) {
 		m_state = 3;
 	}
 
-	if ((player1X && player1X->buttonDown(XInputController::GamepadButton::DPAD_DOWN)) ||
-		(player2X && player2X->buttonDown(XInputController::GamepadButton::DPAD_DOWN)) ||
-		(player1 && player1->buttonDown(RawInput::GamepadButton::DPAD_DOWN)) ||
-		(player2 && player2->buttonDown(RawInput::GamepadButton::DPAD_DOWN))) {
+	if ((player1X && player1X->buttonDown(GamepadButton::DPAD_DOWN)) ||
+		(player2X && player2X->buttonDown(GamepadButton::DPAD_DOWN)) ||
+		(player1 && player1->buttonDown(GamepadButton::DPAD_DOWN)) ||
+		(player2 && player2->buttonDown(GamepadButton::DPAD_DOWN))) {
 		m_state = 5;
 	}
 
-	if ((player1X && player1X->buttonDown(XInputController::GamepadButton::DPAD_LEFT)) ||
-		(player2X && player2X->buttonDown(XInputController::GamepadButton::DPAD_LEFT)) ||
-		(player1 && player1->buttonDown(RawInput::GamepadButton::DPAD_LEFT)) ||
-		(player2 && player2->buttonDown(RawInput::GamepadButton::DPAD_LEFT))) {
+	if ((player1X && player1X->buttonDown(GamepadButton::DPAD_LEFT)) ||
+		(player2X && player2X->buttonDown(GamepadButton::DPAD_LEFT)) ||
+		(player1 && player1->buttonDown(GamepadButton::DPAD_LEFT)) ||
+		(player2 && player2->buttonDown(GamepadButton::DPAD_LEFT))) {
 		m_state = 7;
 	}
 
-	if ((player1X && player1X->buttonDown(XInputController::GamepadButton::DPAD_UP_RIGHT)) ||
-		(player2X && player2X->buttonDown(XInputController::GamepadButton::DPAD_UP_RIGHT)) ||
-		(player1 && player1->buttonDown(RawInput::GamepadButton::DPAD_UP_RIGHT)) ||
-		(player2 && player2->buttonDown(RawInput::GamepadButton::DPAD_UP_RIGHT))) {
+	if ((player1X && player1X->buttonDown(GamepadButton::DPAD_UP_RIGHT)) ||
+		(player2X && player2X->buttonDown(GamepadButton::DPAD_UP_RIGHT)) ||
+		(player1 && player1->buttonDown(GamepadButton::DPAD_UP_RIGHT)) ||
+		(player2 && player2->buttonDown(GamepadButton::DPAD_UP_RIGHT))) {
 		m_state = 2;
 	}
 
-	if ((player1X && player1X->buttonDown(XInputController::GamepadButton::DPAD_DOWN_RIGHT)) ||
-		(player2X && player2X->buttonDown(XInputController::GamepadButton::DPAD_DOWN_RIGHT)) ||
-		(player1 && player1->buttonDown(RawInput::GamepadButton::DPAD_DOWN_RIGHT)) ||
-		(player2 && player2->buttonDown(RawInput::GamepadButton::DPAD_DOWN_RIGHT))) {
+	if ((player1X && player1X->buttonDown(GamepadButton::DPAD_DOWN_RIGHT)) ||
+		(player2X && player2X->buttonDown(GamepadButton::DPAD_DOWN_RIGHT)) ||
+		(player1 && player1->buttonDown(GamepadButton::DPAD_DOWN_RIGHT)) ||
+		(player2 && player2->buttonDown(GamepadButton::DPAD_DOWN_RIGHT))) {
 		m_state = 4;
 	}
 
-	if ((player1X && player1X->buttonDown(XInputController::GamepadButton::DPAD_DOWN_LEFT)) ||
-		(player2X && player2X->buttonDown(XInputController::GamepadButton::DPAD_DOWN_LEFT)) ||
-		(player1 && player1->buttonDown(RawInput::GamepadButton::DPAD_DOWN_LEFT)) ||
-		(player2 && player2->buttonDown(RawInput::GamepadButton::DPAD_DOWN_LEFT))) {
+	if ((player1X && player1X->buttonDown(GamepadButton::DPAD_DOWN_LEFT)) ||
+		(player2X && player2X->buttonDown(GamepadButton::DPAD_DOWN_LEFT)) ||
+		(player1 && player1->buttonDown(GamepadButton::DPAD_DOWN_LEFT)) ||
+		(player2 && player2->buttonDown(GamepadButton::DPAD_DOWN_LEFT))) {
 		m_state = 6;
 	}
 
-	if ((player1X && player1X->buttonDown(XInputController::GamepadButton::DPAD_UP_LEFT)) ||
-		(player2X && player2X->buttonDown(XInputController::GamepadButton::DPAD_UP_LEFT)) ||
-		(player1 && player1->buttonDown(RawInput::GamepadButton::DPAD_UP_LEFT)) ||
-		(player2 && player2->buttonDown(RawInput::GamepadButton::DPAD_UP_LEFT))) {
+	if ((player1X && player1X->buttonDown(GamepadButton::DPAD_UP_LEFT)) ||
+		(player2X && player2X->buttonDown(GamepadButton::DPAD_UP_LEFT)) ||
+		(player1 && player1->buttonDown(GamepadButton::DPAD_UP_LEFT)) ||
+		(player2 && player2->buttonDown(GamepadButton::DPAD_UP_LEFT))) {
 		m_state = 8;
 	}
 
-	if ((player1X && player1X->buttonDown(XInputController::GamepadButton::GAMEPAD_START)) ||
-		(player2X && player2X->buttonDown(XInputController::GamepadButton::GAMEPAD_START)) ||
-		(player1 && player1->buttonDown(RawInput::GamepadButton::GAMEPAD_START)) ||
-		(player2 && player2->buttonDown(RawInput::GamepadButton::GAMEPAD_START))) {
+	if ((player1X && player1X->buttonDown(GamepadButton::GAMEPAD_START)) ||
+		(player2X && player2X->buttonDown(GamepadButton::GAMEPAD_START)) ||
+		(player1 && player1->buttonDown(GamepadButton::GAMEPAD_START)) ||
+		(player2 && player2->buttonDown(GamepadButton::GAMEPAD_START))) {
 		m_state = 9;
 	}
 
-	if ((player1X && player1X->buttonDown(XInputController::GamepadButton::GAMEPAD_BACK)) ||
-		(player2X && player2X->buttonDown(XInputController::GamepadButton::GAMEPAD_BACK)) ||
-		(player1 && player1->buttonDown(RawInput::GamepadButton::GAMEPAD_BACK)) ||
-		(player2 && player2->buttonDown(RawInput::GamepadButton::GAMEPAD_BACK))) {
+	if ((player1X && player1X->buttonDown(GamepadButton::GAMEPAD_BACK)) ||
+		(player2X && player2X->buttonDown(GamepadButton::GAMEPAD_BACK)) ||
+		(player1 && player1->buttonDown(GamepadButton::GAMEPAD_BACK)) ||
+		(player2 && player2->buttonDown(GamepadButton::GAMEPAD_BACK))) {
 		m_state = 10;
 	}
 
-	if ((player1X && player1X->buttonDown(XInputController::GamepadButton::GAMEPAD_LEFT_THUMB)) ||
-		(player2X && player2X->buttonDown(XInputController::GamepadButton::GAMEPAD_LEFT_THUMB)) ||
-		(player1 && player1->buttonDown(RawInput::GamepadButton::GAMEPAD_LEFT_THUMB)) ||
-		(player2 && player2->buttonDown(RawInput::GamepadButton::GAMEPAD_LEFT_THUMB))) {
+	if ((player1X && player1X->buttonDown(GamepadButton::GAMEPAD_LEFT_THUMB)) ||
+		(player2X && player2X->buttonDown(GamepadButton::GAMEPAD_LEFT_THUMB)) ||
+		(player1 && player1->buttonDown(GamepadButton::GAMEPAD_LEFT_THUMB)) ||
+		(player2 && player2->buttonDown(GamepadButton::GAMEPAD_LEFT_THUMB))) {
 		m_state = 11;
 	}
 
-	if ((player1X && player1X->buttonDown(XInputController::GamepadButton::GAMEPAD_RIGHT_THUMB)) ||
-		(player2X && player2X->buttonDown(XInputController::GamepadButton::GAMEPAD_RIGHT_THUMB)) ||
-		(player1 && player1->buttonDown(RawInput::GamepadButton::GAMEPAD_RIGHT_THUMB)) ||
-		(player2 && player2->buttonDown(RawInput::GamepadButton::GAMEPAD_RIGHT_THUMB))) {
+	if ((player1X && player1X->buttonDown(GamepadButton::GAMEPAD_RIGHT_THUMB)) ||
+		(player2X && player2X->buttonDown(GamepadButton::GAMEPAD_RIGHT_THUMB)) ||
+		(player1 && player1->buttonDown(GamepadButton::GAMEPAD_RIGHT_THUMB)) ||
+		(player2 && player2->buttonDown(GamepadButton::GAMEPAD_RIGHT_THUMB))) {
 		m_state = 12;
 	}
 
-	if ((player1X && player1X->buttonDown(XInputController::GamepadButton::GAMEPAD_LEFT_SHOULDER)) ||
-		(player2X && player2X->buttonDown(XInputController::GamepadButton::GAMEPAD_LEFT_SHOULDER)) ||
-		(player1 && player1->buttonDown(RawInput::GamepadButton::GAMEPAD_LEFT_SHOULDER)) ||
-		(player2 && player2->buttonDown(RawInput::GamepadButton::GAMEPAD_LEFT_SHOULDER))) {
+	if ((player1X && player1X->buttonDown(GamepadButton::GAMEPAD_LEFT_SHOULDER)) ||
+		(player2X && player2X->buttonDown(GamepadButton::GAMEPAD_LEFT_SHOULDER)) ||
+		(player1 && player1->buttonDown(GamepadButton::GAMEPAD_LEFT_SHOULDER)) ||
+		(player2 && player2->buttonDown(GamepadButton::GAMEPAD_LEFT_SHOULDER))) {
 		m_state = 13;
 	}
 
-	if ((player1X && player1X->buttonDown(XInputController::GamepadButton::GAMEPAD_RIGHT_SHOULDER)) ||
-		(player2X && player2X->buttonDown(XInputController::GamepadButton::GAMEPAD_RIGHT_SHOULDER)) ||
-		(player1 && player1->buttonDown(RawInput::GamepadButton::GAMEPAD_RIGHT_SHOULDER)) ||
-		(player2 && player2->buttonDown(RawInput::GamepadButton::GAMEPAD_RIGHT_SHOULDER))) {
+	if ((player1X && player1X->buttonDown(GamepadButton::GAMEPAD_RIGHT_SHOULDER)) ||
+		(player2X && player2X->buttonDown(GamepadButton::GAMEPAD_RIGHT_SHOULDER)) ||
+		(player1 && player1->buttonDown(GamepadButton::GAMEPAD_RIGHT_SHOULDER)) ||
+		(player2 && player2->buttonDown(GamepadButton::GAMEPAD_RIGHT_SHOULDER))) {
 		m_state = 14;
 	}
 
-	if ((player1X && player1X->buttonDown(XInputController::GamepadButton::GAMEPAD_A)) ||
-		(player2X && player2X->buttonDown(XInputController::GamepadButton::GAMEPAD_A)) ||
-		(player1 && player1->buttonDown(RawInput::GamepadButton::GAMEPAD_A)) ||
-		(player2 && player2->buttonDown(RawInput::GamepadButton::GAMEPAD_A))) {
+	if ((player1X && player1X->buttonDown(GamepadButton::GAMEPAD_A)) ||
+		(player2X && player2X->buttonDown(GamepadButton::GAMEPAD_A)) ||
+		(player1 && player1->buttonDown(GamepadButton::GAMEPAD_A)) ||
+		(player2 && player2->buttonDown(GamepadButton::GAMEPAD_A))) {
 		m_state = 15;
-		if(player1X && player1X->buttonDown(XInputController::GamepadButton::GAMEPAD_A))
+		if(player1X && player1X->buttonDown(GamepadButton::GAMEPAD_A))
 			player1X->setVibration(1.0f, 1.0f);
 
-		if (player2X && player2X->buttonDown(XInputController::GamepadButton::GAMEPAD_A))
+		if (player2X && player2X->buttonDown(GamepadButton::GAMEPAD_A))
 			player2X->setVibration(1.0f, 1.0f);
 	}
 
-	if ((player1X && player1X->buttonDown(XInputController::GamepadButton::GAMEPAD_B)) ||
-		(player2X && player2X->buttonDown(XInputController::GamepadButton::GAMEPAD_B)) ||
-		(player1 && player1->buttonDown(RawInput::GamepadButton::GAMEPAD_B)) ||
-		(player2 && player2->buttonDown(RawInput::GamepadButton::GAMEPAD_B))) {
+	if ((player1X && player1X->buttonDown(GamepadButton::GAMEPAD_B)) ||
+		(player2X && player2X->buttonDown(GamepadButton::GAMEPAD_B)) ||
+		(player1 && player1->buttonDown(GamepadButton::GAMEPAD_B)) ||
+		(player2 && player2->buttonDown(GamepadButton::GAMEPAD_B))) {
 		m_state = 16;
-		if (player1X && player1X->buttonDown(XInputController::GamepadButton::GAMEPAD_B))
+		if (player1X && player1X->buttonDown(GamepadButton::GAMEPAD_B))
 			player1X->setVibration(0.0f, 0.0f);
 
-		if (player2X && player2X->buttonDown(XInputController::GamepadButton::GAMEPAD_B))
+		if (player2X && player2X->buttonDown(GamepadButton::GAMEPAD_B))
 			player2X->setVibration(0.0f, 0.0f);
 	}
 
-	if ((player1X && player1X->buttonDown(XInputController::GamepadButton::GAMEPAD_X)) ||
-		(player2X && player2X->buttonDown(XInputController::GamepadButton::GAMEPAD_X)) ||
-		(player1 && player1->buttonDown(RawInput::GamepadButton::GAMEPAD_X)) ||
-		(player2 && player2->buttonDown(RawInput::GamepadButton::GAMEPAD_X))) {
+	if ((player1X && player1X->buttonDown(GamepadButton::GAMEPAD_X)) ||
+		(player2X && player2X->buttonDown(GamepadButton::GAMEPAD_X)) ||
+		(player1 && player1->buttonDown(GamepadButton::GAMEPAD_X)) ||
+		(player2 && player2->buttonDown(GamepadButton::GAMEPAD_X))) {
 		m_state = 17;
 	}
 
-	if ((player1X && player1X->buttonDown(XInputController::GamepadButton::GAMEPAD_Y)) ||
-		(player2X && player2X->buttonDown(XInputController::GamepadButton::GAMEPAD_Y)) ||
-		(player1 && player1->buttonDown(RawInput::GamepadButton::GAMEPAD_Y)) ||
-		(player2 && player2->buttonDown(RawInput::GamepadButton::GAMEPAD_Y))) {
+	if ((player1X && player1X->buttonDown(GamepadButton::GAMEPAD_Y)) ||
+		(player2X && player2X->buttonDown(GamepadButton::GAMEPAD_Y)) ||
+		(player1 && player1->buttonDown(GamepadButton::GAMEPAD_Y)) ||
+		(player2 && player2->buttonDown(GamepadButton::GAMEPAD_Y))) {
 		m_state = 18;
 	}
 
-	if ((player1X && player1X->buttonDown(XInputController::GamepadButton::GAMEPAD_LEFT_TRIGGER)) ||
-		(player2X && player2X->buttonDown(XInputController::GamepadButton::GAMEPAD_LEFT_TRIGGER)) ||
-		(player1 && player1->buttonDown(RawInput::GamepadButton::GAMEPAD_LEFT_TRIGGER)) ||
-		(player2 && player2->buttonDown(RawInput::GamepadButton::GAMEPAD_LEFT_TRIGGER))) {
+	if ((player1X && player1X->buttonDown(GamepadButton::GAMEPAD_LEFT_TRIGGER)) ||
+		(player2X && player2X->buttonDown(GamepadButton::GAMEPAD_LEFT_TRIGGER)) ||
+		(player1 && player1->buttonDown(GamepadButton::GAMEPAD_LEFT_TRIGGER)) ||
+		(player2 && player2->buttonDown(GamepadButton::GAMEPAD_LEFT_TRIGGER))) {
 		m_state = 19;
 	}
-
-	if ((player1X && player1X->buttonDown(XInputController::GamepadButton::GAMEPAD_RIGHT_TRIGGER)) ||
-		(player2X && player2X->buttonDown(XInputController::GamepadButton::GAMEPAD_RIGHT_TRIGGER)) ||
-		(player1 && player1->buttonDown(RawInput::GamepadButton::GAMEPAD_RIGHT_TRIGGER)) ||
-		(player2 && player2->buttonDown(RawInput::GamepadButton::GAMEPAD_RIGHT_TRIGGER))) {
+	//std::cout << player1X << "  " << player2X << "  " << player1 << "  " << player2 << std::endl;
+	if ((player1X && player1X->buttonDown(GamepadButton::GAMEPAD_RIGHT_TRIGGER)) ||
+		(player2X && player2X->buttonDown(GamepadButton::GAMEPAD_RIGHT_TRIGGER)) ||
+		(player1 && player1->buttonDown(GamepadButton::GAMEPAD_RIGHT_TRIGGER)) ||
+		(player2 && player2->buttonDown(GamepadButton::GAMEPAD_RIGHT_TRIGGER))) {
+	
 		m_state = 20;
 	}
 }
@@ -316,6 +316,7 @@ void Controller::renderPad(float x, float y, long value) {
 }
 
 void Controller::renderButton(float x, float y, long value, int index) {
+	//std::cout << "VALUE: " << value << std::endl;
 	auto shader = Globals::shaderManager.getAssetPointer("color");
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getOrthographicMatrix());

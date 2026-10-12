@@ -1,11 +1,7 @@
-#include <iostream>
+#include <set>
 #include "GamePad.h"
 
-XInputController XInputController::s_instance;
 XInputController* XInputController::s_Players[4] = { nullptr, nullptr, nullptr, nullptr };
-XInputController& XInputController::instance() {
-	return s_instance;
-}
 
 XInputController::XInputController(){
 	m_PlayerIndex = -1;
@@ -14,44 +10,18 @@ XInputController::XInputController(){
 	m_pCurrButtonStates = m_buttonStates[0];
 	m_pPrevButtonStates = m_buttonStates[1];
 
-	memset(m_pCurrButtonStates, false, 17);
-	memset(m_pPrevButtonStates, false, 17);
-}
-
-void XInputController::InitializePlayers() {
-	for (int i = 0; i < 4; ++i) {
-		s_Players[i] = new XInputController();
-		s_Players[i]->m_PlayerIndex = i;
-	}
-}
-
-void XInputController::ResetState() {
-	m_LeftStickX = m_LeftStickY = m_RightStickX = m_RightStickY = 0.0f;
-	m_LeftTrigger = m_RightTrigger = 0.0f;
-	for (int i = 0; i < 32; ++i) m_pCurrButtonStates[i] = false;
-}
-
-XINPUT_STATE XInputController::GetState(){
-	ZeroMemory(&state, sizeof(XINPUT_STATE));
-	XInputGetState(m_PlayerIndex, &state);
-	return state;
-}
-
-bool XInputController::IsConnected(){
-	ZeroMemory(&state, sizeof(XINPUT_STATE));
-	DWORD statenow = XInputGetState(m_PlayerIndex, &state);
-
-	if (statenow == ERROR_SUCCESS) return true;
-
-	return false;
+	memset(m_pCurrButtonStates, false, 21);
+	memset(m_pPrevButtonStates, false, 21);
 }
 
 void XInputController::update() {
+	
 	bool* pTempGamePadStates = m_pPrevButtonStates;
 	m_pPrevButtonStates = m_pCurrButtonStates;
 	m_pCurrButtonStates = pTempGamePadStates;
+
 	ZeroMemory(&state, sizeof(XINPUT_STATE));
-	if (XInputGetState(m_PlayerIndex, &state) == ERROR_SUCCESS) {
+	if (XInputGetState(m_PlayerIndex, &state) == ERROR_SUCCESS) {		
 		m_Connected = true;
 		WORD wButtons = state.Gamepad.wButtons;
 
@@ -96,20 +66,20 @@ void XInputController::update() {
 
 		m_LeftTrigger = (state.Gamepad.bLeftTrigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD) ? (state.Gamepad.bLeftTrigger / 255.0f) : 0.0f;
 		m_RightTrigger = (state.Gamepad.bRightTrigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD) ? (state.Gamepad.bRightTrigger / 255.0f) : 0.0f;
-
+		
 		m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_LEFT_TRIGGER)] = (state.Gamepad.bLeftTrigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD);
 		m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_RIGHT_TRIGGER)] = (state.Gamepad.bRightTrigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD);
 	}else {
 		if (m_Connected) {
 			m_Connected = false;
 			state = {};
-			memset(m_pCurrButtonStates, false, 17);
+			memset(m_pCurrButtonStates, false, 21);
 		}
+		
 	}
 }
 
 void XInputController::setVibration(float leftMotor, float rightMotor) {
-	// Sicherstellen, dass die Werte im Bereich 0.0f bis 1.0f liegen
 	if (leftMotor < 0.0f) leftMotor = 0.0f;
 	if (leftMotor > 1.0f) leftMotor = 1.0f;
 	if (rightMotor < 0.0f) rightMotor = 0.0f;
@@ -118,12 +88,34 @@ void XInputController::setVibration(float leftMotor, float rightMotor) {
 	XINPUT_VIBRATION vibration;
 	ZeroMemory(&vibration, sizeof(XINPUT_VIBRATION));
 
-	// Skalierung auf den WORD-Bereich (0 - 65535)
-	vibration.wLeftMotorSpeed = static_cast<WORD>(leftMotor * 65535.0f); // Grober/starker Motor
-	vibration.wRightMotorSpeed = static_cast<WORD>(rightMotor * 65535.0f); // Feiner/hoher Motor
+	vibration.wLeftMotorSpeed = static_cast<WORD>(leftMotor * 65535.0f); 
+	vibration.wRightMotorSpeed = static_cast<WORD>(rightMotor * 65535.0f);
 
-	// Wichtig: Nutze den exakten Variablennamen deines Player-Slots (z. B. m_UserIndex)
 	XInputSetState(m_PlayerIndex, &vibration);
+}
+
+float XInputController::getRightStickX() const { 
+	return m_RightStickX; 
+}
+
+float XInputController::getRightStickY() const { 
+	return m_RightStickY; 
+}
+
+float XInputController::getLeftStickX() const { 
+	return m_LeftStickX; 
+}
+
+float XInputController::getLeftStickY() const { 
+	return m_LeftStickY; 
+}
+
+float XInputController::getLeftTrigger() const { 
+	return m_LeftTrigger; 
+}
+
+float XInputController::getRightTrigger() const { 
+	return m_RightTrigger; 
 }
 
 bool XInputController::buttonPressed(GamepadButton button) const {
@@ -131,6 +123,7 @@ bool XInputController::buttonPressed(GamepadButton button) const {
 }
 
 bool XInputController::buttonDown(GamepadButton button) const {
+	
 	return m_pCurrButtonStates[button];
 }
 
@@ -143,7 +136,14 @@ XInputController* XInputController::GetPlayer(int playerIndex) {
 	return nullptr;
 }
 
-void XInputController::UpdateAll() {
+void XInputController::Initialize() {
+	for (int i = 0; i < 4; ++i) {
+		s_Players[i] = new XInputController();
+		s_Players[i]->m_PlayerIndex = i;
+	}
+}
+
+void XInputController::Update() {
 	for (int i = 0; i < 4; ++i) {
 		XInputController* player = XInputController::GetPlayer(i);
 		if (player) {
@@ -164,44 +164,19 @@ void XInputController::Shutdown() {
 		}
 	}
 }
-
 //########################################################
-RawInput RawInput::s_instance;
-std::unordered_map<HANDLE, RawInput*> RawInput::ConnectedControllers;
+std::unordered_map<HANDLE, RawInputController*> RawInputController::ConnectedControllers;
 
-RawInput& RawInput::instance() {
-	return s_instance;
-}
-
-RawInput::RawInput() {
+RawInputController::RawInputController() {
 	m_PlayerIndex = NextIndex();
-	m_pCurrButtonStates = m_ButtonStatesA;
-	m_pPrevButtonStates = m_ButtonStatesB;
+	m_pCurrButtonStates = m_buttonStates[0];
+	m_pPrevButtonStates = m_buttonStates[1];
+
+	memset(m_pCurrButtonStates, false, 21);
+	memset(m_pPrevButtonStates, false, 21);
 }
 
-void RawInput::Shutdown() {
-	auto it = ConnectedControllers.begin();
-	while (it != ConnectedControllers.end()) {
-		RawInput* pad = it->second;
-		it = ConnectedControllers.erase(it);
-
-		if (pad != nullptr) {
-			delete pad;
-		}
-	}
-	ConnectedControllers.clear();
-}
-
-RawInput* RawInput::GetPlayer(int playerIndex) {
-	for (auto& pair : ConnectedControllers) {
-		if (pair.second && pair.second->GetPlayerIndex() == playerIndex) {
-			return pair.second;
-		}
-	}
-	return nullptr;
-}
-
-RawInput::~RawInput() {
+RawInputController::~RawInputController() {
 	if (!ConnectedControllers.empty()) {
 		for (auto it = ConnectedControllers.begin(); it != ConnectedControllers.end();) {
 			if (it->second == this) {
@@ -214,79 +189,26 @@ RawInput::~RawInput() {
 	}
 }
 
-void RawInput::update() {
+void RawInputController::update() {
 	bool* pTempGamePadStates = m_pPrevButtonStates;
 	m_pPrevButtonStates = m_pCurrButtonStates;
 	m_pCurrButtonStates = pTempGamePadStates;
-	memcpy(m_pCurrButtonStates, m_pPrevButtonStates, sizeof(m_ButtonStatesA));
+	memcpy(m_pCurrButtonStates, m_pPrevButtonStates, 21);
 }
 
-bool RawInput::buttonDown(GamepadButton button) const {
+bool RawInputController::buttonPressed(GamepadButton button) const {
+	return m_pCurrButtonStates[button] && !m_pPrevButtonStates[button];
+}
+
+bool RawInputController::buttonDown(GamepadButton button) const {
 	return m_pCurrButtonStates[static_cast<int>(button)];
 }
 
-bool RawInput::attachRaw(HWND hWnd) {
-
-	RAWINPUTDEVICE rid[2];
-
-	rid[0].usUsagePage = HID_USAGE_PAGE_GENERIC;
-	rid[0].usUsage = HID_USAGE_GENERIC_JOYSTICK;
-	rid[0].dwFlags = RIDEV_DEVNOTIFY | RIDEV_INPUTSINK;
-	rid[0].hwndTarget = hWnd;
-
-
-	rid[1].usUsagePage = HID_USAGE_PAGE_GENERIC;
-	rid[1].usUsage = HID_USAGE_GENERIC_GAMEPAD;
-	rid[1].dwFlags = RIDEV_DEVNOTIFY | RIDEV_INPUTSINK;
-	rid[1].hwndTarget = hWnd;
-
-
-	if (RegisterRawInputDevices(rid, 2, sizeof(RAWINPUTDEVICE)) == FALSE) {
-		return false;
-	}
-	return true;
+bool RawInputController::buttonUp(GamepadButton button) const {
+	return !m_pCurrButtonStates[button];
 }
 
-void RawInput::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-	switch (msg) {
-		case WM_INPUT_DEVICE_CHANGE: {
-			HANDLE deviceHandle = (HANDLE)lParam;
-			if (wParam == GIDC_REMOVAL) {
-				auto it = ConnectedControllers.find(deviceHandle);
-				if (it != ConnectedControllers.end()) {
-					RawInput* padToRemove = it->second;
-					delete padToRemove;
-				}
-			}
-			break;
-		}
-		case WM_INPUT: {
-			UINT dwSize = 0;
-			GetRawInputData((HRAWINPUT)lParam, RID_INPUT, NULL, &dwSize, sizeof(RAWINPUTHEADER));
-			
-			if (dwSize == 0) break;
-
-			BYTE* lpb = new BYTE[dwSize];
-			if (GetRawInputData((HRAWINPUT)lParam, RID_INPUT, lpb, &dwSize, sizeof(RAWINPUTHEADER)) == dwSize) {
-				RAWINPUT* raw = (RAWINPUT*)lpb;
-				if (raw->header.dwType == RIM_TYPEHID) {
-					HANDLE deviceHandle = raw->header.hDevice;
-					if (ConnectedControllers.find(deviceHandle) == ConnectedControllers.end()) {
-						RawInput* newPad = new RawInput();
-						ConnectedControllers[deviceHandle] = newPad;
-					}
-
-					ConnectedControllers[deviceHandle]->processInput(raw);
-				}
-			}
-
-			delete[] lpb;
-			break;
-		}
-	}
-}
-
-void RawInput::processInput(RAWINPUT* raw) {
+void RawInputController::processInput(RAWINPUT* raw) {
 	
 	UINT pcbPreparsedData = 0;
 	GetRawInputDeviceInfo(raw->header.hDevice, RIDI_PREPARSEDDATA, NULL, &pcbPreparsedData);
@@ -394,14 +316,126 @@ void RawInput::processInput(RAWINPUT* raw) {
 	delete[](BYTE*)pPreparsedData;
 }
 
-int RawInput::NextIndex() {
+float RawInputController::getRightStickX() const {
+	return m_RightStickX; 
+}
+
+float RawInputController::getRightStickY() const { 
+	return m_RightStickY; 
+}
+
+float RawInputController::getLeftStickX() const {
+	return m_LeftStickX; 
+}
+
+float RawInputController::getLeftStickY() const {
+	return m_LeftStickY;
+}
+
+int RawInputController::getPlayerIndex() const { 
+	return m_PlayerIndex; 
+}
+
+void RawInputController::Update() {
+	for (int i = 0; i < 4; ++i) {
+		RawInputController* controller = RawInputController::GetPlayer(i);
+		if (controller) {
+			controller->update();
+		}
+	}
+}
+
+bool RawInputController::Initialize(HWND hWnd) {
+
+	RAWINPUTDEVICE rid[2];
+
+	rid[0].usUsagePage = HID_USAGE_PAGE_GENERIC;
+	rid[0].usUsage = HID_USAGE_GENERIC_JOYSTICK;
+	rid[0].dwFlags = RIDEV_DEVNOTIFY | RIDEV_INPUTSINK;
+	rid[0].hwndTarget = hWnd;
+
+
+	rid[1].usUsagePage = HID_USAGE_PAGE_GENERIC;
+	rid[1].usUsage = HID_USAGE_GENERIC_GAMEPAD;
+	rid[1].dwFlags = RIDEV_DEVNOTIFY | RIDEV_INPUTSINK;
+	rid[1].hwndTarget = hWnd;
+
+
+	if (RegisterRawInputDevices(rid, 2, sizeof(RAWINPUTDEVICE)) == FALSE) {
+		return false;
+	}
+	return true;
+}
+
+void RawInputController::Shutdown() {
+	auto it = ConnectedControllers.begin();
+	while (it != ConnectedControllers.end()) {
+		RawInputController* controller = it->second;
+		it = ConnectedControllers.erase(it);
+
+		if (controller != nullptr) {
+			delete controller;
+		}
+	}
+	ConnectedControllers.clear();
+}
+
+RawInputController* RawInputController::GetPlayer(int playerIndex) {
+	for (auto& pair : ConnectedControllers) {
+		if (pair.second && pair.second->getPlayerIndex() == playerIndex) {
+			return pair.second;
+		}
+	}
+	return nullptr;
+}
+
+
+void RawInputController::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+	switch (msg) {
+		case WM_INPUT_DEVICE_CHANGE: {
+			HANDLE deviceHandle = (HANDLE)lParam;
+			if (wParam == GIDC_REMOVAL) {
+				auto it = ConnectedControllers.find(deviceHandle);
+				if (it != ConnectedControllers.end()) {
+					RawInputController* controller = it->second;
+					delete controller;
+				}
+			}
+			break;
+		}case WM_INPUT: {
+			UINT dwSize = 0;
+			GetRawInputData((HRAWINPUT)lParam, RID_INPUT, NULL, &dwSize, sizeof(RAWINPUTHEADER));
+
+			if (dwSize == 0) break;
+
+			BYTE* lpb = new BYTE[dwSize];
+			if (GetRawInputData((HRAWINPUT)lParam, RID_INPUT, lpb, &dwSize, sizeof(RAWINPUTHEADER)) == dwSize) {
+				RAWINPUT* raw = (RAWINPUT*)lpb;
+				if (raw->header.dwType == RIM_TYPEHID) {
+					HANDLE deviceHandle = raw->header.hDevice;
+					if (ConnectedControllers.find(deviceHandle) == ConnectedControllers.end()) {
+						RawInputController* controller = new RawInputController();
+						ConnectedControllers[deviceHandle] = controller;
+					}
+
+					ConnectedControllers[deviceHandle]->processInput(raw);
+				}
+			}
+
+			delete[] lpb;
+			break;
+		}
+	}
+}
+
+int RawInputController::NextIndex() {
 	if (ConnectedControllers.empty())
 		return 0;
 
 	std::set<int> activeIndices;
 	for (const auto& pair : ConnectedControllers) {
 		if (pair.second != nullptr) {
-			activeIndices.insert(pair.second->GetPlayerIndex());
+			activeIndices.insert(pair.second->getPlayerIndex());
 		}
 	}
 	int freeIndex = 0;

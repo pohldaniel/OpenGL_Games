@@ -417,6 +417,9 @@
     <ClCompile Include="engine\ui\Label.cpp">
       <Filter>engine\ui</Filter>
     </ClCompile>
+    <ClCompile Include="engine\input\GamePad.cpp">
+      <Filter>engine\input</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\input\ApplicationEventListener.h">
@@ -814,6 +817,9 @@
     </ClInclude>
     <ClInclude Include="engine\ui\Label.h">
       <Filter>engine\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\input\GamePad.h">
+      <Filter>engine\input</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

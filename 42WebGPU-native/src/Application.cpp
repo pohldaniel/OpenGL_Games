@@ -8,6 +8,8 @@
 #include <chrono>
 #include <thread>
 
+#include <engine/input/GamePad.h>
+
 #include <States/Wireframe.h>
 #include <States/Compute.h>
 #include <States/Specularity.h>
@@ -77,6 +79,8 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	SavedStyle = GetWindowLong(Window, GWL_STYLE);
 
 	SetCursorIcon(IDC_ARROW);
+	RawInputController::Initialize(Window);
+	XInputController::Initialize();
 	initStates();
 }
 
@@ -86,6 +90,9 @@ Application::~Application() {
 	ImGui_ImplWGPU_Shutdown();
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
+
+	XInputController::Shutdown();
+	RawInputController::Shutdown();
 
 	HDC hdc = GetDC(Window);
 	ReleaseDC(Window, hdc);
@@ -241,7 +248,7 @@ LRESULT Application::ApplicationWndProc(HWND hWnd, UINT message, WPARAM wParam, 
 
 			break;
 		}default: {
-			//Mouse::instance().handleMsg(hWnd, message, wParam, lParam);
+			RawInputController::HandleMsg(hWnd, message, wParam, lParam);
 			break;
 		}
 	}
@@ -308,6 +315,8 @@ void Application::update() {
 
 	Mouse::instance().update();
 	Keyboard::instance().update();
+	XInputController::Update();
+	RawInputController::Update();
 
 	Machine->update();
 
