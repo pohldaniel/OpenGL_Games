@@ -1,4 +1,6 @@
 #include <set>
+#include <algorithm>
+
 #include "GamePad.h"
 
 XInputController* XInputController::s_Players[4] = { nullptr, nullptr, nullptr, nullptr };
@@ -12,6 +14,7 @@ XInputController::XInputController(){
 
 	memset(m_pCurrButtonStates, false, 21);
 	memset(m_pPrevButtonStates, false, 21);
+	m_connected = false;
 }
 
 void XInputController::update() {
@@ -22,7 +25,7 @@ void XInputController::update() {
 
 	ZeroMemory(&state, sizeof(XINPUT_STATE));
 	if (XInputGetState(m_PlayerIndex, &state) == ERROR_SUCCESS) {		
-		m_Connected = true;
+		m_connected = true;
 		WORD wButtons = state.Gamepad.wButtons;
 
 		m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_A)] = (wButtons & XINPUT_GAMEPAD_A);
@@ -70,8 +73,8 @@ void XInputController::update() {
 		m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_LEFT_TRIGGER)] = (state.Gamepad.bLeftTrigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD);
 		m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_RIGHT_TRIGGER)] = (state.Gamepad.bRightTrigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD);
 	}else {
-		if (m_Connected) {
-			m_Connected = false;
+		if (m_connected) {
+			m_connected = false;
 			state = {};
 			memset(m_pCurrButtonStates, false, 21);
 		}
@@ -80,10 +83,8 @@ void XInputController::update() {
 }
 
 void XInputController::setVibration(float leftMotor, float rightMotor) {
-	if (leftMotor < 0.0f) leftMotor = 0.0f;
-	if (leftMotor > 1.0f) leftMotor = 1.0f;
-	if (rightMotor < 0.0f) rightMotor = 0.0f;
-	if (rightMotor > 1.0f) rightMotor = 1.0f;
+	leftMotor = std::clamp(leftMotor, 0.0f, 1.0f);
+	rightMotor = std::clamp(rightMotor, 0.0f, 1.0f);
 
 	XINPUT_VIBRATION vibration;
 	ZeroMemory(&vibration, sizeof(XINPUT_VIBRATION));
@@ -131,6 +132,10 @@ bool XInputController::buttonUp(GamepadButton button) const {
 	return !m_pCurrButtonStates[button];
 }
 
+bool XInputController::isConnected() {
+	return m_connected;
+}
+
 XInputController* XInputController::GetPlayer(int playerIndex) {
 	if (playerIndex >= 0 && playerIndex < 4) return s_Players[playerIndex];
 	return nullptr;
@@ -155,7 +160,7 @@ void XInputController::Update() {
 void XInputController::Shutdown() {
 	for (int i = 0; i < 4; ++i) {
 		if (s_Players[i] != nullptr) {
-			if (s_Players[i]->m_Connected) {
+			if (s_Players[i]->m_connected) {
 				XINPUT_VIBRATION stopVibration = { 0, 0 };
 				XInputSetState(static_cast<DWORD>(i), &stopVibration);
 			}
@@ -165,6 +170,19 @@ void XInputController::Shutdown() {
 	}
 }
 //########################################################
+
+uint32_t calculate_crc32(const uint8_t* data, size_t len) {
+	uint32_t crc = 0xFFFFFFFF;
+	for (size_t i = 0; i < len; ++i) {
+		crc ^= data[i];
+		for (int j = 0; j < 8; ++j) {
+			if (crc & 1) crc = (crc >> 1) ^ 0xEDB88320;
+			else crc >>= 1;
+		}
+	}
+	return ~crc;
+}
+
 std::unordered_map<HANDLE, RawInputController*> RawInputController::ConnectedControllers;
 
 RawInputController::RawInputController() {
@@ -186,6 +204,10 @@ RawInputController::~RawInputController() {
 				++it;
 			}
 		}
+	}
+	if (m_writeHandle != INVALID_HANDLE_VALUE) {
+		CloseHandle(m_writeHandle);
+		m_writeHandle = INVALID_HANDLE_VALUE;
 	}
 }
 
@@ -217,56 +239,112 @@ void RawInputController::processInput(RAWINPUT* raw) {
 	PHIDP_PREPARSED_DATA pPreparsedData = (PHIDP_PREPARSED_DATA)new BYTE[pcbPreparsedData];
 	GetRawInputDeviceInfo(raw->header.hDevice, RIDI_PREPARSEDDATA, pPreparsedData, &pcbPreparsedData);
 	
-	HIDP_CAPS caps;
-	HidP_GetCaps(pPreparsedData, &caps);
+	if (m_isBluetooth) {
+		memset(m_pCurrButtonStates, false, 21);
 
-	// --- 1. NORMALE BUTTONS AUSLESEN ---
-	ULONG usageLength = caps.NumberInputButtonCaps;
-	if (usageLength > 0) {
-		USAGE* usage = new USAGE[usageLength];
-		HidP_GetUsages(HidP_Input, HID_USAGE_PAGE_BUTTON, 0, usage, &usageLength, pPreparsedData, (PCHAR)raw->data.hid.bRawData, raw->data.hid.dwSizeHid);
-		for (int i = 5; i < 32; ++i) m_pCurrButtonStates[i] = false;
+		BYTE* data = raw->data.hid.bRawData;
+		ULONG dataSize = raw->data.hid.dwSizeHid;
 
-		for (ULONG i = 0; i < usageLength; i++) {
-			USAGE buttonId = usage[i];
-			if (buttonId == 1) m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_Y)] = true;
-			if (buttonId == 2) m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_B)] = true;
-			if (buttonId == 3) m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_A)] = true;
-			if (buttonId == 4) m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_X)] = true;
-			if (buttonId == 5) m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_LEFT_SHOULDER)] = true;
-			if (buttonId == 6) m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_RIGHT_SHOULDER)] = true;
-			if (buttonId == 7) m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_LEFT_TRIGGER)] = true;
-			if (buttonId == 8) m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_RIGHT_TRIGGER)] = true;
-			if (buttonId == 9) m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_BACK)] = true;
-			if (buttonId == 10) m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_START)] = true;
-			if (buttonId == 11) m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_LEFT_THUMB)] = true;
-			if (buttonId == 12) m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_RIGHT_THUMB)] = true;
+		int hasReportId = (data[0] == 0x01 || data[0] == 0x31) ? 1 : 0;
+
+		BYTE rightX = data[1 + hasReportId];
+		BYTE rightY = data[2 + hasReportId];
+		BYTE leftX = data[3 + hasReportId];
+		BYTE leftY = data[4 + hasReportId];
+		BYTE leftTrigger = data[5 + hasReportId];
+		BYTE rightTrigger = data[6 + hasReportId];
+
+		float rawLeftX = (static_cast<float>(leftX) - 128.0f) / 127.0f;
+		float rawLeftY = -(static_cast<float>(leftY) - 128.0f) / 127.0f;
+		float rawRightX = (static_cast<float>(rightX) - 128.0f) / 127.0f;
+		float rawRightY = -(static_cast<float>(rightY) - 128.0f) / 127.0f;
+
+		m_LeftStickX = (abs(rawLeftX) < DEADZONE) ? 0.0f : rawLeftX;
+		m_LeftStickY = (abs(rawLeftY) < DEADZONE) ? 0.0f : rawLeftY;
+		m_RightStickX = (abs(rawRightX) < DEADZONE) ? 0.0f : rawRightX;
+		m_RightStickY = (abs(rawRightY) < DEADZONE) ? 0.0f : rawRightY;
+		m_LeftTrigger = static_cast<float>(leftTrigger) / 255.0f;
+		m_RightTrigger = static_cast<float>(rightTrigger) / 255.0f;
+
+		m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_LEFT_TRIGGER)] = m_LeftTrigger > 0.5f;
+		m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_RIGHT_TRIGGER)] = m_RightTrigger > 0.5f;
+
+		BYTE byte8 = data[8 + hasReportId];
+		BYTE byte9 = data[9 + hasReportId];
+
+		m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_X)] = (byte8 & 0x10) != 0;
+		m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_A)] = (byte8 & 0x20) != 0;
+		m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_B)] = (byte8 & 0x40) != 0;
+		m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_Y)] = (byte8 & 0x80) != 0;
+
+		m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_LEFT_SHOULDER)] = (byte9 & 0x01) != 0;
+		m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_RIGHT_SHOULDER)] = (byte9 & 0x02) != 0;
+		m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_LEFT_TRIGGER)] = (byte9 & 0x04) != 0;
+		m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_RIGHT_TRIGGER)] = (byte9 & 0x08) != 0;
+
+		m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_BACK)] = (byte9 & 0x10) != 0;
+		m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_START)] = (byte9 & 0x20) != 0;
+		m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_LEFT_THUMB)] = (byte9 & 0x40) != 0;
+		m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_RIGHT_THUMB)] = (byte9 & 0x80) != 0;
+
+
+		BYTE dpadRaw = byte8 & 0x0F;
+		m_pCurrButtonStates[static_cast<int>(GamepadButton::DPAD_UP)] = (dpadRaw == 0);
+		m_pCurrButtonStates[static_cast<int>(GamepadButton::DPAD_RIGHT)] = (dpadRaw == 2);
+		m_pCurrButtonStates[static_cast<int>(GamepadButton::DPAD_DOWN)] = (dpadRaw == 4);
+		m_pCurrButtonStates[static_cast<int>(GamepadButton::DPAD_LEFT)] = (dpadRaw == 6);
+
+		m_pCurrButtonStates[static_cast<int>(GamepadButton::DPAD_UP_RIGHT)] = (dpadRaw == 1);
+		m_pCurrButtonStates[static_cast<int>(GamepadButton::DPAD_DOWN_RIGHT)] = (dpadRaw == 3);
+		m_pCurrButtonStates[static_cast<int>(GamepadButton::DPAD_UP_LEFT)] = (dpadRaw == 7);
+		m_pCurrButtonStates[static_cast<int>(GamepadButton::DPAD_DOWN_LEFT)] = (dpadRaw == 5);
+	}else {
+
+
+		HIDP_CAPS caps;
+		NTSTATUS status = HidP_GetCaps(pPreparsedData, &caps);
+		ULONG usageLength = caps.NumberInputButtonCaps;
+		if (usageLength > 0) {
+			USAGE* usage = new USAGE[usageLength];
+			status = HidP_GetUsages(HidP_Input, HID_USAGE_PAGE_BUTTON, 0, usage, &usageLength, pPreparsedData, (PCHAR)raw->data.hid.bRawData, raw->data.hid.dwSizeHid);
+			memset(m_pCurrButtonStates, false, 21);
+
+			for (ULONG i = 0; i < usageLength; i++) {
+				USAGE buttonId = usage[i];
+				if (buttonId == 1) m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_Y)] = true;
+				if (buttonId == 2) m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_B)] = true;
+				if (buttonId == 3) m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_A)] = true;
+				if (buttonId == 4) m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_X)] = true;
+				if (buttonId == 5) m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_LEFT_SHOULDER)] = true;
+				if (buttonId == 6) m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_RIGHT_SHOULDER)] = true;
+				if (buttonId == 7) m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_LEFT_TRIGGER)] = true;
+				if (buttonId == 8) m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_RIGHT_TRIGGER)] = true;
+				if (buttonId == 9) m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_BACK)] = true;
+				if (buttonId == 10) m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_START)] = true;
+				if (buttonId == 11) m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_LEFT_THUMB)] = true;
+				if (buttonId == 12) m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_RIGHT_THUMB)] = true;
+			}
+			delete[] usage;
 		}
-		delete[] usage;
-	}
-	m_pCurrButtonStates[static_cast<int>(GamepadButton::DPAD_UP)] = false;
-	m_pCurrButtonStates[static_cast<int>(GamepadButton::DPAD_DOWN)] = false;
-	m_pCurrButtonStates[static_cast<int>(GamepadButton::DPAD_LEFT)] = false;
-	m_pCurrButtonStates[static_cast<int>(GamepadButton::DPAD_RIGHT)] = false;
 
-	m_LeftStickX = 0.0f;
-	m_LeftStickY = 0.0f;
+		m_LeftStickX = 0.0f;
+		m_LeftStickY = 0.0f;
 
-	m_RightStickX = 0.0f;
-	m_RightStickY = 0.0f;
+		m_RightStickX = 0.0f;
+		m_RightStickY = 0.0f;
 
-	USHORT valueCapsLength = caps.NumberInputValueCaps;
-	if (valueCapsLength > 0) {
-		PHIDP_VALUE_CAPS valueCaps = new HIDP_VALUE_CAPS[valueCapsLength];
-		HidP_GetValueCaps(HidP_Input, valueCaps, &valueCapsLength, pPreparsedData);
+		USHORT valueCapsLength = caps.NumberInputValueCaps;
+		if (valueCapsLength > 0) {
+			PHIDP_VALUE_CAPS valueCaps = new HIDP_VALUE_CAPS[valueCapsLength];
+			status = HidP_GetValueCaps(HidP_Input, valueCaps, &valueCapsLength, pPreparsedData);
 
-		for (ULONG i = 0; i < valueCapsLength; i++) {		
 			for (ULONG i = 0; i < valueCapsLength; i++) {
-				ULONG value = 0;
-				HidP_GetUsageValue(HidP_Input, valueCaps[i].UsagePage, 0, valueCaps[i].NotRange.Usage, &value, pPreparsedData, (PCHAR)raw->data.hid.bRawData, raw->data.hid.dwSizeHid);
-				
-				USAGE axisId = valueCaps[i].NotRange.Usage;
-				switch (axisId) {
+				for (ULONG i = 0; i < valueCapsLength; i++) {
+					ULONG value = 0;
+					status = HidP_GetUsageValue(HidP_Input, valueCaps[i].UsagePage, 0, valueCaps[i].NotRange.Usage, &value, pPreparsedData, (PCHAR)raw->data.hid.bRawData, raw->data.hid.dwSizeHid);
+
+					USAGE axisId = valueCaps[i].NotRange.Usage;
+					switch (axisId) {
 					case 0x32: {
 						float rawNorm = (static_cast<float>(value) - 128.0f) / 127.0f;
 						if (abs(rawNorm) < DEADZONE) m_LeftStickX = 0.0f;
@@ -278,12 +356,12 @@ void RawInputController::processInput(RAWINPUT* raw) {
 						if (abs(rawNorm) < DEADZONE) m_LeftStickY = 0.0f;
 						else m_LeftStickY = rawNorm;
 						break;
-					}case 0x30: {				
+					}case 0x30: {
 						float rawNorm = (static_cast<float>(value) - 128.0f) / 127.0f;
 						if (abs(rawNorm) < DEADZONE) m_RightStickX = 0.0f;
 						else m_RightStickX = rawNorm;
 						break;
-					}case 0x31: {					
+					}case 0x31: {
 						float rawNorm = (static_cast<float>(value) - 128.0f) / 127.0f;
 						rawNorm = -rawNorm;
 						if (abs(rawNorm) < DEADZONE) m_RightStickY = 0.0f;
@@ -307,13 +385,14 @@ void RawInputController::processInput(RAWINPUT* raw) {
 						if (value == 7)
 							m_pCurrButtonStates[static_cast<int>(GamepadButton::DPAD_UP_LEFT)] = true;
 						break;
+					}
 				}
 			}
+			delete[] valueCaps;
 		}
-		delete[] valueCaps;
-	}
 
-	delete[](BYTE*)pPreparsedData;
+		delete[](BYTE*)pPreparsedData;
+	}
 }
 
 float RawInputController::getRightStickX() const {
@@ -334,6 +413,56 @@ float RawInputController::getLeftStickY() const {
 
 int RawInputController::getPlayerIndex() const { 
 	return m_PlayerIndex; 
+}
+
+void RawInputController::setWriteHandle(HANDLE writeHandle) {
+	m_writeHandle = writeHandle;
+}
+
+void RawInputController::setIsBluetooth(bool isBluetooth) {
+	m_isBluetooth = isBluetooth;
+}
+
+void RawInputController::setVibration(float leftMotor, float rightMotor) {
+	if (m_writeHandle == INVALID_HANDLE_VALUE) return;
+	
+	leftMotor = std::clamp(leftMotor, 0.0f, 1.0f);
+	rightMotor = std::clamp(rightMotor, 0.0f, 1.0f);
+
+	BYTE leftMotorByte = static_cast<BYTE>(leftMotor * 255.0f);
+	BYTE rightMotorByte = static_cast<BYTE>(rightMotor * 255.0f);
+
+	DWORD bytesWritten = 0;
+	if (m_isBluetooth) {	
+		uint8_t report[78] = { 0 };
+		report[0] = 0x31;
+		report[1] = 0x00;
+		report[2] = 0x10;
+		report[3] = 0x03;
+		report[4] = 0x00;
+		report[5] = rightMotorByte;
+		report[6] = leftMotorByte;
+		uint8_t crc_buffer[75];
+		crc_buffer[0] = 0xA2;
+		memcpy(&crc_buffer[1], report, 74);
+
+		uint32_t crc = calculate_crc32(crc_buffer, 75);
+		report[74] = (crc >> 0) & 0xFF;
+		report[75] = (crc >> 8) & 0xFF;
+		report[76] = (crc >> 16) & 0xFF;
+		report[77] = (crc >> 24) & 0xFF;
+		BOOL success = WriteFile(m_writeHandle, report, sizeof(report), &bytesWritten, NULL);	
+	}else{
+		BYTE buffer[48] = { 0 };
+
+		buffer[0] = 0x02;
+		buffer[1] = 0xFF;
+		buffer[2] = 0x00;
+		buffer[3] = rightMotorByte;
+		buffer[4] = leftMotorByte;
+		
+		WriteFile(m_writeHandle, buffer, sizeof(buffer), &bytesWritten, NULL);
+	}
 }
 
 void RawInputController::Update() {
@@ -360,7 +489,6 @@ bool RawInputController::Initialize(HWND hWnd) {
 	rid[1].dwFlags = RIDEV_DEVNOTIFY | RIDEV_INPUTSINK;
 	rid[1].hwndTarget = hWnd;
 
-
 	if (RegisterRawInputDevices(rid, 2, sizeof(RAWINPUTDEVICE)) == FALSE) {
 		return false;
 	}
@@ -368,6 +496,9 @@ bool RawInputController::Initialize(HWND hWnd) {
 }
 
 void RawInputController::Shutdown() {
+	if (ConnectedControllers.empty())
+		return;
+
 	auto it = ConnectedControllers.begin();
 	while (it != ConnectedControllers.end()) {
 		RawInputController* controller = it->second;
@@ -388,7 +519,6 @@ RawInputController* RawInputController::GetPlayer(int playerIndex) {
 	}
 	return nullptr;
 }
-
 
 void RawInputController::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	switch (msg) {
@@ -413,15 +543,69 @@ void RawInputController::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lP
 				RAWINPUT* raw = (RAWINPUT*)lpb;
 				if (raw->header.dwType == RIM_TYPEHID) {
 					HANDLE deviceHandle = raw->header.hDevice;
-					if (ConnectedControllers.find(deviceHandle) == ConnectedControllers.end()) {
-						RawInputController* controller = new RawInputController();
-						ConnectedControllers[deviceHandle] = controller;
-					}
+					if (ConnectedControllers.find(deviceHandle) == ConnectedControllers.end()) {						
+						RID_DEVICE_INFO deviceInfo = { 0 };
+						deviceInfo.cbSize = sizeof(RID_DEVICE_INFO);
+						UINT infoSize = deviceInfo.cbSize;
+						if (GetRawInputDeviceInfoW(deviceHandle, RIDI_DEVICEINFO, &deviceInfo, &infoSize) != (UINT)-1) {
+							if (deviceInfo.dwType == RIM_TYPEHID) {
 
+								if (deviceInfo.hid.usUsagePage == 0x01 && (deviceInfo.hid.usUsage == 0x05 || deviceInfo.hid.usUsage == 0x04)) {
+
+									USHORT vid = deviceInfo.hid.dwVendorId;
+									USHORT pid = deviceInfo.hid.dwProductId;
+									bool isXInput = false;
+									if (vid == 0x045E) {
+										return;
+									}
+
+									UINT nameSize = 0;
+									GetRawInputDeviceInfoW(deviceHandle, RIDI_DEVICENAME, NULL, &nameSize);
+									if (nameSize > 0) {
+										wchar_t* deviceName = new wchar_t[nameSize];
+										if (GetRawInputDeviceInfoW(deviceHandle, RIDI_DEVICENAME, deviceName, &nameSize) != (UINT)-1) {
+											if (wcsstr(deviceName, L"&IG_") != nullptr || wcsstr(deviceName, L"&ig_") != nullptr) {
+												return;
+											}
+											
+											bool isBluetooth = false;
+											if (wcsstr(deviceName, L"{00001124-") != nullptr) {
+												isBluetooth = true;
+											}else if (wcsstr(deviceName, L"#BTH#") != nullptr || wcsstr(deviceName, L"#bth#") != nullptr) {
+												isBluetooth = true;
+											}else {
+												isBluetooth = false;
+											}
+
+											RawInputController* controller = new RawInputController();
+											ConnectedControllers[deviceHandle] = controller;
+											HANDLE writeHandle = CreateFileW(
+												deviceName,
+												GENERIC_WRITE | GENERIC_READ,
+												FILE_SHARE_READ | FILE_SHARE_WRITE,
+												NULL,
+												OPEN_EXISTING,
+												0,
+												NULL
+											);
+
+											if (writeHandle != INVALID_HANDLE_VALUE) {
+												controller->setWriteHandle(writeHandle);
+												controller->setIsBluetooth(isBluetooth);
+												uint8_t feature_buf[42] = { 0 };
+												feature_buf[0] = 0x05;									
+												BOOLEAN success = HidD_GetFeature(writeHandle, feature_buf, sizeof(feature_buf));	
+											}
+										}
+										
+									}
+								}
+							}
+						}
+					}
 					ConnectedControllers[deviceHandle]->processInput(raw);
 				}
 			}
-
 			delete[] lpb;
 			break;
 		}

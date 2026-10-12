@@ -89,7 +89,7 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	shader->unuse();
 
 	SetCursorIcon(IDC_ARROW);
-	//RawInputController::Initialize(Window);
+	RawInputController::Initialize(Window);
 	XInputController::Initialize();
 	initStates();
 }
@@ -98,7 +98,7 @@ Application::~Application() {
 	Fontrenderer::Get().shutdown();
 	DebugRenderer::Get().shutdown();
 	Batchrenderer::Get().shutdown();
-	//RawInputController::Shutdown();
+	RawInputController::Shutdown();
 	XInputController::Shutdown();
 	
 	delete Machine;
@@ -268,7 +268,7 @@ LRESULT Application::ApplicationWndProc(HWND hWnd, UINT message, WPARAM wParam, 
 			break;
 		}default: {
 			//Mouse::instance().handleMsg(hWnd, message, wParam, lParam);
-			//RawInputController::HandleMsg(hWnd, message, wParam, lParam);
+			RawInputController::HandleMsg(hWnd, message, wParam, lParam);
 			break;
 		}
 	}
@@ -422,7 +422,7 @@ void Application::update() {
 	Mouse::instance().update();
 	Keyboard::instance().update();
 	XInputController::Update();
-	//RawInputController::Update();
+	RawInputController::Update();
 	Machine->update();
 
 	if (!Machine->isRunning()) {

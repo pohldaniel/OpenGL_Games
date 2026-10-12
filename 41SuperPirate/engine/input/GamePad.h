@@ -47,7 +47,8 @@ public:
 	bool buttonPressed(GamepadButton button) const;
 	bool buttonDown(GamepadButton button) const;
 	bool buttonUp(GamepadButton button) const;
-	
+	bool isConnected();
+
 	static XInputController* GetPlayer(int playerIndex);
 	static void Update();
 	static void Initialize();
@@ -62,8 +63,8 @@ private:
 	bool* m_pPrevButtonStates;
 	
 	XINPUT_STATE state;
-	bool m_Connected;
-	float m_LeftStickX;
+	bool m_connected;
+	float m_LeftStickX ;
 	float m_LeftStickY;
 	float m_RightStickX;
 	float m_RightStickY;
@@ -73,13 +74,29 @@ private:
 	static XInputController* s_Players[4];
 };
 
+#pragma pack(push, 1) // Verhindert, dass der Compiler unsichtbare Lücken (Padding) einbaut
+struct DualSenseBTHidapiReport {
+	uint8_t reportId;    // 0x11
+	uint8_t btHeader;    // 0x02 (Manchmal auch 0x80 je nach Firmware)
+	uint8_t reserved;    // 0x00 -> WICHTIG: Dieses Byte muss hier sitzen!
+	uint8_t flags;       // 0x03 -> Aktiviert Motoren (Bit 0 = Enable, Bit 1 = Enable)
+	uint8_t reserved2[2]; // Weitere 2 Byte Platzhalter im DualSense-Protokoll
+
+	uint8_t motorRight;  // Schwacher / hochfrequenter Motor
+	uint8_t motorLeft;   // Starker / niederfrequenter Motor
+
+	uint8_t padding[63]; // Auffüllen auf die vom Treiber erwartete Report-Länge
+	uint32_t crc32;      // Die letzten 4 Bytes für die CRC
+};
+#pragma pack(pop)
 class RawInputController {
+	
 public:
 
 	RawInputController::~RawInputController();
 	
 	void update();
-
+	void setVibration(float leftMotor, float rightMotor);
 	bool buttonPressed(GamepadButton button) const;
 	bool buttonDown(GamepadButton button) const;
 	bool buttonUp(GamepadButton button) const;
@@ -89,7 +106,8 @@ public:
 
 	float getLeftStickX() const;
 	float getLeftStickY() const;
-
+	void setWriteHandle(HANDLE writeHandle);
+	void setIsBluetooth(bool isBluetooth);
 
 	static void Update();
 	static bool Initialize(HWND hWnd);
@@ -104,7 +122,6 @@ private:
 	int getPlayerIndex() const;
 
 	int m_PlayerIndex;
-
 	bool m_buttonStates[2][21];
 	bool* m_pCurrButtonStates;
 	bool* m_pPrevButtonStates;
@@ -112,7 +129,12 @@ private:
 	float m_RightStickY = 0.0f;
 	float m_LeftStickX = 0.0f;
 	float m_LeftStickY = 0.0f;
+	float m_LeftTrigger = 0.0f;
+	float m_RightTrigger = 0.0f;
+	bool m_isBluetooth;
 	const float DEADZONE = 0.15f;
+
+	HANDLE m_writeHandle = INVALID_HANDLE_VALUE;
 
 	static int NextIndex();
 	static std::unordered_map<HANDLE, RawInputController*> ConnectedControllers;
