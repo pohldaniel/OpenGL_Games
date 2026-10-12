@@ -47,7 +47,8 @@ public:
 	bool buttonPressed(GamepadButton button) const;
 	bool buttonDown(GamepadButton button) const;
 	bool buttonUp(GamepadButton button) const;
-	
+	bool isConnected();
+
 	static XInputController* GetPlayer(int playerIndex);
 	static void Update();
 	static void Initialize();
@@ -62,8 +63,8 @@ private:
 	bool* m_pPrevButtonStates;
 	
 	XINPUT_STATE state;
-	bool m_Connected;
-	float m_LeftStickX;
+	bool m_connected;
+	float m_LeftStickX ;
 	float m_LeftStickY;
 	float m_RightStickX;
 	float m_RightStickY;
@@ -74,12 +75,13 @@ private:
 };
 
 class RawInputController {
+	
 public:
 
 	RawInputController::~RawInputController();
 	
 	void update();
-
+	void setVibration(float leftMotor, float rightMotor);
 	bool buttonPressed(GamepadButton button) const;
 	bool buttonDown(GamepadButton button) const;
 	bool buttonUp(GamepadButton button) const;
@@ -89,7 +91,8 @@ public:
 
 	float getLeftStickX() const;
 	float getLeftStickY() const;
-
+	void setWriteHandle(HANDLE writeHandle);
+	void setIsBluetooth(bool isBluetooth);
 
 	static void Update();
 	static bool Initialize(HWND hWnd);
@@ -104,7 +107,6 @@ private:
 	int getPlayerIndex() const;
 
 	int m_PlayerIndex;
-
 	bool m_buttonStates[2][21];
 	bool* m_pCurrButtonStates;
 	bool* m_pPrevButtonStates;
@@ -112,7 +114,12 @@ private:
 	float m_RightStickY = 0.0f;
 	float m_LeftStickX = 0.0f;
 	float m_LeftStickY = 0.0f;
+	float m_LeftTrigger = 0.0f;
+	float m_RightTrigger = 0.0f;
+	bool m_isBluetooth;
 	const float DEADZONE = 0.15f;
+
+	HANDLE m_writeHandle = INVALID_HANDLE_VALUE;
 
 	static int NextIndex();
 	static std::unordered_map<HANDLE, RawInputController*> ConnectedControllers;

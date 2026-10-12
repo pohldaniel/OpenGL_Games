@@ -74,21 +74,6 @@ private:
 	static XInputController* s_Players[4];
 };
 
-#pragma pack(push, 1) // Verhindert, dass der Compiler unsichtbare Lücken (Padding) einbaut
-struct DualSenseBTHidapiReport {
-	uint8_t reportId;    // 0x11
-	uint8_t btHeader;    // 0x02 (Manchmal auch 0x80 je nach Firmware)
-	uint8_t reserved;    // 0x00 -> WICHTIG: Dieses Byte muss hier sitzen!
-	uint8_t flags;       // 0x03 -> Aktiviert Motoren (Bit 0 = Enable, Bit 1 = Enable)
-	uint8_t reserved2[2]; // Weitere 2 Byte Platzhalter im DualSense-Protokoll
-
-	uint8_t motorRight;  // Schwacher / hochfrequenter Motor
-	uint8_t motorLeft;   // Starker / niederfrequenter Motor
-
-	uint8_t padding[63]; // Auffüllen auf die vom Treiber erwartete Report-Länge
-	uint32_t crc32;      // Die letzten 4 Bytes für die CRC
-};
-#pragma pack(pop)
 class RawInputController {
 	
 public:

@@ -274,9 +274,9 @@ void RawInputController::processInput(RAWINPUT* raw) {
 
 		m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_X)] = (byte8 & 0x10) != 0;
 		m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_A)] = (byte8 & 0x20) != 0;
-		m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_B)] = (byte8 & 0x40) != 0;
+		m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_B)] = (byte8 & 0x40) != 0;		
 		m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_Y)] = (byte8 & 0x80) != 0;
-
+		
 		m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_LEFT_SHOULDER)] = (byte9 & 0x01) != 0;
 		m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_RIGHT_SHOULDER)] = (byte9 & 0x02) != 0;
 		m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_LEFT_TRIGGER)] = (byte9 & 0x04) != 0;
@@ -311,10 +311,10 @@ void RawInputController::processInput(RAWINPUT* raw) {
 
 			for (ULONG i = 0; i < usageLength; i++) {
 				USAGE buttonId = usage[i];
-				if (buttonId == 1) m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_Y)] = true;
-				if (buttonId == 2) m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_B)] = true;
-				if (buttonId == 3) m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_A)] = true;
-				if (buttonId == 4) m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_X)] = true;
+				if (buttonId == 1) m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_X)] = true;
+				if (buttonId == 2) m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_A)] = true;
+				if (buttonId == 3) m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_B)] = true;
+				if (buttonId == 4) m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_Y)] = true;
 				if (buttonId == 5) m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_LEFT_SHOULDER)] = true;
 				if (buttonId == 6) m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_RIGHT_SHOULDER)] = true;
 				if (buttonId == 7) m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_LEFT_TRIGGER)] = true;
