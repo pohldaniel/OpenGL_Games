@@ -12,6 +12,7 @@ public:
 	virtual ~Canvas();
 
 	void setColor(const Vector4f& color);
+	void setLayer(uint32_t layer);
 
 private:
 
@@ -20,4 +21,5 @@ private:
 	void OnLayoutChanged() override;
 
 	Vector4f m_color;
+	uint32_t m_layer;
 };

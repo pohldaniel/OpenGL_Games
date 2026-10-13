@@ -1,17 +1,19 @@
 #include "Canvas.h"
 
-Canvas::Canvas() : Widget(), m_color(Vector4f::ONE) {
-	m_isMovable = true;
+Canvas::Canvas() : Widget(), m_color(Vector4f::ONE), m_layer(0u){
+	
 }
 
 Canvas::Canvas(const Canvas& rhs) :
 	Widget(rhs),
-	m_color(rhs.m_color) {
+	m_color(rhs.m_color),
+    m_layer(rhs.m_layer){
 }
 
 Canvas::Canvas(Canvas&& rhs) noexcept :
 	Widget(rhs),
-	m_color(rhs.m_color) {
+	m_color(rhs.m_color),
+	m_layer(rhs.m_layer) {
 }
 
 Canvas::~Canvas() {
@@ -20,6 +22,10 @@ Canvas::~Canvas() {
 
 void Canvas::setColor(const Vector4f& color) {
 	m_color = color;
+}
+
+void Canvas::setLayer(uint32_t layer) {
+	m_layer = layer;
 }
 
 void Canvas::OnDraw() {
@@ -33,7 +39,7 @@ void Canvas::OnDraw() {
 	uiInstance.textureRect[1] = 0.0f;
 	uiInstance.textureRect[2] = 1.0f;
 	uiInstance.textureRect[3] = 1.0f;
-	uiInstance.textureLayer = 1u;
+	uiInstance.textureLayer = m_layer;
 
 	pushWidget(UiPipelineType::Standard, uiInstance);
 }

@@ -159,8 +159,8 @@ void MSDFFont::update() {
 		}
 	}
  
-	float sec = Globals::clock.getElapsedTimeSec();
-	float now = sec / 5.0f;
+	m_sec += m_dt;
+	float now = m_sec / 5.0f;
 
 	Matrix4f transCube;
 	transCube.translate(0.0f, 2.0f, -3.0f);
@@ -168,7 +168,7 @@ void MSDFFont::update() {
 	Matrix4f rotCube;
 	rotCube.rotate(Vector3f(sinf(now), cosf(now), 0.0f), 1.0f * _180_ON_PI);
 
-	float crawl = fmodf(sec / 2.5f, 14.0f);
+	float crawl = fmodf(m_sec / 2.5f, 14.0f);
 
 	Matrix4f rot;
 	rot.rotate(-22.5f, 0.0f, 0.0f);

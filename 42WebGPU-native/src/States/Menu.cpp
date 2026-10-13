@@ -34,64 +34,6 @@
 #include "Application.h"
 #include "Globals.h"
 
-void initUiTextureArray() {
-	uint32_t texWidth = 512;
-	uint32_t texHeight = 512;
-	uint32_t maxLayers = 16;
-
-	WGPUTextureDescriptor arrayDesc = {};
-	arrayDesc.nextInChain = nullptr;
-	arrayDesc.label = WGPU_STR("ui_texture_array");
-	arrayDesc.usage = WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst;
-	arrayDesc.dimension = WGPUTextureDimension_2D;
-	arrayDesc.size = { texWidth, texHeight, maxLayers };
-	arrayDesc.format = WGPUTextureFormat_RGBA8Unorm;
-	arrayDesc.mipLevelCount = 1;
-	arrayDesc.sampleCount = 1;
-	arrayDesc.viewFormatCount = 0;
-	arrayDesc.viewFormats = nullptr;
-
-	uiContext.texture = wgpuDeviceCreateTexture(wgpContext.device, &arrayDesc);
-
-	WGPUTextureViewDescriptor viewDesc = {};
-	viewDesc.nextInChain = nullptr;
-	viewDesc.label = WGPU_STR("ui_texture_view");
-	viewDesc.format = WGPUTextureFormat_RGBA8Unorm;
-	viewDesc.dimension = WGPUTextureViewDimension_2DArray;
-	viewDesc.baseMipLevel = 0;
-	viewDesc.mipLevelCount = 1;
-	viewDesc.baseArrayLayer = 0;
-	viewDesc.arrayLayerCount = maxLayers;
-	viewDesc.aspect = WGPUTextureAspect_All;
-
-	uiContext.textureView = wgpuTextureCreateView(uiContext.texture, &viewDesc);
-
-	std::vector<uint32_t> whitePixels(texWidth * texHeight, 0xFFFFFFFF);
-
-	WGPUTexelCopyTextureInfo copyDst = {};
-	copyDst.texture = uiContext.texture;
-	copyDst.mipLevel = 0u;
-	copyDst.origin = { 0u, 0u, 0u };
-	copyDst.aspect = WGPUTextureAspect_All;
-
-	WGPUTexelCopyBufferLayout dataLayout{};
-	dataLayout.offset = 0u;
-	dataLayout.bytesPerRow = texWidth * sizeof(uint32_t);
-	dataLayout.rowsPerImage = texHeight; 
-
-	WGPUExtent3D writeSize = { texWidth, texHeight, 2u };
-
-	size_t totalDataSize = whitePixels.size() * sizeof(uint32_t);
-
-
-	std::vector<uint32_t> doubleLayerWhite;
-	doubleLayerWhite.reserve(whitePixels.size() * 2);
-	doubleLayerWhite.insert(doubleLayerWhite.end(), whitePixels.begin(), whitePixels.end());
-	doubleLayerWhite.insert(doubleLayerWhite.end(), whitePixels.begin(), whitePixels.end());
-
-	wgpuQueueWriteTexture(wgpContext.queue,&copyDst, doubleLayerWhite.data(), doubleLayerWhite.size() * sizeof(uint32_t), &dataLayout, &writeSize);
-}
-
 Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -100,11 +42,14 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 
 	LoadingManager::Get().startBackgroundThreads(8);
 
+	uiInitTextureArray();
 	m_characterSet.loadFromFile("res/fonts/upheavtt.ttf", 24.0f);
 	uiContext.textureViewFont = m_characterSet.texture.getTextureView();
-	initUiTextureArray();
+	uiContext.texture.fill({ 1.0f, 1.0f, 1.0f, 1.0f }, 1u);
 
 	uiInit(static_cast<float>(Application::Width), static_cast<float>(Application::Height));
+
+
 	float paddingBottom = 3.0f;
 
 	m_uiScene = new Empty();
@@ -510,6 +455,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	canvas->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 	canvas->setWidth(400.0f);
 	canvas->setHeight(400.0f);
+	canvas->setLayer(1u);
 
 	if (m_layout == SelectedLayout::M_VERTICAL) {
 		const std::vector<Surface*>& surfaces = m_uiScene->getChildren<Surface>();
@@ -740,4 +686,34 @@ void NoiseGenerationTask::OnProcess() {
 			m_pixelData[index + 3] = 255;
 		}
 	}
+}
+
+void NoiseGenerationTask::OnComplete() {
+	WGPUTexelCopyTextureInfo copyDst = {};
+	copyDst.texture = uiContext.texture.getTexture();
+	copyDst.mipLevel = 0u;
+	copyDst.origin = { 0u, 0u, 1u };
+	copyDst.aspect = WGPUTextureAspect_All;
+
+	WGPUTexelCopyBufferLayout dataLayout = {};
+	dataLayout.offset = 0u;
+	dataLayout.bytesPerRow = m_width * 4u;
+	dataLayout.rowsPerImage = m_height;
+
+	WGPUExtent3D writeSize = { static_cast<uint32_t>(m_width), static_cast<uint32_t>(m_height), 1u };
+
+	wgpuQueueWriteTexture(
+		wgpContext.queue,
+		&copyDst,
+		m_pixelData.data(),
+		m_pixelData.size(),
+		&dataLayout,
+		&writeSize
+	);
+
+	if (m_onUploadComplete) {
+		m_onUploadComplete();
+	}
+
+	delete this;
 }

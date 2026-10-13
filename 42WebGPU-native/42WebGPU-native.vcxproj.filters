@@ -285,9 +285,6 @@
     <ClCompile Include="Nuklear\NkJoystick.cpp">
       <Filter>Nuklear</Filter>
     </ClCompile>
-    <ClCompile Include="src\bullet_store.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="engine\sound\AudioDecoder.cpp">
       <Filter>engine\sound</Filter>
     </ClCompile>
@@ -407,6 +404,9 @@
     </ClCompile>
     <ClCompile Include="engine\ui\Canvas.cpp">
       <Filter>engine\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BulletStore.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -650,9 +650,6 @@
     <ClInclude Include="Nuklear\NkJoystick.h">
       <Filter>Nuklear</Filter>
     </ClInclude>
-    <ClInclude Include="src\bullet_store.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="engine\sound\AudioDecoder.h">
       <Filter>engine\sound</Filter>
     </ClInclude>
@@ -755,9 +752,6 @@
     <ClInclude Include="src\Entities\Player.h">
       <Filter>Source Files\Entities</Filter>
     </ClInclude>
-    <ClInclude Include="src\aabb.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="engine\ui\Widget.h">
       <Filter>engine\ui</Filter>
     </ClInclude>
@@ -796,6 +790,12 @@
     </ClInclude>
     <ClInclude Include="engine\ui\Canvas.h">
       <Filter>engine\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AABB.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\BulletStore.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

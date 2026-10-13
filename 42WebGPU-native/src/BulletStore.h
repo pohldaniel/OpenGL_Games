@@ -2,8 +2,8 @@
 
 #include <vector>
 
-#include <engine/Vector.h>
 #include <engine/thread/ThreadPool.h>
+#include <engine/Vector.h>
 
 class Enemy;
 class BulletStore {
@@ -11,7 +11,7 @@ public:
  
 
   void createBullets(const Vector3f& position, const Quaternion& midOri, const int spreadAmount);
-  void updateBullets(float deltaTimeSeconds, std::vector<Enemy*>& enemies);
+  void updateBullets(float dt, std::vector<Enemy*>& enemies);
 
   std::vector<Vector4f> m_offsets;
   std::vector<Quaternion> m_rots;

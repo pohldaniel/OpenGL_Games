@@ -242,7 +242,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClCompile Include="Nuklear\NkStyle.cpp" />
     <ClCompile Include="Physics\DebugDrawer.cpp" />
     <ClCompile Include="Physics\Physics.cpp" />
-    <ClCompile Include="src\bullet_store.cpp" />
+    <ClCompile Include="src\BulletStore.cpp" />
     <ClCompile Include="src\Entities\CollisionEntity.cpp" />
     <ClCompile Include="src\Entities\Enemy.cpp" />
     <ClCompile Include="src\Entities\Entity.cpp" />
@@ -383,9 +383,9 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClInclude Include="Nuklear\NkStyle.h" />
     <ClInclude Include="Physics\DebugDrawer.h" />
     <ClInclude Include="Physics\Physics.h" />
-    <ClInclude Include="src\aabb.h" />
+    <ClInclude Include="src\AABB.h" />
     <ClInclude Include="src\Application.h" />
-    <ClInclude Include="src\bullet_store.h" />
+    <ClInclude Include="src\BulletStore.h" />
     <ClInclude Include="src\Entities\CollisionEntity.h" />
     <ClInclude Include="src\Entities\Enemy.h" />
     <ClInclude Include="src\Entities\Entity.h" />

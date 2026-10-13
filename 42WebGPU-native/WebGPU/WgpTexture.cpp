@@ -567,6 +567,31 @@ void WgpTexture::resize(uint32_t width, uint32_t height) {
     }
 }
 
+void WgpTexture::fill(const std::array<float, 4>& color, uint32_t layer) {
+    WGPUTexelCopyTextureInfo destination = {};
+    destination.texture = m_texture;
+    destination.mipLevel = 0u;
+    destination.origin = { 0u, 0u, layer };
+    destination.aspect = WGPUTextureAspect_All;
+
+    WGPUTexelCopyBufferLayout dataLayout = {};
+    dataLayout.offset = 0u;
+    dataLayout.bytesPerRow = m_width * sizeof(uint32_t);
+    dataLayout.rowsPerImage = m_height;
+
+    WGPUExtent3D writeSize = { m_width, m_height, 1u };
+
+    uint32_t r = static_cast<uint32_t>(color[0] * 255.0f + 0.5f);
+    uint32_t g = static_cast<uint32_t>(color[1] * 255.0f + 0.5f);
+    uint32_t b = static_cast<uint32_t>(color[2] * 255.0f + 0.5f);
+    uint32_t a = static_cast<uint32_t>(color[3] * 255.0f + 0.5f);
+
+    uint32_t packedColor = r | (g << 8) | (b << 16) | (a << 24);
+    std::vector<uint32_t> pixels(m_width * m_height, packedColor);
+
+    wgpuQueueWriteTexture(wgpContext.queue, &destination, pixels.data(), pixels.size() * sizeof(uint32_t), &dataLayout, &writeSize);
+}
+
 unsigned char* WgpTexture::LoadFromFile(const std::string& fileName, bool flipVertical, short alphaChannel) {
     std::filesystem::path filePath = fileName;
 

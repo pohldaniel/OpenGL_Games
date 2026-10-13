@@ -25,7 +25,7 @@
 
 #include <Physics/Physics.h>
 
-#include "bullet_store.h"
+#include "BulletStore.h"
 
 struct BulletCollisionCallback : public btCollisionWorld::ContactResultCallback {
 	bool m_hasCollided = false;
@@ -101,9 +101,6 @@ public:
 	void render() override;
 	void OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor);
 	void OnPostDraw();
-	void OnDrawShadow(const WGPURenderPassEncoder& renderPassEncoder);
-	void OnDrawEmission(const WGPURenderPassEncoder& renderPassEncoder);
-	void OnDrawScene(const WGPURenderPassEncoder& renderPassEncoder);
 	void OnFillBuffer(nk_context& nkCntxt);
 	
 	void resize(int deltaW, int deltaH) override;
@@ -199,13 +196,13 @@ private:
 	float deathTime = -1.0f;
 	float aimTheta = 0.0f;
 	float lastFireTime = 0.0f;
-	size_t m_targetPoolSize;
 	int m_spreadAmount = 20;
 	const float enemySpawnInterval = 1.0f;
 	const int spawnsPerInterval = 1;
 	const float spawnRadius = 10.0f;
 	float m_countdown = 1.0f;
 	size_t m_count = 0;
+	ThreadPool m_threadPool;
 
 	SoundEffect m_fire, m_ding;
 	std::vector<CollisionEntity*> m_entities;

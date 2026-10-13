@@ -24,9 +24,7 @@
 #include "Application.h"
 #include "Globals.h"
 
-ThreadPool threadPool(4);
-
-Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC), m_bulletStore(&threadPool) {
+Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC), m_threadPool(4), m_bulletStore(&m_threadPool) {
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
@@ -320,8 +318,6 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 			m_count--;
 		}
 	});
-
-	m_targetPoolSize = 100;
 
 	btCollisionObject* body = Physics::AddKinematicObject(Physics::BtTransform(Vector3f(0.0f, 0.4f, 0.0f)), new btCylinderShape(btVector3(0.35f * 0.5f, 0.4f, 0.35f * 0.5f)), Physics::collisiontypes::CHARACTER, Physics::collisiontypes::ENEMY);
 	m_playerEntity = m_scene->addChild<Player>(body, m_player);
@@ -650,15 +646,60 @@ void Isometric::render() {
 void Isometric::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor) {
 
 	{
-		WgpRenderer::Draw(m_wgpEmissionTarget, m_wgpEmissionDepth, std::bind(&Isometric::OnDrawEmission, this, std::placeholders::_1));
+		WgpRenderer::Draw(m_wgpEmissionTarget, m_wgpEmissionDepth, [this](const WGPURenderPassEncoder& renderPassEncoder) {
+			wgpContext.setClearColor({ 0.0f, 0.0f, 0.0f, 0.0f });
+
+			wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_PLAYER_EMISSION"));
+			m_wgpPlayer.setBindGroupsSlot("EMISSION");
+			m_wgpPlayer.draw(renderPassEncoder);
+
+			wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_FLOOR_EMISSION"));
+			m_wgpFloor.setBindGroupsSlot("EMISSION");
+			m_wgpFloor.draw(renderPassEncoder);
+
+			wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_BULLET_EMISSION"));
+			m_wgpBullet.draw(renderPassEncoder, m_bulletStore.m_rots.size());
+
+			m_wgpFloor.setBindGroupsSlot("BG");
+			wgpContext.setClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
+		});
 	}
 
 	{
-		WgpRenderer::DrawDepth(m_wgpTextureShadow, std::bind(&Isometric::OnDrawShadow, this, std::placeholders::_1));
+		WgpRenderer::DrawDepth(m_wgpTextureShadow, [this](const WGPURenderPassEncoder& renderPassEncoder) {
+			wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_PLAYER_SHADOW"));
+			m_wgpPlayer.setBindGroupsSlot("SHADOW");
+			m_wgpPlayer.draw(renderPassEncoder);
+
+			wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_WIGGLY_SHADOW"));
+			m_wgpEnemy.setBindGroupsSlot("SHADOW");
+			m_wgpEnemy.draw(renderPassEncoder, m_cpuInstanceBuffer.size());
+
+
+			m_wgpEnemy.setBindGroupsSlot("BG");
+			m_wgpPlayer.setBindGroupsSlot("BG");
+		});
 	}
 
 	{
-		WgpRenderer::Draw(m_wgpSceneTarget, m_wgpSceneDepth, std::bind(&Isometric::OnDrawScene, this, std::placeholders::_1));
+		WgpRenderer::Draw(m_wgpSceneTarget, m_wgpSceneDepth, [this](const WGPURenderPassEncoder& renderPassEncoder) {
+			wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_FLOOR"));
+			m_wgpFloor.draw(renderPassEncoder);
+
+			wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_WIGGLY"));
+			m_wgpEnemy.draw(renderPassEncoder, m_cpuInstanceBuffer.size());
+
+			wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_ANIMATION"));
+			m_wgpPlayer.draw(renderPassEncoder);
+
+			wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_BILLBOARD"));
+			wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_bindGroupBillboard, 0u, NULL);
+			wgpuRenderPassEncoderDraw(renderPassEncoder, 4u, m_activeBillboards.size(), 0u, 0u);
+
+			wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_MUZZLE"));
+			wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_bindGroupMuzzle, 0u, NULL);
+			wgpuRenderPassEncoderDraw(renderPassEncoder, 4u, 1u, 0u, 0u);
+		});
 	}
 
 	{
@@ -668,7 +709,7 @@ void Isometric::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURende
 			wgpuRenderPassEncoderDraw(renderPassEncoder, 6u, 1u, 0u, 0u);
 		});
 	}
-	//wgpSubmitQueue();
+
 	{
 		WgpRenderer::DrawColor(m_wgpBlurFinalTarget, [this](const WGPURenderPassEncoder& renderPassEncoder) {
 			wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_BLUR_VERTICAL"));
@@ -849,6 +890,152 @@ void Isometric::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 
 	ImGui::Render();
 	ImGui_ImplWGPU_RenderDrawData(ImGui::GetDrawData(), renderPassEncoder);
+}
+
+bool Isometric::getWorldPosition(int xPos, int yPos, const Vector3f& planeNormal, Vector3f& outIntersection) {
+	float mouseXndc = (2.0f * xPos) / static_cast<float>(Application::Width) - 1.0f;
+	float mouseYndc = 1.0f - (2.0f * yPos) / static_cast<float>(Application::Height);
+
+	float tanfov = m_camera.getTanFov();
+	float aspect = (static_cast<float>(Application::Width) / static_cast<float>(Application::Height));
+
+	Vector3f rayStartWorld = m_camera.getPosition() + (m_camera.getCamX() * mouseXndc * tanfov * aspect + m_camera.getCamY() * mouseYndc * tanfov + m_camera.getViewDirection()) * m_camera.getNear();
+	Vector3f rayEndWorld = m_camera.getPosition() + (m_camera.getCamX() * mouseXndc * tanfov * aspect + m_camera.getCamY() * mouseYndc * tanfov + m_camera.getViewDirection()) * m_camera.getFar();
+	Vector3f direction = Vector3f::Normalize(rayEndWorld - rayStartWorld);
+	float denom = Vector3f::Dot(direction, planeNormal);
+
+	if (std::abs(denom) > 1e-6f) {
+		float t = Vector3f::Dot(-rayStartWorld, planeNormal) / denom;
+		if (t >= 0.0f) {
+			outIntersection = rayStartWorld + direction * t;
+			return true;
+		}
+	}
+	return false;
+}
+
+float Isometric::getLookAtYRotation(const Vector3f& objectPos, const Vector3f& targetPos) {
+	float dx = targetPos[0] - objectPos[0];
+	float dz = targetPos[2] - objectPos[2];
+
+	if (abs(dx) < 0.01f && abs(dz) < 0.01f)
+		return 0.0f;
+
+	return std::atan2(dx, dz) * _180_ON_PI;
+}
+
+void Isometric::spawnBillboard(const Vector3f& position) {
+	SpriteInstance billboard;
+	billboard.position[0] = position[0];
+	billboard.position[1] = 120.0f * 0.0044f;
+	billboard.position[2] = position[2];
+
+	billboard.scale[0] = 0.25f;
+	billboard.scale[1] = 0.25f;
+	billboard.age = 0.0f;
+	billboard.currentFrame = 0u;
+
+	m_activeBillboards.push_back(billboard);
+}
+
+void Isometric::resetMuzzle() {
+	if (m_muzzleInstance.currentFrame >= 6u) {
+		m_muzzleInstance.position[0] = 0.0f;
+		m_muzzleInstance.position[1] = 0.0f;
+		m_muzzleInstance.position[2] = 0.0f;
+		m_muzzleInstance.scale[0] = 1.0f;
+		m_muzzleInstance.scale[1] = 1.0f;
+		m_muzzleInstance.currentFrame = 0u;
+		m_muzzleInstance.age = 0.0f;
+	}
+}
+
+void Isometric::spawnEnemy(const Vector3f& pos) {
+	if (m_count > 20u)
+		return;
+
+	const float theta = ((float)(rand() % 360)) * PI_ON_180;
+	const float x = pos[0] + sin(theta) * spawnRadius;
+	const float z = pos[2] + cos(theta) * spawnRadius;
+
+	Vector3f spawnPos(x, 120.0f * 0.0044f, z);
+	Quaternion rot = Quaternion::Rotate(0.0f, getLookAtYRotation(pos, spawnPos), 0.0f);
+
+	btCollisionObject* body = Physics::AddKinematicObject(Physics::BtTransform(spawnPos, rot), new btCapsuleShapeZ(0.08f, 0.4f), Physics::collisiontypes::ENEMY, Physics::collisiontypes::SPHERE | Physics::collisiontypes::CHARACTER);
+	Enemy* enemy = m_scene->addChild<Enemy>(body, pos);
+	enemy->setPosition(spawnPos);
+	enemy->setOrientation(rot);
+}
+
+void Isometric::updateBillboards(float dt) {
+	const uint32_t numCols = 11;
+	const float timePerSprite = 0.05f;
+	const float spritesheetDur = numCols * timePerSprite;
+
+	for (auto& sprite : m_activeBillboards) {
+		sprite.age += dt;
+		sprite.currentFrame = sprite.age / timePerSprite;
+	}
+
+	m_activeBillboards.erase(
+		std::remove_if(
+			m_activeBillboards.begin(),
+			m_activeBillboards.end(),
+			[spritesheetDur](const SpriteInstance& s) {
+				return s.age >= spritesheetDur;
+			}
+		),
+		m_activeBillboards.end()
+	);
+}
+
+void Isometric::updateMuzzle(float dt, float x, float y, float z) {
+	const uint32_t numCols = 6;
+	const float timePerSprite = 0.05f;
+
+	if (m_muzzleFlashSpritesAge.size() > 0) {
+		for (size_t i = 0; i < m_muzzleFlashSpritesAge.size(); ++i) {
+			m_muzzleFlashSpritesAge[i] += dt;
+		}
+
+		const float maxAge = numCols * timePerSprite;
+		m_muzzleFlashSpritesAge.erase(
+			std::remove_if(m_muzzleFlashSpritesAge.begin(), m_muzzleFlashSpritesAge.end(),
+				[maxAge](const float f) { return f >= maxAge; }),
+			m_muzzleFlashSpritesAge.end()
+		);
+	}
+
+	float minAge = 1000.0f;
+	for (const float a : m_muzzleFlashSpritesAge) {
+		minAge = std::min(a, minAge);
+	}
+
+	PointLight point;
+	point.color[0] = 1.0f; point.color[1] = 0.2f; point.color[2] = 0.0f; point.color[3] = 1.0f;
+	point.padding = 0.0f;
+	point.position[0] = x;
+	point.position[1] = y;
+	point.position[2] = z;
+	point.active = (minAge < 0.03f) ? 1u : 0u;
+
+	wgpuQueueWriteBuffer(wgpContext.queue, m_pointLightBuffer.getBuffer(), 0u, &point, sizeof(PointLight));
+
+	if (m_muzzleInstance.currentFrame < 6u) {
+		const float spritesheetDur = numCols * timePerSprite;
+		m_muzzleInstance.age += dt;
+		m_muzzleInstance.currentFrame = m_muzzleInstance.age / timePerSprite;
+	}
+}
+
+void Isometric::updateSpawn(float dt, const Vector3f& pos) {
+	m_countdown -= dt;
+	if (m_countdown <= 0.0f) {
+		for (int i = 0; i < spawnsPerInterval; ++i) {
+			spawnEnemy(pos);
+		}
+		m_countdown += enemySpawnInterval;
+	}
 }
 
 std::vector<WGPUBindGroupLayout> Isometric::OnBindGroupLayouts() {
@@ -1485,203 +1672,6 @@ WGPUBindGroup Isometric::createBindGroupMuzzle() {
 	bindGroupDesc.entryCount = (uint32_t)bindGroupEntries.size();
 	bindGroupDesc.entries = (WGPUBindGroupEntry*)bindGroupEntries.data();
 	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
-}
-
-bool Isometric::getWorldPosition(int xPos, int yPos, const Vector3f& planeNormal, Vector3f& outIntersection) {
-	float mouseXndc = (2.0f * xPos) / static_cast<float>(Application::Width) - 1.0f;
-	float mouseYndc = 1.0f - (2.0f * yPos) / static_cast<float>(Application::Height);
-
-	float tanfov = m_camera.getTanFov();
-	float aspect = (static_cast<float>(Application::Width) / static_cast<float>(Application::Height));
-
-	Vector3f rayStartWorld = m_camera.getPosition() + (m_camera.getCamX() * mouseXndc * tanfov * aspect + m_camera.getCamY() * mouseYndc * tanfov + m_camera.getViewDirection()) * m_camera.getNear();
-	Vector3f rayEndWorld = m_camera.getPosition() + (m_camera.getCamX() * mouseXndc * tanfov * aspect + m_camera.getCamY() * mouseYndc * tanfov + m_camera.getViewDirection()) * m_camera.getFar();
-	Vector3f direction = Vector3f::Normalize(rayEndWorld - rayStartWorld);
-	float denom = Vector3f::Dot(direction, planeNormal);
-
-	if (std::abs(denom) > 1e-6f) {
-		float t = Vector3f::Dot(-rayStartWorld, planeNormal) / denom;
-		if (t >= 0.0f) { 
-			outIntersection = rayStartWorld + direction * t;
-			return true;
-		}
-	}
-	return false;
-}
-
-float Isometric::getLookAtYRotation(const Vector3f& objectPos, const Vector3f& targetPos) {
-	float dx = targetPos[0] - objectPos[0];
-	float dz = targetPos[2] - objectPos[2];
-
-	if (abs(dx) < 0.01f && abs(dz) < 0.01f)
-		return 0.0f;
-
-	return std::atan2(dx, dz) * _180_ON_PI;
-}
-
-void Isometric::spawnBillboard(const Vector3f& position) {
-	SpriteInstance billboard;
-	billboard.position[0] = position[0];
-	billboard.position[1] = 120.0f * 0.0044f;
-	billboard.position[2] = position[2];
-
-	billboard.scale[0] = 0.25f;
-	billboard.scale[1] = 0.25f;
-	billboard.age = 0.0f;
-	billboard.currentFrame = 0u;
-
-	m_activeBillboards.push_back(billboard);
-}
-
-void Isometric::resetMuzzle() {
-	if (m_muzzleInstance.currentFrame >= 6u) {
-		m_muzzleInstance.position[0] = 0.0f;
-		m_muzzleInstance.position[1] = 0.0f;
-		m_muzzleInstance.position[2] = 0.0f;
-		m_muzzleInstance.scale[0] = 1.0f;
-		m_muzzleInstance.scale[1] = 1.0f;
-		m_muzzleInstance.currentFrame = 0u;
-		m_muzzleInstance.age = 0.0f;
-	}
-}
-
-void Isometric::spawnEnemy(const Vector3f& pos) {
-	if (m_count > 20u)
-		return;
-
-	const float theta = ((float)(rand() % 360)) * PI_ON_180;
-	const float x = pos[0] + sin(theta) * spawnRadius;
-	const float z = pos[2] + cos(theta) * spawnRadius;
-
-	Vector3f spawnPos(x, 120.0f * 0.0044f, z);
-	Quaternion rot = Quaternion::Rotate(0.0f, getLookAtYRotation(pos, spawnPos), 0.0f);
-
-	btCollisionObject* body = Physics::AddKinematicObject(Physics::BtTransform(spawnPos, rot), new btCapsuleShapeZ(0.08f, 0.4f), Physics::collisiontypes::ENEMY, Physics::collisiontypes::SPHERE | Physics::collisiontypes::CHARACTER);
-	Enemy* enemy = m_scene->addChild<Enemy>(body, pos);
-	enemy->setPosition(spawnPos);
-	enemy->setOrientation(rot);
-}
-
-void Isometric::updateBillboards(float dt) {
-	const uint32_t numCols = 11;
-	const float timePerSprite = 0.05f;
-	const float spritesheetDur = numCols * timePerSprite;
-
-	for (auto& sprite : m_activeBillboards) {
-		sprite.age += dt;
-		sprite.currentFrame = sprite.age / timePerSprite;
-	}
-
-	m_activeBillboards.erase(
-		std::remove_if(
-			m_activeBillboards.begin(),
-			m_activeBillboards.end(),
-			[spritesheetDur](const SpriteInstance& s) {
-				return s.age >= spritesheetDur;
-			}
-		),
-		m_activeBillboards.end()
-	);
-}
-
-void Isometric::updateMuzzle(float dt, float x, float y, float z) {
-	const uint32_t numCols = 6;
-	const float timePerSprite = 0.05f;
-	
-	if (m_muzzleFlashSpritesAge.size() > 0) {
-		for (size_t i = 0; i < m_muzzleFlashSpritesAge.size(); ++i) {
-			m_muzzleFlashSpritesAge[i] += dt;
-		}
-
-		const float maxAge = numCols * timePerSprite;
-		m_muzzleFlashSpritesAge.erase(
-			std::remove_if(m_muzzleFlashSpritesAge.begin(), m_muzzleFlashSpritesAge.end(),
-				[maxAge](const float f) { return f >= maxAge; }),
-			m_muzzleFlashSpritesAge.end()
-		);
-	}
-
-	float minAge = 1000.0f;
-	for (const float a : m_muzzleFlashSpritesAge) {
-		minAge = std::min(a, minAge);
-	}
-
-	PointLight point;
-	point.color[0] = 1.0f; point.color[1] = 0.2f; point.color[2] = 0.0f; point.color[3] = 1.0f;
-	point.padding = 0.0f;
-	point.position[0] = x;
-	point.position[1] = y;
-	point.position[2] = z;
-	point.active = (minAge < 0.03f) ? 1u : 0u;
-
-	wgpuQueueWriteBuffer(wgpContext.queue, m_pointLightBuffer.getBuffer(), 0u, &point, sizeof(PointLight));
-
-	if (m_muzzleInstance.currentFrame < 6u) {		
-		const float spritesheetDur = numCols * timePerSprite;
-		m_muzzleInstance.age += dt;
-		m_muzzleInstance.currentFrame = m_muzzleInstance.age / timePerSprite;	
-	}
-}
-
-void Isometric::updateSpawn(float dt, const Vector3f& pos) {
-	m_countdown -= dt;
-	if (m_countdown <= 0.0f) {
-		for (int i = 0; i < spawnsPerInterval; ++i) {
-			spawnEnemy(pos);
-		}
-		m_countdown += enemySpawnInterval;
-	}
-}
-
-void Isometric::OnDrawShadow(const WGPURenderPassEncoder& renderPassEncoder) {
-	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_PLAYER_SHADOW"));
-	m_wgpPlayer.setBindGroupsSlot("SHADOW");
-	m_wgpPlayer.draw(renderPassEncoder);
-
-	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_WIGGLY_SHADOW"));
-	m_wgpEnemy.setBindGroupsSlot("SHADOW");
-	m_wgpEnemy.draw(renderPassEncoder, m_cpuInstanceBuffer.size());
-
-
-	m_wgpEnemy.setBindGroupsSlot("BG");
-	m_wgpPlayer.setBindGroupsSlot("BG");
-}
-
-void Isometric::OnDrawEmission(const WGPURenderPassEncoder& renderPassEncoder) {
-	wgpContext.setClearColor({ 0.0f, 0.0f, 0.0f, 0.0f });
-
-	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_PLAYER_EMISSION"));
-	m_wgpPlayer.setBindGroupsSlot("EMISSION");
-	m_wgpPlayer.draw(renderPassEncoder);
-
-	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_FLOOR_EMISSION"));
-	m_wgpFloor.setBindGroupsSlot("EMISSION");
-	m_wgpFloor.draw(renderPassEncoder);
-
-	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_BULLET_EMISSION"));
-	m_wgpBullet.draw(renderPassEncoder, m_bulletStore.m_rots.size());
-
-	m_wgpFloor.setBindGroupsSlot("BG");
-	wgpContext.setClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
-}
-
-void Isometric::OnDrawScene(const WGPURenderPassEncoder& renderPassEncoder) {
-	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_FLOOR"));
-	m_wgpFloor.draw(renderPassEncoder);
-
-	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_WIGGLY"));
-	m_wgpEnemy.draw(renderPassEncoder, m_cpuInstanceBuffer.size());
-
-	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_ANIMATION"));
-	m_wgpPlayer.draw(renderPassEncoder);
-
-	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_BILLBOARD"));
-	wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_bindGroupBillboard, 0u, NULL);
-	wgpuRenderPassEncoderDraw(renderPassEncoder, 4u, m_activeBillboards.size(), 0u, 0u);
-
-	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_MUZZLE"));
-	wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_bindGroupMuzzle, 0u, NULL);
-	wgpuRenderPassEncoderDraw(renderPassEncoder, 4u, 1u, 0u, 0u);
 }
 
 std::vector<WGPUBindGroupLayout> Isometric::OnBindGroupLayoutsEmission() {

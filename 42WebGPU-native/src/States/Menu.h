@@ -26,35 +26,7 @@ public:
     }
 
     void OnProcess() override;
-    void OnComplete() override {
-        WGPUTexelCopyTextureInfo copyDst = {};
-        copyDst.texture = uiContext.texture;
-        copyDst.mipLevel = 0u;
-        copyDst.origin = { 0u, 0u, 1u };
-        copyDst.aspect = WGPUTextureAspect_All;
-
-        WGPUTexelCopyBufferLayout dataLayout = {};
-        dataLayout.offset = 0u;
-        dataLayout.bytesPerRow = m_width * 4u;
-        dataLayout.rowsPerImage = m_height;
-
-        WGPUExtent3D writeSize = {static_cast<uint32_t>(m_width), static_cast<uint32_t>(m_height), 1u };
-
-        wgpuQueueWriteTexture(
-            wgpContext.queue,
-            &copyDst,
-            m_pixelData.data(),
-            m_pixelData.size(),
-            &dataLayout,
-            &writeSize
-        );
-
-        if (m_onUploadComplete) {
-            m_onUploadComplete();
-        }
-
-        delete this;
-    }
+	void OnComplete() override;
 
 private:
 
