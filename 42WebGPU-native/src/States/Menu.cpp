@@ -500,16 +500,11 @@ void Menu::fixedUpdate() {
 }
 
 void Menu::update() {
+	LoadingManager::Get().update();
 	Mouse& mouse = Mouse::instance();
 	if(!ImGui::GetIO().WantCaptureMouse)
 		m_uiScene->input(mouse.xPos(), mouse.yPos(), mouse.buttonDown(Mouse::MouseButton::BUTTON_LEFT));
-	m_uiScene->draw();
-
-	LoadingManager::Get().update();
-
-	if (LoadingManager::Get().isFinished()) {
-	
-	}
+	m_uiScene->draw();	
 }
 
 void Menu::render() {

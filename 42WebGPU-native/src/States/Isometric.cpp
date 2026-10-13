@@ -571,7 +571,6 @@ void Isometric::update() {
 
 
 	m_bulletStore.updateBullets(m_dt, m_enemies);
-	//m_enemySpawner.update(posistion, m_dt);
 	updateSpawn(m_dt, posistion);
 	for (auto enemy : m_enemies) {
 		enemy->update(m_dt);

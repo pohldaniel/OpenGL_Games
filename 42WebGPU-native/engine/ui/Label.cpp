@@ -64,7 +64,7 @@ void Label::OnDraw() {
 		uiInstance.textureRect[1] = ch.textureOffset[1];
 		uiInstance.textureRect[2] = ch.textureSize[0];
 		uiInstance.textureRect[3] = ch.textureSize[1];
-		uiInstance.textureLayer = static_cast<float>(characterSet.layer);
+		uiInstance.textureLayer = characterSet.layer;
 		pushWidget(UiPipelineType::Text, uiInstance);
 
 		currentCursor[0] += ch.advance;
