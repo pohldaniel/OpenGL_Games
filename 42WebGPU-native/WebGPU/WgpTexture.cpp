@@ -567,7 +567,7 @@ void WgpTexture::resize(uint32_t width, uint32_t height) {
     }
 }
 
-void WgpTexture::fill(const std::array<float, 4>& color, uint32_t layer) {
+void WgpTexture::fillLayer(const std::array<float, 4>& color, uint32_t layer) {
     WGPUTexelCopyTextureInfo destination = {};
     destination.texture = m_texture;
     destination.mipLevel = 0u;

@@ -9,10 +9,7 @@
 
 namespace {
     const float rotPerBullet = 3.0f * PI / 180.0f;
-
-    const float bulletScale = 0.3f;
     const float bulletLifetime = 1.0f;
-    const Vector3f scaleVec(bulletScale, bulletScale, bulletScale);
     const float bulletSpeed = 15.0f;
 
     const float bulletEnemyMaxCollisionDist = 0.3f / 2 + 0.03f + 0.4f / 2 + 0.08f;
@@ -158,18 +155,18 @@ void BulletStore::createBullets(const Vector3f& position, const Quaternion& midO
   bulletGroups.push_back(g);
 }
 
-void BulletStore::updateBullets(float deltaTimeSeconds, std::vector<Enemy*>& enemies) {
+void BulletStore::update(float dt, std::vector<Enemy*>& enemies) {
     const bool useAABB = enemies.size() > 0;
     const int numSubGroups = useAABB ? 9 : 1;
 
-    const float deltaPosMagnitude = deltaTimeSeconds * bulletSpeed;
+    const float deltaPosMagnitude = dt * bulletSpeed;
     int firstLiveBulletGroup = 0;
 
     std::vector<bool> enemyDeathMarker(enemies.size());
 
     std::vector<std::future<void>> futures;
     for (BulletGroup& g : bulletGroups) {
-        g.TTL -= deltaTimeSeconds;
+        g.TTL -= dt;
         if (g.TTL <= 0.0f) {
             firstLiveBulletGroup++;
         }

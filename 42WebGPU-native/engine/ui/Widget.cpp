@@ -6,49 +6,49 @@ float Widget::WorldOrientation;
 Widget* Widget::ActiveWidget = nullptr;
 
 Widget::Widget() : Node(), Object2D(),
-m_isDirty(true), 
-m_hasFocus(false),
-m_width(0.0f), 
-m_height(0.0f), 
-m_paddingX(0.0f), 
-m_paddingY(0.0f), 
-m_spacingX(0.0f), 
-m_spacingY(0.0f), 
 m_isLayoutDirty(true),
-m_layout(Layout::HORIZONTAL),
+m_width(0.0f),
+m_height(0.0f),
+m_paddingX(0.0f),
+m_paddingY(0.0f),
 m_isMovable(false),
-m_border(0.0f){
+m_border(0.0f),
+m_hasFocus(false),
+m_isDirty(true),
+m_spacingX(0.0f),
+m_spacingY(0.0f),
+m_layout(Layout::HORIZONTAL) {
 	
 }
 
 Widget::Widget(const Widget& rhs) : Node(rhs), Object2D(rhs) {
-	m_isDirty = rhs.m_isDirty;
-	m_hasFocus = rhs.m_hasFocus;
+	m_isLayoutDirty = rhs.m_isLayoutDirty;
 	m_width = rhs.m_width;
 	m_height = rhs.m_height;
 	m_paddingX = rhs.m_paddingX;
 	m_paddingY = rhs.m_paddingY;
-	m_spacingX = rhs.m_spacingX;
-	m_spacingY = rhs.m_spacingY;
-	m_isLayoutDirty = rhs.m_isLayoutDirty;
-	m_layout = rhs.m_layout;
 	m_isMovable = rhs.m_isMovable;
 	m_border = rhs.m_border;
+	m_hasFocus = rhs.m_hasFocus;
+	m_isDirty = rhs.m_isDirty;
+	m_spacingX = rhs.m_spacingX;
+	m_spacingY = rhs.m_spacingY;
+	m_layout = rhs.m_layout;
 }
 
 Widget::Widget(Widget&& rhs) noexcept : Node(rhs), Object2D(rhs) {
-	m_isDirty = rhs.m_isDirty;
-	m_hasFocus = rhs.m_hasFocus;
+	m_isLayoutDirty = rhs.m_isLayoutDirty;
 	m_width = rhs.m_width;
 	m_height = rhs.m_height;
 	m_paddingX = rhs.m_paddingX;
 	m_paddingY = rhs.m_paddingY;
-	m_spacingX = rhs.m_spacingX;
-	m_spacingY = rhs.m_spacingY;
-	m_isLayoutDirty = rhs.m_isLayoutDirty;
-	m_layout = rhs.m_layout;
 	m_isMovable = rhs.m_isMovable;
 	m_border = rhs.m_border;
+	m_hasFocus = rhs.m_hasFocus;
+	m_isDirty = rhs.m_isDirty;
+	m_spacingX = rhs.m_spacingX;
+	m_spacingY = rhs.m_spacingY;
+	m_layout = rhs.m_layout;
 }
 
 Widget::~Widget() {

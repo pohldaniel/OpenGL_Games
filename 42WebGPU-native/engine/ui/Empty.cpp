@@ -4,12 +4,12 @@
 Empty::Empty() : Widget(), 
 m_sliderPosX(0.0f), 
 m_sliderPosY(0.0f),
-m_borderColor(Vector4f(0.2f, 0.2f, 0.2f, 1.0f)), 
-m_sliderColor(Vector4f(0.2f, 0.45f, 0.85f, 1.0f)),
-m_isDragged(false), 
+m_isDragged(false),
 m_mouseX(0),
 m_mouseY(0),
-m_dragMode(DragMode::NONE){
+m_dragMode(DragMode::NONE),
+m_borderColor(Vector4f(0.2f, 0.2f, 0.2f, 1.0f)), 
+m_sliderColor(Vector4f(0.2f, 0.45f, 0.85f, 1.0f)) {
 
 }
 
@@ -17,24 +17,25 @@ Empty::Empty(const Empty& rhs) :
 	Widget(rhs),
 	m_sliderPosX(rhs.m_sliderPosX),
 	m_sliderPosY(rhs.m_sliderPosY),
-    m_borderColor(rhs.m_borderColor),
 	m_isDragged(rhs.m_isDragged),
 	m_mouseX(rhs.m_mouseX),
 	m_mouseY(rhs.m_mouseY),
-    m_sliderColor(rhs.m_sliderColor),
-	m_dragMode(rhs.m_dragMode) {
+	m_dragMode(rhs.m_dragMode),
+	m_sliderColor(rhs.m_sliderColor),	
+    m_borderColor(rhs.m_borderColor) {
+
 }
 
 Empty::Empty(Empty&& rhs) noexcept :
 	Widget(rhs),
 	m_sliderPosX(rhs.m_sliderPosX),
 	m_sliderPosY(rhs.m_sliderPosY),
-	m_borderColor(rhs.m_borderColor),
 	m_isDragged(rhs.m_isDragged),
 	m_mouseX(rhs.m_mouseX),
 	m_mouseY(rhs.m_mouseY),
+	m_dragMode(rhs.m_dragMode),
 	m_sliderColor(rhs.m_sliderColor),
-	m_dragMode(rhs.m_dragMode) {
+	m_borderColor(rhs.m_borderColor) {
 }
 
 Empty::~Empty() {

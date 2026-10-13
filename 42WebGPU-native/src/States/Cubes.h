@@ -16,8 +16,6 @@
 #include <engine/sound/SoundEffect.h>
 
 #include <States/StateMachine.h>
-#include <Nuklear/NkJoystick.h>
-#include <Nuklear/NkContext.h>
 
 #include <WebGPU/WgpBuffer.h>
 #include <WebGPU/WgpModel.h>
@@ -50,7 +48,6 @@ public:
 	void update() override;
 	void render() override;
 	void OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor);
-	void OnFillBuffer(nk_context& nkCntxt);
 
 	void resize(int deltaW, int deltaH) override;
 	void OnMouseMotion(const Event::MouseMoveEvent& event) override;

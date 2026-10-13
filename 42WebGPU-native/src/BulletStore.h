@@ -11,7 +11,7 @@ public:
  
 
   void createBullets(const Vector3f& position, const Quaternion& midOri, const int spreadAmount);
-  void updateBullets(float dt, std::vector<Enemy*>& enemies);
+  void update(float dt, std::vector<Enemy*>& enemies);
 
   std::vector<Vector4f> m_offsets;
   std::vector<Quaternion> m_rots;

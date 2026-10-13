@@ -24,7 +24,7 @@
 #include "Application.h"
 #include "Globals.h"
 
-Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC), m_threadPool(4), m_bulletStore(&m_threadPool) {
+Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC), m_bulletStore(&m_threadPool), m_threadPool(4) {
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
@@ -570,7 +570,7 @@ void Isometric::update() {
 	m_player.updateSkinning();
 
 
-	m_bulletStore.updateBullets(m_dt, m_enemies);
+	m_bulletStore.update(m_dt, m_enemies);
 	updateSpawn(m_dt, posistion);
 	for (auto enemy : m_enemies) {
 		enemy->update(m_dt);

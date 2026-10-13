@@ -59,7 +59,6 @@ Cubes::Cubes(StateMachine& machine) : State(machine, States::CUBES) {
 
 	wgpContext.setClearColor({ 0.7f, 0.7f, 0.7f, 1.0f });
 	wgpContext.OnDraw = std::bind(&Cubes::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
-	nkContext.OnFillBuffer = std::bind(&Cubes::OnFillBuffer, this, std::placeholders::_1);
 	
 	m_scene = new SceneNode();
 	m_scene->setOnChildAdded([this](Node* newNode) {
@@ -117,9 +116,6 @@ void Cubes::fixedUpdate() {
 void Cubes::update() {
 	Keyboard& keyboard = Keyboard::instance();
 	Mouse& mouse = Mouse::instance();
-
-	nkUpdateInput(mouse.xPos(), mouse.yPos(), mouse.buttonDown(Mouse::MouseButton::BUTTON_LEFT), mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT), Application::ScrollDelta);
-
 	Vector3f direction = Vector3f();
 
 	float dx = 0.0f;
@@ -258,13 +254,6 @@ void Cubes::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPas
 	}
 }
 
-void Cubes::OnFillBuffer(nk_context& nkCntxt) {
-	//set_transparent_window_style();
-	//virtual_joystick(nk_rect(20.0f, static_cast<float>(Application::Height) - 200.0f, 180.0f, 180.0f), m_joystickResult);
-	//virtual_rotation_button(nk_rect(static_cast<float>(Application::Width) - 180.0f, static_cast<float>(Application::Height) - 180.0f, 140.0f, 140.0f), m_rotationButtonResult);
-	//reset_transparent_window_style();
-}
-
 void Cubes::OnMouseMotion(const Event::MouseMoveEvent& event) {
 	m_trackball.motion(event.x, event.y);
 }
@@ -301,7 +290,6 @@ void Cubes::OnKeyDown(const Event::KeyboardEvent& event) {
 #endif
 
 	if (event.keyCode == VK_ESCAPE) {
-		nkShutDown();
 		wgpCleanState();
 		Physics::DebugDrawer.shutDown();
 		m_isRunning = false;
@@ -314,7 +302,6 @@ void Cubes::OnKeyUp(const Event::KeyboardEvent& event) {
 }
 
 void Cubes::resize(int deltaW, int deltaH) {
-	nkResize(static_cast<float>(Application::Width), static_cast<float>(Application::Height));
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, -1.0f, 1.0f);
 	m_trackball.reshape(Application::Width, Application::Height);	

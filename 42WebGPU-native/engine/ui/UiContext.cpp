@@ -80,7 +80,7 @@ void uiInit(float width, float height) {
 
 void uiInitTextureArray(uint32_t width, uint32_t height, uint32_t layers) {
 	uiContext.wgpTexture.createEmpty(width, height, layers, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst, WGPUTextureFormat_RGBA8Unorm, 1u, 1u, true);
-	uiContext.wgpTexture.fill();
+	uiContext.wgpTexture.fillLayer();
 }
 
 void uiResize(float width, float height) {

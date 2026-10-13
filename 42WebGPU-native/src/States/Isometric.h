@@ -193,7 +193,6 @@ private:
 	float prev_backWeight = 0.0f;
 	float prev_leftWeight = 0.0f;
 	const float animTransitionTime = 0.2f;
-	float deathTime = -1.0f;
 	float aimTheta = 0.0f;
 	float lastFireTime = 0.0f;
 	int m_spreadAmount = 20;

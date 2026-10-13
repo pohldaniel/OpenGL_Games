@@ -45,7 +45,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	uiInitTextureArray();
 	m_characterSet.loadFromFile("res/fonts/upheavtt.ttf", 24.0f);
 	uiContext.textureViewFont = m_characterSet.texture.getTextureView();
-	uiContext.wgpTexture.fill({ 1.0f, 1.0f, 1.0f, 1.0f }, 1u);
+	uiContext.wgpTexture.fillLayer({ 1.0f, 1.0f, 1.0f, 1.0f }, 1u);
 
 	uiInit(static_cast<float>(Application::Width), static_cast<float>(Application::Height));
 
