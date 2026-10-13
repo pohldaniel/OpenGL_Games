@@ -26,8 +26,8 @@ struct UiInstance {
 	float transform[16];
 	float color[4];
 	float textureRect[4];
-	float textureLayer;
-	float flipAndTile[3];
+	uint32_t textureLayer;
+	uint32_t padding[7];
 };
 
 enum class UiPipelineType {
@@ -59,7 +59,9 @@ struct UiContext {
 	WGPUBindGroup bindgroup = nullptr, bindgroupText = nullptr;
 	WGPUBindGroupLayout bindgroupLayout = nullptr, bindgroupLayoutText = nullptr;
 	WGPURenderPipeline renderPipeline = nullptr, renderPipelineMask = nullptr, renderPipelineRead = nullptr, renderPipelineClear = nullptr, renderPipelineText = nullptr;
+	WGPUTexture texture = nullptr;
 	WGPUTextureView textureView = nullptr;
+	WGPUTextureView textureViewFont = nullptr;
 
 	WgpBuffer wgpStorageBuffer, wgpUniformBuffer;
 

@@ -14,7 +14,7 @@ void uiInit(float width, float height) {
 	uiContext.wgpUniformBuffer.createBuffer(16 * sizeof(float), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	uiResize(width, height);
 
-	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(2);
+	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(4);
 
 	bindingLayoutEntries[0].binding = 0u;
 	bindingLayoutEntries[0].visibility = WGPUShaderStage_Vertex;
@@ -25,6 +25,15 @@ void uiInit(float width, float height) {
 	bindingLayoutEntries[1].visibility = WGPUShaderStage_Vertex;
 	bindingLayoutEntries[1].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_ReadOnlyStorage;
 	bindingLayoutEntries[1].buffer.minBindingSize = 400u * sizeof(UiInstance);
+
+	bindingLayoutEntries[2].binding = 2u;
+	bindingLayoutEntries[2].visibility = WGPUShaderStage_Fragment;
+	bindingLayoutEntries[2].sampler.type = WGPUSamplerBindingType::WGPUSamplerBindingType_Filtering;
+
+	bindingLayoutEntries[3].binding = 3u;
+	bindingLayoutEntries[3].visibility = WGPUShaderStage_Fragment;
+	bindingLayoutEntries[3].texture.sampleType = WGPUTextureSampleType::WGPUTextureSampleType_Float;
+	bindingLayoutEntries[3].texture.viewDimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2DArray;
 
 	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
 	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
@@ -208,7 +217,7 @@ void uiDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescri
 }
 
 void uiCreateBindGroup(WGPUBindGroup& bindgroup) {
-	std::vector<WGPUBindGroupEntry> bindGroupEntries(2);
+	std::vector<WGPUBindGroupEntry> bindGroupEntries(4);
 
 	bindGroupEntries[0].binding = 0u;
 	bindGroupEntries[0].buffer = uiContext.wgpUniformBuffer.getBuffer();
@@ -219,6 +228,12 @@ void uiCreateBindGroup(WGPUBindGroup& bindgroup) {
 	bindGroupEntries[1].buffer = uiContext.wgpStorageBuffer.getBuffer();
 	bindGroupEntries[1].offset = 0u;
 	bindGroupEntries[1].size = wgpuBufferGetSize(uiContext.wgpStorageBuffer.getBuffer());
+
+	bindGroupEntries[2].binding = 2u;
+	bindGroupEntries[2].sampler = wgpContext.getSampler(SS_LINEAR_CLAMP);
+
+	bindGroupEntries[3].binding = 3u;
+	bindGroupEntries[3].textureView = uiContext.textureView;
 
 	WGPUBindGroupDescriptor bindGroupDesc = {};
 	bindGroupDesc.layout = uiContext.bindgroupLayout;
@@ -245,7 +260,7 @@ void uiCreateBindGroupText(WGPUBindGroup& bindgroup) {
 	bindGroupEntries[2].sampler = wgpContext.getSampler(SS_LINEAR_REPEAT);
 
 	bindGroupEntries[3].binding = 3u;
-	bindGroupEntries[3].textureView = uiContext.textureView;
+	bindGroupEntries[3].textureView = uiContext.textureViewFont;
 
 	WGPUBindGroupDescriptor bindGroupDesc = {};
 	bindGroupDesc.layout = uiContext.bindgroupLayoutText;

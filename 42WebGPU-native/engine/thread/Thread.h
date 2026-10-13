@@ -7,7 +7,6 @@
 #include <stdexcept>
 #include <mutex>
 #include <queue>
-#include <iostream>
 
 namespace ThreadUtil {
 	bool IsMainThread();
@@ -27,7 +26,7 @@ public:
 
 	private:
 		Dispatcher(Looper &aLooper);
-		Looper &mAssignedLooper;
+		Looper &m_assignedLooper;
 	};
 
 
@@ -47,18 +46,18 @@ private:
 	Runnable next();
 	bool post(Runnable &&aRunnable);
 
-
-	std::thread mThread;
-	std::atomic_bool mRunning;
-	std::atomic_bool mAbortRequested;
-	std::queue<Runnable> mRunnables;
-	std::recursive_mutex mRunnablesMutex;
-	std::shared_ptr<Dispatcher> mDispatcher;
+	std::thread m_thread;
+	std::atomic_bool m_running;
+	std::atomic_bool m_abortRequested;
+	std::queue<Runnable> m_runnables;
+	std::recursive_mutex m_runnablesMutex;
+	std::shared_ptr<Dispatcher> m_dispatcher;
 };
 
 class EndlessLooper {
 
 public:
+
 	EndlessLooper();
 	~EndlessLooper();
 
@@ -72,13 +71,13 @@ private:
 	void runFunc();
 	void abortAndJoin();
 	std::function<void()> next();
-	bool mTaskLoaded;
 
-	std::thread mThread;
-	std::atomic_bool mRunning;
-	std::atomic_bool mAbortRequested;
 
-	std::vector<std::function<void()>>  mRunnables;
-	std::recursive_mutex  mRunnablesMutex;
-	int taskIndex;
+	std::thread m_thread;
+	std::atomic_bool m_running;
+	std::atomic_bool m_abortRequested;
+
+	std::vector<std::function<void()>>  m_runnables;
+	std::recursive_mutex  m_runnablesMutex;
+	int m_taskIndex;
 };

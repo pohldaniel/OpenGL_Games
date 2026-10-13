@@ -1,8 +1,9 @@
 struct SpriteInstance {
     transform: mat4x4<f32>,
     color: vec4<f32>,
-    textureRect: vec4<f32>, // [u, v, width, height]
-    flipAndTile: vec4<f32>, // [flipped, tileX, tileY]
+	textureRect: vec4<f32>,
+	textureLayer: u32,
+    padding: vec3<u32>,
 }
 
 struct Uniforms {
@@ -11,10 +12,8 @@ struct Uniforms {
 
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
 @group(0) @binding(1) var<storage, read> instances: array<SpriteInstance>;
-
-// Das Texture-Array und der Sampler
-//@group(1) @binding(0) var uiTextures: texture_2d_array<f32>;
-//@group(1) @binding(1) var uiSampler: sampler;
+@group(0) @binding(2) var smplr: sampler;
+@group(0) @binding(3) var uiTextures: texture_2d_array<f32>;
 
 struct VertexOutput {
     @builtin(position) position: vec4<f32>,
@@ -42,28 +41,19 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32, @builtin(instance_index) ins
         default: {}
     }
 
-    // Flipping & Tiling einrechnen
-    if (instance.flipAndTile.x > 0.5) {
-        uv.x = 1.0 - uv.x;
-    }
-    uv.x *= instance.flipAndTile.y;
-    uv.y *= instance.flipAndTile.z;
-
-    // Transformiere UVs auf den richtigen Ausschnitt im Spritesheet/Sub-Bild
     let finalUV = instance.textureRect.xy + (uv * instance.textureRect.zw);
 
     var output: VertexOutput;
     output.position = uniforms.projection * instance.transform * vec4<f32>(localPos, 0.0, 1.0);
     output.uv = finalUV;
     output.color = instance.color;
-    output.textureLayer = u32(instance.flipAndTile.x);
+    output.textureLayer = instance.textureLayer;
 
     return output;
 }
 
 @fragment
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
-    // textureSample nimmt bei einem 2D-Array ein vec2 für UV und ein u32/i32 für den Layer
-    //let texColor = textureSample(uiTextures, uiSampler, in.uv, in.textureLayer);
-    return in.color;
+    let texColor = textureSample(uiTextures, smplr, in.uv, in.textureLayer);
+    return texColor * in.color;
 }

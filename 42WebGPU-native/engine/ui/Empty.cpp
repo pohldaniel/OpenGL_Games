@@ -177,11 +177,7 @@ void Empty::OnDraw() {
 	bottomBorderInst.textureRect[1] = 0.0f;
 	bottomBorderInst.textureRect[2] = 1.0f;
 	bottomBorderInst.textureRect[3] = 1.0f;
-	bottomBorderInst.textureLayer = 0.0f;
-
-	bottomBorderInst.flipAndTile[0] = 0.0f;
-	bottomBorderInst.flipAndTile[1] = 0.0f;
-	bottomBorderInst.flipAndTile[2] = 0.0f;
+	bottomBorderInst.textureLayer = 0u;
 
 	pushWidget(UiPipelineType::Standard, bottomBorderInst);
 
@@ -193,11 +189,7 @@ void Empty::OnDraw() {
 	bottomSliderInst.textureRect[1] = 0.0f;
 	bottomSliderInst.textureRect[2] = 1.0f;
 	bottomSliderInst.textureRect[3] = 1.0f;
-	bottomSliderInst.textureLayer = 0.0f;
-
-	bottomSliderInst.flipAndTile[0] = 0.0f;
-	bottomSliderInst.flipAndTile[1] = 0.0f;
-	bottomSliderInst.flipAndTile[2] = 0.0f;
+	bottomSliderInst.textureLayer = 0u;
 
 	pushWidget(UiPipelineType::Standard, bottomSliderInst);
 
@@ -209,11 +201,7 @@ void Empty::OnDraw() {
 	rightBorderInst.textureRect[1] = 0.0f;
 	rightBorderInst.textureRect[2] = 1.0f;
 	rightBorderInst.textureRect[3] = 1.0f;
-	rightBorderInst.textureLayer = 0.0f;
-
-	rightBorderInst.flipAndTile[0] = 0.0f;
-	rightBorderInst.flipAndTile[1] = 0.0f;
-	rightBorderInst.flipAndTile[2] = 0.0f;
+	rightBorderInst.textureLayer = 0u;
 
 	pushWidget(UiPipelineType::Standard, rightBorderInst);
 	
@@ -225,11 +213,7 @@ void Empty::OnDraw() {
 	rightSliderInst.textureRect[1] = 0.0f;
 	rightSliderInst.textureRect[2] = 1.0f;
 	rightSliderInst.textureRect[3] = 1.0f;
-	rightSliderInst.textureLayer = 0.0f;
-
-	rightSliderInst.flipAndTile[0] = 0.0f;
-	rightSliderInst.flipAndTile[1] = 0.0f;
-	rightSliderInst.flipAndTile[2] = 0.0f;
+	rightSliderInst.textureLayer = 0u;
 
 	pushWidget(UiPipelineType::Standard, rightSliderInst);
 }

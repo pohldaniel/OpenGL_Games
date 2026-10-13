@@ -1,3 +1,5 @@
+#include <cstdlib>
+
 #include <imgui.h>
 #include <imgui_impl_win32.h>
 #include <imgui_impl_wgpu.h>
@@ -32,14 +34,76 @@
 #include "Application.h"
 #include "Globals.h"
 
+void initUiTextureArray() {
+	uint32_t texWidth = 512;
+	uint32_t texHeight = 512;
+	uint32_t maxLayers = 16;
+
+	WGPUTextureDescriptor arrayDesc = {};
+	arrayDesc.nextInChain = nullptr;
+	arrayDesc.label = WGPU_STR("ui_texture_array");
+	arrayDesc.usage = WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst;
+	arrayDesc.dimension = WGPUTextureDimension_2D;
+	arrayDesc.size = { texWidth, texHeight, maxLayers };
+	arrayDesc.format = WGPUTextureFormat_RGBA8Unorm;
+	arrayDesc.mipLevelCount = 1;
+	arrayDesc.sampleCount = 1;
+	arrayDesc.viewFormatCount = 0;
+	arrayDesc.viewFormats = nullptr;
+
+	uiContext.texture = wgpuDeviceCreateTexture(wgpContext.device, &arrayDesc);
+
+	WGPUTextureViewDescriptor viewDesc = {};
+	viewDesc.nextInChain = nullptr;
+	viewDesc.label = WGPU_STR("ui_texture_view");
+	viewDesc.format = WGPUTextureFormat_RGBA8Unorm;
+	viewDesc.dimension = WGPUTextureViewDimension_2DArray;
+	viewDesc.baseMipLevel = 0;
+	viewDesc.mipLevelCount = 1;
+	viewDesc.baseArrayLayer = 0;
+	viewDesc.arrayLayerCount = maxLayers;
+	viewDesc.aspect = WGPUTextureAspect_All;
+
+	uiContext.textureView = wgpuTextureCreateView(uiContext.texture, &viewDesc);
+
+	std::vector<uint32_t> whitePixels(texWidth * texHeight, 0xFFFFFFFF);
+
+	WGPUTexelCopyTextureInfo copyDst = {};
+	copyDst.texture = uiContext.texture;
+	copyDst.mipLevel = 0u;
+	copyDst.origin = { 0u, 0u, 0u };
+	copyDst.aspect = WGPUTextureAspect_All;
+
+	WGPUTexelCopyBufferLayout dataLayout{};
+	dataLayout.offset = 0u;
+	dataLayout.bytesPerRow = texWidth * sizeof(uint32_t);
+	dataLayout.rowsPerImage = texHeight; 
+
+	WGPUExtent3D writeSize = { texWidth, texHeight, 2u };
+
+	size_t totalDataSize = whitePixels.size() * sizeof(uint32_t);
+
+
+	std::vector<uint32_t> doubleLayerWhite;
+	doubleLayerWhite.reserve(whitePixels.size() * 2);
+	doubleLayerWhite.insert(doubleLayerWhite.end(), whitePixels.begin(), whitePixels.end());
+	doubleLayerWhite.insert(doubleLayerWhite.end(), whitePixels.begin(), whitePixels.end());
+
+	wgpuQueueWriteTexture(wgpContext.queue,&copyDst, doubleLayerWhite.data(), doubleLayerWhite.size() * sizeof(uint32_t), &dataLayout, &writeSize);
+}
+
 Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
 	Mouse::instance().attach(Application::GetWindow(), false, true);
 
+	LoadingManager::Get().startBackgroundThreads(8);
+
 	m_characterSet.loadFromFile("res/fonts/upheavtt.ttf", 24.0f);
-	uiContext.textureView = m_characterSet.texture.getTextureView();
+	uiContext.textureViewFont = m_characterSet.texture.getTextureView();
+	initUiTextureArray();
+
 	uiInit(static_cast<float>(Application::Width), static_cast<float>(Application::Height));
 	float paddingBottom = 3.0f;
 
@@ -424,6 +488,38 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	label->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 	label->setPadding(0.0f, paddingBottom);
 
+	button = surface->addChild<Button>();
+	button->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+	button->setOutlineColor(Vector4f(1.0f, 1.0f, 0.0f, 1.0f));
+	button->setOutlineThickness(5.0f);
+	button->setPadding(5.0f, 5.0f);
+	button->setOnClick([&]() {
+		int randomSeed = rand();
+		auto* noiseTask = new NoiseGenerationTask(512, 512, randomSeed, [this]() {
+
+		});
+		LoadingManager::Get().addTask(noiseTask);
+	});
+
+	label = button->addChild<Label>(m_characterSet);
+	label->setText("Noise");
+	label->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	label->setPadding(0.0f, paddingBottom);
+
+	Canvas* canvas = surface->addChild<Canvas>();
+	canvas->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	canvas->setWidth(400.0f);
+	canvas->setHeight(400.0f);
+
+	if (m_layout == SelectedLayout::M_VERTICAL) {
+		const std::vector<Surface*>& surfaces = m_uiScene->getChildren<Surface>();
+		for (auto& surface : surfaces) {
+			surface->setLayout(Layout::VERTICAL);
+			m_uiScene->setLayout(Layout::HORIZONTAL);
+		}
+		m_uiScene->updateLayout();
+	}
+
 	if (m_layout == SelectedLayout::M_VERTICAL) {
 		const std::vector<Surface*>& surfaces = m_uiScene->getChildren<Surface>();
 		for (auto& surface : surfaces) {
@@ -462,6 +558,12 @@ void Menu::update() {
 	if(!ImGui::GetIO().WantCaptureMouse)
 		m_uiScene->input(mouse.xPos(), mouse.yPos(), mouse.buttonDown(Mouse::MouseButton::BUTTON_LEFT));
 	m_uiScene->draw();
+
+	LoadingManager::Get().update();
+
+	if (LoadingManager::Get().isFinished()) {
+	
+	}
 }
 
 void Menu::render() {
@@ -578,4 +680,64 @@ void Menu::OnKeyDown(const Event::KeyboardEvent& event) {
 
 void Menu::OnMouseWheel(const Event::MouseWheelEvent& event) {
 	m_uiScene->wheelInput(event.x, event.y, event.delta);
+}
+
+float hash2D(int x, int y, int seed) {
+
+	int n = x + y * 57 + seed * 131;
+	n = (n << 13) ^ n;
+	return (1.0f - ((n * (n * n * 15731 + 789221) + 1376312589) & 0x7fffffff) / 1073741824.0f);
+}
+
+float bilinearInterpolate(float x, float y, int seed) {
+	int intX = static_cast<int>(floor(x));
+	int intY = static_cast<int>(floor(y));
+	float fracX = x - intX;
+	float fracY = y - intY;
+
+	float v1 = hash2D(intX, intY, seed);
+	float v2 = hash2D(intX + 1, intY, seed);
+	float v3 = hash2D(intX, intY + 1, seed);
+	float v4 = hash2D(intX + 1, intY + 1, seed);
+
+	float fadeX = fracX * fracX * (3.0f - 2.0f * fracX);
+	float fadeY = fracY * fracY * (3.0f - 2.0f * fracY);
+
+	float i1 = v1 + fadeX * (v2 - v1);
+	float i2 = v3 + fadeX * (v4 - v3);
+	return i1 + fadeY * (i2 - i1);
+}
+
+
+float generateFractalNoise(float x, float y, int seed, int octaves = 4) {
+	float total = 0.0f;
+	float amplitude = 1.0f;
+	float frequency = 0.05f;
+	float maxValue = 0.0f;
+
+	for (int i = 0; i < octaves; ++i) {
+		total += bilinearInterpolate(x * frequency, y * frequency, seed) * amplitude;
+		maxValue += amplitude;
+		amplitude *= 0.5f;
+		frequency *= 2.0f;
+	}
+
+	return total / maxValue;
+}
+
+void NoiseGenerationTask::OnProcess() {
+	m_pixelData.resize(m_width * m_height * 4);
+
+	for (int y = 0; y < m_height; ++y) {
+		for (int x = 0; x < m_width; ++x) {
+			float noiseValue = generateFractalNoise(static_cast<float>(x), static_cast<float>(y), m_seed, 5);
+			unsigned char byteValue = static_cast<unsigned char>((noiseValue + 1.0f) * 0.5f * 255.0f);
+
+			int index = (y * m_width + x) * 4;
+			m_pixelData[index + 0] = byteValue;
+			m_pixelData[index + 1] = byteValue;
+			m_pixelData[index + 2] = byteValue;
+			m_pixelData[index + 3] = 255;
+		}
+	}
 }

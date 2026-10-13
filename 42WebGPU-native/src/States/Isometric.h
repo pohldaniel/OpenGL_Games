@@ -26,7 +26,6 @@
 #include <Physics/Physics.h>
 
 #include "bullet_store.h"
-#include "enemy_spawner.h"
 
 struct BulletCollisionCallback : public btCollisionWorld::ContactResultCallback {
 	bool m_hasCollided = false;
@@ -148,11 +147,14 @@ private:
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 	bool getWorldPosition(int xPos, int yPos, const Vector3f& planeNormal, Vector3f& outIntersection);
 	float getLookAtYRotation(const Vector3f& objectPos, const Vector3f& targetPos);
-	CollisionEntity* createNewBulletToPool();
+
 	void spawnBillboard(const Vector3f& position);
 	void resetMuzzle();
+	void spawnEnemy(const Vector3f& pos);
+
 	void updateBillboards(float dt);
 	void updateMuzzle(float dt, float x, float y, float z);
+	void updateSpawn(float dt, const Vector3f& pos);
 
 	bool m_initUi = true;
 	bool m_drawUi = false;
@@ -199,8 +201,11 @@ private:
 	float lastFireTime = 0.0f;
 	size_t m_targetPoolSize;
 	int m_spreadAmount = 20;
-
-	EnemySpawner m_enemySpawner;
+	const float enemySpawnInterval = 1.0f;
+	const int spawnsPerInterval = 1;
+	const float spawnRadius = 10.0f;
+	float m_countdown = 1.0f;
+	size_t m_count = 0;
 
 	SoundEffect m_fire, m_ding;
 	std::vector<CollisionEntity*> m_entities;

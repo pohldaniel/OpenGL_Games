@@ -1,4 +1,4 @@
-#include "../thread/Thread.h"
+#include "Thread.h"
 #include "WorkQueue.h"
 
 WorkQueue* WorkQueue::Instance = nullptr;

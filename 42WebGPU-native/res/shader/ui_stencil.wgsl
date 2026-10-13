@@ -1,8 +1,9 @@
 struct SpriteInstance {
     transform: mat4x4<f32>,
     color: vec4<f32>,
-    textureRect: vec4<f32>, // [u, v, width, height]
-    flipAndTile: vec4<f32>, // [flipped, tileX, tileY]
+	textureRect: vec4<f32>,
+	textureLayer: u32,
+    padding: vec3<u32>,
 }
 
 struct Uniforms {
@@ -42,21 +43,13 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32, @builtin(instance_index) ins
         default: {}
     }
 
-    // Flipping & Tiling einrechnen
-    if (instance.flipAndTile.x > 0.5) {
-        uv.x = 1.0 - uv.x;
-    }
-    uv.x *= instance.flipAndTile.y;
-    uv.y *= instance.flipAndTile.z;
-
-    // Transformiere UVs auf den richtigen Ausschnitt im Spritesheet/Sub-Bild
     let finalUV = instance.textureRect.xy + (uv * instance.textureRect.zw);
 
     var output: VertexOutput;
     output.position = uniforms.projection * instance.transform * vec4<f32>(localPos * 0.5, 0.0, 1.0);
     output.uv = finalUV;
     output.color = instance.color;
-    output.textureLayer = u32(instance.flipAndTile.x);
+    output.textureLayer = instance.textureLayer;
 
     return output;
 }

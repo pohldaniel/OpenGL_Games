@@ -108,23 +108,11 @@
     <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\LoadingManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\States\StateMachine.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
     <ClCompile Include="engine\AssimpModel.cpp">
       <Filter>engine</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\thread\CThread.cpp">
-      <Filter>engine\thread</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\thread\EventClass.cpp">
-      <Filter>engine\thread</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\thread\MutexClass.cpp">
-      <Filter>engine\thread</Filter>
     </ClCompile>
     <ClCompile Include="engine\thread\Thread.cpp">
       <Filter>engine\thread</Filter>
@@ -134,9 +122,6 @@
     </ClCompile>
     <ClCompile Include="engine\Object.cpp">
       <Filter>engine</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\thread\WorkQueue.cpp">
-      <Filter>engine\thread</Filter>
     </ClCompile>
     <ClCompile Include="src\Utils\Fade.cpp">
       <Filter>Source Files\Utils</Filter>
@@ -387,9 +372,6 @@
     <ClCompile Include="src\Entities\Enemy.cpp">
       <Filter>Source Files\Entities</Filter>
     </ClCompile>
-    <ClCompile Include="src\enemy_spawner.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Entities\Player.cpp">
       <Filter>Source Files\Entities</Filter>
     </ClCompile>
@@ -419,6 +401,12 @@
     </ClCompile>
     <ClCompile Include="engine\input\GamePad.cpp">
       <Filter>engine\input</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\thread\LoadingManager.cpp">
+      <Filter>engine\thread</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\ui\Canvas.cpp">
+      <Filter>engine\ui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -479,23 +467,11 @@
     <ClInclude Include="engine\interfaces\IStateMachine.h">
       <Filter>engine\interfaces</Filter>
     </ClInclude>
-    <ClInclude Include="src\LoadingManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="engine\AssimpModel.h">
       <Filter>engine</Filter>
     </ClInclude>
     <ClInclude Include="engine\interfaces\ICounter.h">
       <Filter>engine\interfaces</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\thread\CThread.h">
-      <Filter>engine\thread</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\thread\EventClass.h">
-      <Filter>engine\thread</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\thread\MutexClass.h">
-      <Filter>engine\thread</Filter>
     </ClInclude>
     <ClInclude Include="engine\thread\Thread.h">
       <Filter>engine\thread</Filter>
@@ -506,9 +482,6 @@
     <ClInclude Include="engine\Object.h">
       <Filter>engine</Filter>
     </ClInclude>
-    <ClInclude Include="engine\thread\WorkQueue.h">
-      <Filter>engine\thread</Filter>
-    </ClInclude>
     <ClInclude Include="src\Utils\Fade.h">
       <Filter>Source Files\Utils</Filter>
     </ClInclude>
@@ -517,9 +490,6 @@
     </ClInclude>
     <ClInclude Include="engine\RandomNew.h">
       <Filter>engine</Filter>
-    </ClInclude>
-    <ClInclude Include="src\DataStructs.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="engine\Timer.h">
       <Filter>engine</Filter>
@@ -683,9 +653,6 @@
     <ClInclude Include="src\bullet_store.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ThreadPool.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="engine\sound\AudioDecoder.h">
       <Filter>engine\sound</Filter>
     </ClInclude>
@@ -785,9 +752,6 @@
     <ClInclude Include="src\Entities\Enemy.h">
       <Filter>Source Files\Entities</Filter>
     </ClInclude>
-    <ClInclude Include="src\enemy_spawner.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Entities\Player.h">
       <Filter>Source Files\Entities</Filter>
     </ClInclude>
@@ -820,6 +784,18 @@
     </ClInclude>
     <ClInclude Include="engine\input\GamePad.h">
       <Filter>engine\input</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\thread\ThreadPool.h">
+      <Filter>engine\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\thread\LoadingManager.h">
+      <Filter>engine\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\thread\ILoadingListener.h">
+      <Filter>engine\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\ui\Canvas.h">
+      <Filter>engine\ui</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

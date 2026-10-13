@@ -26,7 +26,7 @@
 
 ThreadPool threadPool(4);
 
-Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC), m_bulletStore(&threadPool), m_enemySpawner(120.0f * 0.0044f, m_player) {
+Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC), m_bulletStore(&threadPool) {
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
@@ -308,7 +308,7 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 	m_scene->setOnChildAdded([this](Node* newNode) {
 		if (auto* enemy = dynamic_cast<Enemy*>(newNode)) {
 			m_enemies.push_back(enemy);
-			m_enemySpawner.count()++;
+			m_count++;
 		}
 	});
 
@@ -317,11 +317,10 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 		if (it != m_enemies.end()) {
 			std::iter_swap(it, m_enemies.end() - 1);
 			m_enemies.pop_back();
-			m_enemySpawner.count()--;
+			m_count--;
 		}
 	});
 
-	m_enemySpawner.scene = m_scene;
 	m_targetPoolSize = 100;
 
 	btCollisionObject* body = Physics::AddKinematicObject(Physics::BtTransform(Vector3f(0.0f, 0.4f, 0.0f)), new btCylinderShape(btVector3(0.35f * 0.5f, 0.4f, 0.35f * 0.5f)), Physics::collisiontypes::CHARACTER, Physics::collisiontypes::ENEMY);
@@ -576,8 +575,8 @@ void Isometric::update() {
 
 
 	m_bulletStore.updateBullets(m_dt, m_enemies);
-	m_enemySpawner.update(posistion, m_dt);
-
+	//m_enemySpawner.update(posistion, m_dt);
+	updateSpawn(m_dt, posistion);
 	for (auto enemy : m_enemies) {
 		enemy->update(m_dt);
 	}
@@ -1520,19 +1519,6 @@ float Isometric::getLookAtYRotation(const Vector3f& objectPos, const Vector3f& t
 	return std::atan2(dx, dz) * _180_ON_PI;
 }
 
-CollisionEntity* Isometric::createNewBulletToPool() {
-	btTransform startTransform;
-	startTransform.setIdentity();
-
-	btCollisionObject* body = Physics::AddKinematicObject(startTransform, new btCapsuleShapeX(0.03f, 0.3f), Physics::collisiontypes::SPHERE, Physics::collisiontypes::ENEMY);
-
-	CollisionEntity* entity = m_scene->addChildSilent<CollisionEntity>(body);
-	entity->setActive(false);
-	m_entities.push_back(entity);
-
-	return entity;
-}
-
 void Isometric::spawnBillboard(const Vector3f& position) {
 	SpriteInstance billboard;
 	billboard.position[0] = position[0];
@@ -1557,6 +1543,23 @@ void Isometric::resetMuzzle() {
 		m_muzzleInstance.currentFrame = 0u;
 		m_muzzleInstance.age = 0.0f;
 	}
+}
+
+void Isometric::spawnEnemy(const Vector3f& pos) {
+	if (m_count > 20u)
+		return;
+
+	const float theta = ((float)(rand() % 360)) * PI_ON_180;
+	const float x = pos[0] + sin(theta) * spawnRadius;
+	const float z = pos[2] + cos(theta) * spawnRadius;
+
+	Vector3f spawnPos(x, 120.0f * 0.0044f, z);
+	Quaternion rot = Quaternion::Rotate(0.0f, getLookAtYRotation(pos, spawnPos), 0.0f);
+
+	btCollisionObject* body = Physics::AddKinematicObject(Physics::BtTransform(spawnPos, rot), new btCapsuleShapeZ(0.08f, 0.4f), Physics::collisiontypes::ENEMY, Physics::collisiontypes::SPHERE | Physics::collisiontypes::CHARACTER);
+	Enemy* enemy = m_scene->addChild<Enemy>(body, pos);
+	enemy->setPosition(spawnPos);
+	enemy->setOrientation(rot);
 }
 
 void Isometric::updateBillboards(float dt) {
@@ -1617,6 +1620,16 @@ void Isometric::updateMuzzle(float dt, float x, float y, float z) {
 		const float spritesheetDur = numCols * timePerSprite;
 		m_muzzleInstance.age += dt;
 		m_muzzleInstance.currentFrame = m_muzzleInstance.age / timePerSprite;	
+	}
+}
+
+void Isometric::updateSpawn(float dt, const Vector3f& pos) {
+	m_countdown -= dt;
+	if (m_countdown <= 0.0f) {
+		for (int i = 0; i < spawnsPerInterval; ++i) {
+			spawnEnemy(pos);
+		}
+		m_countdown += enemySpawnInterval;
 	}
 }
 

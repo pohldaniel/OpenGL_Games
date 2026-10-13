@@ -1,8 +1,9 @@
 struct SpriteInstance {
     transform: mat4x4<f32>,
     color: vec4<f32>,
-    textureRect: vec4<f32>, // [u, v, width, height]
-    flipAndTile: vec4<f32>, // [flipped, tileX, tileY]
+	textureRect: vec4<f32>,
+	textureLayer: u32,
+    padding: vec3<u32>,
 }
 
 struct Uniforms {
@@ -11,9 +12,8 @@ struct Uniforms {
 
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
 @group(0) @binding(1) var<storage, read> instances: array<SpriteInstance>;
-@group(0) @binding(2) var uiSampler: sampler;
+@group(0) @binding(2) var smplr: sampler;
 @group(0) @binding(3) var uiTextures: texture_2d_array<f32>;
-
 
 struct VertexOutput {
     @builtin(position) position: vec4<f32>,
@@ -41,14 +41,13 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32, @builtin(instance_index) ins
         default: {}
     }
 
-    // Transformiere UVs auf den richtigen Ausschnitt im Spritesheet/Sub-Bild
     let finalUV = instance.textureRect.xy + (uv * instance.textureRect.zw);
 
     var output: VertexOutput;
     output.position = uniforms.projection * instance.transform * vec4<f32>(localPos, 0.0, 1.0);
     output.uv = finalUV;
     output.color = instance.color;
-    output.textureLayer = u32(instance.flipAndTile.x);
+    output.textureLayer = instance.textureLayer;
 
     return output;
 }
@@ -56,7 +55,7 @@ fn vs_main(@builtin(vertex_index) vertexIndex: u32, @builtin(instance_index) ins
 @fragment
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
    // 1. Sample die R8-Textur (Wert landet komplett im .r Kanal)
-    let sampledColor = textureSample(uiTextures, uiSampler, in.uv, in.textureLayer);
+    let sampledColor = textureSample(uiTextures, smplr, in.uv, in.textureLayer);
     
     // 2. Extrahiere die Schrift-Intensität aus dem Rot-Kanal
     let alphaMask = sampledColor.r; 
