@@ -179,15 +179,13 @@ struct UiContext {
 	float width;
 	float height;
 
-	WgpTexture texture;
-
 	WGPUBindGroup bindgroup = nullptr, bindgroupText = nullptr;
 	WGPUBindGroupLayout bindgroupLayout = nullptr, bindgroupLayoutText = nullptr;
 	WGPURenderPipeline renderPipeline = nullptr, renderPipelineMask = nullptr, renderPipelineRead = nullptr, renderPipelineClear = nullptr, renderPipelineText = nullptr;
-	//WGPUTextureView textureView = nullptr;
 	WGPUTextureView textureViewFont = nullptr;
 
 	WgpBuffer wgpStorageBuffer, wgpUniformBuffer;
+    WgpTexture wgpTexture;
 
 	std::vector<UiInstance> uiInstances;
 	std::vector<UiLayer> uiLayers;

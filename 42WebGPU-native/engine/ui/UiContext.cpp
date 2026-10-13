@@ -79,8 +79,8 @@ void uiInit(float width, float height) {
 }
 
 void uiInitTextureArray(uint32_t width, uint32_t height, uint32_t layers) {
-	uiContext.texture.createEmpty(width, height, layers, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst, WGPUTextureFormat_RGBA8Unorm, 1u, 1u, true);
-	uiContext.texture.fill();
+	uiContext.wgpTexture.createEmpty(width, height, layers, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst, WGPUTextureFormat_RGBA8Unorm, 1u, 1u, true);
+	uiContext.wgpTexture.fill();
 }
 
 void uiResize(float width, float height) {
@@ -104,6 +104,9 @@ void uiShutDown() {
 
 	uiContext.wgpStorageBuffer.markForDelete();
 	uiContext.wgpStorageBuffer.cleanup();
+
+	uiContext.wgpTexture.markForDelete();
+	uiContext.wgpTexture.cleanup();
 
 	if (uiContext.bindgroup) {
 		wgpuBindGroupRelease(uiContext.bindgroup);
@@ -238,7 +241,7 @@ void uiCreateBindGroup(WGPUBindGroup& bindgroup) {
 	bindGroupEntries[2].sampler = wgpContext.getSampler(SS_LINEAR_CLAMP);
 
 	bindGroupEntries[3].binding = 3u;
-	bindGroupEntries[3].textureView = uiContext.texture.getTextureView();
+	bindGroupEntries[3].textureView = uiContext.wgpTexture.getTextureView();
 
 	WGPUBindGroupDescriptor bindGroupDesc = {};
 	bindGroupDesc.layout = uiContext.bindgroupLayout;

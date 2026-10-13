@@ -45,7 +45,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	uiInitTextureArray();
 	m_characterSet.loadFromFile("res/fonts/upheavtt.ttf", 24.0f);
 	uiContext.textureViewFont = m_characterSet.texture.getTextureView();
-	uiContext.texture.fill({ 1.0f, 1.0f, 1.0f, 1.0f }, 1u);
+	uiContext.wgpTexture.fill({ 1.0f, 1.0f, 1.0f, 1.0f }, 1u);
 
 	uiInit(static_cast<float>(Application::Width), static_cast<float>(Application::Height));
 
@@ -690,7 +690,7 @@ void NoiseGenerationTask::OnProcess() {
 
 void NoiseGenerationTask::OnComplete() {
 	WGPUTexelCopyTextureInfo copyDst = {};
-	copyDst.texture = uiContext.texture.getTexture();
+	copyDst.texture = uiContext.wgpTexture.getTexture();
 	copyDst.mipLevel = 0u;
 	copyDst.origin = { 0u, 0u, 1u };
 	copyDst.aspect = WGPUTextureAspect_All;
