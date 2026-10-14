@@ -69,7 +69,7 @@ public:
 	const float getWorldOrientation(bool update = true) const;
 	void updateWorldTransformation() const;
 	
-	float getWidth();
+	virtual float getWidth();
 	virtual float getHeight();
 
 	virtual void setWidth(float width, bool silent = false);

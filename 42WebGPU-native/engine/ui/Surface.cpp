@@ -88,13 +88,13 @@ bool Surface::OnInput(int mouseX, int mouseY, bool buttonLeft) {
 			float widgetRightEdge = nextLocalPos[0] + m_width * m_scale[0];
 			float widgetBottomEdge = nextLocalPos[1] + m_height * m_scale[1];
 
-			if (widgetRightEdge > parentWidget->getWidth()) {
-				float deltaX = widgetRightEdge - parentWidget->getWidth();
-				parentWidget->setWidth(parentWidget->getWidth() + deltaX, true);
-				//parentWidget->translate(-deltaX, 0.0f);
+			if (widgetRightEdge > parentWidget->getContentWidth()) {
+				
+				parentWidget->setContentWidth(widgetRightEdge);
 			}
+
 			if (widgetBottomEdge > parentWidget->getContentHeight()) {
-				parentWidget->expandAndScrollWithWidget(widgetBottomEdge);
+				parentWidget->setContentHeight(widgetBottomEdge);
 			}
 		}
 	}
@@ -125,19 +125,14 @@ bool Surface::OnInput(int mouseX, int mouseY, bool buttonLeft) {
 			float widgetBottomEdge = localPos[1] + (m_height + m_paddingY) * newScaleY;
 
 			if (widgetRightEdge > parentWidget->getWidth()) {
-				float deltaX = widgetRightEdge - parentWidget->getWidth();
-				parentWidget->setWidth(widgetRightEdge);
-				//parentWidget->translate(deltaX, 0.0f);
+				parentWidget->setContentWidth(widgetRightEdge);
 			}
+
 			if (widgetBottomEdge > parentWidget->getHeight()) {
-				float deltaY = widgetBottomEdge - parentWidget->getHeight();
-				parentWidget->setHeight(widgetBottomEdge);
-				//parentWidget->scrollToBottom();
-				//parentWidget->translate(0.0f, deltaY);
+				parentWidget->setContentHeight(widgetBottomEdge);
 			}
 		}
 	}
-
 	return true;
 }
 

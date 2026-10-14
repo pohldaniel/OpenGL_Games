@@ -19,23 +19,14 @@ public:
 
 	void setWidth(float width, bool silent = false) override;
 	void setHeight(float width, bool silent = false) override;
-	//void updateScrollPositions(float percent);
-	//void scrollToBottom();
-	float m_contentScrollY = 0.0f;
-	float m_contentScrollX = 0.0f;
-	float m_contentHeight = 0.0f;
-	/*void scrollToPositions(float percent);
-	void setContentHeight(float contentHeight);
-	void updateContentHeightDirect(float contentHeight);
-	
-	
-	float getContentScrollY();
-	void scrollByPixels(float pixels);
-	float getSliderPosY();*/
 
+	float getWidth() override;
+	float getContentWidth();
+	void setContentWidth(float contentHeight);
+	
 	float getHeight() override;
 	float getContentHeight();
-	void expandAndScrollWithWidget(float newContentHeight);
+	void setContentHeight(float contentHeight);
 
 private:
 	
@@ -55,4 +46,11 @@ private:
 	DragMode m_dragMode;
 	Vector4f m_borderColor;
 	Vector4f m_sliderColor;
+
+	float m_contentScrollY = 0.0f;
+	float m_contentScrollX = 0.0f;
+
+	float m_contentHeight = 0.0f;
+	float m_contentWidth = 0.0f;
+	bool m_init = false;
 };
