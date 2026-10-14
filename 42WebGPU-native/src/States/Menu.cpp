@@ -415,7 +415,8 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	surface = m_uiScene->addChild<Surface>();
 	surface->setColor(Vector4f(0.2f, 0.2f, 0.2f, 1.0f));
 	surface->setPadding(20.0f, 20.0f);
-	surface->setSpacing(15.0f, 0.0f);
+	surface->setSpacing(25.0f, 25.0f);
+	surface->setSort(0u);
 
 	button = surface->addChild<Button>();
 	button->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
@@ -433,11 +434,18 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	label->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 	label->setPadding(0.0f, paddingBottom);
 
-	button = surface->addChild<Button>();
+	Canvas* canvas = surface->addChild<Canvas>();
+	canvas->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	canvas->setWidth(400.0f);
+	canvas->setHeight(400.0f);
+	canvas->setLayer(1u);
+
+	button = canvas->addChild<Button>();
 	button->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
 	button->setOutlineColor(Vector4f(1.0f, 1.0f, 0.0f, 1.0f));
 	button->setOutlineThickness(5.0f);
 	button->setPadding(5.0f, 5.0f);
+	button->setPosition(10.0f, 10.0f);
 	button->setOnClick([&]() {
 		int randomSeed = rand();
 		auto* noiseTask = new NoiseGenerationTask(512, 512, randomSeed, [this]() {
@@ -451,28 +459,23 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	label->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 	label->setPadding(0.0f, paddingBottom);
 
-	Canvas* canvas = surface->addChild<Canvas>();
-	canvas->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-	canvas->setWidth(400.0f);
-	canvas->setHeight(400.0f);
-	canvas->setLayer(1u);
-
-	if (m_layout == SelectedLayout::M_VERTICAL) {
+	if (m_layout == SelectedLayout::M_GRID) {
 		const std::vector<Surface*>& surfaces = m_uiScene->getChildren<Surface>();
 		for (auto& surface : surfaces) {
-			surface->setLayout(Layout::VERTICAL);
-			m_uiScene->setLayout(Layout::HORIZONTAL);
+			surface->setLayout(Layout::GRID);
 		}
-		m_uiScene->updateLayout();
+		surfaces.back()->setLayout(Layout::HORIZONTAL);
+		m_uiScene->setLayout(Layout::MASONRY);
+		m_uiScene->updateLayout(true);
 	}
 
 	if (m_layout == SelectedLayout::M_VERTICAL) {
 		const std::vector<Surface*>& surfaces = m_uiScene->getChildren<Surface>();
 		for (auto& surface : surfaces) {
-			surface->setLayout(Layout::VERTICAL);
-			m_uiScene->setLayout(Layout::HORIZONTAL);
+			surface->setLayout(Layout::VERTICAL);			
 		}
-		m_uiScene->updateLayout();
+		m_uiScene->setLayout(Layout::HORIZONTAL);
+		m_uiScene->updateLayout(true);
 	}
 
 
@@ -482,7 +485,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 			surface->setLayout(Layout::HORIZONTAL);
 			m_uiScene->setLayout(Layout::VERTICAL);
 		}
-		m_uiScene->updateLayout();
+		m_uiScene->updateLayout(true);
 	}
 
 	wgpContext.setClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
@@ -575,28 +578,29 @@ void Menu::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 		if (m_layout == SelectedLayout::M_VERTICAL) {
 			std::vector<Surface*>& surfaces = m_uiScene->getChildren<Surface>();
 			for (auto& surface : surfaces) {
-				surface->setLayout(Layout::VERTICAL);
-				m_uiScene->setLayout(Layout::HORIZONTAL);
+				surface->setLayout(Layout::VERTICAL);			
 			}
-			m_uiScene->updateLayout();
+			m_uiScene->setLayout(Layout::HORIZONTAL);
+			m_uiScene->updateLayout(true);
 		}
 
 		if (m_layout == SelectedLayout::M_HORIZONTAL) {
 			std::vector<Surface*>& surfaces = m_uiScene->getChildren<Surface>();
 			for (auto& surface : surfaces) {
-				surface->setLayout(Layout::HORIZONTAL);
-				m_uiScene->setLayout(Layout::VERTICAL);
+				surface->setLayout(Layout::HORIZONTAL);			
 			}
-			m_uiScene->updateLayout();
+			m_uiScene->setLayout(Layout::VERTICAL);
+			m_uiScene->updateLayout(true);
 		}
 
 		if (m_layout == SelectedLayout::M_GRID) {
-			std::vector<Surface*>& surfaces = m_uiScene->getChildren<Surface>();
+			const std::vector<Surface*>& surfaces = m_uiScene->getChildren<Surface>();
 			for (auto& surface : surfaces) {
 				surface->setLayout(Layout::GRID);
-				m_uiScene->setLayout(Layout::MASONRY);
 			}
-			m_uiScene->updateLayout();
+			surfaces.back()->setLayout(Layout::HORIZONTAL);
+			m_uiScene->setLayout(Layout::MASONRY);
+			m_uiScene->updateLayout(true);
 		}
 	}
 	ImGui::End();

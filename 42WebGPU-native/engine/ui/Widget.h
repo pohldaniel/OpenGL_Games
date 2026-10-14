@@ -31,7 +31,7 @@ public:
 	void input(int mouseX, int mouseY, bool buttonLeft = false);
 	void wheelInput(int mouseX, int mouseY, float delta);
 
-	void updateLayout();
+	void updateLayout(bool sort = false);
 	void draw();
 
 	virtual void setScale(float sx, float sy) override;
@@ -76,6 +76,7 @@ public:
 	
 	void setSpacing(float spacingX, float spacingY, bool silent = false);
 	void setLayout(Layout layout, bool silent = false);
+	void setSort(size_t sort);
 	virtual void setPadding(float paddingX, float paddingY, bool silent = false);
 	
 	void setBorder(float border);
@@ -115,9 +116,7 @@ protected:
 
 private:
 
-	
 	void resetTree();
-	
 
 	mutable Matrix4f m_modelMatrix;
 	mutable bool m_isDirty;
@@ -129,6 +128,5 @@ private:
 	static Vector2f WorldPosition;
 	static Vector2f WorldScale;
 	static float WorldOrientation;
-	
 };
 

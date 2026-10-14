@@ -248,6 +248,9 @@ void Empty::OnLayoutChanged() {
 	Widget::OnLayoutChanged();
 	m_width = std::max(uiContext.width, m_width);
 	m_height = std::max(uiContext.height, m_height);
+	m_sliderPosX = 0.0f;
+	m_sliderPosY = 0.0f;
+	setPosition(0.0f, 0.0f);
 }
 
 void Empty::OnMouseWheel(int mouseX, int mouseY, float delta) {

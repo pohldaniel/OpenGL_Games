@@ -408,6 +408,9 @@
     <ClCompile Include="src\BulletStore.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\States\Controller.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\input\ApplicationEventListener.h">
@@ -796,6 +799,9 @@
     </ClInclude>
     <ClInclude Include="src\BulletStore.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\Controller.h">
+      <Filter>Source Files\States</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -119,8 +119,8 @@ bool Surface::OnInput(int mouseX, int mouseY, bool buttonLeft) {
 			Widget* parentWidget = static_cast<Widget*>(m_parent);
 			Vector2f localPos = getPosition();
 
-			float widgetRightEdge = localPos[0] + m_width * newScaleX;
-			float widgetBottomEdge = localPos[1] + m_height * newScaleY;
+			float widgetRightEdge = localPos[0] + (m_width + m_paddingX) * newScaleX;
+			float widgetBottomEdge = localPos[1] + (m_height + m_paddingY) * newScaleY;
 
 			if (widgetRightEdge > parentWidget->getWidth()) {
 				parentWidget->setWidth(widgetRightEdge, true);

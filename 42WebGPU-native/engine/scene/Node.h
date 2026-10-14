@@ -23,11 +23,12 @@ public:
 	
 	void setName(const std::string& name);
 	void setId(const int id);
-	
+	void setSort(size_t sort);
 	std::list<std::unique_ptr<Node, std::function<void(Node* node)>>>& getChildren() const;
 	template <typename T> std::vector<T*> getChildren() const;
 
 	const int getId() const;
+	const size_t getSort() const;
 	const Node* getParent() const;
 
 	Node* removeChild(Node* child);
@@ -70,9 +71,10 @@ protected:
 	Node* m_parent;
 	bool m_markForRemove;
 	int m_id;
+	size_t m_sort;
 	std::string m_name;
 	mutable std::list<std::unique_ptr<Node, std::function<void(Node* node)>>> m_children;
-
+	
 	NodeCallback OnChildAdded;
 	NodeCallback OnChildRemoved;
 };

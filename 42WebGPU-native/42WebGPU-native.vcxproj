@@ -251,6 +251,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClCompile Include="src\States\AudioDecode.cpp" />
     <ClCompile Include="src\States\Compute.cpp" />
     <ClCompile Include="src\States\ComputeParticleLogo.cpp" />
+    <ClCompile Include="src\States\Controller.cpp" />
     <ClCompile Include="src\States\Cubes.cpp" />
     <ClCompile Include="src\States\DeferredRendering.cpp" />
     <ClCompile Include="src\States\ImageBasedLighting.cpp" />
@@ -395,6 +396,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClInclude Include="src\States\AudioDecode.h" />
     <ClInclude Include="src\States\Compute.h" />
     <ClInclude Include="src\States\ComputeParticleLogo.h" />
+    <ClInclude Include="src\States\Controller.h" />
     <ClInclude Include="src\States\Cubes.h" />
     <ClInclude Include="src\States\DeferredRendering.h" />
     <ClInclude Include="src\States\ImageBasedLighting.h" />
