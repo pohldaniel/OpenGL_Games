@@ -43,7 +43,7 @@ bool Surface::OnInput(int mouseX, int mouseY, bool buttonLeft) {
 	Vector2f position = getWorldPosition(true);
 
 	bool isOverDragZone = (mouseX >= position[0] && mouseX <= position[0] + currentVisualWidth &&
-		mouseY >= position[1] && mouseY <= position[1] + m_controlSize);
+		mouseY >= position[1] - m_controlSize * 1.0f && mouseY <= position[1] + m_controlSize * 1.0f);
 
 	bool isOverResizeZone = (mouseX >= position[0] + currentVisualWidth - m_controlSize && mouseX <= position[0] + currentVisualWidth)
 		&& (mouseY >= position[1] + currentVisualHeight - m_controlSize && mouseY <= position[1] + currentVisualHeight);
@@ -61,8 +61,7 @@ bool Surface::OnInput(int mouseX, int mouseY, bool buttonLeft) {
 				m_mouseY = mouseY;
 			}
 		}
-	}
-	else {
+	}else {
 		m_isDragged = false;
 		m_isResizing = false;
 	}
@@ -89,10 +88,14 @@ bool Surface::OnInput(int mouseX, int mouseY, bool buttonLeft) {
 			float widgetBottomEdge = nextLocalPos[1] + m_height * m_scale[1];
 
 			if (widgetRightEdge > parentWidget->getWidth()) {
-				parentWidget->setWidth(widgetRightEdge, true);
+				float deltaX = widgetRightEdge - parentWidget->getWidth();
+				parentWidget->setWidth(parentWidget->getWidth() + deltaX, true);
+				parentWidget->translate(-deltaX, 0.0f);
 			}
 			if (widgetBottomEdge > parentWidget->getHeight()) {
-				parentWidget->setHeight(widgetBottomEdge, true);
+				float deltaY = widgetBottomEdge - parentWidget->getHeight();
+				parentWidget->setHeight(parentWidget->getHeight() + deltaY, true);
+				parentWidget->translate(0.0f, -deltaY);
 			}
 		}
 	}
@@ -123,10 +126,14 @@ bool Surface::OnInput(int mouseX, int mouseY, bool buttonLeft) {
 			float widgetBottomEdge = localPos[1] + (m_height + m_paddingY) * newScaleY;
 
 			if (widgetRightEdge > parentWidget->getWidth()) {
+				float deltaX = widgetRightEdge - parentWidget->getWidth();
 				parentWidget->setWidth(widgetRightEdge, true);
+				//parentWidget->translate(deltaX, 0.0f);
 			}
 			if (widgetBottomEdge > parentWidget->getHeight()) {
+				float deltaY = widgetBottomEdge - parentWidget->getHeight();
 				parentWidget->setHeight(widgetBottomEdge, true);
+				//parentWidget->translate(0.0f, deltaY);
 			}
 		}
 	}
@@ -172,4 +179,14 @@ void Surface::OnDraw() {
 	gripInst.textureLayer = 0u;
 
 	pushWidget(UiPipelineType::Standard, gripInst);
+}
+
+bool Surface::OnMouseOver(int mouseX, int mouseY) {
+	Vector2f scale = getWorldScale(true);
+	float visualWidth = m_width * scale[0];
+	float visualHeight = m_height * scale[1];
+	Vector2f position = getWorldPosition(true);
+
+	return (mouseX > position[0] && mouseX < position[0] + visualWidth &&
+		mouseY > position[1] - 1.0f * m_controlSize && mouseY < position[1] + visualHeight + 1.0f * m_controlSize);
 }

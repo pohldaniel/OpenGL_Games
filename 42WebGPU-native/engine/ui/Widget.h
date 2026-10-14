@@ -32,6 +32,7 @@ public:
 	void wheelInput(int mouseX, int mouseY, float delta);
 
 	void updateLayout(bool sort = false);
+	void updateOrder();
 	void draw();
 
 	virtual void setScale(float sx, float sy) override;
@@ -85,20 +86,19 @@ protected:
 
 	void OnTransformChanged();
 	void OnInvalidate();
+	void OnOrderDirty();
 
 	virtual bool OnInput(int mouseX, int mouseY, bool buttonLeft = false);
 	virtual void OnMouseWheel(int mouseX, int mouseY, float delta);
 	virtual void OnLayoutChanged();
 	virtual void OnDraw() = 0;
 	virtual bool OnMouseOver(int mouseX, int mouseY);
+	virtual bool OnOverControl(int mouseX, int mouseY);
 	virtual void OnReset();
 
-	virtual bool inputTree(int mouseX, int mouseY, bool buttonLeft);
-	
-
+	bool inputTree(int mouseX, int mouseY, bool buttonLeft);
 	void drawTree();			
 	void pushWidget(UiPipelineType type, const UiInstance& instance);
-	void pushToFront();
 
 	mutable bool m_isLayoutDirty;
 
@@ -120,7 +120,8 @@ private:
 
 	mutable Matrix4f m_modelMatrix;
 	mutable bool m_isDirty;
-	
+	mutable bool m_isOrderDirty;
+
 	float m_spacingX;
 	float m_spacingY;
 	Layout m_layout;

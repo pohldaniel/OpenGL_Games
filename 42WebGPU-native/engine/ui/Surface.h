@@ -17,6 +17,7 @@ private:
 	
 	bool OnInput(int mouseX, int mouseY, bool buttonLeft) override;
 	void OnDraw() override;
+	bool OnMouseOver(int mouseX, int mouseY) override;
 
 	Vector4f m_color;
 	Vector4f m_dragColor;
@@ -26,4 +27,6 @@ private:
 	bool m_isResizing;
 	int m_mouseX, m_mouseY;
 	float m_controlSize;
+	float m_dragOffsetX = 0.0f;
+	float m_dragOffsetY = 0.0f;
 };

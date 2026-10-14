@@ -22,13 +22,12 @@ public:
 
 private:
 	
-	bool inputTree(const int mouseX, const int mouseY, bool buttonLeft) override;
-
 	bool OnInput(int mouseX, int mouseY, bool buttonLeft) override;
 	void OnDraw() override;
 	bool OnMouseOver(int mouseX, int mouseY) override;
 	void OnLayoutChanged() override;
 	void OnMouseWheel(int mouseX, int mouseY, float delta) override;
+	bool OnOverControl(int mouseX, int mouseY) override;
 
 	bool isOverSliderBottom(int mouseX, int mouseY);
 	bool isOverSliderRight(int mouseX, int mouseY);
