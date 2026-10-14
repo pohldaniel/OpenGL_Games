@@ -19,6 +19,23 @@ public:
 
 	void setWidth(float width, bool silent = false) override;
 	void setHeight(float width, bool silent = false) override;
+	//void updateScrollPositions(float percent);
+	//void scrollToBottom();
+	float m_contentScrollY = 0.0f;
+	float m_contentScrollX = 0.0f;
+	float m_contentHeight = 0.0f;
+	/*void scrollToPositions(float percent);
+	void setContentHeight(float contentHeight);
+	void updateContentHeightDirect(float contentHeight);
+	
+	
+	float getContentScrollY();
+	void scrollByPixels(float pixels);
+	float getSliderPosY();*/
+
+	float getHeight() override;
+	float getContentHeight();
+	void expandAndScrollWithWidget(float newContentHeight);
 
 private:
 	

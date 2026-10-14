@@ -95,7 +95,7 @@ void Widget::drawTree() {
 		float maxAllowedX = parentEndX - border;
 		float maxAllowedY = parentEndY - border;
 		float endX = std::min(pos[0] + (m_width - m_border) * scale[0], maxAllowedX);
-		float endY = std::min(pos[1] + (m_height - m_border) * scale[1], maxAllowedY);
+		float endY = std::min(pos[1] + (getHeight() - m_border) * scale[1], maxAllowedY);
 
 		uint32_t clampedEndX = static_cast<uint32_t>(std::min(std::max(0.0f, endX), uiContext.width));
 		uint32_t clampedEndY = static_cast<uint32_t>(std::min(std::max(0.0f, endY), uiContext.height));
@@ -143,9 +143,9 @@ void Widget::input(int mouseX, int mouseY, bool buttonLeft) {
 	}
 	inputTree(mouseX, mouseY, buttonLeft);
 	updateOrder();
-	if (m_isLayoutDirty) {
+	//if (m_isLayoutDirty) {
 		updateLayout();
-	}
+	//}
 }
 
 bool Widget::inputTree(int mouseX, int mouseY, bool buttonLeft) {

@@ -1,3 +1,4 @@
+#include <iostream>
 #include "UiContext.h"
 #include "Empty.h"
 
@@ -87,19 +88,24 @@ bool Empty::OnInput(int mouseX, int mouseY, bool buttonLeft) {
 			}
 
 			if (m_dragMode == DragMode::VERTICAL && deltaY != 0) {
-				float maxSliderDeltaY = std::max(m_border * m_scale[1], uiContext.height - (uiContext.height / m_height) * uiContext.height * m_scale[1]);
-				float maxContentDeltaY = m_height - uiContext.height;
+				float sliderHeight = (uiContext.height * uiContext.height) / m_contentHeight;
+				float maxSliderDeltaY = uiContext.height - sliderHeight;
+				float maxContentDeltaY = m_contentHeight - uiContext.height;
 
 				if (maxSliderDeltaY > 0.0f && maxContentDeltaY > 0.0f) {
-					float scrollFactor = maxContentDeltaY / maxSliderDeltaY;
-					float prevSliderPos = m_sliderPosY;
+					float newSliderPosY = m_sliderPosY + (static_cast<float>(deltaY) / parentScale[1]);
+					newSliderPosY = std::clamp(newSliderPosY, 0.0f, maxSliderDeltaY);
+					float scrollPercent = newSliderPosY / maxSliderDeltaY;
+					float targetContentScrollY = scrollPercent * maxContentDeltaY;
 
-					m_sliderPosY += static_cast<float>(deltaY) / parentScale[1];
-					if (m_sliderPosY < 0.0f) m_sliderPosY = 0.0f;
-					if (m_sliderPosY > maxSliderDeltaY) m_sliderPosY = maxSliderDeltaY;
+					float translateDeltaY = targetContentScrollY - m_contentScrollY;
 
-					float sliderDelta = m_sliderPosY - prevSliderPos;
-					setPosition(getPosition() - Vector2f(0.0f, sliderDelta * scrollFactor));
+					if (translateDeltaY != 0.0f) {
+						this->translate(0.0f, -translateDeltaY);
+						m_contentScrollY = targetContentScrollY;
+					}
+
+					m_sliderPosY = newSliderPosY;
 				}
 			}
 			
@@ -131,7 +137,7 @@ void Empty::setWidth(float width, bool silent) {
 		OnInvalidate();
 }
 
-void Empty::setHeight(float height, bool silent) {
+/*void Empty::setHeight(float height, bool silent) {
 	float prevSliderDeltaY = std::max(m_border * m_scale[1], uiContext.height - (uiContext.height / m_height) * uiContext.height * m_scale[1]);
 	float prevMaxContentDeltaY = m_height - uiContext.height;
 
@@ -141,15 +147,185 @@ void Empty::setHeight(float height, bool silent) {
 	if (prevMaxContentDeltaY > 0.0f && newMaxSliderDeltaY > 0.0f && prevSliderDeltaY > 0.0f && newMaxContentDeltaY > 0.0f) {
 		float oldScrollFactor = prevMaxContentDeltaY / prevSliderDeltaY;
 		float newScrollFactor = newMaxContentDeltaY / newMaxSliderDeltaY;
+
+		float sliderHeight = uiContext.height * uiContext.height / m_height;
+		float offset = uiContext.height - sliderHeight;
 		//m_sliderPosY = (m_sliderPosY * oldScrollFactor) / newScrollFactor;
-		m_sliderPosY = m_height - uiContext.height * uiContext.height / m_height;
+		m_sliderPosY = uiContext.height - (uiContext.height * uiContext.height / m_height);
 		if (m_sliderPosY < 0.0f) m_sliderPosX = 0.0f;
-		if (m_sliderPosY > newMaxSliderDeltaY) m_sliderPosY = newMaxSliderDeltaY;
+		//if (m_sliderPosY > newMaxSliderDeltaY) m_sliderPosY = newMaxSliderDeltaY;
 	}
 
 	m_height = height;
 	if (!silent)
 		OnInvalidate();
+}*/
+
+void Empty::setHeight(float height, bool silent) {
+	float prevMaxSliderDeltaY = uiContext.height - ((uiContext.height * uiContext.height) / m_height);
+
+	// Aktuellen Prozentwert sichern
+	float scrollPercent = 0.0f;
+	if (prevMaxSliderDeltaY > 0.0f) {
+		scrollPercent = std::clamp(m_sliderPosY / prevMaxSliderDeltaY, 0.0f, 1.0f);
+	}
+
+	// Neue virtuelle Inhaltshöhe setzen
+	m_height = height;
+
+	// Slider und Inhalt basierend auf dem alten Prozentwert neu ausrichten
+	//updateScrollPositions(scrollPercent);
+
+	if (!silent) OnInvalidate();
+}
+
+/*void Empty::updateScrollPositions(float percent) {
+	percent = std::clamp(percent, 0.0f, 1.0f);
+
+	float sliderHeight = (uiContext.height * uiContext.height) / m_height;
+	float maxSliderDeltaY = uiContext.height - sliderHeight;
+	float maxContentDeltaY = m_height - uiContext.height;
+
+	// Slider-Grip positionieren
+	if (maxSliderDeltaY > 0.0f) {
+		m_sliderPosY = percent * maxSliderDeltaY;
+	}
+	else {
+		m_sliderPosY = 0.0f;
+	}
+
+	// Tatsächlichen Scroll-Offset für das Zeichnen der Kinder berechnen
+	if (maxContentDeltaY > 0.0f) {
+		m_contentScrollY = percent * maxContentDeltaY;
+	}
+	else {
+		m_contentScrollY = 0.0f;
+	}
+}
+
+
+
+float Empty::getContentScrollY() {
+	return m_contentScrollY;
+}
+
+void Empty::scrollByPixels(float pixels) {
+	float maxContentDeltaY = m_contentHeight - uiContext.height;
+	if (maxContentDeltaY > 0.0f) {
+		// Berechne den neuen Ziel-Pixel-Offset
+		float newScrollY = std::clamp(m_contentScrollY + pixels, 0.0f, maxContentDeltaY);
+
+		// Rechne das in den entsprechenden Prozentwert um
+		float targetPercent = newScrollY / maxContentDeltaY;
+
+		// Nutze deine bestehende Funktion für das flüssige Translate
+		this->scrollToPositions(targetPercent);
+	}
+}
+
+float Empty::getSliderPosY() {
+	return m_sliderPosY;
+}
+
+// 3. Funktion, um explizit ganz nach unten zu springen
+void Empty::scrollToBottom() {
+	updateScrollPositions(1.0f); // 1.0f entspricht 100% (ganz unten)
+	//translate(0.0f, -m_contentScrollY);
+	//m_isLayoutDirty = true;
+
+	//std::cout << "DIRTY: " << m_isLayoutDirty << std::endl;
+}
+void Empty::updateContentHeightDirect(float contentHeight) {
+	m_contentHeight = contentHeight;
+}
+void Empty::setContentHeight(float contentHeight) {
+	// 1. Berechne den maximalen Inhalts-Verschiebebereich VOR der Änderung
+	float prevMaxContentDeltaY = m_contentHeight - m_height;
+
+	float scrollPercent = 0.0f;
+	// Nutzen Sie den Inhalts-Offset (m_contentScrollY) statt der Slider-Position, 
+	// da dieser robuster gegen Größenänderungen ist.
+	if (prevMaxContentDeltaY > 0.0f) {
+		scrollPercent = std::clamp(m_contentScrollY / prevMaxContentDeltaY, 0.0f, 1.0f);
+	}
+	else {
+		// Falls der Inhalt vorher komplett reinpasste, nehmen wir den aktuellen Slider-Prozentwert
+		float prevSliderHeight = (m_height * m_height) / m_contentHeight;
+		float prevMaxSliderDeltaY = m_height - prevSliderHeight;
+		if (prevMaxSliderDeltaY > 0.0f) {
+			scrollPercent = std::clamp(m_sliderPosY / prevMaxSliderDeltaY, 0.0f, 1.0f);
+		}
+	}
+
+	// 2. Jetzt die neue virtuelle Inhaltshöhe zuweisen
+	m_contentHeight = contentHeight;
+
+	// 3. Positionen basierend auf dem exakt gesicherten Prozentwert wiederherstellen
+	scrollToPositions(scrollPercent);
+}
+
+
+
+void Empty::scrollToPositions(float percent) {
+	percent = std::clamp(percent, 0.0f, 1.0f);
+
+	float sliderHeight = (m_height * m_height) / m_contentHeight;
+	float maxSliderDeltaY = m_height - sliderHeight;
+	float maxContentDeltaY = m_contentHeight - m_height;
+
+	// 1. Berechne die neue Slider-Grip-Position
+	m_sliderPosY = (maxSliderDeltaY > 0.0f) ? (percent * maxSliderDeltaY) : 0.0f;
+
+	// 2. Berechne den neuen Ziel-Scroll-Offset
+	float targetScrollY = (maxContentDeltaY > 0.0f) ? (percent * maxContentDeltaY) : 0.0f;
+
+	// 3. Berechne das Delta (Verschiebung) zu unserem aktuellen Scroll-Zustand
+	float deltaY = targetScrollY - m_contentScrollY;
+
+	// 4. Jetzt nutzen wir dein Translate! 
+	// Da wir nach unten scrollen, verschieben wir das Widget negativ nach oben.
+	this->translate(0.0f, -deltaY);
+
+	// 5. Speicher den aktuellen Zustand für den nächsten Frame
+	m_contentScrollY = targetScrollY;
+}*/
+float Empty::getContentHeight() {
+	return m_contentHeight;
+}
+
+float Empty::getHeight() {
+	return m_contentHeight;
+}
+
+void Empty::expandAndScrollWithWidget(float newContentHeight) {
+	float mouseDeltaY = newContentHeight - m_contentHeight;
+
+	// 2. Aktualisiere die interne Inhaltshöhe
+	m_contentHeight = newContentHeight;
+
+	// 3. Berechne den neuen Ziel-Scroll-Offset (alter Offset + Mausbewegung)
+	float maxContentDeltaY = m_contentHeight - uiContext.height;
+	float targetScrollY = m_contentScrollY + mouseDeltaY;
+
+	if (maxContentDeltaY > 0.0f) {
+		targetScrollY = std::clamp(targetScrollY, 0.0f, maxContentDeltaY);
+
+		// 4. Prozentwert für den Slider ermitteln
+		float scrollPercent = targetScrollY / maxContentDeltaY;
+		float sliderHeight = (uiContext.height * uiContext.height) / m_contentHeight;
+		m_sliderPosY = scrollPercent * (uiContext.height - sliderHeight);
+	}
+	else {
+		targetScrollY = 0.0f;
+		m_sliderPosY = 0.0f;
+	}
+
+	// 5. Das Translate ausführen
+	float translateDeltaY = targetScrollY - m_contentScrollY;
+	if (translateDeltaY != 0.0f) {
+		this->translate(0.0f, -translateDeltaY);
+		m_contentScrollY = targetScrollY; // Zustand für den nächsten Frame sichern
+	}
 }
 
 void Empty::OnDraw() {
@@ -191,7 +367,7 @@ void Empty::OnDraw() {
 	pushWidget(UiPipelineType::Standard, rightBorderInst);
 	
 	UiInstance  rightSliderInst = {};
-	std::memcpy(rightSliderInst.transform, (Matrix4f::Translate(uiContext.width - m_border / m_scale[0], m_sliderPosY, 0.0f) * Matrix4f::Scale(m_border / m_scale[0], uiContext.height * uiContext.height / m_height, 1.0f)).getData(), sizeof(Matrix4f));
+	std::memcpy(rightSliderInst.transform, (Matrix4f::Translate(uiContext.width - m_border / m_scale[0], m_sliderPosY, 0.0f) * Matrix4f::Scale(m_border / m_scale[0], uiContext.height * m_height / m_contentHeight , 1.0f)).getData(), sizeof(Matrix4f));
 	std::memcpy(rightSliderInst.color, m_sliderColor.getData(), sizeof(Vector4f));
 
 	rightSliderInst.textureRect[0] = 0.0f;
@@ -224,17 +400,33 @@ bool Empty::isOverSliderRight(int mouseX, int mouseY) {
 	return (mouseX >= uiContext.width - m_border && mouseX <= uiContext.width) &&
 		   (mouseY >= m_sliderPosY && mouseY <= m_sliderPosY + sliderHeight);
 }
-
+bool init = true;
 void Empty::OnLayoutChanged() {
 	if (!m_isLayoutDirty)
 		return;
 
-	Widget::OnLayoutChanged();
-	m_width = std::max(uiContext.width, m_width);
-	m_height = std::max(uiContext.height, m_height);
-	m_sliderPosX = 0.0f;
-	m_sliderPosY = 0.0f;
-	setPosition(0.0f, 0.0f);
+	if (init) {
+		Widget::OnLayoutChanged();
+		init = false;
+		m_contentHeight = m_height;
+		m_height = uiContext.height;
+
+		
+	}
+	//m_width = std::max(uiContext.width, m_width);
+	//m_height = std::max(uiContext.height, m_height);
+	//m_sliderPosX = 0.0f;
+	//m_sliderPosY = 0.0f;
+	//setPosition(0.0f, 0.0f);
+	/*std::cout << "CONTENT SCROLL: " << m_contentScrollY << std::endl;
+	for (const auto& childNode : getChildren()) {
+		Widget* child = static_cast<Widget*>(childNode.get());
+		Vector2f pos = child->getPosition();
+		child->setPosition(Vector2f(pos[0], pos[1] - m_contentScrollY));
+
+	}*/
+	/*translate(0.0f, -m_contentScrollY);*/
+	m_isLayoutDirty = false;
 }
 
 void Empty::OnMouseWheel(int mouseX, int mouseY, float delta) {

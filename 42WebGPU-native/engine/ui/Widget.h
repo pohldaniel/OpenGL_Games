@@ -70,7 +70,7 @@ public:
 	void updateWorldTransformation() const;
 	
 	float getWidth();
-	float getHeight();
+	virtual float getHeight();
 
 	virtual void setWidth(float width, bool silent = false);
 	virtual void setHeight(float height, bool silent = false);
