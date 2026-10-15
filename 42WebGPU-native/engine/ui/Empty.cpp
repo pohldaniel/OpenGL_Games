@@ -87,10 +87,9 @@ bool Empty::OnInput(int mouseX, int mouseY, bool buttonLeft) {
 					float translateDeltaX = targetContentScrollX - m_contentScrollX;
 
 					if (translateDeltaX != 0.0f) {
-						this->translate(-translateDeltaX, 0.0f);
+						translate(-translateDeltaX, 0.0f);
 						m_contentScrollX = targetContentScrollX;
 					}
-
 					m_sliderPosX = newSliderPosX;
 				}
 			}
@@ -108,10 +107,9 @@ bool Empty::OnInput(int mouseX, int mouseY, bool buttonLeft) {
 					float translateDeltaY = targetContentScrollY - m_contentScrollY;
 
 					if (translateDeltaY != 0.0f) {
-						this->translate(0.0f, -translateDeltaY);
+						translate(0.0f, -translateDeltaY);
 						m_contentScrollY = targetContentScrollY;
 					}
-
 					m_sliderPosY = newSliderPosY;
 				}
 			}
@@ -133,7 +131,7 @@ void Empty::setWidth(float width, bool silent) {
 	if (maxContentDeltaX > 0.0f) {
 		targetScrollX = std::clamp(targetScrollX, 0.0f, maxContentDeltaX);
 		float scrollPercent = targetScrollX / maxContentDeltaX;
-		float sliderWidth = (uiContext.width * uiContext.width) / m_width;
+		float sliderWidth = uiContext.width * (uiContext.width / m_width);
 		m_sliderPosX = scrollPercent * (uiContext.width - sliderWidth);
 	}else {
 		targetScrollX = 0.0f;
@@ -143,7 +141,7 @@ void Empty::setWidth(float width, bool silent) {
 	float translateDeltaX = targetScrollX - m_contentScrollX;
 
 	if (translateDeltaX != 0.0f) {
-		this->translate(-translateDeltaX, 0.0f);
+		translate(-translateDeltaX, 0.0f);
 		m_contentScrollX = targetScrollX;
 	}
 
@@ -161,7 +159,7 @@ void Empty::setHeight(float height, bool silent) {
 	if (maxContentDeltaY > 0.0f) {
 		targetScrollY = std::clamp(targetScrollY, 0.0f, maxContentDeltaY);
 		float scrollPercent = targetScrollY / maxContentDeltaY;
-		float sliderHeight = (uiContext.height * uiContext.height) / m_height;
+		float sliderHeight = uiContext.height * (uiContext.height / m_height);
 		m_sliderPosY = scrollPercent * (uiContext.height - sliderHeight);
 	}else {
 		targetScrollY = 0.0f;
@@ -169,8 +167,9 @@ void Empty::setHeight(float height, bool silent) {
 	}
 
 	float translateDeltaY = targetScrollY - m_contentScrollY;
+
 	if (translateDeltaY != 0.0f) {
-		this->translate(0.0f, -translateDeltaY);
+		translate(0.0f, -translateDeltaY);
 		m_contentScrollY = targetScrollY;
 	}
 
@@ -239,7 +238,7 @@ bool Empty::isOverSliderBottom(int mouseX, int mouseY) {
 	Vector2f position = getWorldPosition(true);
 
 	return (mouseX >= m_sliderPosX && mouseX <= m_sliderPosX + sliderWidth) &&
-           (mouseY >= uiContext.height - m_border && mouseY <= uiContext.height);
+           (mouseY >= uiContext.height - 2.0f * m_border && mouseY <= uiContext.height);
 }
 
 bool Empty::isOverSliderRight(int mouseX, int mouseY) {
@@ -247,7 +246,7 @@ bool Empty::isOverSliderRight(int mouseX, int mouseY) {
 	float width = m_width * m_scale[0];
 	Vector2f position = getWorldPosition(true);
 
-	return (mouseX >= uiContext.width - m_border && mouseX <= uiContext.width) &&
+	return (mouseX >= uiContext.width - 2.0f * m_border && mouseX <= uiContext.width) &&
 		   (mouseY >= m_sliderPosY && mouseY <= m_sliderPosY + sliderHeight);
 }
 
@@ -270,7 +269,8 @@ void Empty::OnLayoutChanged() {
 void Empty::OnMouseWheel(int mouseX, int mouseY, float delta) {
 
 	Vector2f parentScale = m_parent ? static_cast<Widget*>(m_parent)->getWorldScale() : Vector2f(1.0f, 1.0f);
-	float maxSliderDeltaY = std::max(m_border * m_scale[1], uiContext.height - (uiContext.height / m_height) * uiContext.height * m_scale[1]);
+	float sliderHeight = (uiContext.height * uiContext.height) / m_height;
+	float maxSliderDeltaY = uiContext.height - sliderHeight;
 	float maxContentDeltaY = m_height - uiContext.height;
 
 	if (maxSliderDeltaY > 0.0f && maxContentDeltaY > 0.0f) {
@@ -286,10 +286,14 @@ void Empty::OnMouseWheel(int mouseX, int mouseY, float delta) {
 		if (m_sliderPosY < 0.0f) m_sliderPosY = 0.0f;
 		if (m_sliderPosY > maxSliderDeltaY) m_sliderPosY = maxSliderDeltaY;
 		float sliderDelta = m_sliderPosY - prevSliderPos;
-		setPosition(getPosition() - Vector2f(0.0f, sliderDelta * scrollFactor));
+		translate(0.0f, -sliderDelta * scrollFactor);
+
+		float scrollPercent = m_sliderPosY / maxSliderDeltaY;
+		float targetContentScrollY = scrollPercent * maxContentDeltaY;
+		m_contentScrollY = targetContentScrollY;
 	}
 }
 
 bool Empty::OnOverControl(int mouseX, int mouseY) {
-	return isOverSliderBottom(mouseX, mouseY) || isOverSliderRight(mouseX, mouseY);
+	return m_isDragged || isOverSliderBottom(mouseX, mouseY) || isOverSliderRight(mouseX, mouseY);
 }

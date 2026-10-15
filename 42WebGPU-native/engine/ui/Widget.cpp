@@ -143,9 +143,8 @@ void Widget::input(int mouseX, int mouseY, bool buttonLeft) {
 	}
 	inputTree(mouseX, mouseY, buttonLeft);
 	updateOrder();
-	//if (m_isLayoutDirty) {
+	if(m_isLayoutDirty)
 		updateLayout();
-	//}
 }
 
 bool Widget::inputTree(int mouseX, int mouseY, bool buttonLeft) {
@@ -380,7 +379,6 @@ void Widget::pushWidget(UiPipelineType type, const UiInstance& instance) {
 }
 
 void Widget::updateLayout(bool sort) {
-
 	if (sort) {
 		getChildren().sort([](const std::unique_ptr<Node, std::function<void(Node* node)>>& a, const std::unique_ptr<Node, std::function<void(Node* node)>>& b) {
 			return a->getSort() < b->getSort();
@@ -395,7 +393,6 @@ void Widget::updateLayout(bool sort) {
 
 void Widget::updateOrder() {
 	if (m_isOrderDirty) {
-
 		for (auto it = m_children.begin(); it != m_children.end(); ++it) {
 			if (static_cast<Widget*>((*it).get())->m_hasFocus) {
 				m_children.splice(m_children.end(), m_children, it);

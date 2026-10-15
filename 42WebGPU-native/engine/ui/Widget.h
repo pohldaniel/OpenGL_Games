@@ -27,7 +27,6 @@ public:
 	Widget(Widget&& rhs) noexcept;
 	virtual ~Widget();
 
-	
 	void input(int mouseX, int mouseY, bool buttonLeft = false);
 	void wheelInput(int mouseX, int mouseY, float delta);
 

@@ -71,7 +71,7 @@ bool Surface::OnInput(int mouseX, int mouseY, bool buttonLeft) {
 
 	if (m_isDragged && (deltaX != 0 || deltaY != 0)) {
 		Vector2f parentScale = m_parent ? static_cast<Widget*>(m_parent)->getWorldScale() : Vector2f(1.0f, 1.0f);
-		Vector2f nextLocalPos = getPosition() + Vector2f(static_cast<float>(deltaX) / parentScale[0], static_cast<float>(deltaY) / parentScale[1]);
+		Vector2f nextLocalPos = m_position + Vector2f(static_cast<float>(deltaX) / parentScale[0], static_cast<float>(deltaY) / parentScale[1]);
 
 		if (nextLocalPos[0] < 0.0f) nextLocalPos[0] = 0.0f;
 		if (nextLocalPos[1] < 0.0f) nextLocalPos[1] = 0.0f;
@@ -84,8 +84,8 @@ bool Surface::OnInput(int mouseX, int mouseY, bool buttonLeft) {
 		if (m_parent) {
 			Widget* parent = static_cast<Widget*>(m_parent);
 
-			float widgetRightEdge = nextLocalPos[0] + (m_width + parent->getBorder()) * m_scale[0];
-			float widgetBottomEdge = nextLocalPos[1] + (m_height + parent->getBorder()) * m_scale[1];
+			float widgetRightEdge = nextLocalPos[0] + m_width * m_scale[0] + parent->getBorder() + m_paddingX;
+			float widgetBottomEdge = nextLocalPos[1] + m_height * m_scale[1] + parent->getBorder() + m_paddingY;
 
 			if (widgetRightEdge > parent->getWidth()) {
 				parent->setWidth(widgetRightEdge, true);
@@ -116,18 +116,18 @@ bool Surface::OnInput(int mouseX, int mouseY, bool buttonLeft) {
 		m_mouseY = mouseY;
 
 		if (m_parent) {
-			Widget* parentWidget = static_cast<Widget*>(m_parent);
+			Widget* parent = static_cast<Widget*>(m_parent);
 			Vector2f localPos = getPosition();
 
-			float widgetRightEdge = localPos[0] + (m_width + m_paddingX) * newScaleX;
-			float widgetBottomEdge = localPos[1] + (m_height + m_paddingY) * newScaleY;
+			float widgetRightEdge = localPos[0] + m_width * newScaleX + parent->getBorder() + m_paddingX;
+			float widgetBottomEdge = localPos[1] + m_height * newScaleY + parent->getBorder() + m_paddingY;
 
-			if (widgetRightEdge > parentWidget->getWidth()) {
-				parentWidget->setWidth(widgetRightEdge, true);
+			if (widgetRightEdge > parent->getWidth()) {
+				parent->setWidth(widgetRightEdge, true);
 			}
 	
-			if (widgetBottomEdge > parentWidget->getHeight()) {
-				parentWidget->setHeight(widgetBottomEdge, true);
+			if (widgetBottomEdge > parent->getHeight()) {
+				parent->setHeight(widgetBottomEdge, true);
 			}
 		}
 	}
@@ -181,5 +181,5 @@ bool Surface::OnMouseOver(int mouseX, int mouseY) {
 	Vector2f position = getWorldPosition(true);
 
 	return (mouseX > position[0] && mouseX < position[0] + visualWidth &&
-		mouseY > position[1] - 1.0f * m_controlSize && mouseY < position[1] + visualHeight + 1.0f * m_controlSize);
+		mouseY > position[1] - m_controlSize && mouseY < position[1] + visualHeight + m_controlSize);
 }
