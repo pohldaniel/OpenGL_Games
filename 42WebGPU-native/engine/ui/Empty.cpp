@@ -152,7 +152,6 @@ void Empty::setWidth(float width, bool silent) {
 }
 
 void Empty::setHeight(float height, bool silent) {
-
 	float mouseDeltaY = height - m_height;
 	m_height = height;
 

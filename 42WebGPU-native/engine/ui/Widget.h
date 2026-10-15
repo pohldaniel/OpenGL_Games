@@ -71,6 +71,7 @@ public:
 	
 	float getWidth();
 	float getHeight();
+	float getBorder();
 
 	virtual void setWidth(float width, bool silent = false);
 	virtual void setHeight(float height, bool silent = false);

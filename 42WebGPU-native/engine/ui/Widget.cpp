@@ -640,6 +640,10 @@ float Widget::getHeight() {
 	return m_height;
 }
 
+float Widget::getBorder() {
+	return m_border;
+}
+
 void Widget::setWidth(float width, bool silent) {
 	m_width = width;
 	if(!silent)

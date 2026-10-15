@@ -82,17 +82,17 @@ bool Surface::OnInput(int mouseX, int mouseY, bool buttonLeft) {
 		m_mouseY = mouseY;
 
 		if (m_parent) {
-			Widget* parentWidget = static_cast<Widget*>(m_parent);
+			Widget* parent = static_cast<Widget*>(m_parent);
 
-			float widgetRightEdge = nextLocalPos[0] + m_width * m_scale[0];
-			float widgetBottomEdge = nextLocalPos[1] + m_height * m_scale[1];
+			float widgetRightEdge = nextLocalPos[0] + (m_width + parent->getBorder()) * m_scale[0];
+			float widgetBottomEdge = nextLocalPos[1] + (m_height + parent->getBorder()) * m_scale[1];
 
-			if (widgetRightEdge > parentWidget->getWidth()) {		
-				parentWidget->setWidth(widgetRightEdge, true);
+			if (widgetRightEdge > parent->getWidth()) {
+				parent->setWidth(widgetRightEdge, true);
 			}
 
-			if (widgetBottomEdge > parentWidget->getHeight()) {
-				parentWidget->setHeight(widgetBottomEdge, true);
+			if (widgetBottomEdge > parent->getHeight()) {
+				parent->setHeight(widgetBottomEdge, true);
 			}
 		}
 	}
