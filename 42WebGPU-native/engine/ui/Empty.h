@@ -28,6 +28,7 @@ private:
 	void OnLayoutChanged() override;
 	void OnMouseWheel(int mouseX, int mouseY, float delta) override;
 	bool OnOverControl(int mouseX, int mouseY) override;
+	void OnResize(int deltaW, int deltaH) override;
 
 	bool isOverSliderBottom(int mouseX, int mouseY);
 	bool isOverSliderRight(int mouseX, int mouseY);

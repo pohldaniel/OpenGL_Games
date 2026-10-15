@@ -29,6 +29,7 @@ public:
 
 	void input(int mouseX, int mouseY, bool buttonLeft = false);
 	void wheelInput(int mouseX, int mouseY, float delta);
+	void resize(int deltaW, int deltaH);
 
 	void updateLayout(bool sort = false);
 	void updateOrder();
@@ -95,11 +96,12 @@ protected:
 	virtual bool OnMouseOver(int mouseX, int mouseY);
 	virtual bool OnOverControl(int mouseX, int mouseY);
 	virtual void OnReset();
+	virtual void OnResize(int deltaW, int deltaH);
 
 	bool inputTree(int mouseX, int mouseY, bool buttonLeft);
 	void drawTree();			
 	void pushWidget(UiPipelineType type, const UiInstance& instance);
-
+	
 	mutable bool m_isLayoutDirty;
 
 	float m_width;

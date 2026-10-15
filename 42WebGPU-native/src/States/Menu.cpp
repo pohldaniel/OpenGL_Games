@@ -535,6 +535,7 @@ void Menu::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPass
 
 void Menu::resize(int deltaW, int deltaH) {
 	uiResize(static_cast<float>(Application::Width), static_cast<float>(Application::Height));
+	m_uiScene->resize(deltaW, deltaH);
 }
 
 void Menu::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {

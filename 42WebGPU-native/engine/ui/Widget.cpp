@@ -131,6 +131,13 @@ void Widget::resetTree() {
 	OnReset();
 }
 
+void Widget::resize(int deltaW, int deltaH) {
+	for (auto it = m_children.begin(); it != m_children.end(); ++it) {
+		static_cast<Widget*>(it->get())->resize(deltaW, deltaH);
+	}
+	OnResize(deltaW, deltaH);
+}
+
 void Widget::input(int mouseX, int mouseY, bool buttonLeft) {
 	resetTree();
 	if (Widget::ActiveWidget != nullptr) {
@@ -704,5 +711,9 @@ bool Widget::OnInput(int mouseX, int mouseY, bool buttonLeft) {
 }
 
 void Widget::OnMouseWheel(int mouseX, int mouseY, float delta) {
+
+}
+
+void Widget::OnResize(int deltaW, int deltaH) {
 
 }

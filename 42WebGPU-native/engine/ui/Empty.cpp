@@ -297,3 +297,12 @@ void Empty::OnMouseWheel(int mouseX, int mouseY, float delta) {
 bool Empty::OnOverControl(int mouseX, int mouseY) {
 	return m_isDragged || isOverSliderBottom(mouseX, mouseY) || isOverSliderRight(mouseX, mouseY);
 }
+
+void Empty::OnResize(int deltaW, int deltaH) {	
+	/*Vector2f pos = m_position;
+	if (deltaW > 0 && pos[0] < 0.0f)
+		translate(static_cast<float>(deltaW), 0.0f);
+
+	if (deltaH > 0 && pos[1] < 0.0f)
+		translate(0.0f, static_cast<float>(deltaH));*/
+}
