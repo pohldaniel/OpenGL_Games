@@ -20,14 +20,6 @@ public:
 	void setWidth(float width, bool silent = false) override;
 	void setHeight(float width, bool silent = false) override;
 
-	float getWidth() override;
-	float getContentWidth();
-	void setContentWidth(float contentHeight);
-	
-	float getHeight() override;
-	float getContentHeight();
-	void setContentHeight(float contentHeight);
-
 private:
 	
 	bool OnInput(int mouseX, int mouseY, bool buttonLeft) override;
@@ -41,16 +33,10 @@ private:
 	bool isOverSliderRight(int mouseX, int mouseY);
 	
 	float m_sliderPosX, m_sliderPosY;
+	float m_contentScrollX, m_contentScrollY;
 	bool m_isDragged;
 	int m_mouseX, m_mouseY;
 	DragMode m_dragMode;
 	Vector4f m_borderColor;
 	Vector4f m_sliderColor;
-
-	float m_contentScrollY = 0.0f;
-	float m_contentScrollX = 0.0f;
-
-	float m_contentHeight = 0.0f;
-	float m_contentWidth = 0.0f;
-	bool m_init = false;
 };

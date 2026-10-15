@@ -1,5 +1,4 @@
 #include "Surface.h"
-#include "Empty.h"
 
 Surface::Surface() : Widget(), m_color(Vector4f::ONE), m_dragColor(Vector4f(0.2f, 0.45f, 0.85f, 1.0f)), m_gripColor(Vector4f(0.85f, 0.45f, 0.2f, 1.0f)), m_isDragged(false), m_isResizing(false), m_mouseX(0), m_mouseY(0), m_controlSize(10.0f) {
 	m_isMovable = true;
@@ -36,7 +35,7 @@ Surface::~Surface() {
 void Surface::setColor(const Vector4f& color) {
 	m_color = color;
 }
-#include <iostream>
+
 bool Surface::OnInput(int mouseX, int mouseY, bool buttonLeft) {
 	float currentVisualWidth = m_width * m_scale[0];
 	float currentVisualHeight = m_height * m_scale[1];
@@ -83,18 +82,17 @@ bool Surface::OnInput(int mouseX, int mouseY, bool buttonLeft) {
 		m_mouseY = mouseY;
 
 		if (m_parent) {
-			Empty* parentWidget = static_cast<Empty*>(m_parent);
+			Widget* parentWidget = static_cast<Widget*>(m_parent);
 
 			float widgetRightEdge = nextLocalPos[0] + m_width * m_scale[0];
 			float widgetBottomEdge = nextLocalPos[1] + m_height * m_scale[1];
 
-			if (widgetRightEdge > parentWidget->getContentWidth()) {
-				
-				parentWidget->setContentWidth(widgetRightEdge);
+			if (widgetRightEdge > parentWidget->getWidth()) {		
+				parentWidget->setWidth(widgetRightEdge, true);
 			}
 
-			if (widgetBottomEdge > parentWidget->getContentHeight()) {
-				parentWidget->setContentHeight(widgetBottomEdge);
+			if (widgetBottomEdge > parentWidget->getHeight()) {
+				parentWidget->setHeight(widgetBottomEdge, true);
 			}
 		}
 	}
@@ -118,18 +116,18 @@ bool Surface::OnInput(int mouseX, int mouseY, bool buttonLeft) {
 		m_mouseY = mouseY;
 
 		if (m_parent) {
-			Empty* parentWidget = static_cast<Empty*>(m_parent);
+			Widget* parentWidget = static_cast<Widget*>(m_parent);
 			Vector2f localPos = getPosition();
 
 			float widgetRightEdge = localPos[0] + (m_width + m_paddingX) * newScaleX;
 			float widgetBottomEdge = localPos[1] + (m_height + m_paddingY) * newScaleY;
 
 			if (widgetRightEdge > parentWidget->getWidth()) {
-				parentWidget->setContentWidth(widgetRightEdge);
+				parentWidget->setWidth(widgetRightEdge, true);
 			}
-
+	
 			if (widgetBottomEdge > parentWidget->getHeight()) {
-				parentWidget->setContentHeight(widgetBottomEdge);
+				parentWidget->setHeight(widgetBottomEdge, true);
 			}
 		}
 	}
