@@ -33,6 +33,9 @@ private:
 	bool isOverSliderBottom(int mouseX, int mouseY);
 	bool isOverSliderRight(int mouseX, int mouseY);
 	
+	void fitContentX(float width);
+	void fitContentY(float height);
+
 	float m_sliderPosX, m_sliderPosY;
 	float m_contentScrollX, m_contentScrollY;
 	bool m_isDragged;
