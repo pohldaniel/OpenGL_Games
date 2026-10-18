@@ -23,7 +23,8 @@ enum States {
 	AUDIO_DECODE,
 	VIDEO_DECODE,
 	CUBES,
-	ISOMETRIC
+	ISOMETRIC,
+	CONTROLLER
 };
 
 class State;

@@ -29,6 +29,7 @@
 #include <States/VideoDecode.h>
 #include <States/Cubes.h>
 #include <States/Isometric.h>
+#include <States/Controller.h>
 
 #include "Menu.h"
 #include "Application.h"
@@ -431,6 +432,22 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 
 	label = button->addChild<Label>(m_characterSet);
 	label->setText("Isomeric");
+	label->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	label->setPadding(0.0f, paddingBottom);
+
+	button = surface->addChild<Button>();
+	button->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+	button->setOutlineColor(Vector4f(1.0f, 1.0f, 0.0f, 1.0f));
+	button->setOutlineThickness(5.0f);
+	button->setPadding(5.0f, 5.0f);
+	button->setOnClick([&]() {
+		wgpCleanState();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Controller(m_machine));
+	});
+
+	label = button->addChild<Label>(m_characterSet);
+	label->setText("Controller");
 	label->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 	label->setPadding(0.0f, paddingBottom);
 

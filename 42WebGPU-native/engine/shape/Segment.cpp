@@ -35,7 +35,7 @@ void Segment::BuildMeshXY(const std::array<float, 3>& position, float radius, fl
 	float piOn180 = M_PI / 180.0f;
 
 	vertexBuffer.push_back(position[0]); vertexBuffer.push_back(position[1]); vertexBuffer.push_back(position[2]);
-	
+
 	if (generateTexels) {
 		vertexBuffer.push_back(0.5f); vertexBuffer.push_back(0.5f);
 	}
@@ -59,7 +59,6 @@ void Segment::BuildMeshXY(const std::array<float, 3>& position, float radius, fl
 		z = sinf(sectorAngle);
 
 		vertexBuffer.push_back(x * radius + position[0]); vertexBuffer.push_back(z * radius + position[1]); vertexBuffer.push_back(position[2]);
-
 		if (generateTexels) {
 			vertexBuffer.push_back(x * 0.5f + 0.5f); vertexBuffer.push_back(z * 0.5f + 0.5f);
 		}
@@ -75,7 +74,7 @@ void Segment::BuildMeshXY(const std::array<float, 3>& position, float radius, fl
 	}
 
 	for (int i = 0, k = topVertexIndex + 1; i <= vResolution; ++i, ++k) {
-		indexBuffer.push_back(topVertexIndex); indexBuffer.push_back(k + 1); indexBuffer.push_back(k);
+		indexBuffer.push_back(topVertexIndex); indexBuffer.push_back(k); indexBuffer.push_back(k + 1);
 	}
 }
 
@@ -124,6 +123,6 @@ void Segment::BuildMeshXZ(const std::array<float, 3>& position, float radius, fl
 	}
 
 	for (int i = 0, k = topVertexIndex + 1; i <= vResolution; ++i, ++k) {
-		indexBuffer.push_back(topVertexIndex); indexBuffer.push_back(k + 1); indexBuffer.push_back(k);
+		indexBuffer.push_back(topVertexIndex); indexBuffer.push_back(k); indexBuffer.push_back(k + 1);
 	}
 }

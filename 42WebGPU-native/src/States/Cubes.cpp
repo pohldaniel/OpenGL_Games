@@ -17,9 +17,9 @@
 #include <engine/sound/SoundDevice.h>
 #include <engine/sound/AudioEffect.h>
 
-#include "Cubes.h"
 #include "Application.h"
 #include "Globals.h"
+#include "Cubes.h"
 
 Cubes::Cubes(StateMachine& machine) : State(machine, States::CUBES) {
 
@@ -165,7 +165,7 @@ void Cubes::update() {
 		shootCube(mouse.xPos(), mouse.yPos());
 	}
 
-	if (mouse.buttonDownInvisible(Mouse::MouseButton::BUTTON_RIGHT)) {
+	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {
 		dx = mouse.xDelta();
 		dy = mouse.yDelta();
 	}

@@ -432,7 +432,6 @@ void Widget::OnLayoutChanged() {
 			}
 
 			totalWidth -= m_spacingX;
-
 			setWidth(totalWidth + (m_paddingX * 2.0f), true);
 			setHeight(maxHeight + (m_paddingY * 2.0f), true);
 			float posX = m_paddingX;
@@ -443,8 +442,7 @@ void Widget::OnLayoutChanged() {
 				child->setPosition(Vector2f(posX, posY));
 				posX += child->getWidth() * child->getScale()[0] + m_spacingX;
 			}
-		}else if (m_layout == Layout::VERTICAL) {
-			
+		}else if (m_layout == Layout::VERTICAL) {			
 			float totalHeight = 0.0f;
 			float maxWidth = 0.0f;
 
