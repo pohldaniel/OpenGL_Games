@@ -15,6 +15,7 @@
 #include <engine/sound/SoundDevice.h>
 #include <engine/sound/AudioEffect.h>
 #include <engine/utils/BinaryIO.h>
+#include <engine/input/GamePad.h>
 
 #include <Entities/CollisionEntity.h>
 #include <Entities/Enemy.h>
@@ -384,6 +385,9 @@ void Isometric::update() {
 	Keyboard& keyboard = Keyboard::instance();
 	Mouse& mouse = Mouse::instance();
 
+	IController* player1 = XInputController::GetPlayer(0)->isConnected() ? XInputController::GetPlayer(0) : RawInputController::GetPlayer(0);
+
+
 	nkUpdateInput(mouse.xPos(), mouse.yPos(), mouse.buttonDown(Mouse::MouseButton::BUTTON_LEFT), mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT), Application::ScrollDelta);
 
 	Vector3f direction = Vector3f();
@@ -392,7 +396,6 @@ void Isometric::update() {
 	float dy = 0.0f;
 	bool move = false;
 	bool playerMove = false;
-
 	if (keyboard.keyDown(Keyboard::KEY_W)) {
 		direction += Vector3f(0.0f, 0.0f, 1.0f);
 		move |= true;
@@ -439,7 +442,7 @@ void Isometric::update() {
 		m_debugCollision = !m_debugCollision;
 	}
 
-	if (!m_isDeath && (m_rotationButtonResult.buttonDown || (mouse.buttonDown(Mouse::MouseButton::BUTTON_LEFT) && !m_rotationButtonResult.isActive && !m_joystickResult.isActive)) && (lastFireTime + 0.1f) < Globals::clock.getElapsedTimeSec()) {
+	if (!m_isDeath && (m_rotationButtonResult.buttonDown || (((player1 && player1->buttonDown(GamepadButton::GAMEPAD_RIGHT_SHOULDER)) || mouse.buttonDown(Mouse::MouseButton::BUTTON_LEFT) ) && !m_rotationButtonResult.isActive && !m_joystickResult.isActive)) && (lastFireTime + 0.1f) < Globals::clock.getElapsedTimeSec()) {
 		const Quaternion orientation = m_player.getOrientation();
 		const Matrix4f trans = m_player.getWorldTransformation();
 		const Vector3f projectileSpawnPoint = trans ^ Vector4f(-20.0f * 0.01f, 120.0f * 0.01f, 140.0f * 0.01f, 1.0f);
@@ -470,15 +473,35 @@ void Isometric::update() {
 	const AnimatedMesh* mesh_ = static_cast<const AnimatedMesh*>(m_player.getMesh());
 	const Vector3f posistion = mesh_->getBone(0u).getPosition();
 	m_camera.lookAt(posistion + Vector3f(0.0f, 4.3f, 4.0f), posistion, Vector3f(0.0f, 1.0f, 0.0f));
+
+	if (player1 && (player1->getLeftStickX() || player1->getLeftStickY()) && !m_isDeath) {
+		float targetDegrees = std::atan2(player1->getLeftStickX(), -player1->getLeftStickY()) * _180_ON_PI;
+		Quaternion targetRotation = Quaternion(0.0f, targetDegrees, 0.0f);
+		Quaternion currentRotation = m_player.getOrientation();
+
+		float rotationSpeed = 5.0f;
+		float t = std::min(rotationSpeed * m_dt, 1.0f);
+		Quaternion newRotation = Quaternion::SLerp(currentRotation, targetRotation, t);
+		m_player.setOrientation(newRotation);
+
+		float degrees = 2.0f * std::atan2(newRotation[1], newRotation[3]) * _180_ON_PI;
+		if (degrees < 0.0f) {
+			degrees += 360.0f;
+		}
+
+		aimTheta = degrees;
+		m_rotationButtonResult.degrees = degrees;
+	}
+
 	if ((mouse.xDelta() || mouse.yDelta()) && !m_isDeath) {
 		Vector3f coords;	
 		if (getWorldPosition(mouse.xPos(), mouse.yPos(), Vector3f(0.0f, 1.0f, 0.0f), coords)) {
 			aimTheta = (!m_rotationButtonResult.isActive && !m_joystickResult.isActive) ? getLookAtYRotation(posistion, coords) : m_rotationButtonResult.degrees;
-			m_rotationButtonResult.degrees = aimTheta ;
-
-			if(m_rotationButtonResult.degrees)
-				m_player.setOrientation(0.0f, m_rotationButtonResult.degrees, 0.0f);
+			m_rotationButtonResult.degrees = aimTheta;		
 		}
+
+		if (m_rotationButtonResult.degrees)
+			m_player.setOrientation(0.0f, m_rotationButtonResult.degrees, 0.0f);
 	}
 
 	float moveX = 0.0f;
@@ -499,14 +522,17 @@ void Isometric::update() {
 		moveX = 0.0f;
 		moveY = 0.0f;
 	}
-
 	Vector3f playerDirection = Vector3f();
+	if (player1) {
+		playerDirection.set(player1->getRightStickX(), 0.0f, -player1->getRightStickY());
+	}
+
 	if (keyboard.keyDown(Keyboard::KEY_W) || moveY > 0.0f) {
 		playerDirection -= Vector3f(0.0f, 0.0f, 1.0f);
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_S) || moveY < 0.0f) {
-		playerDirection += Vector3f(0.0f, 0.0f, 1.0f);
+	playerDirection += Vector3f(0.0f, 0.0f, 1.0f);
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_A) || moveX < 0.0f) {
@@ -516,7 +542,7 @@ void Isometric::update() {
 	if (keyboard.keyDown(Keyboard::KEY_D) || moveX > 0.0f) {
 		playerDirection += Vector3f(1.0f, 0.0f, 0.0f);
 	}
-
+	
 	playerMove = playerDirection.lengthSq() > 0.01f && !m_isDeath;
 
 	if (playerMove) {
@@ -788,7 +814,7 @@ void Isometric::OnPostDraw() {
 void Isometric::OnFillBuffer(nk_context& nkCntxt) {
 	set_transparent_window_style();
 	virtual_joystick(nk_rect(20.0f, static_cast<float>(Application::Height) - 200.0f, 180.0f, 180.0f), m_joystickResult);
-	virtual_rotation_button(nk_rect(static_cast<float>(Application::Width) - 180.0f, static_cast<float>(Application::Height) - 180.0f, 140.0f, 140.0f), m_rotationButtonResult);
+	virtual_rotation_button(nk_rect(static_cast<float>(Application::Width) - 200.0f, static_cast<float>(Application::Height) - 200.0f, 180.0f, 180.0f), m_rotationButtonResult);
 	reset_transparent_window_style();
 }
 

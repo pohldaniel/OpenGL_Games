@@ -52,6 +52,7 @@ public:
 
 	void setScale(float sx, float sy, float sz);
 	void setOrientation(float pitch, float yaw, float roll);
+	void setOrientation(Quaternion orientation);
 	void setHasAnimationController(bool hasAnimationController);
 
 	const Quaternion& getOrientation() const;
@@ -113,6 +114,7 @@ public:
 
 	void setScale(float sx, float sy, float sz);
 	void setOrientation(float pitch, float yaw, float roll);
+	void setOrientation(Quaternion orientation);
 
 	const std::vector<BoneDescription>& getBoneDescriptions() const;
 	const std::vector<std::array<float, 4>>& getWeights() const;

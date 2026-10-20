@@ -373,6 +373,12 @@ void AnimatedModel::setOrientation(float pitch, float yaw, float roll) {
 	}
 }
 
+void AnimatedModel::setOrientation(Quaternion orientation) {
+	for (std::vector<Mesh*>::iterator mesh = m_meshes.begin(); mesh != m_meshes.end(); mesh++) {
+		static_cast<AnimatedMesh*>(*mesh)->setOrientation(orientation);
+	}
+}
+
 AnimationState* AnimatedModel::findAnimationState(const Animation& animation) const {
 	for (auto it = m_animationStates.begin(); it != m_animationStates.end(); ++it) {
 		if (&(*it)->getAnimation() == &animation)
@@ -650,6 +656,16 @@ void AnimatedMesh::setOrientation(float pitch, float yaw, float roll) {
 	for (size_t i = 0u; i < m_numBones; ++i) {
 		if (m_bones[i]->isRootBone()) {
 			m_boneDescriptions[i].initialRotation = Quaternion(pitch, yaw, roll);
+			m_rootBone->setOrientation(m_boneDescriptions[i].initialRotation);
+			break;
+		}
+	}
+}
+
+void AnimatedMesh::setOrientation(Quaternion orientation) {
+	for (size_t i = 0u; i < m_numBones; ++i) {
+		if (m_bones[i]->isRootBone()) {
+			m_boneDescriptions[i].initialRotation = orientation;
 			m_rootBone->setOrientation(m_boneDescriptions[i].initialRotation);
 			break;
 		}

@@ -187,7 +187,7 @@ void AnimationState::applyToModel() {
 		if (track->m_channelMask & CHANNEL_POSITION)
 			newPosition = Math::Lerp(keyFrame.m_position, nextKeyFrame.m_position, t);
 		if (track->m_channelMask & CHANNEL_ROTATION)
-			newRotation = Quaternion::SLerp2(keyFrame.m_rotation, nextKeyFrame.m_rotation, t);
+			newRotation = Quaternion::SLerp(keyFrame.m_rotation, nextKeyFrame.m_rotation, t);
 		if (track->m_channelMask & CHANNEL_SCALE)
 			newScale = Math::Lerp(keyFrame.m_scale, nextKeyFrame.m_scale, t);
 	
@@ -195,7 +195,7 @@ void AnimationState::applyToModel() {
 			if (track->m_channelMask & CHANNEL_POSITION)
 				newPosition = Math::Lerp(bone->m_position, newPosition, finalWeight);
 			if (track->m_channelMask & CHANNEL_ROTATION)
-				newRotation = Quaternion::SLerp2(bone->m_orientation, newRotation, finalWeight);
+				newRotation = Quaternion::SLerp(bone->m_orientation, newRotation, finalWeight);
 			if (track->m_channelMask & CHANNEL_SCALE)
 				newScale = Math::Lerp(bone->m_scale, newScale, finalWeight);
 		}

@@ -3944,8 +3944,9 @@ const Matrix4f Quaternion::toMatrix4f(const Vector3f &centerOfRotation) const{
 		centerOfRotation[2] * (xx + yy) - centerOfRotation[0] * (xz - wy) - centerOfRotation[1] * (yz + wx), 1.0f);
 }
 
-void Quaternion::Normalize(Quaternion &q) {
+Quaternion& Quaternion::Normalize(Quaternion &q) {
 	q.normalize();
+	return q;
 }
 
 Quaternion& Quaternion::FromMatrix(Quaternion &quat, const Matrix4f &m) {
@@ -3991,7 +3992,7 @@ bool operator ==(const Quaternion &lhs, const Quaternion &rhs) {
 	return fabs(lhs[0] - rhs[0]) <= epsilon && fabs(lhs[1] - rhs[1]) <= epsilon && fabs(lhs[2] - rhs[2]) <= epsilon && fabs(lhs[3] - rhs[3]) <= epsilon;
 }
 
-Quaternion Quaternion::SLerp(const Quaternion &a, const Quaternion &b, float t) {
+Quaternion Quaternion::NLerp(const Quaternion &a, const Quaternion &b, float t) {
 	Quaternion result = Quaternion(0.0f, 0.0f, 0.0f, 1.0f);
 	float dot = a[3] * b[3] + a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 	float t1 = 1.0f - t;
@@ -4013,30 +4014,41 @@ Quaternion Quaternion::SLerp(const Quaternion &a, const Quaternion &b, float t) 
 	return result;
 }
 
-Quaternion Quaternion::SLerp2(const Quaternion &a, const Quaternion &b, float t) {
-	float cosAngle = a[0] * b[0] + a[1] * b[1] + a[2] * b[2] + a[3] * b[3] ;
+Quaternion Quaternion::SLerp(const Quaternion &a, const Quaternion &b, float t) {
+	float cosAngle = a[0] * b[0] + a[1] * b[1] + a[2] * b[2] + a[3] * b[3];
 	float sign = 1.0f;
 
-	if (cosAngle < 0.0f){
+	if (cosAngle < 0.0f) {
 		cosAngle = -cosAngle;
 		sign = -sign;
 	}
 
-	float angle = acosf(cosAngle);
-	float sinAngle = sinf(angle);
-	float t1, t2;
-
-	if (sinAngle > 0.001f){
+	if (cosAngle > 0.9995f) {
+		float t1 = 1.0f - t;
+		float t2 = t * sign;
+		return Quaternion::Normalize((a * t1 + b * t2));
+	}else {
+		float angle = acosf(cosAngle);
+		float sinAngle = sinf(angle);
 		float invSinAngle = 1.0f / sinAngle;
-		t1 = sinf((1.0f - t) * angle) * invSinAngle;
-		t2 = sinf(t * angle) * invSinAngle;
+		float t1, t2;
 
-	}else{
-		t1 = 1.0f - t;
-		t2 = t;
+		if (sinAngle > 0.001f) {
+			float invSinAngle = 1.0f / sinAngle;
+			t1 = sinf((1.0f - t) * angle) * invSinAngle;
+			t2 = sinf(t * angle) * invSinAngle * sign;
+		}else {
+			t1 = 1.0f - t;
+			t2 = t * sign;
+		}
+
+		return (a * t1 + b * t2);
+		//Quaternion result;
+		//float lenSq = result[3] * result[3] + result[0] * result[0] + result[1] * result[1] + result[2] * result[2];
+		//if (std::abs(lenSq - 1.0f) > 0.001f) {
+		//	return Quaternion::Normalize(result);
+		//}		
 	}
-
-	return a * t1 + sign * b * t2;
 }
 
 Quaternion Quaternion::Rotate(float pitch, float yaw, float roll) {

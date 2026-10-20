@@ -56,16 +56,46 @@ void XInputController::update() {
 		m_pCurrButtonStates[static_cast<int>(GamepadButton::DPAD_UP_LEFT)] = up && left;
 		m_pCurrButtonStates[static_cast<int>(GamepadButton::DPAD_DOWN_LEFT)] = down && left;
 
-		float normLX = state.Gamepad.sThumbLX / 32767.0f;
-		float normLY = state.Gamepad.sThumbLY / 32767.0f;
-		float normRX = state.Gamepad.sThumbRX / 32767.0f;
-		float normRY = state.Gamepad.sThumbRY / 32767.0f;
+		float rawLX = state.Gamepad.sThumbLX ;
+		float rawLY = state.Gamepad.sThumbLY;
+		float rawRX = state.Gamepad.sThumbRX;
+		float rawRY = state.Gamepad.sThumbRY ;
 
-		m_leftStickX = (abs(state.Gamepad.sThumbRX) < XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) ? 0.0f : normRX;
+		float magnitudeL = std::sqrt(rawLX * rawLX + rawLY * rawLY);
+		if (magnitudeL < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
+			m_rightStickX = 0.0f;
+			m_rightStickY = 0.0f;
+		}else {
+			float normLX = rawLX / magnitudeL;
+			float normLY = rawLY / magnitudeL;
+			float normalizedMagnitude = (magnitudeL - XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) / (32767.0f - XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE);
+
+			normalizedMagnitude = std::min(normalizedMagnitude, 1.0f);
+
+			m_rightStickX = normLX * normalizedMagnitude;
+			m_rightStickY = normLY * normalizedMagnitude;
+		}
+
+		float magnitudeR = std::sqrt(rawRX * rawRX + rawRY * rawRY);
+		if (magnitudeR < XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
+			m_leftStickX = 0.0f;
+			m_leftStickY = 0.0f;
+		}else {
+			float normRX = rawRX / magnitudeR;
+			float normRY = rawRY / magnitudeR;
+			float normalizedMagnitude = (magnitudeR - XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) / (32767.0f - XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE);
+
+			normalizedMagnitude = std::min(normalizedMagnitude, 1.0f);
+
+			m_leftStickX = normRX * normalizedMagnitude;
+			m_leftStickY = normRY * normalizedMagnitude;
+		}
+
+		/*m_leftStickX = (abs(state.Gamepad.sThumbRX) < XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) ? 0.0f : normRX;
 		m_leftStickY = (abs(state.Gamepad.sThumbRY) < XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) ? 0.0f : normRY;
 
 		m_rightStickX = (abs(state.Gamepad.sThumbLX) < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) ? 0.0f : normLX;
-		m_rightStickY = (abs(state.Gamepad.sThumbLY) < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) ? 0.0f : normLY;
+		m_rightStickY = (abs(state.Gamepad.sThumbLY) < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) ? 0.0f : normLY;*/
 
 		m_leftTrigger = (state.Gamepad.bLeftTrigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD) ? (state.Gamepad.bLeftTrigger / 255.0f) : 0.0f;
 		m_rightTrigger = (state.Gamepad.bRightTrigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD) ? (state.Gamepad.bRightTrigger / 255.0f) : 0.0f;

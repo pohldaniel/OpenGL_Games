@@ -238,7 +238,7 @@ void nk_virtual_rotation_button(struct nk_context* ctx, float size_px, RotationB
 
 	float radius_base = bounds.w / 2.0f;
 	float outer_radius = radius_base * 0.85f;
-	float inner_radius = outer_radius * 0.35f;
+	float inner_radius = outer_radius * 0.2f;
 	float knob_radius = radius_base * 0.08f;
 	struct nk_vec2 center = nk_vec2(bounds.x + radius_base, bounds.y + radius_base);
 
