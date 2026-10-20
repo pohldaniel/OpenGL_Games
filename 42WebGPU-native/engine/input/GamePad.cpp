@@ -56,10 +56,10 @@ void XInputController::update() {
 		m_pCurrButtonStates[static_cast<int>(GamepadButton::DPAD_UP_LEFT)] = up && left;
 		m_pCurrButtonStates[static_cast<int>(GamepadButton::DPAD_DOWN_LEFT)] = down && left;
 
-		float rawLX = state.Gamepad.sThumbLX ;
-		float rawLY = state.Gamepad.sThumbLY;
-		float rawRX = state.Gamepad.sThumbRX;
-		float rawRY = state.Gamepad.sThumbRY ;
+		float rawLX = static_cast<float>(state.Gamepad.sThumbLX);
+		float rawLY = static_cast<float>(state.Gamepad.sThumbLY);
+		float rawRX = static_cast<float>(state.Gamepad.sThumbRX);
+		float rawRY = static_cast<float>(state.Gamepad.sThumbRY);
 
 		float magnitudeL = std::sqrt(rawLX * rawLX + rawLY * rawLY);
 		if (magnitudeL < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
@@ -90,13 +90,7 @@ void XInputController::update() {
 			m_leftStickX = normRX * normalizedMagnitude;
 			m_leftStickY = normRY * normalizedMagnitude;
 		}
-
-		/*m_leftStickX = (abs(state.Gamepad.sThumbRX) < XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) ? 0.0f : normRX;
-		m_leftStickY = (abs(state.Gamepad.sThumbRY) < XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) ? 0.0f : normRY;
-
-		m_rightStickX = (abs(state.Gamepad.sThumbLX) < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) ? 0.0f : normLX;
-		m_rightStickY = (abs(state.Gamepad.sThumbLY) < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) ? 0.0f : normLY;*/
-
+		
 		m_leftTrigger = (state.Gamepad.bLeftTrigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD) ? (state.Gamepad.bLeftTrigger / 255.0f) : 0.0f;
 		m_rightTrigger = (state.Gamepad.bRightTrigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD) ? (state.Gamepad.bRightTrigger / 255.0f) : 0.0f;
 		
@@ -261,11 +255,6 @@ bool RawInputController::buttonUp(GamepadButton button) const {
 }
 
 bool RawInputController::isConnected() {
-	/*for (auto& pair : ConnectedControllers) {
-		if (pair.second && pair.second->getPlayerIndex() == m_playerIndex) {
-			return true;
-		}
-	}*/
 	return true;
 }
 
@@ -377,34 +366,29 @@ void RawInputController::processInput(RAWINPUT* raw) {
 			PHIDP_VALUE_CAPS valueCaps = new HIDP_VALUE_CAPS[valueCapsLength];
 			status = HidP_GetValueCaps(HidP_Input, valueCaps, &valueCapsLength, pPreparsedData);
 
+			float rawLeftX = 0.0f;
+			float rawLeftY = 0.0f;
+			float rawRightX = 0.0f;
+			float rawRightY = 0.0f;
+
 			for (ULONG i = 0; i < valueCapsLength; i++) {
 				for (ULONG i = 0; i < valueCapsLength; i++) {
 					ULONG value = 0;
 					status = HidP_GetUsageValue(HidP_Input, valueCaps[i].UsagePage, 0, valueCaps[i].NotRange.Usage, &value, pPreparsedData, (PCHAR)raw->data.hid.bRawData, raw->data.hid.dwSizeHid);
-
+					
 					USAGE axisId = valueCaps[i].NotRange.Usage;
 					switch (axisId) {
 					case 0x32: {
-						float rawNorm = (static_cast<float>(value) - 128.0f) / 127.0f;
-						if (abs(rawNorm) < DEADZONE) m_leftStickX = 0.0f;
-						else m_leftStickX = rawNorm;
+						rawLeftX = (static_cast<float>(value) - 128.0f) / 127.0f;
 						break;
 					}case 0x35: {
-						float rawNorm = (static_cast<float>(value) - 128.0f) / 127.0f;
-						rawNorm = -rawNorm;
-						if (abs(rawNorm) < DEADZONE) m_leftStickY = 0.0f;
-						else m_leftStickY = rawNorm;
+						rawLeftY = -((static_cast<float>(value) - 128.0f) / 127.0f);
 						break;
 					}case 0x30: {
-						float rawNorm = (static_cast<float>(value) - 128.0f) / 127.0f;
-						if (abs(rawNorm) < DEADZONE) m_rightStickX = 0.0f;
-						else m_rightStickX = rawNorm;
+						rawRightX = (static_cast<float>(value) - 128.0f) / 127.0f;
 						break;
 					}case 0x31: {
-						float rawNorm = (static_cast<float>(value) - 128.0f) / 127.0f;
-						rawNorm = -rawNorm;
-						if (abs(rawNorm) < DEADZONE) m_rightStickY = 0.0f;
-						else m_rightStickY = rawNorm;
+						rawRightY = -((static_cast<float>(value) - 128.0f) / 127.0f);
 						break;
 					}case 0x39:
 						if (value == 0)
@@ -428,6 +412,40 @@ void RawInputController::processInput(RAWINPUT* raw) {
 				}
 			}
 			delete[] valueCaps;
+
+			if (rawLeftX || rawLeftY) {
+				float magnitudeL = std::sqrt(rawLeftX * rawLeftX + rawLeftY * rawLeftY);
+
+				if (magnitudeL < DEADZONE) {
+					m_leftStickX = 0.0f;
+					m_leftStickY = 0.0f;
+				}else {
+					float normX = rawLeftX / magnitudeL;
+					float normY = rawLeftY / magnitudeL;
+					float normalizedMagnitude = (magnitudeL - DEADZONE) / (1.0f - DEADZONE);
+					normalizedMagnitude = std::min(normalizedMagnitude, 1.0f);
+
+					m_leftStickX = normX * normalizedMagnitude;
+					m_leftStickY = normY * normalizedMagnitude;
+				}
+			}
+
+			if (rawRightX || rawRightY) {
+				float magnitudeR = std::sqrt(rawRightX * rawRightX + rawRightY * rawRightY);
+
+				if (magnitudeR < DEADZONE) {
+					m_rightStickX = 0.0f;
+					m_rightStickY = 0.0f;
+				}else {
+					float normX = rawRightX / magnitudeR;
+					float normY = rawRightY / magnitudeR;
+					float normalizedMagnitude = (magnitudeR - DEADZONE) / (1.0f - DEADZONE);
+					normalizedMagnitude = std::min(normalizedMagnitude, 1.0f);
+
+					m_rightStickX = normX * normalizedMagnitude;
+					m_rightStickY = normY * normalizedMagnitude;
+				}
+			}
 		}
 
 		delete[](BYTE*)pPreparsedData;
