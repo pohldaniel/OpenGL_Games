@@ -17,8 +17,8 @@ public:
 	WgpModel(WgpModel const& rhs);
 	WgpModel(WgpModel&& rhs) noexcept;
 
-	void draw(const WGPURenderPassEncoder& renderPassEncoder, uint32_t instanceCount = 1u) const;
-	void draw(const WGPURenderBundleEncoder& renderBundleEncoder, uint32_t instanceCount = 1u) const;
+	void draw(const WGPURenderPassEncoder& renderPassEncoder, uint32_t instanceCount = 1u, uint32_t firstInstance = 0u) const;
+	void draw(const WGPURenderBundleEncoder& renderBundleEncoder, uint32_t instanceCount = 1u, uint32_t firstInstance = 0u) const;
 
 	void create(const ObjModel& model);
 	void create(const AssimpModel& model);

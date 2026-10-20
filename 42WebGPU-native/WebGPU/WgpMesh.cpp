@@ -224,7 +224,7 @@ const uint32_t WgpMesh::getDrawCount() const {
 	return m_drawCount;
 }
 
-void WgpMesh::draw(const WGPURenderPassEncoder& renderPassEncoder, uint32_t instanceCount) const {
+void WgpMesh::draw(const WGPURenderPassEncoder& renderPassEncoder, uint32_t instanceCount, uint32_t firstInstance) const {
 	if (m_bindGroups.size()) {
 		const std::vector<WGPUBindGroup>& bindGroups = m_bindGroups.at(m_bindGroupsSlot);
 		for (uint32_t i = 0u; i < bindGroups.size(); i++) {
@@ -234,10 +234,10 @@ void WgpMesh::draw(const WGPURenderPassEncoder& renderPassEncoder, uint32_t inst
 
 	wgpuRenderPassEncoderSetVertexBuffer(renderPassEncoder, 0u, m_vertexBuffer.m_buffer, 0u, wgpuBufferGetSize(m_vertexBuffer.m_buffer));
 	wgpuRenderPassEncoderSetIndexBuffer(renderPassEncoder, m_indexBuffer.m_buffer, WGPUIndexFormat_Uint32, 0u, wgpuBufferGetSize(m_indexBuffer.m_buffer));
-	wgpuRenderPassEncoderDrawIndexed(renderPassEncoder, m_drawCount, instanceCount, 0u, 0u, 0u);
+	wgpuRenderPassEncoderDrawIndexed(renderPassEncoder, m_drawCount, instanceCount, 0u, 0u, firstInstance);
 }
 
-void WgpMesh::draw(const WGPURenderBundleEncoder& renderBundleEncoder, uint32_t instanceCount) const {
+void WgpMesh::draw(const WGPURenderBundleEncoder& renderBundleEncoder, uint32_t instanceCount, uint32_t firstInstance) const {
 	if (m_bindGroups.size()) {
 		const std::vector<WGPUBindGroup>& bindGroups = m_bindGroups.at(m_bindGroupsSlot);
 		for (uint32_t i = 0u; i < bindGroups.size(); i++) {
@@ -247,7 +247,7 @@ void WgpMesh::draw(const WGPURenderBundleEncoder& renderBundleEncoder, uint32_t 
 
 	wgpuRenderBundleEncoderSetVertexBuffer(renderBundleEncoder, 0u, m_vertexBuffer.m_buffer, 0u, wgpuBufferGetSize(m_vertexBuffer.m_buffer));
 	wgpuRenderBundleEncoderSetIndexBuffer(renderBundleEncoder, m_indexBuffer.m_buffer, WGPUIndexFormat_Uint32, 0u, wgpuBufferGetSize(m_indexBuffer.m_buffer));
-	wgpuRenderBundleEncoderDrawIndexed(renderBundleEncoder, m_drawCount, instanceCount, 0u, 0u, 0u);
+	wgpuRenderBundleEncoderDrawIndexed(renderBundleEncoder, m_drawCount, instanceCount, 0u, 0u, firstInstance);
 }
 
 void WgpMesh::OnMapColorToBuffer(WGPUMapAsyncStatus status, WGPUStringView message, void* userdata1, void* userdata2) {

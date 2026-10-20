@@ -331,7 +331,6 @@ void Controller::renderPad(float x, float y, long value) {
 }
 
 void Controller::renderButton(float x, float y, long value, int index) {
-	//std::cout << "VALUE: " << value << std::endl;
 	auto shader = Globals::shaderManager.getAssetPointer("color");
 	shader->use();
 	shader->loadMatrix("u_projection", m_camera.getOrthographicMatrix());

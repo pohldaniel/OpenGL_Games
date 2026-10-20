@@ -31,8 +31,6 @@ void Quad::BuildMeshXY(const std::array<float, 3>& _position, const std::array<f
 
 	for (unsigned int i = 0; i <= vResolution; i++) {
 		for (unsigned int j = 0; j <= uResolution; j++) {
-
-			// Calculate vertex position on the surface of a quad
 			float x = j * uStep;
 			float y = i * vStep;
 			float z = 0.0f;
@@ -41,7 +39,6 @@ void Quad::BuildMeshXY(const std::array<float, 3>& _position, const std::array<f
 			vertexBuffer.push_back(position[0]); vertexBuffer.push_back(position[1]); vertexBuffer.push_back(position[2]);
 
 			if (generateTexels) {
-				// Calculate texels on the surface of a quad
 				float u = (float)j / uResolution;
 				float v = (float)i / vResolution;
 				vertexBuffer.push_back(u); vertexBuffer.push_back(v);
@@ -58,7 +55,6 @@ void Quad::BuildMeshXY(const std::array<float, 3>& _position, const std::array<f
 		}
 	}
 
-	//calculate the indices
 	for (int z = 0; z < vResolution; z++) {
 		for (int x = 0; x < uResolution; x++) {
 			// 0 *- 1		0
@@ -72,7 +68,6 @@ void Quad::BuildMeshXY(const std::array<float, 3>& _position, const std::array<f
 			indexBuffer.push_back(z * (uResolution + 1) + x);
 			indexBuffer.push_back((z + 1) * (uResolution + 1) + x + 1);
 			indexBuffer.push_back((z + 1) * (uResolution + 1) + x);
-
 		}
 	}
 }

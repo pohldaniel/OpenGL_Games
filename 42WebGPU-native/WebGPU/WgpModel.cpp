@@ -110,14 +110,14 @@ WgpMesh& WgpModel::getMesh(size_t index) const {
 	return *it;
 }
 
-void WgpModel::draw(const WGPURenderPassEncoder& renderPassEncoder, uint32_t instanceCount) const {
+void WgpModel::draw(const WGPURenderPassEncoder& renderPassEncoder, uint32_t instanceCount, uint32_t firstInstance) const {
 	for (std::list<WgpMesh>::const_iterator it = m_meshes.begin(); it != m_meshes.end(); ++it) {
-		(*it).draw(renderPassEncoder, instanceCount);
+		(*it).draw(renderPassEncoder, instanceCount, firstInstance);
 	}
 }
 
-void WgpModel::draw(const WGPURenderBundleEncoder& renderBundleEncoder, uint32_t instanceCount) const {
+void WgpModel::draw(const WGPURenderBundleEncoder& renderBundleEncoder, uint32_t instanceCount, uint32_t firstInstance) const {
 	for (std::list<WgpMesh>::const_iterator it = m_meshes.begin(); it != m_meshes.end(); ++it) {
-		(*it).draw(renderBundleEncoder, instanceCount);
+		(*it).draw(renderBundleEncoder, instanceCount, firstInstance);
 	}
 }

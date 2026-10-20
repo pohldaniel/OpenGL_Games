@@ -33,14 +33,24 @@ private:
 	std::vector<WGPUBindGroup> OnBindGroups();
 
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
-
+	void renderRectangle(float x, float y);
+	void renderPad(float x, float y, long value);
+	void renderButton(float x, float y, long value, int index);
+	void renderStick(float x, float y, float stickX, float stickY);
+	
 	bool m_initUi = true;
 	bool m_drawUi = false;
+	long m_state = 0;
+	float m_RightStickX = 0.0f;
+	float m_RightStickY = 0.0f;
+	float m_LeftStickX = 0.0f;
+	float m_LeftStickY = 0.0f;
 
 	Camera m_camera;
 	Uniforms m_uniforms;
-	Shape m_disk;
+	Shape m_disk, m_quad;
 
-	WgpBuffer m_uniformBuffer;
-	WgpModel m_wgpDisk;
+	WgpBuffer m_uniformBuffer, m_storageBuffer;
+	WgpModel m_wgpDisk, m_wgpQuad;
+	std::vector<std::array<float, 20>> m_instances;
 };
