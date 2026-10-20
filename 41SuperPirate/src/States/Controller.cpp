@@ -108,13 +108,11 @@ void Controller::update() {
 	m_LeftStickX = player1 ? player1->getLeftStickX() : 0.0f;
 	m_LeftStickY = player1 ? player1->getLeftStickY() : 0.0f;
 
-	//std::cout << m_RightStickX << "  " << m_RightStickY << "  " << m_LeftStickX << "  " << m_LeftStickY << std::endl;
 	m_RightStickX = !m_RightStickX && player2 ? player2->getRightStickX() : m_RightStickX;
 	m_RightStickY = !m_RightStickY && player2 ? player2->getRightStickY() : m_RightStickY;
 
 	m_LeftStickX = !m_LeftStickX && player2 ? player2->getLeftStickX() : m_LeftStickX;
 	m_LeftStickY = !m_LeftStickY && player2 ? player2->getLeftStickY() : m_LeftStickY;
-
 
 	m_RightStickX = !m_RightStickX && player1X->isConnected() ? player1X->getRightStickX() : m_RightStickX;
 	m_RightStickY = !m_RightStickY && player1X->isConnected() ? player1X->getRightStickY() : m_RightStickY;

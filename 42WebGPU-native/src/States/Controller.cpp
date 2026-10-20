@@ -124,99 +124,106 @@ void Controller::update() {
 		}
 	}
 
-	XInputController* player1X = XInputController::GetPlayer(0);
-
-	m_RightStickX = player1X->isConnected() ? player1X->getRightStickX() : 0.0f;
-	m_RightStickY = player1X->isConnected() ? player1X->getRightStickY() : 0.0f;
-
-	m_LeftStickX = player1X->isConnected() ? player1X->getLeftStickX() : 0.0f;
-	m_LeftStickY = player1X->isConnected() ? player1X->getLeftStickY() : 0.0f;
+	IController* player1 = XInputController::GetPlayer(0)->isConnected() ? XInputController::GetPlayer(0) : RawInputController::GetPlayer(0);
+	m_RightStickX = 0.0f;
+	m_RightStickY = 0.0f;
+	m_LeftStickX = 0.0f;
+	m_LeftStickY = 0.0f;
 
 	m_state = 0;
-	if ((player1X->isConnected() && player1X->buttonDown(GamepadButton::DPAD_UP))) {
-		m_state = 1;
-	}
+	if (player1) {
 
-	if ((player1X->isConnected() && player1X->buttonDown(GamepadButton::DPAD_RIGHT))) {
-		m_state = 3;
-	}
+		m_RightStickX = player1->getRightStickX();
+		m_RightStickY = player1->getRightStickY();
 
-	if ((player1X->isConnected() && player1X->buttonDown(GamepadButton::DPAD_DOWN))) {
-		m_state = 5;
-	}
+		m_LeftStickX = player1->getLeftStickX();
+		m_LeftStickY = player1->getLeftStickY();
 
-	if ((player1X->isConnected() && player1X->buttonDown(GamepadButton::DPAD_LEFT))) {
-		m_state = 7;
-	}
+		if (player1->buttonDown(GamepadButton::DPAD_UP)) {
+			m_state = 1;
+		}
 
-	if ((player1X->isConnected() && player1X->buttonDown(GamepadButton::DPAD_UP_RIGHT))) {
-		m_state = 2;
-	}
+		if (player1->buttonDown(GamepadButton::DPAD_RIGHT)) {
+			m_state = 3;
+		}
 
-	if ((player1X->isConnected() && player1X->buttonDown(GamepadButton::DPAD_DOWN_RIGHT))) {
-		m_state = 4;
-	}
+		if (player1->buttonDown(GamepadButton::DPAD_DOWN)) {
+			m_state = 5;
+		}
 
-	if ((player1X->isConnected() && player1X->buttonDown(GamepadButton::DPAD_DOWN_LEFT))) {
-		m_state = 6;
-	}
+		if (player1->buttonDown(GamepadButton::DPAD_LEFT)) {
+			m_state = 7;
+		}
 
-	if ((player1X->isConnected() && player1X->buttonDown(GamepadButton::DPAD_UP_LEFT))) {
-		m_state = 8;
-	}
+		if (player1->buttonDown(GamepadButton::DPAD_UP_RIGHT)) {
+			m_state = 2;
+		}
 
-	if ((player1X->isConnected() && player1X->buttonDown(GamepadButton::GAMEPAD_START))) {
-		m_state = 9;
-	}
+		if (player1->buttonDown(GamepadButton::DPAD_DOWN_RIGHT)) {
+			m_state = 4;
+		}
 
-	if ((player1X->isConnected() && player1X->buttonDown(GamepadButton::GAMEPAD_BACK))) {
-		m_state = 10;
-	}
+		if (player1->buttonDown(GamepadButton::DPAD_DOWN_LEFT)) {
+			m_state = 6;
+		}
 
-	if ((player1X->isConnected() && player1X->buttonDown(GamepadButton::GAMEPAD_LEFT_THUMB))) {
-		m_state = 11;
-	}
+		if (player1->buttonDown(GamepadButton::DPAD_UP_LEFT)) {
+			m_state = 8;
+		}
 
-	if ((player1X->isConnected() && player1X->buttonDown(GamepadButton::GAMEPAD_RIGHT_THUMB))) {
-		m_state = 12;
-	}
+		if (player1->buttonDown(GamepadButton::GAMEPAD_START)) {
+			m_state = 9;
+		}
 
-	if ((player1X->isConnected() && player1X->buttonDown(GamepadButton::GAMEPAD_LEFT_SHOULDER))) {
-		m_state = 13;
-	}
+		if (player1->buttonDown(GamepadButton::GAMEPAD_BACK)) {
+			m_state = 10;
+		}
 
-	if ((player1X->isConnected() && player1X->buttonDown(GamepadButton::GAMEPAD_RIGHT_SHOULDER))) {
-		m_state = 14;
-	}
+		if (player1->buttonDown(GamepadButton::GAMEPAD_LEFT_THUMB)) {
+			m_state = 11;
+		}
 
-	if ((player1X->isConnected() && player1X->buttonDown(GamepadButton::GAMEPAD_A))) {
-		m_state = 15;
+		if (player1->buttonDown(GamepadButton::GAMEPAD_RIGHT_THUMB)) {
+			m_state = 12;
+		}
 
-		if (player1X->isConnected() && player1X->buttonDown(GamepadButton::GAMEPAD_A))
-			player1X->setVibration(1.0f, 1.0f);
-	}
+		if (player1->buttonDown(GamepadButton::GAMEPAD_LEFT_SHOULDER)) {
+			m_state = 13;
+		}
 
-	if ((player1X->isConnected() && player1X->buttonDown(GamepadButton::GAMEPAD_B))) {
-		m_state = 16;
+		if (player1->buttonDown(GamepadButton::GAMEPAD_RIGHT_SHOULDER)) {
+			m_state = 14;
+		}
 
-		if (player1X->isConnected() && player1X->buttonDown(GamepadButton::GAMEPAD_B))
-			player1X->setVibration(0.0f, 0.0f);
-	}
+		if (player1->buttonDown(GamepadButton::GAMEPAD_A)) {
+			m_state = 15;
 
-	if ((player1X->isConnected() && player1X->buttonDown(GamepadButton::GAMEPAD_X))) {
-		m_state = 17;
-	}
+			if (player1->buttonDown(GamepadButton::GAMEPAD_A))
+				player1->setVibration(1.0f, 1.0f);
+		}
 
-	if ((player1X->isConnected() && player1X->buttonDown(GamepadButton::GAMEPAD_Y))) {
-		m_state = 18;
-	}
+		if (player1->buttonDown(GamepadButton::GAMEPAD_B)) {
+			m_state = 16;
 
-	if ((player1X->isConnected() && player1X->buttonDown(GamepadButton::GAMEPAD_LEFT_TRIGGER))) {
-		m_state = 19;
-	}
+			if (player1->buttonDown(GamepadButton::GAMEPAD_B))
+				player1->setVibration(0.0f, 0.0f);
+		}
 
-	if ((player1X->isConnected() && player1X->buttonDown(GamepadButton::GAMEPAD_RIGHT_TRIGGER))) {
-		m_state = 20;
+		if (player1->buttonDown(GamepadButton::GAMEPAD_X)) {
+			m_state = 17;
+		}
+
+		if (player1->buttonDown(GamepadButton::GAMEPAD_Y)) {
+			m_state = 18;
+		}
+
+		if (player1 && player1->buttonDown(GamepadButton::GAMEPAD_LEFT_TRIGGER)) {
+			m_state = 19;
+		}
+
+		if (player1 && player1->buttonDown(GamepadButton::GAMEPAD_RIGHT_TRIGGER)) {
+			m_state = 20;
+		}
 	}
 	
 	m_uniforms.projection = m_camera.getOrthographicMatrix();

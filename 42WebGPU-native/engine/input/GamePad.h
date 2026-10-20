@@ -31,74 +31,99 @@ enum GamepadButton {
 	GAMEPAD_RIGHT_TRIGGER = 20,
 };
 
-class XInputController {
+class IController {
+
+public:
+	virtual void update() = 0;
+	virtual void setVibration(float leftMotor, float rightMotor) = 0;
+
+	virtual float getRightStickX() const = 0;
+	virtual float getRightStickY() const = 0;
+	virtual float getLeftStickX() const = 0;
+	virtual float getLeftStickY() const = 0;
+	virtual float getLeftTrigger() const = 0;
+	virtual float getRightTrigger() const = 0;
+
+	virtual bool buttonPressed(GamepadButton button) const = 0;
+	virtual bool buttonDown(GamepadButton button) const = 0;
+	virtual bool buttonUp(GamepadButton button) const = 0;
+	virtual bool isConnected() = 0;
+};
+
+class XInputController : public IController {
 
 public:
 
-	void update();
-	void setVibration(float leftMotor, float rightMotor);
-	float getRightStickX() const;
-	float getRightStickY() const;
-	float getLeftStickX() const;
-	float getLeftStickY() const;
-	float getLeftTrigger() const;
-	float getRightTrigger() const;
+	void update() override;
+	void setVibration(float leftMotor, float rightMotor) override;
 
-	bool buttonPressed(GamepadButton button) const;
-	bool buttonDown(GamepadButton button) const;
-	bool buttonUp(GamepadButton button) const;
-	bool isConnected();
+	float getRightStickX() const override;
+	float getRightStickY() const override;
+	float getLeftStickX() const override;
+	float getLeftStickY() const override;
+	float getLeftTrigger() const override;
+	float getRightTrigger() const override;
 
-	static XInputController* GetPlayer(int playerIndex);
+	bool buttonPressed(GamepadButton button) const override;
+	bool buttonDown(GamepadButton button) const override;
+	bool buttonUp(GamepadButton button) const override;
+	bool isConnected() override;
+	
 	static void Update();
 	static void Initialize();
 	static void Shutdown();
+	static IController* GetPlayer(int playerIndex);
 
 private:
 
 	XInputController();
-	int m_PlayerIndex;
+	int m_playerIndex;
 	bool m_buttonStates[2][21];
 	bool* m_pCurrButtonStates;
 	bool* m_pPrevButtonStates;
 	
 	XINPUT_STATE state;
 	bool m_connected;
-	float m_LeftStickX ;
-	float m_LeftStickY;
-	float m_RightStickX;
-	float m_RightStickY;
-	float m_LeftTrigger;
-	float m_RightTrigger;
+	float m_leftStickX;
+	float m_leftStickY;
+	float m_rightStickX;
+	float m_rightStickY;
+	float m_leftTrigger;
+	float m_rightTrigger;
 
 	static XInputController* s_Players[4];
 };
 
-class RawInputController {
+class RawInputController : public IController {
 	
 public:
 
 	RawInputController::~RawInputController();
 	
-	void update();
-	void setVibration(float leftMotor, float rightMotor);
-	bool buttonPressed(GamepadButton button) const;
-	bool buttonDown(GamepadButton button) const;
-	bool buttonUp(GamepadButton button) const;
+	void update() override;
+	void setVibration(float leftMotor, float rightMotor) override;
 
-	float getRightStickX() const;
-	float getRightStickY() const;
+	float getRightStickX() const override;
+	float getRightStickY() const override;
+	float getLeftStickX() const override;
+	float getLeftStickY() const override;
+	float getLeftTrigger() const override;
+	float getRightTrigger() const override;
+	
+	bool buttonPressed(GamepadButton button) const override;
+	bool buttonDown(GamepadButton button) const override;
+	bool buttonUp(GamepadButton button) const override;
+	bool isConnected() override;
 
-	float getLeftStickX() const;
-	float getLeftStickY() const;
 	void setWriteHandle(HANDLE writeHandle);
 	void setIsBluetooth(bool isBluetooth);
 
 	static void Update();
 	static bool Initialize(HWND hWnd);
 	static void Shutdown();
-	static RawInputController* GetPlayer(int playerIndex);
 	static void HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+	static IController* GetPlayer(int playerIndex);
 
 private:
 
@@ -106,16 +131,16 @@ private:
 	void processInput(RAWINPUT* raw);
 	int getPlayerIndex() const;
 
-	int m_PlayerIndex;
+	int m_playerIndex;
 	bool m_buttonStates[2][21];
 	bool* m_pCurrButtonStates;
 	bool* m_pPrevButtonStates;
-	float m_RightStickX = 0.0f;
-	float m_RightStickY = 0.0f;
-	float m_LeftStickX = 0.0f;
-	float m_LeftStickY = 0.0f;
-	float m_LeftTrigger = 0.0f;
-	float m_RightTrigger = 0.0f;
+	float m_rightStickX = 0.0f;
+	float m_rightStickY = 0.0f;
+	float m_leftStickX = 0.0f;
+	float m_leftStickY = 0.0f;
+	float m_leftTrigger = 0.0f;
+	float m_rightTrigger = 0.0f;
 	bool m_isBluetooth;
 	const float DEADZONE = 0.15f;
 

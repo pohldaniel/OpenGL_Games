@@ -6,7 +6,7 @@
 XInputController* XInputController::s_Players[4] = { nullptr, nullptr, nullptr, nullptr };
 
 XInputController::XInputController(){
-	m_PlayerIndex = -1;
+	m_playerIndex = -1;
 	state = {};
 
 	m_pCurrButtonStates = m_buttonStates[0];
@@ -24,7 +24,7 @@ void XInputController::update() {
 	m_pCurrButtonStates = pTempGamePadStates;
 
 	ZeroMemory(&state, sizeof(XINPUT_STATE));
-	if (XInputGetState(m_PlayerIndex, &state) == ERROR_SUCCESS) {		
+	if (XInputGetState(m_playerIndex, &state) == ERROR_SUCCESS) {
 		m_connected = true;
 		WORD wButtons = state.Gamepad.wButtons;
 
@@ -61,14 +61,14 @@ void XInputController::update() {
 		float normRX = state.Gamepad.sThumbRX / 32767.0f;
 		float normRY = state.Gamepad.sThumbRY / 32767.0f;
 
-		m_LeftStickX = (abs(state.Gamepad.sThumbRX) < XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) ? 0.0f : normRX;
-		m_LeftStickY = (abs(state.Gamepad.sThumbRY) < XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) ? 0.0f : normRY;
+		m_leftStickX = (abs(state.Gamepad.sThumbRX) < XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) ? 0.0f : normRX;
+		m_leftStickY = (abs(state.Gamepad.sThumbRY) < XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) ? 0.0f : normRY;
 
-		m_RightStickX = (abs(state.Gamepad.sThumbLX) < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) ? 0.0f : normLX;
-		m_RightStickY = (abs(state.Gamepad.sThumbLY) < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) ? 0.0f : normLY;
+		m_rightStickX = (abs(state.Gamepad.sThumbLX) < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) ? 0.0f : normLX;
+		m_rightStickY = (abs(state.Gamepad.sThumbLY) < XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) ? 0.0f : normLY;
 
-		m_LeftTrigger = (state.Gamepad.bLeftTrigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD) ? (state.Gamepad.bLeftTrigger / 255.0f) : 0.0f;
-		m_RightTrigger = (state.Gamepad.bRightTrigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD) ? (state.Gamepad.bRightTrigger / 255.0f) : 0.0f;
+		m_leftTrigger = (state.Gamepad.bLeftTrigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD) ? (state.Gamepad.bLeftTrigger / 255.0f) : 0.0f;
+		m_rightTrigger = (state.Gamepad.bRightTrigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD) ? (state.Gamepad.bRightTrigger / 255.0f) : 0.0f;
 		
 		m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_LEFT_TRIGGER)] = (state.Gamepad.bLeftTrigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD);
 		m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_RIGHT_TRIGGER)] = (state.Gamepad.bRightTrigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD);
@@ -92,31 +92,31 @@ void XInputController::setVibration(float leftMotor, float rightMotor) {
 	vibration.wLeftMotorSpeed = static_cast<WORD>(leftMotor * 65535.0f); 
 	vibration.wRightMotorSpeed = static_cast<WORD>(rightMotor * 65535.0f);
 
-	XInputSetState(m_PlayerIndex, &vibration);
+	XInputSetState(m_playerIndex, &vibration);
 }
 
 float XInputController::getRightStickX() const { 
-	return m_RightStickX; 
+	return m_rightStickX; 
 }
 
 float XInputController::getRightStickY() const { 
-	return m_RightStickY; 
+	return m_rightStickY; 
 }
 
 float XInputController::getLeftStickX() const { 
-	return m_LeftStickX; 
+	return m_leftStickX; 
 }
 
 float XInputController::getLeftStickY() const { 
-	return m_LeftStickY; 
+	return m_leftStickY; 
 }
 
 float XInputController::getLeftTrigger() const { 
-	return m_LeftTrigger; 
+	return m_leftTrigger; 
 }
 
 float XInputController::getRightTrigger() const { 
-	return m_RightTrigger; 
+	return m_rightTrigger; 
 }
 
 bool XInputController::buttonPressed(GamepadButton button) const {
@@ -136,7 +136,7 @@ bool XInputController::isConnected() {
 	return m_connected;
 }
 
-XInputController* XInputController::GetPlayer(int playerIndex) {
+IController* XInputController::GetPlayer(int playerIndex) {
 	if (playerIndex >= 0 && playerIndex < 4) return s_Players[playerIndex];
 	return nullptr;
 }
@@ -144,13 +144,13 @@ XInputController* XInputController::GetPlayer(int playerIndex) {
 void XInputController::Initialize() {
 	for (int i = 0; i < 4; ++i) {
 		s_Players[i] = new XInputController();
-		s_Players[i]->m_PlayerIndex = i;
+		s_Players[i]->m_playerIndex = i;
 	}
 }
 
 void XInputController::Update() {
 	for (int i = 0; i < 4; ++i) {
-		XInputController* player = XInputController::GetPlayer(i);
+		IController* player = XInputController::GetPlayer(i);
 		if (player) {
 			player->update();
 		}
@@ -186,7 +186,7 @@ uint32_t calculate_crc32(const uint8_t* data, size_t len) {
 std::unordered_map<HANDLE, RawInputController*> RawInputController::ConnectedControllers;
 
 RawInputController::RawInputController() {
-	m_PlayerIndex = NextIndex();
+	m_playerIndex = NextIndex();
 	m_pCurrButtonStates = m_buttonStates[0];
 	m_pPrevButtonStates = m_buttonStates[1];
 
@@ -230,6 +230,15 @@ bool RawInputController::buttonUp(GamepadButton button) const {
 	return !m_pCurrButtonStates[button];
 }
 
+bool RawInputController::isConnected() {
+	/*for (auto& pair : ConnectedControllers) {
+		if (pair.second && pair.second->getPlayerIndex() == m_playerIndex) {
+			return true;
+		}
+	}*/
+	return true;
+}
+
 void RawInputController::processInput(RAWINPUT* raw) {
 	
 	UINT pcbPreparsedData = 0;
@@ -259,15 +268,15 @@ void RawInputController::processInput(RAWINPUT* raw) {
 		float rawRightX = (static_cast<float>(rightX) - 128.0f) / 127.0f;
 		float rawRightY = -(static_cast<float>(rightY) - 128.0f) / 127.0f;
 
-		m_LeftStickX = (abs(rawLeftX) < DEADZONE) ? 0.0f : rawLeftX;
-		m_LeftStickY = (abs(rawLeftY) < DEADZONE) ? 0.0f : rawLeftY;
-		m_RightStickX = (abs(rawRightX) < DEADZONE) ? 0.0f : rawRightX;
-		m_RightStickY = (abs(rawRightY) < DEADZONE) ? 0.0f : rawRightY;
-		m_LeftTrigger = static_cast<float>(leftTrigger) / 255.0f;
-		m_RightTrigger = static_cast<float>(rightTrigger) / 255.0f;
+		m_leftStickX = (abs(rawLeftX) < DEADZONE) ? 0.0f : rawLeftX;
+		m_leftStickY = (abs(rawLeftY) < DEADZONE) ? 0.0f : rawLeftY;
+		m_rightStickX = (abs(rawRightX) < DEADZONE) ? 0.0f : rawRightX;
+		m_rightStickY = (abs(rawRightY) < DEADZONE) ? 0.0f : rawRightY;
+		m_leftTrigger = static_cast<float>(leftTrigger) / 255.0f;
+		m_rightTrigger = static_cast<float>(rightTrigger) / 255.0f;
 
-		m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_LEFT_TRIGGER)] = m_LeftTrigger > 0.5f;
-		m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_RIGHT_TRIGGER)] = m_RightTrigger > 0.5f;
+		m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_LEFT_TRIGGER)] = m_leftTrigger > 0.5f;
+		m_pCurrButtonStates[static_cast<int>(GamepadButton::GAMEPAD_RIGHT_TRIGGER)] = m_rightTrigger > 0.5f;
 
 		BYTE byte8 = data[8 + hasReportId];
 		BYTE byte9 = data[9 + hasReportId];
@@ -327,11 +336,11 @@ void RawInputController::processInput(RAWINPUT* raw) {
 			delete[] usage;
 		}
 
-		m_LeftStickX = 0.0f;
-		m_LeftStickY = 0.0f;
+		m_leftStickX = 0.0f;
+		m_leftStickY = 0.0f;
 
-		m_RightStickX = 0.0f;
-		m_RightStickY = 0.0f;
+		m_rightStickX = 0.0f;
+		m_rightStickY = 0.0f;
 
 		USHORT valueCapsLength = caps.NumberInputValueCaps;
 		if (valueCapsLength > 0) {
@@ -347,25 +356,25 @@ void RawInputController::processInput(RAWINPUT* raw) {
 					switch (axisId) {
 					case 0x32: {
 						float rawNorm = (static_cast<float>(value) - 128.0f) / 127.0f;
-						if (abs(rawNorm) < DEADZONE) m_LeftStickX = 0.0f;
-						else m_LeftStickX = rawNorm;
+						if (abs(rawNorm) < DEADZONE) m_leftStickX = 0.0f;
+						else m_leftStickX = rawNorm;
 						break;
 					}case 0x35: {
 						float rawNorm = (static_cast<float>(value) - 128.0f) / 127.0f;
 						rawNorm = -rawNorm;
-						if (abs(rawNorm) < DEADZONE) m_LeftStickY = 0.0f;
-						else m_LeftStickY = rawNorm;
+						if (abs(rawNorm) < DEADZONE) m_leftStickY = 0.0f;
+						else m_leftStickY = rawNorm;
 						break;
 					}case 0x30: {
 						float rawNorm = (static_cast<float>(value) - 128.0f) / 127.0f;
-						if (abs(rawNorm) < DEADZONE) m_RightStickX = 0.0f;
-						else m_RightStickX = rawNorm;
+						if (abs(rawNorm) < DEADZONE) m_rightStickX = 0.0f;
+						else m_rightStickX = rawNorm;
 						break;
 					}case 0x31: {
 						float rawNorm = (static_cast<float>(value) - 128.0f) / 127.0f;
 						rawNorm = -rawNorm;
-						if (abs(rawNorm) < DEADZONE) m_RightStickY = 0.0f;
-						else m_RightStickY = rawNorm;
+						if (abs(rawNorm) < DEADZONE) m_rightStickY = 0.0f;
+						else m_rightStickY = rawNorm;
 						break;
 					}case 0x39:
 						if (value == 0)
@@ -396,23 +405,31 @@ void RawInputController::processInput(RAWINPUT* raw) {
 }
 
 float RawInputController::getRightStickX() const {
-	return m_RightStickX; 
+	return m_rightStickX; 
 }
 
 float RawInputController::getRightStickY() const { 
-	return m_RightStickY; 
+	return m_rightStickY; 
 }
 
 float RawInputController::getLeftStickX() const {
-	return m_LeftStickX; 
+	return m_leftStickX; 
 }
 
 float RawInputController::getLeftStickY() const {
-	return m_LeftStickY;
+	return m_leftStickY;
+}
+
+float RawInputController::getLeftTrigger() const {
+	return m_leftTrigger;
+}
+
+float RawInputController::getRightTrigger() const {
+	return m_rightTrigger;
 }
 
 int RawInputController::getPlayerIndex() const { 
-	return m_PlayerIndex; 
+	return m_playerIndex; 
 }
 
 void RawInputController::setWriteHandle(HANDLE writeHandle) {
@@ -467,7 +484,7 @@ void RawInputController::setVibration(float leftMotor, float rightMotor) {
 
 void RawInputController::Update() {
 	for (int i = 0; i < 4; ++i) {
-		RawInputController* controller = RawInputController::GetPlayer(i);
+		IController* controller = RawInputController::GetPlayer(i);
 		if (controller) {
 			controller->update();
 		}
@@ -511,7 +528,7 @@ void RawInputController::Shutdown() {
 	ConnectedControllers.clear();
 }
 
-RawInputController* RawInputController::GetPlayer(int playerIndex) {
+IController* RawInputController::GetPlayer(int playerIndex) {
 	for (auto& pair : ConnectedControllers) {
 		if (pair.second && pair.second->getPlayerIndex() == playerIndex) {
 			return pair.second;
