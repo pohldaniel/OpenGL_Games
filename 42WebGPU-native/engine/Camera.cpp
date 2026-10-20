@@ -245,7 +245,7 @@ void Camera::perspective(float fovx, float aspect, float znear, float zfar){
 	m_invPersMatrix[3][0] = 0.0f;
 	m_invPersMatrix[3][1] = 0.0f;
 	m_invPersMatrix[3][2] = -1.0f;
-	m_invPersMatrix[3][3] = 1.0 / znear;
+	m_invPersMatrix[3][3] = 1.0f / znear;
 }
 
 void Camera::orthographic(float left, float right, float bottom, float top, float znear, float zfar){

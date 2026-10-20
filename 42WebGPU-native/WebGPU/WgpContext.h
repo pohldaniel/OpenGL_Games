@@ -140,7 +140,7 @@ struct WgpContext {
 		WGPUPrimitiveTopology primitiveTopology = WGPUPrimitiveTopology::WGPUPrimitiveTopology_TriangleList,
 		WGPUTextureFormat colorTextureFormat = WGPUTextureFormat::WGPUTextureFormat_Undefined,
 		WGPUTextureFormat depthTextureFormat = WGPUTextureFormat::WGPUTextureFormat_Undefined,
-		WGPUCompareFunction depthCompareFunction = WGPUCompareFunction::WGPUCompareFunction_Less,	
+		WGPUCompareFunction depthCompareFunction = WGPUCompareFunction::WGPUCompareFunction_LessEqual,
 		const PipelineConfiguration configuration = { DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE, ColorMode::WRITE_RGBA, DepthMode::WRITE, StencilMode::DEFAULT, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_Undefined, WGPUCullMode_Undefined, {} });
 
 	void addSampler(const WGPUSampler& sampler, SamplerSlot samplerSlot);

@@ -24,7 +24,7 @@ Controller::Controller(StateMachine& machine) : State(machine, States::CONTROLLE
 	m_camera.setMovingSpeed(10.0f);
 	m_camera.setRotationSpeed(0.1f);
 
-	m_storageBuffer.createBuffer(20u * sizeof(float) * 25u, WGPUBufferUsage_CopyDst | WGPUBufferUsage_Storage);
+	m_storageBuffer.createBuffer(20u * sizeof(float) * 200u, WGPUBufferUsage_CopyDst | WGPUBufferUsage_Storage);
 	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	m_uniforms.projection = m_camera.getOrthographicMatrix();
 	m_uniforms.view = m_camera.getViewMatrix();
@@ -254,9 +254,8 @@ void Controller::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURend
 		wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
 		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_COLOR_PT"));
 
-		m_wgpQuad.draw(renderPassEncoder, 2u, 0u);
-		m_wgpDisk.draw(renderPassEncoder, m_instances.size() - 2u, 2u);
-		//m_wgpDisk.draw(renderPassEncoder, m_instances.size());
+		m_wgpQuad.draw(renderPassEncoder, 4u, 0u);
+		m_wgpDisk.draw(renderPassEncoder, m_instances.size() - 4u, 4u);
 		wgpuRenderPassEncoderEnd(renderPassEncoder);
 		wgpuRenderPassEncoderRelease(renderPassEncoder);
 	}
@@ -386,12 +385,18 @@ std::vector<WGPUBindGroup> Controller::OnBindGroups() {
 
 void Controller::renderRectangle(float x, float y) {
 	std::array<float, 20> instance;
+	instance[0] = 1.03f; instance[1] = 0.0f; instance[2] = 0.0f; instance[3] = 0.0f;
+	instance[4] = 0.0f; instance[5] = 1.03f; instance[6] = 0.0f; instance[7] = 0.0f;
+	instance[8] = 0.0f; instance[9] = 0.0f; instance[10] = 1.03f; instance[11] = 0.0f;
+	instance[12] = x; instance[13] = y; instance[14] = 0.0f; instance[15] = 1.0f;
+	instance[16] = 0.0f; instance[17] = 0.0f; instance[18] = 0.0f; instance[19] = 1.0f;
+	m_instances.push_back(instance);
+
 	instance[0] = 1.0f; instance[1] = 0.0f; instance[2] = 0.0f; instance[3] = 0.0f;
 	instance[4] = 0.0f; instance[5] = 1.0f; instance[6] = 0.0f; instance[7] = 0.0f;
 	instance[8] = 0.0f; instance[9] = 0.0f; instance[10] = 1.0f; instance[11] = 0.0f;
 	instance[12] = x; instance[13] = y; instance[14] = 0.0f; instance[15] = 1.0f;
 	instance[16] = 1.0f; instance[17] = 1.0f; instance[18] = 1.0f; instance[19] = 1.0f;
-
 	m_instances.push_back(instance);
 }
 
@@ -401,24 +406,37 @@ void Controller::renderPad(float x, float y, long value) {
 		float yPos = (cosf(M_PI_4 * i - M_PI_4) * 80.0f) + 80.0f;
 
 		std::array<float, 20> instance;
+		instance[0] = 1.15f; instance[1] = 0.0f; instance[2] = 0.0f; instance[3] = 0.0f;
+		instance[4] = 0.0f; instance[5] = 1.15f; instance[6] = 0.0f; instance[7] = 0.0f;
+		instance[8] = 0.0f; instance[9] = 0.0f; instance[10] = 1.15f; instance[11] = 0.0f;
+		instance[12] = x + xPos; instance[13] = y - yPos; instance[14] = 0.0f; instance[15] = 1.0f;
+		instance[16] = 0.0f; instance[17] = 0.0f; instance[18] = 0.0f; instance[19] = 1.0f;
+		m_instances.push_back(instance);
+
 		instance[0] = 1.0f; instance[1] = 0.0f; instance[2] = 0.0f; instance[3] = 0.0f;
 		instance[4] = 0.0f; instance[5] = 1.0f; instance[6] = 0.0f; instance[7] = 0.0f;
 		instance[8] = 0.0f; instance[9] = 0.0f; instance[10] = 1.0f; instance[11] = 0.0f;
 		instance[12] = x + xPos; instance[13] = y - yPos; instance[14] = 0.0f; instance[15] = 1.0f;
 		instance[16] = 1.0f; instance[17] = value == i ? 0.0f : 1.0f; instance[18] = value == i ? 0.0f : 1.0f; instance[19] = 1.0f;
-
 		m_instances.push_back(instance);
 	}
 }
 
 void Controller::renderButton(float x, float y, long value, int index) {
 	std::array<float, 20> instance;
+
+	instance[0] = 1.15f; instance[1] = 0.0f; instance[2] = 0.0f; instance[3] = 0.0f;
+	instance[4] = 0.0f; instance[5] = 1.15f; instance[6] = 0.0f; instance[7] = 0.0f;
+	instance[8] = 0.0f; instance[9] = 0.0f; instance[10] = 1.15f; instance[11] = 0.0f;
+	instance[12] = x; instance[13] = y; instance[14] = 0.0f; instance[15] = 1.0f;
+	instance[16] = 0.0f; instance[17] = 0.0f; instance[18] = 0.0f; instance[19] = 1.0f;
+	m_instances.push_back(instance);
+
 	instance[0] = 1.0f; instance[1] = 0.0f; instance[2] = 0.0f; instance[3] = 0.0f;
 	instance[4] = 0.0f; instance[5] = 1.0f; instance[6] = 0.0f; instance[7] = 0.0f;
 	instance[8] = 0.0f; instance[9] = 0.0f; instance[10] = 1.0f; instance[11] = 0.0f;
 	instance[12] = x; instance[13] = y; instance[14] = 0.0f; instance[15] = 1.0f;
 	instance[16] = 1.0f; instance[17] = value == index ? 0.0f : 1.0f; instance[18] = value == index ? 0.0f : 1.0f; instance[19] = 1.0f;
-
 	m_instances.push_back(instance);
 }
 
@@ -427,8 +445,7 @@ void Controller::renderStick(float x, float y, float stickX, float stickY) {
 	instance[0] = 1.0f; instance[1] = 0.0f; instance[2] = 0.0f; instance[3] = 0.0f;
 	instance[4] = 0.0f; instance[5] = 1.0f; instance[6] = 0.0f; instance[7] = 0.0f;
 	instance[8] = 0.0f; instance[9] = 0.0f; instance[10] = 1.0f; instance[11] = 0.0f;
-	instance[12] = x + stickX * 50.0f; instance[13] = y - stickY * 50.0f; instance[14] = -0.1f; instance[15] = 1.0f;
+	instance[12] = x + stickX * 50.0f; instance[13] = y - stickY * 50.0f; instance[14] = 0.0f; instance[15] = 1.0f;
 	instance[16] = 1.0f; instance[17] = 0.0f; instance[18] = 0.0f; instance[19] = 1.0f;
-
 	m_instances.push_back(instance);
 }
