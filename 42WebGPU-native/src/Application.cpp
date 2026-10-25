@@ -33,6 +33,7 @@
 #include <States/Isometric.h>
 #include <States/Menu.h>
 #include <States/Controller.h>
+#include <States/HDRBloom.h>
 
 #include "Application.h"
 #include "Globals.h"
@@ -351,8 +352,9 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new VideoDecode(*Machine));
 	//Machine->addStateAtTop(new Cubes(*Machine));
 	//Machine->addStateAtTop(new Isometric(*Machine));
-	//Machine->addStateAtTop(new Menu(*Machine));
-	Machine->addStateAtTop(new Controller(*Machine));
+	Machine->addStateAtTop(new Menu(*Machine));
+	//Machine->addStateAtTop(new Controller(*Machine));
+	//Machine->addStateAtTop(new HDRBloom(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

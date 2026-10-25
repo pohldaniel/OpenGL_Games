@@ -129,7 +129,7 @@ void Controller::update() {
 	m_RightStickY = 0.0f;
 	m_LeftStickX = 0.0f;
 	m_LeftStickY = 0.0f;
-
+	
 	m_state = 0;
 	if (player1) {
 
@@ -225,7 +225,7 @@ void Controller::update() {
 			m_state = 20;
 		}
 	}
-	
+
 	m_uniforms.projection = m_camera.getOrthographicMatrix();
 	m_uniforms.view = m_camera.getViewMatrix();
 	m_uniforms.env = m_camera.getRotationMatrix();
@@ -256,11 +256,11 @@ void Controller::render() {
 }
 
 void Controller::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor) {
-	{
+	 {
 		WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDescriptor);
 		wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
 		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_COLOR_PT"));
-
+		
 		m_wgpQuad.draw(renderPassEncoder, 4u, 0u);
 		m_wgpDisk.draw(renderPassEncoder, m_instances.size() - 4u, 4u);
 		wgpuRenderPassEncoderEnd(renderPassEncoder);
@@ -286,7 +286,6 @@ void Controller::OnKeyDown(const Event::KeyboardEvent& event) {
 #if DEVBUILD
 
 	if (event.keyCode == VK_LMENU) {
-		
 		m_drawUi = !m_drawUi;
 	}
 #endif
