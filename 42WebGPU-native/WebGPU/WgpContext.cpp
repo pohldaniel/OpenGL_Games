@@ -175,10 +175,11 @@ bool wgpCreateDevice(void* window) {
 
 	WGPUUncapturedErrorCallbackInfo errorCallbackInfo = {};
 	errorCallbackInfo.callback = OnErrorDevice;
-
+	
 	std::vector<WGPUFeatureName> deviceFeatures;
 	deviceFeatures.push_back(WGPUFeatureName::WGPUFeatureName_PrimitiveIndex);
 	deviceFeatures.push_back(WGPUFeatureName::WGPUFeatureName_DawnMultiPlanarFormats);
+	deviceFeatures.push_back(WGPUFeatureName::WGPUFeatureName_Float32Filterable);
 	//deviceFeatures.push_back(WGPUFeatureName::WGPUFeatureName_SharedTextureMemoryD3D12Resource);
 	//deviceFeatures.push_back(WGPUFeatureName::WGPUFeatureName_SharedTextureMemoryDXGISharedHandle);
 

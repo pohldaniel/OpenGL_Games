@@ -46,6 +46,16 @@ class HDRBloom : public State, public MouseEventListener, public KeyboardEventLi
 		float filterRadius;
 		float padding[3];
 	};
+	struct CompositeUniforms {
+		float exposure = 1.0f;
+		float bloomStrength = 0.04f;
+		float padding[2] = { 0.0f, 0.0f };
+	};
+
+	struct Light {
+		Vector4f position;
+		Vector4f color;
+	};
 public:
 
 	HDRBloom(StateMachine& machine);
@@ -95,10 +105,11 @@ private:
 
 	Camera m_camera;
 	Uniforms m_uniforms;
-	Shape m_cube;
+	CompositeUniforms m_compositeUniforms;
+	Shape m_cube, m_cubeE;
 
-	WgpBuffer m_uniformBuffer, m_storageBuffer, m_downSampleBuffer, m_upSampleBuffer;
-	WgpModel m_wgpCube;
+	WgpBuffer m_uniformBuffer, m_storageBuffer, m_downSampleBuffer, m_upSampleBuffer, m_compositeBuffer, m_lightBuffer;
+	WgpModel m_wgpCube, m_wgpCubeE;
 	WgpTexture m_wgpSceneTarget, m_wgpSceneDepth;
 	WgpTexture wgpTextureEmpty, wgpTextureWood, wgpTextureContainer;
 
@@ -107,7 +118,7 @@ private:
 
 	std::vector<Instance> m_instances;
 	std::vector<Vector3f> m_lightPositions;
-	std::vector<Vector3f> m_lightColors;
+	std::vector<Vector4f> m_lightColors;
 
 	BloomFBO m_bloomFBO;
 	std::vector<WGPUBindGroup> m_downsampleBindGroups;

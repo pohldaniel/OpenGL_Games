@@ -26,7 +26,7 @@ vec3 bloom_new()
 {
     vec3 hdrColor = texture(scene, TexCoords).rgb;
     vec3 bloomColor = texture(bloomBlur, TexCoords).rgb;
-    return mix(hdrColor, bloomColor, bloomStrength); // linear interpolation
+    return mix(hdrColor, bloomColor, bloomStrength);
 }
 
 void main()

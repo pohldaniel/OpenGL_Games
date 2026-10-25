@@ -6,10 +6,16 @@ struct VertexOutput {
 @vertex
 fn vs_main(@builtin(vertex_index) vertexIndex: u32) -> VertexOutput {
     var out: VertexOutput;
-    // Generiert ein bildschirmfüllendes Dreieck aus dem Index (0, 1, 2)
-    let uv = vec2<f32>(f32((vertexIndex << 1u) & 2u), f32(vertexIndex & 2u));
-    out.position = vec4<f32>(uv * 2.0 - 1.0, 0.0, 1.0);
-    out.texCoord = vec2<f32>(uv.x, 1.0 - uv.y); // Y-Achse für WebGPU flippen
+    if (vertexIndex == 0u) {
+        out.position = vec4<f32>(-1.0, -1.0, 0.0, 1.0);
+        out.texCoord = vec2<f32>(0.0, 1.0); 
+    } else if (vertexIndex == 1u) {
+        out.position = vec4<f32>(3.0, -1.0, 0.0, 1.0);
+        out.texCoord = vec2<f32>(2.0, 1.0);
+    } else {
+        out.position = vec4<f32>(-1.0, 3.0, 0.0, 1.0);
+        out.texCoord = vec2<f32>(0.0, -1.0);
+    }
     return out;
 }
 
@@ -43,6 +49,8 @@ fn fs_main(input: VertexOutput) -> @location(0) vec4<f32> {
     upsample += (b + d + f + h) * 2.0;
     upsample += (a + c + g + i);
     upsample *= 1.0 / 16.0;
+
+	
 
     return vec4<f32>(upsample, 1.0);
 }

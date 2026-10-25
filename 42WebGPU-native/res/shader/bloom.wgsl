@@ -8,7 +8,8 @@ struct VertexOutput {
 	@builtin(position) position: vec4f,
 	@location(1) texcoord: vec2f,
 	@location(2) normal: vec3f,
-	@location(3) color: vec4f
+	@location(3) color: vec4f,
+	@location(4) fragPos: vec3f
 };
 
 struct Uniforms {
@@ -33,10 +34,20 @@ struct Instances {
     instances : array<Instance>,
 }
 
+struct Light {
+    position: vec4f,
+    color: vec4f,
+};
+
+struct Lights {
+    lights : array<Light>,
+}
+
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
 @group(0) @binding(1) var<storage, read> strg : Instances;
 @group(0) @binding(2) var smplr: sampler;
 @group(0) @binding(3) var texture: texture_2d<f32>;
+@group(0) @binding(4) var<storage, read> lights: Lights;
 
 @vertex
 fn vs_main(in: VertexInput, @builtin(instance_index) instanceIndex : u32) -> VertexOutput {
@@ -47,11 +58,37 @@ fn vs_main(in: VertexInput, @builtin(instance_index) instanceIndex : u32) -> Ver
 	out.normal = (instance.model * vec4f(in.normal, 0.0)).xyz;
 	out.texcoord = in.texcoord;
 	out.color = instance.color;
+	out.fragPos = (instance.model * vec4f(in.position, 1.0)).xyz;
 	return out;
 }
 
 @fragment
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
-	let sample = textureSample(texture, smplr, in.texcoord);
-	return sample * in.color;
+
+	let color = textureSample(texture, smplr, in.texcoord).rgb * in.color.rgb;
+    let normal = normalize(in.normal);
+	
+	let ambient = 0.0 * color;
+    // lighting
+    var lighting = vec3f(0.0);
+    let viewDir = normalize(uniforms.camPos - in.fragPos);
+	
+	for(var i = 0; i < 4; i++){
+		let light = lights.lights[i];
+		
+		let lightDir = normalize(light.position.xyz - in.fragPos);
+		let diff = max(dot(lightDir, normal), 0.0);
+        var result = light.color.rgb * diff * color;  
+		
+		let distance = length(in.fragPos - light.position.xyz);
+        result *= 1.0 / (distance * distance);
+        lighting += result;
+	}
+	
+	let result = ambient + lighting;
+    // check whether result is higher than some threshold, if so, output as bloom threshold color
+    let brightness = dot(result, vec3f(0.2126, 0.7152, 0.0722));
+
+	
+	return vec4f(result, 1.0);
 }

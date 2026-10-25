@@ -36,11 +36,12 @@ public:
 	void flatShading();
 
 	void rewind();
+	void flipNormal();
 	void scale(float sx, float sy, float sz);
 	void scale(float s);
 	void rotate(float pitch, float yaw, float roll);
 	void translate(float dx, float dy, float dz);
-
+	
 private:
 
 	std::vector<unsigned int> m_indexBuffer;
@@ -51,6 +52,7 @@ private:
 	static std::array<float, 3> Cross(const std::array<float, 3>& p, const std::array<float, 3>& q);
 
 	static void Rewind(std::vector<unsigned int>& indexBuffer);
+	static void FlipNormal(std::vector<float>& vertexBuffer, unsigned int stride);
 	void static Scale(float sx, float sy, float sz, std::vector<float>& vertexBuffer, unsigned int stride);
 	void static Rotate(float pitchR, float yawR, float rollR, std::vector<float>& vertexBuffer, unsigned int stride);
 	void static Translate(float dx, float dy, float dz, std::vector<float>& vertexBuffer, unsigned int stride);

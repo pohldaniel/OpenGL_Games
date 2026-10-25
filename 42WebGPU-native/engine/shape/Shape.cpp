@@ -181,6 +181,10 @@ void Shape::rewind() {
 	Shape::Rewind(m_indexBuffer);
 }
 
+void Shape::flipNormal() {
+	Shape::FlipNormal(m_vertexBuffer, m_stride);
+}
+
 void Shape::scale(float sx, float sy, float sz) {
 	Shape::Scale(sx, sy, sz, m_vertexBuffer, m_stride);
 }
@@ -202,6 +206,25 @@ void Shape::Rewind(std::vector<unsigned int>& indexBuffer) {
 		unsigned int index2 = indexBuffer[i + 1];
 		indexBuffer[i + 1] = indexBuffer[i + 2];
 		indexBuffer[i + 2] = index2;
+	}
+}
+
+void Shape::FlipNormal(std::vector<float>& vertexBuffer, unsigned int stride) {
+	if (stride < 6u)
+		return;
+
+	if (stride == 6u) {
+		for (size_t i = 0; i < vertexBuffer.size() / stride; ++i) {
+			vertexBuffer[i * stride + 3] = -vertexBuffer[i * stride + 3];
+			vertexBuffer[i * stride + 4] = -vertexBuffer[i * stride + 4];
+			vertexBuffer[i * stride + 5] = -vertexBuffer[i * stride + 5];
+		}
+	}else {
+		for (size_t i = 0; i < vertexBuffer.size() / stride; ++i) {
+			vertexBuffer[i * stride + 5] = -vertexBuffer[i * stride + 5];
+			vertexBuffer[i * stride + 6] = -vertexBuffer[i * stride + 6];
+			vertexBuffer[i * stride + 7] = -vertexBuffer[i * stride + 7];
+		}
 	}
 }
 

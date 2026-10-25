@@ -54,6 +54,10 @@ void WgpTexture::setTextureUsage(WGPUTextureUsage textureUsage) {
     m_textureUsage = textureUsage;
 }
 
+void WgpTexture::setTextureFormat(WGPUTextureFormat format) {
+    m_format = format;
+}
+
 void WgpTexture::setFlipHorizontal(bool flipHorizontal) {
     m_flipHorizontal = flipHorizontal;
 }
@@ -297,8 +301,7 @@ void WgpTexture::loadFromFile(const std::string& fileName, bool flipVertical, sh
     m_width = width;
     m_height = height;
     m_channels = channels;
-    m_format = WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm;
-
+    m_format = m_format == WGPUTextureFormat::WGPUTextureFormat_Undefined ?  WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm : m_format;
     uint32_t mipLevelCount = BitWidth(std::max(m_width, m_height));
     m_texture = wgpCreateTexture(m_width, m_height, 1u, m_textureUsage, m_format, mipLevelCount);
     WriteMipMaps(m_texture, { m_width, m_height, 1u }, mipLevelCount, imageData);
@@ -387,7 +390,7 @@ void WgpTexture::loadFromMemory(unsigned char* data, uint32_t size, bool flipVer
     m_width = width;
     m_height = height;
     m_channels = channels;
-    m_format = WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm;
+    m_format = m_format == WGPUTextureFormat::WGPUTextureFormat_Undefined ? WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm : m_format;
 
     uint32_t mipLevelCount = BitWidth(std::max(m_width, m_height));
     m_texture = wgpCreateTexture(m_width, m_height, 1u, m_textureUsage, m_format, mipLevelCount);
@@ -434,7 +437,7 @@ void WgpTexture::loadHDRICubeFromFile(const std::string& fileName, bool flipVert
     pixels = EquirectangularToCross(reinterpret_cast<float*>(pixels), m_width, m_height);
     std::vector<unsigned char*> faces = CrossToFaces(pixels, m_width, sizeof(float), m_height);
 
-    m_format = halfBPP ? WGPUTextureFormat::WGPUTextureFormat_RGBA16Float : WGPUTextureFormat::WGPUTextureFormat_RGBA32Float;
+    m_format = m_format == WGPUTextureFormat::WGPUTextureFormat_Undefined ? halfBPP ? WGPUTextureFormat::WGPUTextureFormat_RGBA16Float : WGPUTextureFormat::WGPUTextureFormat_RGBA32Float : m_format;
 
     uint32_t faceWidth = m_width > m_height ? m_width / 4u : m_width / 3u;
     uint32_t faceHeight = m_height > m_width ? m_height / 4u : m_height / 3u;
@@ -480,7 +483,7 @@ void WgpTexture::loadHDRIFromFile(const std::string& fileName, bool flipVertical
     m_width = width;
     m_height = height;
     m_channels = channels;
-    m_format = halfBPP ? WGPUTextureFormat::WGPUTextureFormat_RGBA16Float : WGPUTextureFormat::WGPUTextureFormat_RGBA32Float;
+    m_format = m_format == WGPUTextureFormat::WGPUTextureFormat_Undefined ? halfBPP ? WGPUTextureFormat::WGPUTextureFormat_RGBA16Float : WGPUTextureFormat::WGPUTextureFormat_RGBA32Float : m_format;
 
     uint32_t mipLevelCount = BitWidth(std::max(m_width, m_height));
 
@@ -526,7 +529,7 @@ void WgpTexture::loadCubeFromFiles(const std::string* fileNames, bool flipVertic
             m_width = width;
             m_height = height;
             m_channels = channels;
-            m_format = WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm;
+            m_format = m_format == WGPUTextureFormat::WGPUTextureFormat_Undefined ? WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm : m_format;
             mipLevelCount  = BitWidth(std::max(m_width, m_height));
             m_texture = wgpCreateTexture(m_width, m_height, 6u, m_textureUsage, m_format, mipLevelCount);
         }

@@ -37,7 +37,10 @@ fn KarisAverage(col: vec3<f32>) -> f32 {
 
 @fragment
 fn fs_main(input: VertexOutput) -> @location(0) vec4<f32> {
-    let srcTexelSize = 1.0 / uniforms.srcResolution;
+    let texDims = textureDimensions(srcTexture, 0); 
+    
+    // Mathematisch exakte Texelgröße direkt aus der GPU-Hardware
+    let srcTexelSize = vec2<f32>(1.0 / f32(texDims.x), 1.0 / f32(texDims.y));
     let x = srcTexelSize.x;
     let y = srcTexelSize.y;
     let uv = input.texCoord;
