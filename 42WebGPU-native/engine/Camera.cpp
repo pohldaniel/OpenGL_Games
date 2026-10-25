@@ -250,19 +250,19 @@ void Camera::perspective(float fovx, float aspect, float znear, float zfar){
 
 void Camera::orthographic(float left, float right, float bottom, float top, float znear, float zfar){
 
-	m_orthMatrix[0][0] = 2 / (right - left);
+	m_orthMatrix[0][0] = 2.0f / (right - left);
 	m_orthMatrix[0][1] = 0.0f;
 	m_orthMatrix[0][2] = 0.0f;
 	m_orthMatrix[0][3] = 0.0f;
 
 	m_orthMatrix[1][0] = 0.0f;
-	m_orthMatrix[1][1] = 2 / (top - bottom);
+	m_orthMatrix[1][1] = 2.0f / (top - bottom);
 	m_orthMatrix[1][2] = 0.0f;
 	m_orthMatrix[1][3] = 0.0f;
 
 	m_orthMatrix[2][0] = 0.0f;
 	m_orthMatrix[2][1] = 0.0f;
-	m_orthMatrix[2][2] = 1 / (zfar - znear);
+	m_orthMatrix[2][2] = 1.0f / (zfar - znear);
 	m_orthMatrix[2][3] = 0.0f;
 
 	m_orthMatrix[3][0] = (right + left) / (left - right);

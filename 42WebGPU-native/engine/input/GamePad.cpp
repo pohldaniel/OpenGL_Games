@@ -148,7 +148,6 @@ bool XInputController::buttonPressed(GamepadButton button) const {
 }
 
 bool XInputController::buttonDown(GamepadButton button) const {
-	
 	return m_pCurrButtonStates[button];
 }
 

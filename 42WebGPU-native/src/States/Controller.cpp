@@ -217,11 +217,11 @@ void Controller::update() {
 			m_state = 18;
 		}
 
-		if (player1 && player1->buttonDown(GamepadButton::GAMEPAD_LEFT_TRIGGER)) {
+		if (player1->buttonDown(GamepadButton::GAMEPAD_LEFT_TRIGGER)) {
 			m_state = 19;
 		}
 
-		if (player1 && player1->buttonDown(GamepadButton::GAMEPAD_RIGHT_TRIGGER)) {
+		if (player1->buttonDown(GamepadButton::GAMEPAD_RIGHT_TRIGGER)) {
 			m_state = 20;
 		}
 	}
