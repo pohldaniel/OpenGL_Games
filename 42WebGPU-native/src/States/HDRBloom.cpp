@@ -456,3 +456,7 @@ void HDRBloom::renderStick(float x, float y, float stickX, float stickY) {
 	instance[16] = 1.0f; instance[17] = 0.0f; instance[18] = 0.0f; instance[19] = 1.0f;
 	m_instances.push_back(instance);
 }
+
+void HDRBloom::OnReEnter(unsigned int prevState) {
+	update();
+}

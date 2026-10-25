@@ -79,7 +79,5 @@ private:
 	WgpBuffer m_uniformBuffer, m_storageBuffer;
 	WgpModel m_wgpCube;
 
-	WGPUBindGroup m_bindGroup;
-
 	std::vector<SceneNode*> m_children;
 };

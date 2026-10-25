@@ -6,9 +6,6 @@
 #include <WebGPU/WgpContext.h>
 #include <WebGPU/WgpRenderer.h>
 
-#include <Nuklear/NkContext.h>
-#include <Nuklear/NkStyle.h>
-
 #include <Physics/Physics.h>
 
 #include <States/Menu.h>
@@ -32,9 +29,6 @@ Cubes::Cubes(StateMachine& machine) : State(machine, States::CUBES) {
 	wgpSetSurfaceDepthFormat(WGPUTextureFormat::WGPUTextureFormat_Depth24Plus, Application::OnSurfaceChange);
 
 	Physics::DebugDrawer.init();
-	nkInit(static_cast<float>(Application::Width), static_cast<float>(Application::Height));
-	nkInitFont("res/fonts/upheavtt.ttf");
-
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f,  -1.0f, 1.0f);
 	m_camera.lookAt(Vector3f(10.0f, 4.3f, 10.0f), Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 1.0f, 0.0f));
