@@ -1,5 +1,5 @@
 #pragma once
-
+#include <functional>
 #include <webgpu.h>
 
 class WgpTexture;

@@ -4,6 +4,7 @@
 #include <imgui_internal.h>
 
 #include <engine/input/GamePad.h>
+#include <WebGPU/WgpRenderer.h>
 #include <States/Menu.h>
 
 #include "Globals.h"
@@ -14,19 +15,23 @@ HDRBloom::HDRBloom(StateMachine& machine) : State(machine, States::HDR_BLOOM) {
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
+	Mouse::instance().attach(Application::GetWindow(), false, true);
 
 	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm, Application::OnSurfaceChange);
 	wgpSetSurfaceDepthFormat(WGPUTextureFormat::WGPUTextureFormat_Depth24Plus, Application::OnSurfaceChange);
 
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f , -1.0f, 1.0f);
-	m_camera.lookAt(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.lookAt(Vector3f(0.0f, 0.0f, 5.0f), Vector3f(0.0f, 0.0f, -5.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setMovingSpeed(10.0f);
 	m_camera.setRotationSpeed(0.1f);
 
-	m_storageBuffer.createBuffer(20u * sizeof(float) * 200u, WGPUBufferUsage_CopyDst | WGPUBufferUsage_Storage);
+	m_downSampleBuffer.createBuffer(sizeof(DownsampleUniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
+	m_upSampleBuffer.createBuffer(sizeof(UpsampleUniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
+
+	m_storageBuffer.createBuffer(sizeof(Instance) * 20u, WGPUBufferUsage_CopyDst | WGPUBufferUsage_Storage);
 	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
-	m_uniforms.projection = m_camera.getOrthographicMatrix();
+	m_uniforms.projection = m_camera.getPerspectiveMatrix();
 	m_uniforms.view = m_camera.getViewMatrix();
 	m_uniforms.env = m_camera.getRotationMatrix();
 	m_uniforms.model = Matrix4f::IDENTITY;
@@ -39,30 +44,74 @@ HDRBloom::HDRBloom(StateMachine& machine) : State(machine, States::HDR_BLOOM) {
 
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
 
-	wgpContext.addSahderModule("COLOR_PT", "res/shader/controller.wgsl");
-	wgpContext.createRenderPipeline("COLOR_PT", "RP_COLOR_PT", VL_PT, std::bind(&HDRBloom::OnBindGroupLayouts, this));
+	m_wgpSceneTarget.createEmpty(Application::Width, Application::Height, 1u, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_RenderAttachment, WGPUTextureFormat_BGRA8Unorm, 1u, 1u);
+	m_wgpSceneDepth.createEmpty(Application::Width, Application::Height, 1u, WGPUTextureUsage_RenderAttachment, WGPUTextureFormat_Depth24Plus, 1u, 1u);
 
-	m_disk.buildSegmentXY({ 0.0f, 0.0f, 0.0f }, 20.0f, 0.0f, 360.0f, 1u, 30u, true, false);
-	m_disk.rewind();
+	wgpContext.addSahderModule("BASE", "res/shader/bloom.wgsl");
+	wgpContext.createRenderPipeline("BASE", "RP_BASE", VL_PTN, std::bind(&HDRBloom::OnBindGroupLayouts, this), 1u);
 
-	m_quad.buildQuadXY({ -100.0f, -100.0f, 0.0f }, { 200.0f, 200.0f }, 1u, 1u, true, false);
-	m_quad.rewind();
+	wgpContext.addSahderModule("DOWN", "res/shader/bloom_down.wgsl");
+	wgpContext.createRenderPipeline("DOWN", "RP_DOWN", VL_NONE, std::bind(&HDRBloom::OnBindGroupLayoutsDown, this), 1u,
+		WGPUPrimitiveTopology_TriangleList,
+		WGPUTextureFormat_RGBA16Float,
+		WGPUTextureFormat_Undefined,
+		WGPUCompareFunction_LessEqual,
+		{  FRAGMENT_STATE, ColorMode::WRITE_RGBA, DepthMode::PASS, StencilMode::DEFAULT, BlendMode::ADDITIVE_BLENDING_ONE });
 
-	m_wgpDisk.create(m_disk);
-	m_wgpDisk.setBindGroups("BG", std::bind(&HDRBloom::OnBindGroups, this));
+	wgpContext.addSahderModule("UP", "res/shader/bloom_up.wgsl");
+	wgpContext.createRenderPipeline("UP", "RP_UP", VL_NONE, std::bind(&HDRBloom::OnBindGroupLayoutsUp, this), 1u,
+		WGPUPrimitiveTopology_TriangleList,
+		WGPUTextureFormat_RGBA16Float,
+		WGPUTextureFormat_Undefined,
+		WGPUCompareFunction_LessEqual,
+		{  BLEND_STATE | FRAGMENT_STATE, ColorMode::WRITE_RGBA, DepthMode::PASS, StencilMode::DEFAULT, BlendMode::ADDITIVE_BLENDING_ONE });
 
-	m_wgpQuad.create(m_quad);
-	m_wgpQuad.setBindGroups("BG", std::bind(&HDRBloom::OnBindGroups, this));
+	wgpContext.addSahderModule("BLOOM_COMPOSITE", "res/shader/bloom_composite.wgsl");
+	wgpContext.createRenderPipeline("BLOOM_COMPOSITE", "RP_BLOOM_COMPOSITE", VL_NONE, std::bind(&HDRBloom::OnBindGroupLayoutsComposite, this), 1u);
 
-	wgpContext.setClearColor({ 0.494f, 0.686f, 0.796f, 1.0f });
+	m_cube.buildCube();
+
+	wgpTextureEmpty.createEmpty(2u, 2u, 1u, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst, WGPUTextureFormat_BGRA8Unorm);
+	wgpTextureEmpty.fillLayer();
+
+	wgpTextureWood.loadFromFile("res/textures/wood.png");
+	wgpTextureContainer.loadFromFile("res/textures/container.png");
+
+	m_wgpCube.create(m_cube);
+
+	m_wgpCube.addBindGroup("BG_EMPTY", createBindGroup(wgpTextureEmpty));
+	m_wgpCube.addBindGroup("BG_WOOD", createBindGroup(wgpTextureWood));
+	m_wgpCube.addBindGroup("BG_CONTAINER", createBindGroup(wgpTextureContainer));
+	m_wgpCube.setBindGroupsSlot("BG_EMPTY");
+
+	wgpContext.setClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
 	wgpContext.OnDraw = std::bind(&HDRBloom::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
+
+	
+
+	m_lightPositions.push_back(Vector3f(0.0f, 0.5f, 1.5f));
+	m_lightPositions.push_back(Vector3f(-4.0f, 0.5f, -3.0f));
+	m_lightPositions.push_back(Vector3f(3.0f, 0.5f, 1.0f));
+	m_lightPositions.push_back(Vector3f(-.8f, 2.4f, -1.0f));
+
+	m_lightColors.push_back(Vector3f(5.0f, 5.0f, 5.0f));
+	m_lightColors.push_back(Vector3f(10.0f, 0.0f, 0.0f));
+	m_lightColors.push_back(Vector3f(0.0f, 0.0f, 15.0f));
+	m_lightColors.push_back(Vector3f(0.0f, 5.0f, 0.0f));
+
+	m_bloomFBO.Init(wgpContext.device, Application::Width, Application::Height, 6u);
+	CreateBloomBindGroups(wgpContext.device, 
+		                  wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_UP"), 0u), 
+		                  wgpContext.getSampler(SS_LINEAR_CLAMP), 
+		                  m_wgpSceneTarget.getTextureView());
+
+	m_bindGroupComposite = createBindGroupComposite();
 }
 
 HDRBloom::~HDRBloom() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 	m_uniformBuffer.markForDelete();
-	m_storageBuffer.markForDelete();
 }
 
 void HDRBloom::fixedUpdate() {
@@ -124,112 +173,11 @@ void HDRBloom::update() {
 		}
 	}
 
-	IController* player1 = XInputController::GetPlayer(0)->isConnected() ? XInputController::GetPlayer(0) : RawInputController::GetPlayer(0);
-	m_RightStickX = 0.0f;
-	m_RightStickY = 0.0f;
-	m_LeftStickX = 0.0f;
-	m_LeftStickY = 0.0f;
 
-	m_state = 0;
-	if (player1) {
-
-		m_RightStickX = player1->getRightStickX();
-		m_RightStickY = player1->getRightStickY();
-
-		m_LeftStickX = player1->getLeftStickX();
-		m_LeftStickY = player1->getLeftStickY();
-
-		if (player1->buttonDown(GamepadButton::DPAD_UP)) {
-			m_state = 1;
-		}
-
-		if (player1->buttonDown(GamepadButton::DPAD_RIGHT)) {
-			m_state = 3;
-		}
-
-		if (player1->buttonDown(GamepadButton::DPAD_DOWN)) {
-			m_state = 5;
-		}
-
-		if (player1->buttonDown(GamepadButton::DPAD_LEFT)) {
-			m_state = 7;
-		}
-
-		if (player1->buttonDown(GamepadButton::DPAD_UP_RIGHT)) {
-			m_state = 2;
-		}
-
-		if (player1->buttonDown(GamepadButton::DPAD_DOWN_RIGHT)) {
-			m_state = 4;
-		}
-
-		if (player1->buttonDown(GamepadButton::DPAD_DOWN_LEFT)) {
-			m_state = 6;
-		}
-
-		if (player1->buttonDown(GamepadButton::DPAD_UP_LEFT)) {
-			m_state = 8;
-		}
-
-		if (player1->buttonDown(GamepadButton::GAMEPAD_START)) {
-			m_state = 9;
-		}
-
-		if (player1->buttonDown(GamepadButton::GAMEPAD_BACK)) {
-			m_state = 10;
-		}
-
-		if (player1->buttonDown(GamepadButton::GAMEPAD_LEFT_THUMB)) {
-			m_state = 11;
-		}
-
-		if (player1->buttonDown(GamepadButton::GAMEPAD_RIGHT_THUMB)) {
-			m_state = 12;
-		}
-
-		if (player1->buttonDown(GamepadButton::GAMEPAD_LEFT_SHOULDER)) {
-			m_state = 13;
-		}
-
-		if (player1->buttonDown(GamepadButton::GAMEPAD_RIGHT_SHOULDER)) {
-			m_state = 14;
-		}
-
-		if (player1->buttonDown(GamepadButton::GAMEPAD_A)) {
-			m_state = 15;
-
-			if (player1->buttonDown(GamepadButton::GAMEPAD_A))
-				player1->setVibration(1.0f, 1.0f);
-		}
-
-		if (player1->buttonDown(GamepadButton::GAMEPAD_B)) {
-			m_state = 16;
-
-			if (player1->buttonDown(GamepadButton::GAMEPAD_B))
-				player1->setVibration(0.0f, 0.0f);
-		}
-
-		if (player1->buttonDown(GamepadButton::GAMEPAD_X)) {
-			m_state = 17;
-		}
-
-		if (player1->buttonDown(GamepadButton::GAMEPAD_Y)) {
-			m_state = 18;
-		}
-
-		if (player1->buttonDown(GamepadButton::GAMEPAD_LEFT_TRIGGER)) {
-			m_state = 19;
-		}
-
-		if (player1->buttonDown(GamepadButton::GAMEPAD_RIGHT_TRIGGER)) {
-			m_state = 20;
-		}
-	}
-	
-	m_uniforms.projection = m_camera.getOrthographicMatrix();
+	m_uniforms.projection = m_camera.getPerspectiveMatrix();
 	m_uniforms.view = m_camera.getViewMatrix();
 	m_uniforms.env = m_camera.getRotationMatrix();
-	m_uniforms.model = Matrix4f::Translate(static_cast<float>(Application::Width) * 0.25f, static_cast<float>(Application::Height) * 0.25f, 0.0f);
+	m_uniforms.model = Matrix4f::IDENTITY;
 	m_uniforms.normal = Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_uniforms.model);
 	m_uniforms.camPosition = m_camera.getPosition();
 	m_uniforms.lightVP = Matrix4f::IDENTITY;
@@ -238,17 +186,33 @@ void HDRBloom::update() {
 
 	m_instances.clear();
 
-	renderRectangle(static_cast<float>(Application::Width) * 0.5f + 300.0f, static_cast<float>(Application::Height) * 0.5f);
-	renderRectangle(static_cast<float>(Application::Width) * 0.5f - 300.0f, static_cast<float>(Application::Height) * 0.5f);
+	m_instances.push_back({ Matrix4f::Translate(0.0f, -1.0f, 0.0f) * Matrix4f::Scale(12.5f, 0.5f, 12.5f), 
+		                    Vector4f(1.0f, 1.0f, 1.0f, 1.0f) });
 
-	renderPad(static_cast<float>(Application::Width) * 0.5f - 80.0f, static_cast<float>(Application::Height) * 0.5f + 80.0f, m_state);
-	for (int i = 0; i < 12; i++) {
-		renderButton(i * 50.0f + 50.0f, 50.0f, m_state, i + 9);
+	m_instances.push_back({Matrix4f::Translate(0.0f, 1.5f, 0.0f) * Matrix4f::Scale(0.5f, 0.5f, 0.5f),
+		                    Vector4f(1.0f, 1.0f, 1.0f, 1.0f)});
+
+	m_instances.push_back({ Matrix4f::Translate(2.0f, 0.0f, 1.0f) * Matrix4f::Scale(0.5f, 0.5f, 0.5f), 
+		                    Vector4f(1.0f, 1.0f, 1.0f, 1.0f) });
+
+	m_instances.push_back({ Matrix4f::Translate(-1.0f, -1.0f, 2.0f) * Matrix4f::Rotate(Vector3f::Normalize(Vector3f(1.0, 0.0, 1.0)), 60.0f), 
+		                    Vector4f(1.0f, 1.0f, 1.0f, 1.0f) });
+
+	m_instances.push_back({ Matrix4f::Translate(0.0f, 2.7f, 4.0f) * Matrix4f::Scale(0.5f, 0.5f, 0.5f), 
+		                    Vector4f(1.0f, 1.0f, 1.0f, 1.0f) });
+
+	m_instances.push_back({ Matrix4f::Translate(-2.0f, 1.0f, -3.0f) * Matrix4f::Scale(0.5f, 0.5f, 0.5f), 
+		                    Vector4f(1.0f, 1.0f, 1.0f, 1.0f) });
+
+	m_instances.push_back({ Matrix4f::Translate(-3.0f, 0.0f, 0.0f) * Matrix4f::Rotate(Vector3f::Normalize(Vector3f(1.0, 0.0, 1.0)), 124.0f), 
+		                    Vector4f(1.0f, 1.0f, 1.0f, 1.0f) });
+
+	for (unsigned int i = 0; i < m_lightPositions.size(); i++) {
+		m_instances.push_back({ Matrix4f::Translate(m_lightPositions[i]) * Matrix4f::Scale(0.25f, 0.25f, 0.25f),
+								m_lightColors[i] });
 	}
-	
-	renderStick(static_cast<float>(Application::Width) * 0.5f - 300.0f, static_cast<float>(Application::Height) * 0.5f, m_RightStickX, m_RightStickY);
-	renderStick(static_cast<float>(Application::Width) * 0.5f + 300.0f, static_cast<float>(Application::Height) * 0.5f, m_LeftStickX , m_LeftStickY);
-	wgpuQueueWriteBuffer(wgpContext.queue, m_storageBuffer.getBuffer(), 0u, m_instances.data(), m_instances.size() * sizeof(float) * 20u);
+
+	wgpuQueueWriteBuffer(wgpContext.queue, m_storageBuffer.getBuffer(), 0u, m_instances.data(), m_instances.size() * sizeof(Instance));
 }
 
 void HDRBloom::render() {
@@ -256,30 +220,62 @@ void HDRBloom::render() {
 }
 
 void HDRBloom::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor) {
+	
+
+	WgpRenderer::Draw(m_wgpSceneTarget, m_wgpSceneDepth, [this](const WGPURenderPassEncoder& renderPassEncoder) {
+		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_BASE"));
+		m_wgpCube.setBindGroupsSlot("BG_WOOD");
+		m_wgpCube.draw(renderPassEncoder, 1u, 0u);
+
+		m_wgpCube.setBindGroupsSlot("BG_CONTAINER");
+		m_wgpCube.draw(renderPassEncoder, 6u, 1u);
+
+		m_wgpCube.setBindGroupsSlot("BG_EMPTY");
+		m_wgpCube.draw(renderPassEncoder, 4u, 7u);
+	});
+
+	RenderDownsamples(commandEncoder);
+	RenderUpsamples(commandEncoder, 0.005f);
+
 	{
 		WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDescriptor);
 		wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
-		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_COLOR_PT"));
 
-		m_wgpQuad.draw(renderPassEncoder, 4u, 0u);
-		m_wgpDisk.draw(renderPassEncoder, m_instances.size() - 4u, 4u);
+		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_BLOOM_COMPOSITE"));
+		wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_bindGroupComposite, 0u, NULL);
+		wgpuRenderPassEncoderDraw(renderPassEncoder, 6u, 1u, 0u, 0u);
+
 		wgpuRenderPassEncoderEnd(renderPassEncoder);
 		wgpuRenderPassEncoderRelease(renderPassEncoder);
 	}
+}
 
-	if (m_drawUi) {
-		WGPURenderPassColorAttachment renderPassColorAttachment = renderPassDescriptor.colorAttachments[0];
-		renderPassColorAttachment.loadOp = WGPULoadOp::WGPULoadOp_Load;
+void HDRBloom::OnMouseMotion(const Event::MouseMoveEvent& event) {
 
-		WGPURenderPassDescriptor rndrPssDscrptor = renderPassDescriptor;
-		rndrPssDscrptor.colorAttachments = &renderPassColorAttachment;
+}
 
-		WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &rndrPssDscrptor);
-		wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
-		renderUi(renderPassEncoder);
-		wgpuRenderPassEncoderEnd(renderPassEncoder);
-		wgpuRenderPassEncoderRelease(renderPassEncoder);
+void HDRBloom::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
+	if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {
+
+		Mouse::instance().attach(Application::GetWindow(), false, true);
 	}
+
+	if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT)
+		Mouse::instance().attach(Application::GetWindow(), true, true, true);
+}
+
+void HDRBloom::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
+	if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {
+		
+		Mouse::instance().attach(Application::GetWindow(), false, true);
+	}
+
+	if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT)
+		Mouse::instance().attach(Application::GetWindow(), false, false, true);
+}
+
+void HDRBloom::OnMouseWheel(const Event::MouseWheelEvent& event) {
+
 }
 
 void HDRBloom::OnKeyDown(const Event::KeyboardEvent& event) {
@@ -296,6 +292,14 @@ void HDRBloom::OnKeyDown(const Event::KeyboardEvent& event) {
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new Menu(m_machine));
 	}
+}
+
+void HDRBloom::OnKeyUp(const Event::KeyboardEvent& event) {
+
+}
+
+void HDRBloom::OnReEnter(unsigned int prevState) {
+
 }
 
 void HDRBloom::resize(int deltaW, int deltaH) {
@@ -347,7 +351,7 @@ void HDRBloom::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 std::vector<WGPUBindGroupLayout> HDRBloom::OnBindGroupLayouts() {
 	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
 
-	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(2);
+	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(4);
 	bindingLayoutEntries[0].binding = 0u;
 	bindingLayoutEntries[0].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
 	bindingLayoutEntries[0].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
@@ -356,7 +360,16 @@ std::vector<WGPUBindGroupLayout> HDRBloom::OnBindGroupLayouts() {
 	bindingLayoutEntries[1].binding = 1u;
 	bindingLayoutEntries[1].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
 	bindingLayoutEntries[1].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_ReadOnlyStorage;
-	bindingLayoutEntries[1].buffer.minBindingSize = 20u * sizeof(float);
+	bindingLayoutEntries[1].buffer.minBindingSize = sizeof(Instance);
+
+	bindingLayoutEntries[2].binding = 2u;
+	bindingLayoutEntries[2].visibility = WGPUShaderStage_Fragment;
+	bindingLayoutEntries[2].sampler.type = WGPUSamplerBindingType::WGPUSamplerBindingType_Filtering;
+
+	bindingLayoutEntries[3].binding = 3u;
+	bindingLayoutEntries[3].visibility = WGPUShaderStage_Fragment;
+	bindingLayoutEntries[3].texture.sampleType = WGPUTextureSampleType::WGPUTextureSampleType_Float;
+	bindingLayoutEntries[3].texture.viewDimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
 
 	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
 	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
@@ -367,10 +380,62 @@ std::vector<WGPUBindGroupLayout> HDRBloom::OnBindGroupLayouts() {
 	return bindingLayouts;
 }
 
-std::vector<WGPUBindGroup> HDRBloom::OnBindGroups() {
-	std::vector<WGPUBindGroup> bindGroups(1);
+std::vector<WGPUBindGroupLayout> HDRBloom::OnBindGroupLayoutsDown() {
+	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
 
-	std::vector<WGPUBindGroupEntry> bindGroupEntries(2);
+	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(3);
+	bindingLayoutEntries[0].binding = 0u;
+	bindingLayoutEntries[0].visibility = WGPUShaderStage_Fragment;
+	bindingLayoutEntries[0].sampler.type = WGPUSamplerBindingType::WGPUSamplerBindingType_Filtering;
+
+	bindingLayoutEntries[1].binding = 1u;
+	bindingLayoutEntries[1].visibility = WGPUShaderStage_Fragment;
+	bindingLayoutEntries[1].texture.sampleType = WGPUTextureSampleType::WGPUTextureSampleType_Float;
+	bindingLayoutEntries[1].texture.viewDimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
+
+	bindingLayoutEntries[2].binding = 2u;
+	bindingLayoutEntries[2].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
+	bindingLayoutEntries[2].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
+	bindingLayoutEntries[2].buffer.minBindingSize = sizeof(DownsampleUniforms);
+
+	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
+	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
+	bindGroupLayoutDescriptor.entries = bindingLayoutEntries.data();
+
+	bindingLayouts[0] = wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor);
+
+	return bindingLayouts;
+}
+
+std::vector<WGPUBindGroupLayout> HDRBloom::OnBindGroupLayoutsUp() {
+	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
+
+	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(3);
+	bindingLayoutEntries[0].binding = 0u;
+	bindingLayoutEntries[0].visibility = WGPUShaderStage_Fragment;
+	bindingLayoutEntries[0].sampler.type = WGPUSamplerBindingType::WGPUSamplerBindingType_Filtering;
+
+	bindingLayoutEntries[1].binding = 1u;
+	bindingLayoutEntries[1].visibility = WGPUShaderStage_Fragment;
+	bindingLayoutEntries[1].texture.sampleType = WGPUTextureSampleType::WGPUTextureSampleType_Float;
+	bindingLayoutEntries[1].texture.viewDimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
+
+	bindingLayoutEntries[2].binding = 2u;
+	bindingLayoutEntries[2].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
+	bindingLayoutEntries[2].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
+	bindingLayoutEntries[2].buffer.minBindingSize = sizeof(UpsampleUniforms);
+
+	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
+	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
+	bindGroupLayoutDescriptor.entries = bindingLayoutEntries.data();
+
+	bindingLayouts[0] = wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor);
+
+	return bindingLayouts;
+}
+
+WGPUBindGroup  HDRBloom::createBindGroup(const WgpTexture& texture) {
+	std::vector<WGPUBindGroupEntry> bindGroupEntries(4);
 	bindGroupEntries[0].binding = 0u;
 	bindGroupEntries[0].buffer = m_uniformBuffer.getBuffer();
 	bindGroupEntries[0].offset = 0u;
@@ -381,82 +446,328 @@ std::vector<WGPUBindGroup> HDRBloom::OnBindGroups() {
 	bindGroupEntries[1].offset = 0u;
 	bindGroupEntries[1].size = wgpuBufferGetSize(m_storageBuffer.getBuffer());
 
+	bindGroupEntries[2].binding = 2u;
+	bindGroupEntries[2].sampler = wgpContext.getSampler(SS_LINEAR_CLAMP);
+
+	bindGroupEntries[3].binding = 3u;
+	bindGroupEntries[3].textureView = texture.getTextureView();
+
 	WGPUBindGroupDescriptor bindGroupDesc = {};
-	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_COLOR_PT"), 0u);
+	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_BASE"), 0u);
 	bindGroupDesc.entryCount = (uint32_t)bindGroupEntries.size();
 	bindGroupDesc.entries = bindGroupEntries.data();
-	bindGroups[0] = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
-
-	return bindGroups;
+	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
 }
 
-void HDRBloom::renderRectangle(float x, float y) {
-	std::array<float, 20> instance;
-	instance[0] = 1.03f; instance[1] = 0.0f; instance[2] = 0.0f; instance[3] = 0.0f;
-	instance[4] = 0.0f; instance[5] = 1.03f; instance[6] = 0.0f; instance[7] = 0.0f;
-	instance[8] = 0.0f; instance[9] = 0.0f; instance[10] = 1.03f; instance[11] = 0.0f;
-	instance[12] = x; instance[13] = y; instance[14] = 0.0f; instance[15] = 1.0f;
-	instance[16] = 0.0f; instance[17] = 0.0f; instance[18] = 0.0f; instance[19] = 1.0f;
-	m_instances.push_back(instance);
+std::vector<WGPUBindGroupLayout> HDRBloom::OnBindGroupLayoutsComposite() {
+	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
 
-	instance[0] = 1.0f; instance[1] = 0.0f; instance[2] = 0.0f; instance[3] = 0.0f;
-	instance[4] = 0.0f; instance[5] = 1.0f; instance[6] = 0.0f; instance[7] = 0.0f;
-	instance[8] = 0.0f; instance[9] = 0.0f; instance[10] = 1.0f; instance[11] = 0.0f;
-	instance[12] = x; instance[13] = y; instance[14] = 0.0f; instance[15] = 1.0f;
-	instance[16] = 1.0f; instance[17] = 1.0f; instance[18] = 1.0f; instance[19] = 1.0f;
-	m_instances.push_back(instance);
+	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(3);
+	bindingLayoutEntries[0].binding = 0u;
+	bindingLayoutEntries[0].visibility = WGPUShaderStage_Fragment;
+	bindingLayoutEntries[0].sampler.type = WGPUSamplerBindingType::WGPUSamplerBindingType_Filtering;
+
+	bindingLayoutEntries[1].binding = 1u;
+	bindingLayoutEntries[1].visibility = WGPUShaderStage_Fragment;
+	bindingLayoutEntries[1].texture.sampleType = WGPUTextureSampleType::WGPUTextureSampleType_Float;
+	bindingLayoutEntries[1].texture.viewDimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
+	bindingLayoutEntries[1].texture.multisampled = false;
+
+	bindingLayoutEntries[2].binding = 2u;
+	bindingLayoutEntries[2].visibility = WGPUShaderStage_Fragment;
+	bindingLayoutEntries[2].texture.sampleType = WGPUTextureSampleType::WGPUTextureSampleType_Float;
+	bindingLayoutEntries[2].texture.viewDimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
+	bindingLayoutEntries[2].texture.multisampled = false;
+
+	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
+	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
+	bindGroupLayoutDescriptor.entries = bindingLayoutEntries.data();
+
+	bindingLayouts[0] = wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor);
+
+	return bindingLayouts;
 }
 
-void HDRBloom::renderPad(float x, float y, long value) {
-	for (int i = 1; i < 9; i++) {
-		float xPos = (sinf(M_PI_4 * i - M_PI_4) * 80.0f) + 80.0f;
-		float yPos = (cosf(M_PI_4 * i - M_PI_4) * 80.0f) + 80.0f;
+/*WGPUBindGroup HDRBloom::createBindGroupDown() {
+	std::vector<WGPUBindGroupEntry> bindGroupEntries(3);
+	bindGroupEntries[0].binding = 0u;
+	bindGroupEntries[0].sampler = wgpContext.getSampler(SS_LINEAR_CLAMP);
 
-		std::array<float, 20> instance;
-		instance[0] = 1.15f; instance[1] = 0.0f; instance[2] = 0.0f; instance[3] = 0.0f;
-		instance[4] = 0.0f; instance[5] = 1.15f; instance[6] = 0.0f; instance[7] = 0.0f;
-		instance[8] = 0.0f; instance[9] = 0.0f; instance[10] = 1.15f; instance[11] = 0.0f;
-		instance[12] = x + xPos; instance[13] = y - yPos; instance[14] = 0.0f; instance[15] = 1.0f;
-		instance[16] = 0.0f; instance[17] = 0.0f; instance[18] = 0.0f; instance[19] = 1.0f;
-		m_instances.push_back(instance);
+	bindGroupEntries[1].binding = 1u;
+	bindGroupEntries[1].textureView = m_wgpSceneTarget.getTextureView();
 
-		instance[0] = 1.0f; instance[1] = 0.0f; instance[2] = 0.0f; instance[3] = 0.0f;
-		instance[4] = 0.0f; instance[5] = 1.0f; instance[6] = 0.0f; instance[7] = 0.0f;
-		instance[8] = 0.0f; instance[9] = 0.0f; instance[10] = 1.0f; instance[11] = 0.0f;
-		instance[12] = x + xPos; instance[13] = y - yPos; instance[14] = 0.0f; instance[15] = 1.0f;
-		instance[16] = 1.0f; instance[17] = value == i ? 0.0f : 1.0f; instance[18] = value == i ? 0.0f : 1.0f; instance[19] = 1.0f;
-		m_instances.push_back(instance);
+	bindGroupEntries[2].binding = 2u;
+	bindGroupEntries[2].buffer = m_downSampleBuffer.getBuffer();
+	bindGroupEntries[2].offset = 0u;
+	bindGroupEntries[2].size = wgpuBufferGetSize(m_downSampleBuffer.getBuffer());
+
+	WGPUBindGroupDescriptor bindGroupDesc = {};
+	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_UP"), 0u);
+	bindGroupDesc.entryCount = (uint32_t)bindGroupEntries.size();
+	bindGroupDesc.entries = bindGroupEntries.data();
+
+	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
+}
+
+WGPUBindGroup  HDRBloom::createBindGroupUp() {
+	std::vector<WGPUBindGroupEntry> bindGroupEntries(3);
+	bindGroupEntries[0].binding = 0u;
+	bindGroupEntries[0].sampler = wgpContext.getSampler(SS_LINEAR_CLAMP);
+
+	bindGroupEntries[1].binding = 1u;
+	bindGroupEntries[1].textureView = m_wgpSceneTarget.getTextureView();
+
+	bindGroupEntries[2].binding = 2u;
+	bindGroupEntries[2].buffer = m_upSampleBuffer.getBuffer();
+	bindGroupEntries[2].offset = 0u;
+	bindGroupEntries[2].size = wgpuBufferGetSize(m_upSampleBuffer.getBuffer());
+
+	WGPUBindGroupDescriptor bindGroupDesc = {};
+	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_UP"), 0u);
+	bindGroupDesc.entryCount = (uint32_t)bindGroupEntries.size();
+	bindGroupDesc.entries = bindGroupEntries.data();
+
+	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
+}*/
+
+WGPUBindGroup HDRBloom::createBindGroupComposite() {
+	std::vector<WGPUBindGroupEntry> bindGroupEntries(3);
+
+	bindGroupEntries[0].binding = 0u;
+	bindGroupEntries[0].sampler = wgpContext.getSampler(SS_LINEAR_CLAMP);
+
+	bindGroupEntries[1].binding = 1u;
+	bindGroupEntries[1].textureView = m_wgpSceneTarget.getTextureView();
+
+	bindGroupEntries[2].binding = 2u;
+	bindGroupEntries[2].textureView = m_bloomFBO.mMipChain[0].sampledView;
+
+	WGPUBindGroupDescriptor bindGroupDesc = {};
+	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_BLOOM_COMPOSITE"), 0u);
+	bindGroupDesc.entryCount = (uint32_t)bindGroupEntries.size();
+	bindGroupDesc.entries = bindGroupEntries.data();
+
+	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
+}
+
+void HDRBloom::CreateBloomBindGroups(WGPUDevice device, WGPUBindGroupLayout layout, WGPUSampler sampler, WGPUTextureView sceneColorView) {
+	size_t mipCount = m_bloomFBO.mMipChain.size();
+	m_downsampleBindGroups.resize(mipCount);
+	m_upsampleBindGroups.resize(mipCount);
+
+	for (size_t i = 0; i < mipCount; i++) {
+		// --- DOWNSAMPLE ---
+		WGPUTextureView currentSrcView = (i == 0) ? sceneColorView : m_bloomFBO.mMipChain[i - 1].sampledView;
+
+		std::array<WGPUBindGroupEntry, 3> downsampleEntries{};
+		downsampleEntries[0].binding = 0;
+		downsampleEntries[0].sampler = sampler;
+		downsampleEntries[1].binding = 1;
+		downsampleEntries[1].textureView = currentSrcView;
+		downsampleEntries[2].binding = 2;
+		downsampleEntries[2].buffer = m_downSampleBuffer.getBuffer(); // Der Buffer von vorhin
+		downsampleEntries[2].offset = 0;
+		downsampleEntries[2].size = sizeof(DownsampleUniforms);
+
+		WGPUBindGroupDescriptor downsampleDesc{};
+		downsampleDesc.layout = layout;
+		downsampleDesc.entryCount = downsampleEntries.size();
+		downsampleDesc.entries = downsampleEntries.data();
+		m_downsampleBindGroups[i] = wgpuDeviceCreateBindGroup(device, &downsampleDesc);
+
+		// --- UPSAMPLE ---
+		std::array<WGPUBindGroupEntry, 3> upsampleEntries{};
+		upsampleEntries[0].binding = 0;
+		upsampleEntries[0].sampler = sampler;
+		upsampleEntries[1].binding = 1;
+		upsampleEntries[1].textureView = m_bloomFBO.mMipChain[i].sampledView;
+		upsampleEntries[2].binding = 2;
+		upsampleEntries[2].buffer = m_upSampleBuffer.getBuffer(); // Der Buffer von vorhin
+		upsampleEntries[2].offset = 0;
+		upsampleEntries[2].size = sizeof(UpsampleUniforms);
+
+		WGPUBindGroupDescriptor upsampleDesc{};
+		upsampleDesc.layout = layout;
+		upsampleDesc.entryCount = upsampleEntries.size();
+		upsampleDesc.entries = upsampleEntries.data();
+		m_upsampleBindGroups[i] = wgpuDeviceCreateBindGroup(device, &upsampleDesc);
 	}
 }
 
-void HDRBloom::renderButton(float x, float y, long value, int index) {
-	std::array<float, 20> instance;
+void HDRBloom::RenderDownsamples(const WGPUCommandEncoder& commandEncoder) {
+	// Nutzt jetzt die Mip-Kette aus deinem m_bloomFBO
+	for (size_t i = 0; i < m_bloomFBO.mMipChain.size(); i++) {
+		const auto& mip = m_bloomFBO.mMipChain[i];
 
-	instance[0] = 1.15f; instance[1] = 0.0f; instance[2] = 0.0f; instance[3] = 0.0f;
-	instance[4] = 0.0f; instance[5] = 1.15f; instance[6] = 0.0f; instance[7] = 0.0f;
-	instance[8] = 0.0f; instance[9] = 0.0f; instance[10] = 1.15f; instance[11] = 0.0f;
-	instance[12] = x; instance[13] = y; instance[14] = 0.0f; instance[15] = 1.0f;
-	instance[16] = 0.0f; instance[17] = 0.0f; instance[18] = 0.0f; instance[19] = 1.0f;
-	m_instances.push_back(instance);
+		// Hier deine Uniform-Daten (z.B. per queueWriteBuffer) aktualisieren
+		this->UpdateDownsampleUniformBuffer(wgpContext.queue, i);
 
-	instance[0] = 1.0f; instance[1] = 0.0f; instance[2] = 0.0f; instance[3] = 0.0f;
-	instance[4] = 0.0f; instance[5] = 1.0f; instance[6] = 0.0f; instance[7] = 0.0f;
-	instance[8] = 0.0f; instance[9] = 0.0f; instance[10] = 1.0f; instance[11] = 0.0f;
-	instance[12] = x; instance[13] = y; instance[14] = 0.0f; instance[15] = 1.0f;
-	instance[16] = 1.0f; instance[17] = value == index ? 0.0f : 1.0f; instance[18] = value == index ? 0.0f : 1.0f; instance[19] = 1.0f;
-	m_instances.push_back(instance);
+		WGPURenderPassColorAttachment colorAttachment{};
+		colorAttachment.view = mip.renderTargetView; // Schreibt direkt in dieses Mip-Level
+		colorAttachment.depthSlice = WGPU_DEPTH_SLICE_UNDEFINED;
+		colorAttachment.loadOp = WGPULoadOp_Clear;
+		colorAttachment.storeOp = WGPUStoreOp_Store;
+		colorAttachment.clearValue = WGPUColor{ 0.0, 0.0, 0.0, 1.0 };
+
+		WGPURenderPassDescriptor passDesc{};
+		passDesc.colorAttachmentCount = 1;
+		passDesc.colorAttachments = &colorAttachment;
+
+		WGPURenderPassEncoder pass = wgpuCommandEncoderBeginRenderPass(commandEncoder, &passDesc);
+
+		// Viewport auf die exakte Größe des aktuellen Mip-Levels zuschneiden
+		wgpuRenderPassEncoderSetViewport(pass, 0.0f, 0.0f, static_cast<float>(mip.width), static_cast<float>(mip.height), 0.0f, 1.0f);
+
+		wgpuRenderPassEncoderSetPipeline(pass, wgpContext.renderPipelines.at("RP_DOWN"));
+
+		// Nutzt die im Vorfeld generierte, passende BindGroup für diese Stufe
+		wgpuRenderPassEncoderSetBindGroup(pass, 0u, m_downsampleBindGroups[i], 0u, nullptr);
+
+		// Zeichnet ein Fullscreen-Triangle
+		wgpuRenderPassEncoderDraw(pass, 3u, 1u, 0u, 0u);
+
+		wgpuRenderPassEncoderEnd(pass);
+		wgpuRenderPassEncoderRelease(pass);
+	}
 }
 
-void HDRBloom::renderStick(float x, float y, float stickX, float stickY) {
-	std::array<float, 20> instance;
-	instance[0] = 1.0f; instance[1] = 0.0f; instance[2] = 0.0f; instance[3] = 0.0f;
-	instance[4] = 0.0f; instance[5] = 1.0f; instance[6] = 0.0f; instance[7] = 0.0f;
-	instance[8] = 0.0f; instance[9] = 0.0f; instance[10] = 1.0f; instance[11] = 0.0f;
-	instance[12] = x + stickX * 50.0f; instance[13] = y - stickY * 50.0f; instance[14] = 0.0f; instance[15] = 1.0f;
-	instance[16] = 1.0f; instance[17] = 0.0f; instance[18] = 0.0f; instance[19] = 1.0f;
-	m_instances.push_back(instance);
+void HDRBloom::RenderUpsamples(const WGPUCommandEncoder& commandEncoder, float filterRadius) {
+	this->UpdateUpsampleUniformBuffer(wgpContext.queue, filterRadius);
+
+	// Rückwärts durch die Mipmap-Kette laufen (von klein nach groß)
+	// Endet bei i > 0, da das Mip-Level 0 das größte Ziel ist, das wir hochskalieren
+	for (int i = static_cast<int>(m_bloomFBO.mMipChain.size()) - 1; i > 0; i--) {
+		const auto& nextMip = m_bloomFBO.mMipChain[i - 1]; // Das größere Ziel-Mip-Level
+
+		WGPURenderPassColorAttachment colorAttachment{};
+		colorAttachment.view = nextMip.renderTargetView;
+		colorAttachment.depthSlice = WGPU_DEPTH_SLICE_UNDEFINED;
+		colorAttachment.loadOp = WGPULoadOp_Load;
+		colorAttachment.storeOp = WGPUStoreOp_Store;
+
+		WGPURenderPassDescriptor passDesc{};
+		passDesc.colorAttachmentCount = 1;
+		passDesc.colorAttachments = &colorAttachment;
+
+		WGPURenderPassEncoder pass = wgpuCommandEncoderBeginRenderPass(commandEncoder, &passDesc);
+
+		wgpuRenderPassEncoderSetViewport(pass, 0.0f, 0.0f, static_cast<float>(nextMip.width), static_cast<float>(nextMip.height), 0.0f, 1.0f);
+
+		wgpuRenderPassEncoderSetPipeline(pass, wgpContext.renderPipelines.at("RP_UP"));
+
+		// BindGroup liest aus Mip 'i'
+		wgpuRenderPassEncoderSetBindGroup(pass, 0u, m_upsampleBindGroups[i], 0u, nullptr);
+
+		wgpuRenderPassEncoderDraw(pass, 3u, 1u, 0u, 0u);
+
+		wgpuRenderPassEncoderEnd(pass);
+		wgpuRenderPassEncoderRelease(pass);
+	}
 }
 
-void HDRBloom::OnReEnter(unsigned int prevState) {
-	update();
+bool BloomFBO::Init(WGPUDevice device, unsigned int windowWidth, unsigned int windowHeight, unsigned int mipChainLength) {
+	if (mInit) return true;
+
+	uint32_t mipWidth = windowWidth;
+	uint32_t mipHeight = windowHeight;
+
+	// 1. Erstelle EINE Textur, die die gesamte Mip-Kette beinhaltet
+	WGPUTextureDescriptor texDesc{};
+	texDesc.nextInChain = nullptr;
+	texDesc.label = WGPU_STR("Bloom Mip-Chain Texture");
+	texDesc.dimension = WGPUTextureDimension_2D;
+	// Die Startgröße ist die der Base-Scene (wird in der Schleife direkt halbiert)
+	texDesc.size = WGPUExtent3D{ mipWidth, mipHeight, 1 };
+	texDesc.mipLevelCount = mipChainLength;
+	texDesc.sampleCount = 1;
+	texDesc.format = WGPUTextureFormat_RGBA16Float; // Perfekt für HDR Bloom
+	// Wichtig: Die Textur muss sowohl als Render-Ziel als auch als Shader-Input dienen können
+	texDesc.usage = WGPUTextureUsage_TextureBinding | WGPUTextureUsage_RenderAttachment;
+
+	m_texture = wgpuDeviceCreateTexture(device, &texDesc);
+	if (!m_texture) return false;
+
+	// 2. Mip-Chain Metadaten und Views generieren
+	for (uint32_t i = 0; i < mipChainLength; i++) {
+		BloomMip mip;
+
+		// Dimensionen wie im GL-Code halbieren (mindestens 1 Pixel)
+		mipWidth = std::max(1u, mipWidth / 2);
+		mipHeight = std::max(1u, mipHeight / 2);
+
+		mip.width = mipWidth;
+		mip.height = mipHeight;
+		mip.size = Vector2f(static_cast<float>(mipWidth), static_cast<float>(mipHeight));
+
+		// --- VIEW A: Für das Rendering in dieses spezifische Mip-Level ---
+		WGPUTextureViewDescriptor rtViewDesc{};
+		rtViewDesc.nextInChain = nullptr;
+		rtViewDesc.label = WGPU_STR("Bloom RenderTarget View Mip");
+		rtViewDesc.format = WGPUTextureFormat_RGBA16Float;
+		rtViewDesc.dimension = WGPUTextureViewDimension_2D;
+		rtViewDesc.baseMipLevel = i;      // <--- Zielt exakt auf Level i
+		rtViewDesc.mipLevelCount = 1;     // <--- Nur genau dieses eine Level isolieren
+		rtViewDesc.baseArrayLayer = 0;
+		rtViewDesc.arrayLayerCount = 1;
+		rtViewDesc.aspect = WGPUTextureAspect_All;
+
+		mip.renderTargetView = wgpuTextureCreateView(m_texture, &rtViewDesc);
+
+		// --- VIEW B: Um aus genau diesem Mip-Level im nächsten Schritt zu lesen ---
+		WGPUTextureViewDescriptor sampleViewDesc{};
+		sampleViewDesc.nextInChain = nullptr;
+		sampleViewDesc.label = WGPU_STR("Bloom Sampled View Mip");
+		sampleViewDesc.format = WGPUTextureFormat_RGBA16Float;
+		sampleViewDesc.dimension = WGPUTextureViewDimension_2D;
+		sampleViewDesc.baseMipLevel = i;  // <--- Liest exakt aus Level i
+		sampleViewDesc.mipLevelCount = 1; // <--- Isoliert für den Shader-Schritt
+		sampleViewDesc.baseArrayLayer = 0;
+		sampleViewDesc.arrayLayerCount = 1;
+		sampleViewDesc.aspect = WGPUTextureAspect_All;
+
+		mip.sampledView = wgpuTextureCreateView(m_texture, &sampleViewDesc);
+
+		mMipChain.emplace_back(mip);
+	}
+
+	mInit = true;
+	return true;
+}
+
+void BloomFBO::Cleanup() {
+	for (auto& mip : mMipChain) {
+		if (mip.renderTargetView) wgpuTextureViewRelease(mip.renderTargetView);
+		if (mip.sampledView) wgpuTextureViewRelease(mip.sampledView);
+	}
+	mMipChain.clear();
+	if (m_texture) {
+		wgpuTextureDestroy(m_texture);
+		wgpuTextureRelease(m_texture);
+		m_texture = nullptr;
+	}
+	mInit = false;
+}
+
+void HDRBloom::UpdateDownsampleUniformBuffer(WGPUQueue queue, size_t mipIndex) {
+	DownsampleUniforms uniforms{};
+
+	// Für Mip 0 ist die Quelle die Base-Scene, danach das jeweils vorherige Mip-Level
+	if (mipIndex == 0) {
+		uniforms.srcResolution = Vector2f(static_cast<float>(Application::Width), static_cast<float>(Application::Height));
+		uniforms.mipLevel = mKarisAverageOnDownsample ? 0u : 1u;
+	}
+	else {
+		const auto& prevMip = m_bloomFBO.mMipChain[mipIndex - 1];
+		uniforms.srcResolution = prevMip.size;
+		uniforms.mipLevel = 1u; // Karis Average nur beim allerersten Downsample
+	}
+
+	wgpuQueueWriteBuffer(queue, m_downSampleBuffer.getBuffer(), 0, &uniforms, sizeof(DownsampleUniforms));
+}
+
+void HDRBloom::UpdateUpsampleUniformBuffer(WGPUQueue queue, float filterRadius) {
+	UpsampleUniforms uniforms{};
+	uniforms.filterRadius = filterRadius;
+
+	wgpuQueueWriteBuffer(queue, m_upSampleBuffer.getBuffer(), 0, &uniforms, sizeof(UpsampleUniforms));
 }
