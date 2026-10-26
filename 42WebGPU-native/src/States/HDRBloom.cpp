@@ -30,8 +30,8 @@ HDRBloom::HDRBloom(StateMachine& machine) : State(machine, States::HDR_BLOOM) {
 	m_upSampleBuffer.createBuffer(sizeof(UpsampleUniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	m_compositeBuffer.createBuffer(sizeof(CompositeUniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 
-	m_compositeUniforms.bloomStrength = 0.1f;
-	m_compositeUniforms.exposure = 2.0f;
+	m_compositeUniforms.bloomStrength = 0.2f;
+	m_compositeUniforms.exposure = 1.0f;
 	wgpuQueueWriteBuffer(wgpContext.queue, m_compositeBuffer.getBuffer(), 0, &m_compositeUniforms, sizeof(CompositeUniforms));
 
 	m_storageBuffer.createBuffer(sizeof(Instance) * 20u, WGPUBufferUsage_CopyDst | WGPUBufferUsage_Storage);
@@ -54,8 +54,15 @@ HDRBloom::HDRBloom(StateMachine& machine) : State(machine, States::HDR_BLOOM) {
 	m_wgpSceneTarget.createEmpty(Application::Width, Application::Height, 1u, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_RenderAttachment, WGPUTextureFormat_BGRA8Unorm, 1u, 1u);
 	m_wgpSceneDepth.createEmpty(Application::Width, Application::Height, 1u, WGPUTextureUsage_RenderAttachment, WGPUTextureFormat_Depth24Plus, 1u, 1u);
 
+
+	m_wgpSceneFilterTarget.createEmpty(Application::Width, Application::Height, 1u, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_RenderAttachment, WGPUTextureFormat_BGRA8Unorm, 1u, 1u);
+	m_wgpSceneFilterDepth.createEmpty(Application::Width, Application::Height, 1u, WGPUTextureUsage_RenderAttachment, WGPUTextureFormat_Depth24Plus, 1u, 1u);
+
 	wgpContext.addSahderModule("BASE", "res/shader/bloom.wgsl");
 	wgpContext.createRenderPipeline("BASE", "RP_BASE", VL_PTN, std::bind(&HDRBloom::OnBindGroupLayouts, this), 1u);
+
+	wgpContext.addSahderModule("BASE_FILTER", "res/shader/bloom_filter.wgsl");
+	wgpContext.createRenderPipeline("BASE_FILTER", "RP_BASE_FILTER", VL_PTN, std::bind(&HDRBloom::OnBindGroupLayouts, this), 1u);
 
 	wgpContext.addSahderModule("DOWN", "res/shader/bloom_down.wgsl");
 	wgpContext.createRenderPipeline("DOWN", "RP_DOWN", VL_NONE, std::bind(&HDRBloom::OnBindGroupLayoutsDown, this), 1u,
@@ -128,7 +135,7 @@ HDRBloom::HDRBloom(StateMachine& machine) : State(machine, States::HDR_BLOOM) {
 	CreateBloomBindGroups(wgpContext.device, 
 		                  wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_UP"), 0u), 
 		                  wgpContext.getSampler(SS_LINEAR_CLAMP), 
-		                  m_wgpSceneTarget.getTextureView());
+		                  m_wgpSceneFilterTarget.getTextureView());
 
 	m_bindGroupComposite = createBindGroupComposite();
 }
@@ -249,6 +256,18 @@ void HDRBloom::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURender
 
 	WgpRenderer::Draw(m_wgpSceneTarget, m_wgpSceneDepth, [this](const WGPURenderPassEncoder& renderPassEncoder) {
 		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_BASE"));
+		m_wgpCube.setBindGroupsSlot("BG_WOOD");
+		m_wgpCube.draw(renderPassEncoder, 1u, 0u);
+
+		m_wgpCube.setBindGroupsSlot("BG_CONTAINER");
+		m_wgpCube.draw(renderPassEncoder, 6u, 1u);
+
+		m_wgpCubeE.setBindGroupsSlot("BG_EMPTY");
+		m_wgpCubeE.draw(renderPassEncoder, 4u, 7u);
+	});
+
+	WgpRenderer::Draw(m_wgpSceneFilterTarget, m_wgpSceneFilterDepth, [this](const WGPURenderPassEncoder& renderPassEncoder) {
+		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_BASE_FILTER"));
 		m_wgpCube.setBindGroupsSlot("BG_WOOD");
 		m_wgpCube.draw(renderPassEncoder, 1u, 0u);
 

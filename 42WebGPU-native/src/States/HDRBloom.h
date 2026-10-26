@@ -83,8 +83,6 @@ private:
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsComposite();
 
 	WGPUBindGroup createBindGroup(const WgpTexture& texture);
-	//WGPUBindGroup createBindGroupDown();
-	//WGPUBindGroup createBindGroupUp();
 	WGPUBindGroup createBindGroupComposite();
 	
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
@@ -110,7 +108,7 @@ private:
 
 	WgpBuffer m_uniformBuffer, m_storageBuffer, m_downSampleBuffer, m_upSampleBuffer, m_compositeBuffer, m_lightBuffer;
 	WgpModel m_wgpCube, m_wgpCubeE;
-	WgpTexture m_wgpSceneTarget, m_wgpSceneDepth;
+	WgpTexture m_wgpSceneTarget, m_wgpSceneDepth, m_wgpSceneFilterTarget, m_wgpSceneFilterDepth;
 	WgpTexture wgpTextureEmpty, wgpTextureWood, wgpTextureContainer;
 
 
