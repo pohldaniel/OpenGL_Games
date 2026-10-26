@@ -23,7 +23,7 @@ struct BloomMip {
 struct BloomFBO {
 
 	struct DownsampleUniforms {
-		Vector2f srcResolution;
+		std::array<float, 2> srcResolution;
 		uint32_t mipLevel;
 		uint32_t padding;
 	};
@@ -35,6 +35,7 @@ struct BloomFBO {
 
 	void init(WGPUDevice device, uint32_t width, uint32_t height, uint32_t mipChainLength, float filterRadius = 0.005f);
 	void createBindGroups(WGPUDevice device, WGPUBindGroupLayout layout, WGPUSampler sampler, WGPUTextureView sceneColorView);
+	void resize(uint32_t width, uint32_t height);
 	void cleanup();
 	bool m_karisAverageOnDownsample = true;
 	std::vector<BloomMip> mMipChain;
@@ -72,6 +73,7 @@ public:
 
 	void resize(int deltaW, int deltaH) override;
 	void OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor);
+	void OnPostDraw();
 	void OnMouseMotion(const Event::MouseMoveEvent& event) override;
 	void OnMouseWheel(const Event::MouseWheelEvent& event) override;
 	void OnMouseButtonDown(const Event::MouseButtonEvent& event) override;
@@ -83,8 +85,7 @@ public:
 private:
 
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayouts();
-	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsDown();
-	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsUp();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsSampler();
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsComposite();
 
 	WGPUBindGroup createBindGroup(const WgpTexture& texture);
@@ -92,10 +93,9 @@ private:
 	
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 	
-
 	bool m_initUi = true;
 	bool m_drawUi = false;
-
+	bool m_wantResize = false;
 	Camera m_camera;
 	Uniforms m_uniforms;
 	CompositeUniforms m_compositeUniforms;

@@ -747,9 +747,10 @@ void wgpCleanState() {
 	}
 
 	wgpContext.clearColor = { 0.2f, 0.2f, 0.2f, 1.0f };
-	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm, Application::OnSurfaceChange);
-	wgpSetSurfaceDepthFormat(WGPUTextureFormat::WGPUTextureFormat_Depth24PlusStencil8, Application::OnSurfaceChange);
-	wgpSetMSAASampleCount(1u, Application::OnSurfaceChange);
+	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm);
+	wgpSetSurfaceDepthFormat(WGPUTextureFormat::WGPUTextureFormat_Depth24PlusStencil8);
+	wgpSetMSAASampleCount(1u); 
+	Application::OnSurfaceChange();
 
 	wgpContext.OnDraw = NULL;
 	wgpContext.OnPostDraw = NULL;
@@ -757,7 +758,7 @@ void wgpCleanState() {
 
 void wgpShutDown() {
 	wgpContext.clearColor = { 0.2f, 0.2f, 0.2f, 1.0f };
-	wgpContext.colorFormat = WGPUTextureFormat::WGPUTextureFormat_BGRA8UnormSrgb;
+	wgpContext.colorFormat = WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm;
 	wgpContext.depthFormat = WGPUTextureFormat::WGPUTextureFormat_Depth24PlusStencil8;
 	wgpContext.msaaSampleCount = 1u;
 
@@ -835,10 +836,30 @@ void wgpToggleVerticalSync() {
 	}
 }
 
+void wgpProcessQueue() {
+	if (!wgpContext.device || !wgpContext.queue || !wgpContext.instance) return;
+
+	std::atomic<bool> done{ false };
+	WGPUQueueWorkDoneCallbackInfo callbackInfo = {};
+	callbackInfo.mode = WGPUCallbackMode_AllowProcessEvents;
+	callbackInfo.callback = [](WGPUQueueWorkDoneStatus status, WGPUStringView message, void* userdata1, void* userdata2) {
+		auto* flag = static_cast<std::atomic<bool>*>(userdata1);
+		flag->store(true);
+	};
+	callbackInfo.userdata1 = &done;
+
+	wgpuQueueOnSubmittedWorkDone(wgpContext.queue, callbackInfo);
+	while (!done.load()) {
+		wgpuDeviceTick(wgpContext.device);
+		wgpuInstanceProcessEvents(wgpContext.instance);
+	}
+}
+
 void wgpSetSurfaceColorFormat(WGPUTextureFormat textureFormat, const std::function<void()>& onSurfaceChange) {
 	if (wgpContext.surface) {
 		wgpContext.colorFormat = textureFormat;
 		wgpContext.config.format = wgpContext.colorFormat;
+		wgpProcessQueue();
 		wgpuSurfaceConfigure(wgpContext.surface, &wgpContext.config);
 
 		if (wgpContext.msaaSampleCount > 1u) {

@@ -60,6 +60,7 @@ extern "C" {
 	void wgpResize(uint32_t width, uint32_t height);
 	void wgpToggleVerticalSync();
 	void wgpConfigureSurface();
+	void wgpProcessQueue();
 	void wgpSetSurfaceColorFormat(WGPUTextureFormat textureFormat, const std::function<void()>& onSurfaceChange = NULL);
 	void wgpSetSurfaceDepthFormat(WGPUTextureFormat textureFormat, const std::function<void()>& onSurfaceChange = NULL);
 	void wgpSetMSAASampleCount(const uint32_t count, const std::function<void()>& onSurfaceChange = NULL);	

@@ -17,8 +17,8 @@ HDRBloom::HDRBloom(StateMachine& machine) : State(machine, States::HDR_BLOOM) {
 	EventDispatcher::AddMouseListener(this);
 	Mouse::instance().attach(Application::GetWindow(), false, true);
 
-	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm, Application::OnSurfaceChange);
-	wgpSetSurfaceDepthFormat(WGPUTextureFormat::WGPUTextureFormat_Depth24Plus, Application::OnSurfaceChange);
+	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm, Application::OnSurfaceChange);
+	wgpSetSurfaceDepthFormat(WGPUTextureFormat::WGPUTextureFormat_Depth24PlusStencil8, Application::OnSurfaceChange);
 
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f , -1.0f, 1.0f);
@@ -48,9 +48,9 @@ HDRBloom::HDRBloom(StateMachine& machine) : State(machine, States::HDR_BLOOM) {
 
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
 
-	m_wgpBrightnessTarget.createEmpty(Application::Width, Application::Height, 1u, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_RenderAttachment, WGPUTextureFormat_BGRA8Unorm, 1u, 1u);
-	m_wgpSceneTarget.createEmpty(Application::Width, Application::Height, 1u, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_RenderAttachment, WGPUTextureFormat_BGRA8Unorm, 1u, 1u);
-	m_wgpSceneDepth.createEmpty(Application::Width, Application::Height, 1u, WGPUTextureUsage_RenderAttachment, WGPUTextureFormat_Depth24Plus, 1u, 1u);
+	m_wgpBrightnessTarget.createEmpty(Application::Width, Application::Height, 1u, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_RenderAttachment, WGPUTextureFormat_RGBA8Unorm, 1u, 1u);
+	m_wgpSceneTarget.createEmpty(Application::Width, Application::Height, 1u, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_RenderAttachment, WGPUTextureFormat_RGBA8Unorm, 1u, 1u);
+	m_wgpSceneDepth.createEmpty(Application::Width, Application::Height, 1u, WGPUTextureUsage_RenderAttachment, WGPUTextureFormat_Depth24PlusStencil8, 1u, 1u);
 
 	wgpContext.addSahderModule("BLOOM", "res/shader/bloom.wgsl");
 	wgpContext.createRenderPipeline("BLOOM", "RP_BLOOM", VL_PTN, std::bind(&HDRBloom::OnBindGroupLayouts, this), 1u,
@@ -58,10 +58,10 @@ HDRBloom::HDRBloom(StateMachine& machine) : State(machine, States::HDR_BLOOM) {
 		WGPUTextureFormat_Undefined,
 		WGPUTextureFormat_Undefined,
 		WGPUCompareFunction_LessEqual,
-		{ DEPTH_STENCIL_STATE | FRAGMENT_STATE, ColorMode::WRITE_RGBA, DepthMode::WRITE, StencilMode::DEFAULT, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_BGRA8Unorm });
+		{ DEPTH_STENCIL_STATE | FRAGMENT_STATE, ColorMode::WRITE_RGBA, DepthMode::WRITE, StencilMode::DEFAULT, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_RGBA8Unorm });
 
 	wgpContext.addSahderModule("BLOOM_DOWN", "res/shader/bloom_down.wgsl");
-	wgpContext.createRenderPipeline("BLOOM_DOWN", "RP_BLOOM_DOWN", VL_NONE, std::bind(&HDRBloom::OnBindGroupLayoutsDown, this), 1u,
+	wgpContext.createRenderPipeline("BLOOM_DOWN", "RP_BLOOM_DOWN", VL_NONE, std::bind(&HDRBloom::OnBindGroupLayoutsSampler, this), 1u,
 		WGPUPrimitiveTopology_TriangleList,
 		WGPUTextureFormat_RGBA16Float,
 		WGPUTextureFormat_Undefined,
@@ -69,7 +69,7 @@ HDRBloom::HDRBloom(StateMachine& machine) : State(machine, States::HDR_BLOOM) {
 		{  FRAGMENT_STATE, ColorMode::WRITE_RGBA, DepthMode::PASS, StencilMode::DEFAULT, BlendMode::ADDITIVE_BLENDING_ONE });
 
 	wgpContext.addSahderModule("BLOOM_UP", "res/shader/bloom_up.wgsl");
-	wgpContext.createRenderPipeline("BLOOM_UP", "RP_BLOOM_UP", VL_NONE, std::bind(&HDRBloom::OnBindGroupLayoutsUp, this), 1u,
+	wgpContext.createRenderPipeline("BLOOM_UP", "RP_BLOOM_UP", VL_NONE, std::bind(&HDRBloom::OnBindGroupLayoutsSampler, this), 1u,
 		WGPUPrimitiveTopology_TriangleList,
 		WGPUTextureFormat_RGBA16Float,
 		WGPUTextureFormat_Undefined,
@@ -103,6 +103,7 @@ HDRBloom::HDRBloom(StateMachine& machine) : State(machine, States::HDR_BLOOM) {
 
 	wgpContext.setClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
 	wgpContext.OnDraw = std::bind(&HDRBloom::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
+	wgpContext.OnPostDraw = std::bind(&HDRBloom::OnPostDraw, this);
 
 	m_lights.push_back({ Vector3f(0.0f, 0.5f, 1.5f),   0.0f, Vector4f(5.0f, 5.0f, 5.0f, 1.0f) });
 	m_lights.push_back({ Vector3f(-4.0f, 0.5f, -3.0f), 0.0f, Vector4f(10.0f, 0.0f, 0.0f, 1.0f) });
@@ -113,7 +114,7 @@ HDRBloom::HDRBloom(StateMachine& machine) : State(machine, States::HDR_BLOOM) {
 
 	m_bloomFBO.init(wgpContext.device, Application::Width / 2, Application::Height / 2, 6u);
 	m_bloomFBO.createBindGroups(wgpContext.device,
-                                wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_BLOOM_UP"), 0u), 
+                                wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_BLOOM_DOWN"), 0u), 
                                 wgpContext.getSampler(SS_LINEAR_CLAMP), 
                                 m_wgpBrightnessTarget.getTextureView());
 
@@ -320,6 +321,27 @@ void HDRBloom::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURender
 	}
 }
 
+void HDRBloom::OnPostDraw() {
+	if (m_wantResize) {
+		m_wantResize = false;
+
+		m_wgpSceneTarget.resize(Application::Width, Application::Height);
+		m_wgpSceneDepth.resize(Application::Width, Application::Height);
+		m_wgpBrightnessTarget.resize(Application::Width, Application::Height);
+		m_renderPassColorAttachments[0].view = m_wgpBrightnessTarget.getTextureView();
+		
+		
+		m_bloomFBO.cleanup();
+		m_bloomFBO.init(wgpContext.device, Application::Width / 2, Application::Height / 2, 6u);
+		m_bloomFBO.createBindGroups(wgpContext.device,
+                                    wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_BLOOM_DOWN"), 0u),
+                                    wgpContext.getSampler(SS_LINEAR_CLAMP),
+                                    m_wgpBrightnessTarget.getTextureView());
+		wgpuBindGroupRelease(m_bindGroupComposite);
+		m_bindGroupComposite = createBindGroupComposite();
+	}
+}
+
 void HDRBloom::OnMouseMotion(const Event::MouseMoveEvent& event) {
 
 }
@@ -375,6 +397,7 @@ void HDRBloom::OnReEnter(unsigned int prevState) {
 void HDRBloom::resize(int deltaW, int deltaH) {
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, -1.0f, 1.0f);
+	m_wantResize = true;
 }
 
 void HDRBloom::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
@@ -455,7 +478,7 @@ std::vector<WGPUBindGroupLayout> HDRBloom::OnBindGroupLayouts() {
 	return bindingLayouts;
 }
 
-std::vector<WGPUBindGroupLayout> HDRBloom::OnBindGroupLayoutsDown() {
+std::vector<WGPUBindGroupLayout> HDRBloom::OnBindGroupLayoutsSampler() {
 	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
 
 	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(3);
@@ -471,7 +494,6 @@ std::vector<WGPUBindGroupLayout> HDRBloom::OnBindGroupLayoutsDown() {
 	bindingLayoutEntries[2].binding = 2u;
 	bindingLayoutEntries[2].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
 	bindingLayoutEntries[2].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
-	bindingLayoutEntries[2].buffer.minBindingSize = sizeof(BloomFBO::DownsampleUniforms);
 
 	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
 	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
@@ -482,34 +504,7 @@ std::vector<WGPUBindGroupLayout> HDRBloom::OnBindGroupLayoutsDown() {
 	return bindingLayouts;
 }
 
-std::vector<WGPUBindGroupLayout> HDRBloom::OnBindGroupLayoutsUp() {
-	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
-
-	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(3);
-	bindingLayoutEntries[0].binding = 0u;
-	bindingLayoutEntries[0].visibility = WGPUShaderStage_Fragment;
-	bindingLayoutEntries[0].sampler.type = WGPUSamplerBindingType::WGPUSamplerBindingType_Filtering;
-
-	bindingLayoutEntries[1].binding = 1u;
-	bindingLayoutEntries[1].visibility = WGPUShaderStage_Fragment;
-	bindingLayoutEntries[1].texture.sampleType = WGPUTextureSampleType::WGPUTextureSampleType_Float;
-	bindingLayoutEntries[1].texture.viewDimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
-
-	bindingLayoutEntries[2].binding = 2u;
-	bindingLayoutEntries[2].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
-	bindingLayoutEntries[2].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
-	bindingLayoutEntries[2].buffer.minBindingSize = sizeof(BloomFBO::UpsampleUniforms);
-
-	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
-	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
-	bindGroupLayoutDescriptor.entries = bindingLayoutEntries.data();
-
-	bindingLayouts[0] = wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor);
-
-	return bindingLayouts;
-}
-
-WGPUBindGroup  HDRBloom::createBindGroup(const WgpTexture& texture) {
+WGPUBindGroup HDRBloom::createBindGroup(const WgpTexture& texture) {
 	std::vector<WGPUBindGroupEntry> bindGroupEntries(5);
 	bindGroupEntries[0].binding = 0u;
 	bindGroupEntries[0].buffer = m_uniformBuffer.getBuffer();
@@ -584,7 +579,7 @@ WGPUBindGroup HDRBloom::createBindGroupComposite() {
 
 	bindGroupEntries[2].binding = 2u;
 	bindGroupEntries[2].textureView = m_bloomFBO.mMipChain[0].renderTargetView;
-
+	//bindGroupEntries[2].textureView = m_wgpBrightnessTarget.getTextureView();
 	bindGroupEntries[3].binding = 3u;
 	bindGroupEntries[3].buffer = m_compositeBuffer.getBuffer();
 	bindGroupEntries[3].offset = 0u;
@@ -665,7 +660,7 @@ void BloomFBO::init(WGPUDevice device, uint32_t width, uint32_t height, uint32_t
 		mip.downbuffer = wgpuDeviceCreateBuffer(device, &bufferDesc);
 
 		DownsampleUniforms uniforms;
-		uniforms.srcResolution = Vector2f(static_cast<float>(mipWidth), static_cast<float>(mipHeight));
+		uniforms.srcResolution = { static_cast<float>(mipWidth), static_cast<float>(mipHeight) };
 		uniforms.mipLevel = m_karisAverageOnDownsample ? 0u : 1u;
 
 		wgpuQueueWriteBuffer(wgpContext.queue, mip.downbuffer, 0u, &uniforms, sizeof(BloomFBO::DownsampleUniforms));
@@ -684,6 +679,10 @@ void BloomFBO::init(WGPUDevice device, uint32_t width, uint32_t height, uint32_t
 	UpsampleUniforms uniforms;
 	uniforms.filterRadius = filterRadius;
 	wgpuQueueWriteBuffer(wgpContext.queue, upbuffer, 0u, &uniforms, sizeof(BloomFBO::UpsampleUniforms));
+}
+
+void BloomFBO::resize(uint32_t width, uint32_t height) {
+	m_texture.resize(width, height);
 }
 
 void BloomFBO::cleanup() {
