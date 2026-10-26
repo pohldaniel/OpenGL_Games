@@ -50,7 +50,5 @@ fn fs_main(input: VertexOutput) -> @location(0) vec4<f32> {
     upsample += (a + c + g + i);
     upsample *= 1.0 / 16.0;
 
-	
-
     return vec4<f32>(upsample, 1.0);
 }

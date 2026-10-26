@@ -93,7 +93,7 @@ DeferredRendering::DeferredRendering(StateMachine& machine) : State(machine, Sta
 		WGPUTextureFormat_Undefined,
 		WGPUTextureFormat_Undefined,
 		WGPUCompareFunction_Less,
-		{ DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE, ColorMode::WRITE_RGBA, DepthMode::WRITE, StencilMode::DEFAULT, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_Undefined , WGPUCullMode_Undefined,
+		{ DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE, ColorMode::WRITE_RGBA, DepthMode::WRITE, StencilMode::DEFAULT, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_Undefined, WGPUCullMode_Undefined,
 		  { 
 			{ NULL, STRVIEW("canvasSizeWidth"), static_cast<double>(Application::Width)   },
 		    { NULL, STRVIEW("canvasSizeHeight"), static_cast<double>(Application::Height) } 

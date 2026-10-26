@@ -302,6 +302,7 @@ void WgpTexture::loadFromFile(const std::string& fileName, bool flipVertical, sh
     m_height = height;
     m_channels = channels;
     m_format = m_format == WGPUTextureFormat::WGPUTextureFormat_Undefined ?  WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm : m_format;
+
     uint32_t mipLevelCount = BitWidth(std::max(m_width, m_height));
     m_texture = wgpCreateTexture(m_width, m_height, 1u, m_textureUsage, m_format, mipLevelCount);
     WriteMipMaps(m_texture, { m_width, m_height, 1u }, mipLevelCount, imageData);

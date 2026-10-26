@@ -22,7 +22,7 @@ WgpBuffer::~WgpBuffer() {
 void WgpBuffer::cleanup() {
 	if (m_buffer) {
 		wgpuBufferDestroy(m_buffer);
-		wgpuBufferRelease(m_buffer);
+		wgpuBufferRelease(m_buffer);	
 		m_buffer = NULL;
 	}	
 }

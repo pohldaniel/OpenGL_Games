@@ -53,7 +53,7 @@ private:
 
 	static void Rewind(std::vector<unsigned int>& indexBuffer);
 	static void FlipNormal(std::vector<float>& vertexBuffer, unsigned int stride);
-	void static Scale(float sx, float sy, float sz, std::vector<float>& vertexBuffer, unsigned int stride);
-	void static Rotate(float pitchR, float yawR, float rollR, std::vector<float>& vertexBuffer, unsigned int stride);
-	void static Translate(float dx, float dy, float dz, std::vector<float>& vertexBuffer, unsigned int stride);
+	static void Scale(float sx, float sy, float sz, std::vector<float>& vertexBuffer, unsigned int stride);
+	static void Rotate(float pitchR, float yawR, float rollR, std::vector<float>& vertexBuffer, unsigned int stride);
+	static void Translate(float dx, float dy, float dz, std::vector<float>& vertexBuffer, unsigned int stride);
 };

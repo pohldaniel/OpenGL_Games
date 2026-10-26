@@ -14,28 +14,14 @@
 #include <WebGPU/WgpTexture.h>
 
 struct BloomMip {
-	Vector2f size;
-	uint32_t width;
-	uint32_t height;
 	WGPUTextureView renderTargetView;
-	WGPUTextureView sampledView;
+	WGPUBuffer downbuffer;	
+	WGPUBindGroup downsampleBindGroup;
+	WGPUBindGroup upsampleBindGroup;
 };
 
-class BloomFBO {
-public:
-	bool Init(WGPUDevice device, unsigned int windowWidth, unsigned int windowHeight, unsigned int mipChainLength);
-	void Cleanup();
+struct BloomFBO {
 
-	WGPUTexture m_texture = nullptr;
-	std::vector<BloomMip> mMipChain;
-	bool mInit = false;
-};
-
-class HDRBloom : public State, public MouseEventListener, public KeyboardEventListener {
-	struct Instance {
-		Matrix4f model;
-		Vector4f color;
-	};
 	struct DownsampleUniforms {
 		Vector2f srcResolution;
 		uint32_t mipLevel;
@@ -46,6 +32,24 @@ class HDRBloom : public State, public MouseEventListener, public KeyboardEventLi
 		float filterRadius;
 		float padding[3];
 	};
+
+	void init(WGPUDevice device, uint32_t width, uint32_t height, uint32_t mipChainLength, float filterRadius = 0.005f);
+	void createBindGroups(WGPUDevice device, WGPUBindGroupLayout layout, WGPUSampler sampler, WGPUTextureView sceneColorView);
+	void cleanup();
+	bool m_karisAverageOnDownsample = true;
+	std::vector<BloomMip> mMipChain;
+	WgpTexture m_texture;
+	WGPUBuffer upbuffer;
+};
+
+class HDRBloom : public State, public MouseEventListener, public KeyboardEventListener {
+	struct Instance {
+		Matrix4f model;
+		Vector4f color;
+	};
+	
+
+	
 	struct CompositeUniforms {
 		float exposure = 1.0f;
 		float bloomStrength = 0.04f;
@@ -53,7 +57,8 @@ class HDRBloom : public State, public MouseEventListener, public KeyboardEventLi
 	};
 
 	struct Light {
-		Vector4f position;
+		Vector3f position;
+		float pad;
 		Vector4f color;
 	};
 public:
@@ -87,39 +92,24 @@ private:
 	
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 	
-	void RenderDownsamples(const WGPUCommandEncoder& commandEncoder);
-	void RenderUpsamples(const WGPUCommandEncoder& commandEncoder, float filterRadius);
-	void CreateBloomBindGroups(WGPUDevice device, WGPUBindGroupLayout layout, WGPUSampler sampler, WGPUTextureView sceneColorView);
-	void UpdateDownsampleUniformBuffer(WGPUQueue queue, size_t mipIndex);
-	void UpdateUpsampleUniformBuffer(WGPUQueue queue, float filterRadius);
 
 	bool m_initUi = true;
 	bool m_drawUi = false;
-	long m_state = 0;
-	float m_RightStickX = 0.0f;
-	float m_RightStickY = 0.0f;
-	float m_LeftStickX = 0.0f;
-	float m_LeftStickY = 0.0f;
 
 	Camera m_camera;
 	Uniforms m_uniforms;
 	CompositeUniforms m_compositeUniforms;
-	Shape m_cube, m_cubeE;
+	Shape m_cube, m_cubeEmessive;
 
-	WgpBuffer m_uniformBuffer, m_storageBuffer, m_downSampleBuffer, m_upSampleBuffer, m_compositeBuffer, m_lightBuffer;
-	WgpModel m_wgpCube, m_wgpCubeE;
-	WgpTexture m_wgpSceneTarget, m_wgpSceneDepth, m_wgpSceneFilterTarget, m_wgpSceneFilterDepth;
+	WgpBuffer m_uniformBuffer, m_storageBuffer, m_compositeBuffer, m_lightBuffer;
+	WgpModel m_wgpCube, m_wgpCubeEmessive;
+	WgpTexture m_wgpSceneTarget, m_wgpBrightnessTarget, m_wgpSceneDepth;
 	WgpTexture wgpTextureEmpty, wgpTextureWood, wgpTextureContainer;
-
-
-	WGPUBindGroup m_bindGroupComposite, m_bindGroupDown, m_bindGroupUp;
+	WGPUBindGroup m_bindGroupComposite;
 
 	std::vector<Instance> m_instances;
-	std::vector<Vector3f> m_lightPositions;
-	std::vector<Vector4f> m_lightColors;
+	std::vector<Light> m_lights;
 
 	BloomFBO m_bloomFBO;
-	std::vector<WGPUBindGroup> m_downsampleBindGroups;
-	std::vector<WGPUBindGroup> m_upsampleBindGroups;
-	bool mKarisAverageOnDownsample = true;
+	std::vector<WGPURenderPassColorAttachment> m_renderPassColorAttachments;
 };

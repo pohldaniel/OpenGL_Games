@@ -67,5 +67,5 @@ private:
 	WGPUBindGroup m_computeBindGroup, m_debugBindGroup;
 	WgpTexture m_indexTexture;
 
-	std::vector<WGPURenderPassColorAttachment> renderPassColorAttachments;
+	std::vector<WGPURenderPassColorAttachment> m_renderPassColorAttachments;
 };

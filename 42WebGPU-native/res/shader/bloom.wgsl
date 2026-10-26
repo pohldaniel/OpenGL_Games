@@ -35,7 +35,7 @@ struct Instances {
 }
 
 struct Light {
-    position: vec4f,
+    position: vec3f,
     color: vec4f,
 };
 
@@ -62,33 +62,40 @@ fn vs_main(in: VertexInput, @builtin(instance_index) instanceIndex : u32) -> Ver
 	return out;
 }
 
+struct PassOutput {
+  @location(0) brightness : vec4f,
+  @location(1) color : vec4f, 
+}
+
 @fragment
-fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
+fn fs_main(in: VertexOutput) -> PassOutput {
 
 	let color = textureSample(texture, smplr, in.texcoord).rgb * in.color.rgb;
     let normal = normalize(in.normal);
 	
 	let ambient = 0.0 * color;
-    // lighting
     var lighting = vec3f(0.0);
     let viewDir = normalize(uniforms.camPos - in.fragPos);
 	
 	for(var i = 0; i < 4; i++){
 		let light = lights.lights[i];
 		
-		let lightDir = normalize(light.position.xyz - in.fragPos);
+		let lightDir = normalize(light.position - in.fragPos);
 		let diff = max(dot(lightDir, normal), 0.0);
         var result = light.color.rgb * diff * color;  
 		
-		let distance = length(in.fragPos - light.position.xyz);
+		let distance = length(in.fragPos - light.position);
         result *= 1.0 / (distance * distance);
         lighting += result;
 	}
 	
 	let result = ambient + lighting;
-    // check whether result is higher than some threshold, if so, output as bloom threshold color
     let brightness = dot(result, vec3f(0.2126, 0.7152, 0.0722));
 
+	var output : PassOutput;
 	
-	return vec4f(result, 1.0);
+	output.color = vec4f(result, 1.0);
+	output.brightness = select(vec4f(0.0, 0.0, 0.0, 1.0), vec4f(result, 1.0), brightness > 1.0);
+	
+	return output;
 }

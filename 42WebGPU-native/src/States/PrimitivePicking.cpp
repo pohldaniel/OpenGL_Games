@@ -47,7 +47,7 @@ PrimitivePicking::PrimitivePicking(StateMachine& machine) : State(machine, State
 	renderPassColorAttachment.storeOp = WGPUStoreOp::WGPUStoreOp_Store;
 	renderPassColorAttachment.clearValue = { 0.0f, 0.0f, 1.0f, 1.0f };
 	renderPassColorAttachment.depthSlice = WGPU_DEPTH_SLICE_UNDEFINED;
-	renderPassColorAttachments.push_back(renderPassColorAttachment);
+	m_renderPassColorAttachments.push_back(renderPassColorAttachment);
 
 	m_uniforms.projection = m_camera.getPerspectiveMatrix();
 	m_uniforms.view = m_camera.getViewMatrix();
@@ -71,7 +71,7 @@ PrimitivePicking::PrimitivePicking(StateMachine& machine) : State(machine, State
 		WGPUPrimitiveTopology_TriangleList,
 		WGPUTextureFormat_Undefined,
 		WGPUTextureFormat_Undefined,
-		WGPUCompareFunction_Less,
+		WGPUCompareFunction_LessEqual,
 		{ DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE, ColorMode::WRITE_RGBA, DepthMode::WRITE, StencilMode::DEFAULT, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_R32Uint, WGPUCullMode_None }
 	);
 
@@ -191,11 +191,11 @@ void PrimitivePicking::render() {
 void PrimitivePicking::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor) {
 
 	{
-		renderPassColorAttachments.push_back(renderPassDescriptor.colorAttachments[0]);
+		m_renderPassColorAttachments.push_back(renderPassDescriptor.colorAttachments[0]);
 
 		WGPURenderPassDescriptor rndrPssDscrptor = renderPassDescriptor;
-		rndrPssDscrptor.colorAttachments = renderPassColorAttachments.data();
-		rndrPssDscrptor.colorAttachmentCount = renderPassColorAttachments.size();
+		rndrPssDscrptor.colorAttachments = m_renderPassColorAttachments.data();
+		rndrPssDscrptor.colorAttachmentCount = m_renderPassColorAttachments.size();
 
 		WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &rndrPssDscrptor);
 		wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
@@ -206,7 +206,7 @@ void PrimitivePicking::OnDraw(const WGPUCommandEncoder& commandEncoder, const WG
 		wgpuRenderPassEncoderEnd(renderPassEncoder);
 		wgpuRenderPassEncoderRelease(renderPassEncoder);
 
-		renderPassColorAttachments.pop_back();
+		m_renderPassColorAttachments.pop_back();
 	}
 
 	if (m_debug)
@@ -308,7 +308,7 @@ void PrimitivePicking::resize(int deltaW, int deltaH) {
 	wgpuBindGroupLayoutRelease(wgpuComputePipelineGetBindGroupLayout(wgpContext.computePipelines.at("CP_PICK"), 0u));
 	wgpuBindGroupLayoutRelease(wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_PICK_DEBUG"), 0u));
 
-	renderPassColorAttachments[0].view = m_indexTexture.getTextureView();
+	m_renderPassColorAttachments[0].view = m_indexTexture.getTextureView();
 
 	wgpuBindGroupRelease(m_computeBindGroup);
 	wgpuBindGroupRelease(m_debugBindGroup);
