@@ -124,7 +124,7 @@ void Controller::update() {
 		}
 	}
 
-	IController* player1 = XInputController::GetPlayer(0)->isConnected() ? XInputController::GetPlayer(0) : RawInputController::GetPlayer(0);
+	IGamePad* player1 = XInputGamePad::GetPlayer()->isConnected() ? XInputGamePad::GetPlayer() : DInputGamePad::GetPlayer();
 	m_RightStickX = 0.0f;
 	m_RightStickY = 0.0f;
 	m_LeftStickX = 0.0f;

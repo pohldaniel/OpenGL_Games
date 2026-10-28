@@ -31,7 +31,7 @@ enum GamepadButton {
 	GAMEPAD_RIGHT_TRIGGER = 20,
 };
 
-class IController {
+class IGamePad {
 
 public:
 	virtual void update() = 0;
@@ -50,7 +50,7 @@ public:
 	virtual bool isConnected() = 0;
 };
 
-class XInputController : public IController {
+class XInputGamePad : public IGamePad {
 
 public:
 
@@ -72,11 +72,12 @@ public:
 	static void Update();
 	static void Initialize();
 	static void Shutdown();
-	static IController* GetPlayer(int playerIndex);
+	static IGamePad* GetPlayer(int playerIndex);
+	static IGamePad* GetPlayer();
 
 private:
 
-	XInputController();
+	XInputGamePad();
 	int m_playerIndex;
 	bool m_buttonStates[2][21];
 	bool* m_pCurrButtonStates;
@@ -91,14 +92,14 @@ private:
 	float m_leftTrigger;
 	float m_rightTrigger;
 
-	static XInputController* s_Players[4];
+	static XInputGamePad* s_Players[4];
 };
 
-class RawInputController : public IController {
+class DInputGamePad : public IGamePad {
 	
 public:
 
-	RawInputController::~RawInputController();
+	DInputGamePad::~DInputGamePad();
 	
 	void update() override;
 	void setVibration(float leftMotor, float rightMotor) override;
@@ -123,11 +124,12 @@ public:
 	static void Shutdown();
 	static void HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-	static IController* GetPlayer(int playerIndex);
+	static IGamePad* GetPlayer(int playerIndex);
+	static IGamePad* GetPlayer();
 
 private:
 
-	RawInputController();
+	DInputGamePad();
 	void processInput(RAWINPUT* raw);
 	int getPlayerIndex() const;
 
@@ -147,5 +149,5 @@ private:
 	HANDLE m_writeHandle = INVALID_HANDLE_VALUE;
 
 	static int NextIndex();
-	static std::unordered_map<HANDLE, RawInputController*> ConnectedControllers;
+	static std::unordered_map<HANDLE, DInputGamePad*> ConnectedControllers;
 };

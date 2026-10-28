@@ -181,12 +181,12 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 	directional.color[0] = 0.35f * 0.7f * 0.406f; directional.color[1] = 0.35f * 0.7f * 0.723f; directional.color[2] = 0.35f * 0.7f; directional.color[3] = 1.0f;
 	directional.padding = 0.0f;
 
-	Vector3f _dir = Vector3f(-0.8f, 0.0f, -1.0f);
-	_dir.normalize();
+	Vector3f dir = Vector3f(-0.8f, 0.0f, -1.0f);
+	dir.normalize();
 
-	directional.direction[0] = _dir[0];
-	directional.direction[1] = _dir[1];
-	directional.direction[2] = _dir[2];
+	directional.direction[0] = dir[0];
+	directional.direction[1] = dir[1];
+	directional.direction[2] = dir[2];
 	wgpuQueueWriteBuffer(wgpContext.queue, m_directionalLightBuffer.getBuffer(), 0u, &directional, sizeof(DirectionalLight));
 
 	wgpContext.addSampler(wgpCreateSampler(WGPUFilterMode_Linear, WGPUAddressMode_ClampToEdge, 1u, WGPUMipmapFilterMode_Nearest, WGPUCompareFunction_Greater), SS_0);
@@ -385,7 +385,7 @@ void Isometric::update() {
 	Keyboard& keyboard = Keyboard::instance();
 	Mouse& mouse = Mouse::instance();
 
-	IController* player1 = XInputController::GetPlayer(0)->isConnected() ? XInputController::GetPlayer(0) : RawInputController::GetPlayer(0);
+	IGamePad* gamePad = XInputGamePad::GetPlayer()->isConnected() ? XInputGamePad::GetPlayer() : DInputGamePad::GetPlayer();
 
 
 	nkUpdateInput(mouse.xPos(), mouse.yPos(), mouse.buttonDown(Mouse::MouseButton::BUTTON_LEFT), mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT), Application::ScrollDelta);
@@ -442,7 +442,7 @@ void Isometric::update() {
 		m_debugCollision = !m_debugCollision;
 	}
 
-	if (!m_isDeath && (m_rotationButtonResult.buttonDown || (((player1 && player1->buttonDown(GamepadButton::GAMEPAD_RIGHT_SHOULDER)) || mouse.buttonDown(Mouse::MouseButton::BUTTON_LEFT) ) && !m_rotationButtonResult.isActive && !m_joystickResult.isActive)) && (lastFireTime + 0.1f) < Globals::clock.getElapsedTimeSec()) {
+	if (!m_isDeath && (m_rotationButtonResult.buttonDown || (((gamePad && gamePad->buttonDown(GamepadButton::GAMEPAD_RIGHT_SHOULDER)) || mouse.buttonDown(Mouse::MouseButton::BUTTON_LEFT)) && !m_rotationButtonResult.isActive && !m_joystickResult.isActive)) && (lastFireTime + 0.1f) < Globals::clock.getElapsedTimeSec()) {
 		const Quaternion orientation = m_player.getOrientation();
 		const Matrix4f trans = m_player.getWorldTransformation();
 		const Vector3f projectileSpawnPoint = trans ^ Vector4f(-20.0f * 0.01f, 120.0f * 0.01f, 140.0f * 0.01f, 1.0f);
@@ -474,8 +474,8 @@ void Isometric::update() {
 	const Vector3f posistion = mesh_->getBone(0u).getPosition();
 	m_camera.lookAt(posistion + Vector3f(0.0f, 4.3f, 4.0f), posistion, Vector3f(0.0f, 1.0f, 0.0f));
 
-	if (player1 && (player1->getLeftStickX() || player1->getLeftStickY()) && !m_isDeath) {
-		float targetDegrees = std::atan2(player1->getLeftStickX(), -player1->getLeftStickY()) * _180_ON_PI;
+	if (gamePad && (gamePad->getLeftStickX() || gamePad->getLeftStickY()) && !m_isDeath) {
+		float targetDegrees = std::atan2(gamePad->getLeftStickX(), -gamePad->getLeftStickY()) * _180_ON_PI;
 		Quaternion targetRotation = Quaternion(0.0f, targetDegrees, 0.0f);
 		Quaternion currentRotation = m_player.getOrientation();
 
@@ -523,8 +523,8 @@ void Isometric::update() {
 		moveY = 0.0f;
 	}
 	Vector3f playerDirection = Vector3f();
-	if (player1) {
-		playerDirection.set(player1->getRightStickX(), 0.0f, -player1->getRightStickY());
+	if (gamePad) {
+		playerDirection.set(gamePad->getRightStickX(), 0.0f, -gamePad->getRightStickY());
 	}
 
 	if (keyboard.keyDown(Keyboard::KEY_W) || moveY > 0.0f) {

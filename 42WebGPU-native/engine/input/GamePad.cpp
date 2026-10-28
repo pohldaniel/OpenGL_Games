@@ -3,9 +3,9 @@
 
 #include "GamePad.h"
 
-XInputController* XInputController::s_Players[4] = { nullptr, nullptr, nullptr, nullptr };
+XInputGamePad* XInputGamePad::s_Players[4] = { nullptr, nullptr, nullptr, nullptr };
 
-XInputController::XInputController(){
+XInputGamePad::XInputGamePad(){
 	m_playerIndex = -1;
 	state = {};
 
@@ -17,7 +17,7 @@ XInputController::XInputController(){
 	m_connected = false;
 }
 
-void XInputController::update() {
+void XInputGamePad::update() {
 	
 	bool* pTempGamePadStates = m_pPrevButtonStates;
 	m_pPrevButtonStates = m_pCurrButtonStates;
@@ -106,7 +106,7 @@ void XInputController::update() {
 	}
 }
 
-void XInputController::setVibration(float leftMotor, float rightMotor) {
+void XInputGamePad::setVibration(float leftMotor, float rightMotor) {
 	leftMotor = std::clamp(leftMotor, 0.0f, 1.0f);
 	rightMotor = std::clamp(rightMotor, 0.0f, 1.0f);
 
@@ -119,68 +119,77 @@ void XInputController::setVibration(float leftMotor, float rightMotor) {
 	XInputSetState(m_playerIndex, &vibration);
 }
 
-float XInputController::getRightStickX() const { 
+float XInputGamePad::getRightStickX() const {
 	return m_rightStickX; 
 }
 
-float XInputController::getRightStickY() const { 
+float XInputGamePad::getRightStickY() const {
 	return m_rightStickY; 
 }
 
-float XInputController::getLeftStickX() const { 
+float XInputGamePad::getLeftStickX() const {
 	return m_leftStickX; 
 }
 
-float XInputController::getLeftStickY() const { 
+float XInputGamePad::getLeftStickY() const {
 	return m_leftStickY; 
 }
 
-float XInputController::getLeftTrigger() const { 
+float XInputGamePad::getLeftTrigger() const {
 	return m_leftTrigger; 
 }
 
-float XInputController::getRightTrigger() const { 
+float XInputGamePad::getRightTrigger() const {
 	return m_rightTrigger; 
 }
 
-bool XInputController::buttonPressed(GamepadButton button) const {
+bool XInputGamePad::buttonPressed(GamepadButton button) const {
 	return m_pCurrButtonStates[button] && !m_pPrevButtonStates[button];
 }
 
-bool XInputController::buttonDown(GamepadButton button) const {
+bool XInputGamePad::buttonDown(GamepadButton button) const {
 	return m_pCurrButtonStates[button];
 }
 
-bool XInputController::buttonUp(GamepadButton button) const {
+bool XInputGamePad::buttonUp(GamepadButton button) const {
 	return !m_pCurrButtonStates[button];
 }
 
-bool XInputController::isConnected() {
+bool XInputGamePad::isConnected() {
 	return m_connected;
 }
 
-IController* XInputController::GetPlayer(int playerIndex) {
+IGamePad* XInputGamePad::GetPlayer(int playerIndex) {
 	if (playerIndex >= 0 && playerIndex < 4) return s_Players[playerIndex];
 	return nullptr;
 }
 
-void XInputController::Initialize() {
+IGamePad* XInputGamePad::GetPlayer() {
 	for (int i = 0; i < 4; ++i) {
-		s_Players[i] = new XInputController();
+		if (s_Players[i]->isConnected()) {
+			return s_Players[i];
+		}
+	}
+	return nullptr;
+}
+
+void XInputGamePad::Initialize() {
+	for (int i = 0; i < 4; ++i) {
+		s_Players[i] = new XInputGamePad();
 		s_Players[i]->m_playerIndex = i;
 	}
 }
 
-void XInputController::Update() {
+void XInputGamePad::Update() {
 	for (int i = 0; i < 4; ++i) {
-		IController* player = XInputController::GetPlayer(i);
+		IGamePad* player = XInputGamePad::GetPlayer(i);
 		if (player) {
 			player->update();
 		}
 	}
 }
 
-void XInputController::Shutdown() {
+void XInputGamePad::Shutdown() {
 	for (int i = 0; i < 4; ++i) {
 		if (s_Players[i] != nullptr) {
 			if (s_Players[i]->m_connected) {
@@ -206,9 +215,9 @@ uint32_t calculate_crc32(const uint8_t* data, size_t len) {
 	return ~crc;
 }
 
-std::unordered_map<HANDLE, RawInputController*> RawInputController::ConnectedControllers;
+std::unordered_map<HANDLE, DInputGamePad*> DInputGamePad::ConnectedControllers;
 
-RawInputController::RawInputController() {
+DInputGamePad::DInputGamePad() {
 	m_playerIndex = NextIndex();
 	m_pCurrButtonStates = m_buttonStates[0];
 	m_pPrevButtonStates = m_buttonStates[1];
@@ -217,7 +226,7 @@ RawInputController::RawInputController() {
 	memset(m_pPrevButtonStates, false, 21);
 }
 
-RawInputController::~RawInputController() {
+DInputGamePad::~DInputGamePad() {
 	if (!ConnectedControllers.empty()) {
 		for (auto it = ConnectedControllers.begin(); it != ConnectedControllers.end();) {
 			if (it->second == this) {
@@ -234,30 +243,30 @@ RawInputController::~RawInputController() {
 	}
 }
 
-void RawInputController::update() {
+void DInputGamePad::update() {
 	bool* pTempGamePadStates = m_pPrevButtonStates;
 	m_pPrevButtonStates = m_pCurrButtonStates;
 	m_pCurrButtonStates = pTempGamePadStates;
 	memcpy(m_pCurrButtonStates, m_pPrevButtonStates, 21);
 }
 
-bool RawInputController::buttonPressed(GamepadButton button) const {
+bool DInputGamePad::buttonPressed(GamepadButton button) const {
 	return m_pCurrButtonStates[button] && !m_pPrevButtonStates[button];
 }
 
-bool RawInputController::buttonDown(GamepadButton button) const {
+bool DInputGamePad::buttonDown(GamepadButton button) const {
 	return m_pCurrButtonStates[static_cast<int>(button)];
 }
 
-bool RawInputController::buttonUp(GamepadButton button) const {
+bool DInputGamePad::buttonUp(GamepadButton button) const {
 	return !m_pCurrButtonStates[button];
 }
 
-bool RawInputController::isConnected() {
+bool DInputGamePad::isConnected() {
 	return true;
 }
 
-void RawInputController::processInput(RAWINPUT* raw) {
+void DInputGamePad::processInput(RAWINPUT* raw) {
 	
 	UINT pcbPreparsedData = 0;
 	GetRawInputDeviceInfo(raw->header.hDevice, RIDI_PREPARSEDDATA, NULL, &pcbPreparsedData);
@@ -451,43 +460,43 @@ void RawInputController::processInput(RAWINPUT* raw) {
 	}
 }
 
-float RawInputController::getRightStickX() const {
+float DInputGamePad::getRightStickX() const {
 	return m_rightStickX; 
 }
 
-float RawInputController::getRightStickY() const { 
+float DInputGamePad::getRightStickY() const {
 	return m_rightStickY; 
 }
 
-float RawInputController::getLeftStickX() const {
+float DInputGamePad::getLeftStickX() const {
 	return m_leftStickX; 
 }
 
-float RawInputController::getLeftStickY() const {
+float DInputGamePad::getLeftStickY() const {
 	return m_leftStickY;
 }
 
-float RawInputController::getLeftTrigger() const {
+float DInputGamePad::getLeftTrigger() const {
 	return m_leftTrigger;
 }
 
-float RawInputController::getRightTrigger() const {
+float DInputGamePad::getRightTrigger() const {
 	return m_rightTrigger;
 }
 
-int RawInputController::getPlayerIndex() const { 
+int DInputGamePad::getPlayerIndex() const {
 	return m_playerIndex; 
 }
 
-void RawInputController::setWriteHandle(HANDLE writeHandle) {
+void DInputGamePad::setWriteHandle(HANDLE writeHandle) {
 	m_writeHandle = writeHandle;
 }
 
-void RawInputController::setIsBluetooth(bool isBluetooth) {
+void DInputGamePad::setIsBluetooth(bool isBluetooth) {
 	m_isBluetooth = isBluetooth;
 }
 
-void RawInputController::setVibration(float leftMotor, float rightMotor) {
+void DInputGamePad::setVibration(float leftMotor, float rightMotor) {
 	if (m_writeHandle == INVALID_HANDLE_VALUE) return;
 	
 	leftMotor = std::clamp(leftMotor, 0.0f, 1.0f);
@@ -529,16 +538,16 @@ void RawInputController::setVibration(float leftMotor, float rightMotor) {
 	}
 }
 
-void RawInputController::Update() {
+void DInputGamePad::Update() {
 	for (int i = 0; i < 4; ++i) {
-		IController* controller = RawInputController::GetPlayer(i);
+		IGamePad* controller = DInputGamePad::GetPlayer(i);
 		if (controller) {
 			controller->update();
 		}
 	}
 }
 
-bool RawInputController::Initialize(HWND hWnd) {
+bool DInputGamePad::Initialize(HWND hWnd) {
 
 	RAWINPUTDEVICE rid[2];
 
@@ -559,13 +568,13 @@ bool RawInputController::Initialize(HWND hWnd) {
 	return true;
 }
 
-void RawInputController::Shutdown() {
+void DInputGamePad::Shutdown() {
 	if (ConnectedControllers.empty())
 		return;
 
 	auto it = ConnectedControllers.begin();
 	while (it != ConnectedControllers.end()) {
-		RawInputController* controller = it->second;
+		DInputGamePad* controller = it->second;
 		it = ConnectedControllers.erase(it);
 
 		if (controller != nullptr) {
@@ -575,7 +584,7 @@ void RawInputController::Shutdown() {
 	ConnectedControllers.clear();
 }
 
-IController* RawInputController::GetPlayer(int playerIndex) {
+IGamePad* DInputGamePad::GetPlayer(int playerIndex) {
 	for (auto& pair : ConnectedControllers) {
 		if (pair.second && pair.second->getPlayerIndex() == playerIndex) {
 			return pair.second;
@@ -584,14 +593,23 @@ IController* RawInputController::GetPlayer(int playerIndex) {
 	return nullptr;
 }
 
-void RawInputController::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+IGamePad* DInputGamePad::GetPlayer() {
+	for (auto& pair : ConnectedControllers) {
+		if (pair.second && pair.second->isConnected()) {
+			return pair.second;
+		}
+	}
+	return nullptr;
+}
+
+void DInputGamePad::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	switch (msg) {
 		case WM_INPUT_DEVICE_CHANGE: {
 			HANDLE deviceHandle = (HANDLE)lParam;
 			if (wParam == GIDC_REMOVAL) {
 				auto it = ConnectedControllers.find(deviceHandle);
 				if (it != ConnectedControllers.end()) {
-					RawInputController* controller = it->second;
+					DInputGamePad* controller = it->second;
 					delete controller;
 				}
 			}
@@ -641,7 +659,7 @@ void RawInputController::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lP
 												isBluetooth = false;
 											}
 
-											RawInputController* controller = new RawInputController();
+											DInputGamePad* controller = new DInputGamePad();
 											ConnectedControllers[deviceHandle] = controller;
 											HANDLE writeHandle = CreateFileW(
 												deviceName,
@@ -676,7 +694,7 @@ void RawInputController::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lP
 	}
 }
 
-int RawInputController::NextIndex() {
+int DInputGamePad::NextIndex() {
 	if (ConnectedControllers.empty())
 		return 0;
 

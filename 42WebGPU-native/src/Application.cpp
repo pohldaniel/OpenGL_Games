@@ -81,8 +81,8 @@ Application::Application(const float& dt, const float& fdt) : m_dt(dt), m_fdt(fd
 	SavedStyle = GetWindowLong(Window, GWL_STYLE);
 
 	SetCursorIcon(IDC_ARROW);
-	RawInputController::Initialize(Window);
-	XInputController::Initialize();
+	DInputGamePad::Initialize(Window);
+	XInputGamePad::Initialize();
 	initStates();
 }
 
@@ -93,8 +93,8 @@ Application::~Application() {
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
 
-	XInputController::Shutdown();
-	RawInputController::Shutdown();
+	XInputGamePad::Shutdown();
+	DInputGamePad::Shutdown();
 
 	HDC hdc = GetDC(Window);
 	ReleaseDC(Window, hdc);
@@ -250,7 +250,7 @@ LRESULT Application::ApplicationWndProc(HWND hWnd, UINT message, WPARAM wParam, 
 
 			break;
 		}default: {
-			RawInputController::HandleMsg(hWnd, message, wParam, lParam);
+			DInputGamePad::HandleMsg(hWnd, message, wParam, lParam);
 			break;
 		}
 	}
@@ -317,8 +317,8 @@ void Application::update() {
 
 	Mouse::instance().update();
 	Keyboard::instance().update();
-	XInputController::Update();
-	RawInputController::Update();
+	XInputGamePad::Update();
+	DInputGamePad::Update();
 
 	Machine->update();
 
@@ -352,9 +352,9 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new VideoDecode(*Machine));
 	//Machine->addStateAtTop(new Cubes(*Machine));
 	//Machine->addStateAtTop(new Isometric(*Machine));
-	//Machine->addStateAtTop(new Menu(*Machine));
+	Machine->addStateAtTop(new Menu(*Machine));
 	//Machine->addStateAtTop(new Controller(*Machine));
-	Machine->addStateAtTop(new HDRBloom(*Machine));
+	//Machine->addStateAtTop(new HDRBloom(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
