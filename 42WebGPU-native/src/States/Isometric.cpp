@@ -855,6 +855,7 @@ void Isometric::OnKeyDown(const Event::KeyboardEvent& event) {
 
 	if (event.keyCode == VK_ESCAPE) {
 		nkShutDown();
+		Material::CleanupMaterials();
 		Physics::DebugDrawer.shutDown();
 		wgpCleanState();
 		m_isRunning = false;

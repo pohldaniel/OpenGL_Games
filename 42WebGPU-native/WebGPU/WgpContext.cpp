@@ -849,7 +849,7 @@ void wgpProcessQueue() {
 	callbackInfo.userdata1 = &done;
 
 	wgpuQueueOnSubmittedWorkDone(wgpContext.queue, callbackInfo);
-	while (!done.load()) {
+	while(!done.load()) {
 		wgpuDeviceTick(wgpContext.device);
 		wgpuInstanceProcessEvents(wgpContext.instance);
 	}

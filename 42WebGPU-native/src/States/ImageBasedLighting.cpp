@@ -344,7 +344,8 @@ void ImageBasedLighting::OnKeyDown(const Event::KeyboardEvent& event) {
 #endif
 
 	if (event.keyCode == VK_ESCAPE) {
-		wgpCleanState();
+		Material::CleanupMaterials();
+		wgpCleanState();		
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new Menu(m_machine));
 	}

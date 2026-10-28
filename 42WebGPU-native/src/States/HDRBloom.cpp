@@ -83,22 +83,22 @@ HDRBloom::HDRBloom(StateMachine& machine) : State(machine, States::HDR_BLOOM) {
 	m_cubeEmessive.buildCube();
 	m_cubeEmessive.flipNormal();
 
-	wgpTextureEmpty.createEmpty(2u, 2u, 1u, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst, WGPUTextureFormat_BGRA8Unorm);
-	wgpTextureEmpty.fillLayer();
+	m_wgpTextureEmpty.createEmpty(2u, 2u, 1u, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst, WGPUTextureFormat_BGRA8Unorm);
+	m_wgpTextureEmpty.fillLayer();
 
-	wgpTextureWood.setTextureFormat(WGPUTextureFormat_RGBA8UnormSrgb);
-	wgpTextureWood.loadFromFile("res/textures/wood.png");
-	wgpTextureContainer.setTextureFormat(WGPUTextureFormat_RGBA8UnormSrgb);
-	wgpTextureContainer.loadFromFile("res/textures/container.png");
+	m_wgpTextureWood.setTextureFormat(WGPUTextureFormat_RGBA8UnormSrgb);
+	m_wgpTextureWood.loadFromFile("res/textures/wood.png");
+	m_wgpTextureContainer.setTextureFormat(WGPUTextureFormat_RGBA8UnormSrgb);
+	m_wgpTextureContainer.loadFromFile("res/textures/container.png");
 
 	m_wgpCube.create(m_cube);
 	m_wgpCubeEmessive.create(m_cubeEmessive);
 
-	m_wgpCube.addBindGroup("BG_WOOD", createBindGroup(wgpTextureWood));
-	m_wgpCube.addBindGroup("BG_CONTAINER", createBindGroup(wgpTextureContainer));
+	m_wgpCube.addBindGroup("BG_WOOD", createBindGroup(m_wgpTextureWood));
+	m_wgpCube.addBindGroup("BG_CONTAINER", createBindGroup(m_wgpTextureContainer));
 	m_wgpCube.setBindGroupsSlot("BG_WOOD");
 
-	m_wgpCubeEmessive.addBindGroup("BG_EMPTY", createBindGroup(wgpTextureEmpty));
+	m_wgpCubeEmessive.addBindGroup("BG_EMPTY", createBindGroup(m_wgpTextureEmpty));
 	m_wgpCubeEmessive.setBindGroupsSlot("BG_EMPTY");
 
 	wgpContext.setClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
@@ -108,7 +108,7 @@ HDRBloom::HDRBloom(StateMachine& machine) : State(machine, States::HDR_BLOOM) {
 	m_lights.push_back({ Vector3f(0.0f, 0.5f, 1.5f),   0.0f, Vector4f(5.0f, 5.0f, 5.0f, 1.0f) });
 	m_lights.push_back({ Vector3f(-4.0f, 0.5f, -3.0f), 0.0f, Vector4f(10.0f, 0.0f, 0.0f, 1.0f) });
 	m_lights.push_back({ Vector3f(3.0f, 0.5f, 1.0f),   0.0f, Vector4f(0.0f, 0.0f, 15.0f, 1.0f) });
-	m_lights.push_back({ Vector3f(-.8f, 2.4f, -1.0f),   0.0f, Vector4f(0.0f, 5.0f, 0.0f, 1.0f) });
+	m_lights.push_back({ Vector3f(-.8f, 2.4f, -1.0f),  0.0f, Vector4f(0.0f, 5.0f, 0.0f, 1.0f) });
 
 	wgpuQueueWriteBuffer(wgpContext.queue, m_lightBuffer.getBuffer(), 0, m_lights.data(), sizeof(Light) * m_lights.size());
 
@@ -168,9 +168,9 @@ HDRBloom::~HDRBloom() {
 	m_storageBuffer.markForDelete();
 	m_lightBuffer.markForDelete();
 
-	wgpTextureEmpty.markForDelete();
-	wgpTextureWood.markForDelete();
-	wgpTextureContainer.markForDelete();
+	m_wgpTextureEmpty.markForDelete();
+	m_wgpTextureWood.markForDelete();
+	m_wgpTextureContainer.markForDelete();
 	m_wgpSceneTarget.markForDelete(); 
 	m_wgpBrightnessTarget.markForDelete();
 	m_wgpSceneDepth.markForDelete();
@@ -348,7 +348,6 @@ void HDRBloom::OnMouseMotion(const Event::MouseMoveEvent& event) {
 
 void HDRBloom::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
 	if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {
-
 		Mouse::instance().attach(Application::GetWindow(), false, true);
 	}
 
@@ -357,8 +356,7 @@ void HDRBloom::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
 }
 
 void HDRBloom::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
-	if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {
-		
+	if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {		
 		Mouse::instance().attach(Application::GetWindow(), false, true);
 	}
 
@@ -373,8 +371,7 @@ void HDRBloom::OnMouseWheel(const Event::MouseWheelEvent& event) {
 void HDRBloom::OnKeyDown(const Event::KeyboardEvent& event) {
 #if DEVBUILD
 
-	if (event.keyCode == VK_LMENU) {
-		
+	if (event.keyCode == VK_LMENU) {		
 		m_drawUi = !m_drawUi;
 	}
 #endif
@@ -387,10 +384,6 @@ void HDRBloom::OnKeyDown(const Event::KeyboardEvent& event) {
 }
 
 void HDRBloom::OnKeyUp(const Event::KeyboardEvent& event) {
-
-}
-
-void HDRBloom::OnReEnter(unsigned int prevState) {
 
 }
 
@@ -579,7 +572,7 @@ WGPUBindGroup HDRBloom::createBindGroupComposite() {
 
 	bindGroupEntries[2].binding = 2u;
 	bindGroupEntries[2].textureView = m_bloomFBO.mMipChain[0].renderTargetView;
-	//bindGroupEntries[2].textureView = m_wgpBrightnessTarget.getTextureView();
+
 	bindGroupEntries[3].binding = 3u;
 	bindGroupEntries[3].buffer = m_compositeBuffer.getBuffer();
 	bindGroupEntries[3].offset = 0u;

@@ -180,40 +180,6 @@ void WgpRenderer::Draw(const WGPUTextureView& textureView, WGPULoadOp loadOp, co
 	renderPassDescriptor.timestampWrites = NULL;
 
 	OnDraw(renderPassDescriptor);
-	
-	/*uint32_t mipLevelCount = wgpuTextureGetMipLevelCount(texture.getTexture());
-	WGPUTextureFormat textureFormat = wgpuTextureGetFormat(texture.getTexture());
-	
-	for (uint32_t mip = mipLevelCount - 1; mip > 0; mip--) {
-		WGPUTextureViewDescriptor textureViewDescriptor = {};
-		textureViewDescriptor.label = WGPU_STR("texture_view");
-		textureViewDescriptor.aspect = WGPUTextureAspect_All;
-		textureViewDescriptor.baseArrayLayer = 0u;
-		textureViewDescriptor.arrayLayerCount = 1u;
-		textureViewDescriptor.baseMipLevel = mip - 1;
-		textureViewDescriptor.mipLevelCount = 1u;
-		textureViewDescriptor.dimension = WGPUTextureViewDimension_2D;
-		textureViewDescriptor.format = textureFormat;
-		textureViewDescriptor.nextInChain = NULL;
-		std::cout << "INDEX: " << mip - 1 << std::endl;
-		WGPUTextureView textureView = wgpuTextureCreateView(texture.getTexture(), &textureViewDescriptor);
-
-		WGPURenderPassColorAttachment renderPassColorAttachment = {};
-		renderPassColorAttachment.view = textureView;
-		renderPassColorAttachment.loadOp = WGPULoadOp::WGPULoadOp_Clear;
-		renderPassColorAttachment.storeOp = WGPUStoreOp::WGPUStoreOp_Store;
-		renderPassColorAttachment.clearValue = wgpContext.clearColor;
-		renderPassColorAttachment.depthSlice = WGPU_DEPTH_SLICE_UNDEFINED;
-
-		WGPURenderPassDescriptor renderPassDescriptor = {};
-		renderPassDescriptor.label = WGPU_STR("render_pass");
-		renderPassDescriptor.colorAttachmentCount = 1u;
-		renderPassDescriptor.colorAttachments = &renderPassColorAttachment;
-		renderPassDescriptor.depthStencilAttachment = NULL;
-		renderPassDescriptor.timestampWrites = NULL;
-
-		OnDraw(renderPassDescriptor, mip);
-	}*/
 }
 
 void WgpRenderer::Draw(const WgpTexture& texture, const std::function<void(const WGPURenderPassEncoder& renderPassEncoder, uint32_t layer, uint32_t mip)>& OnDraw) {
@@ -362,21 +328,21 @@ void WgpRenderer::Dispatch(const WgpTexture& texture, const WgpBuffer& probabili
 			wgpuComputePassEncoderEnd(computePassEncoder);
 			wgpuComputePassEncoderRelease(computePassEncoder);
 
-			WGPUTexelCopyTextureInfo source = {};
-			source.texture = texture.getTexture();
-			source.mipLevel = level;
-			source.origin = { 0u, 0u,  0u };
-			source.aspect = WGPUTextureAspect_All;
-
 			WGPUTexelCopyTextureInfo destination = {};
-			destination.texture = writeTexture.getTexture();
+			destination.texture = texture.getTexture();
 			destination.mipLevel = level;
-			destination.origin = { 0u, 0u, 0u };
+			destination.origin = { 0u, 0u,  0u };
 			destination.aspect = WGPUTextureAspect_All;
+
+			WGPUTexelCopyTextureInfo source = {};
+			source.texture = writeTexture.getTexture();
+			source.mipLevel = level;
+			source.origin = { 0u, 0u, 0u };
+			source.aspect = WGPUTextureAspect_All;
 
 			WGPUExtent3D size = { levelWidth , levelHeight, 1u };
 
-			wgpuCommandEncoderCopyTextureToTexture(commandEncoder, &destination, &source, &size);
+			wgpuCommandEncoderCopyTextureToTexture(commandEncoder, &source, &destination, &size);
 		}	
 	}
 

@@ -225,7 +225,7 @@ void AssimpModel::loadModel(const char* filePath) {
 	mesh->m_hasNormals = true;
 	m_numberOfMeshes = m_meshes.size();
 }
-
+#include <iostream>
 void AssimpModel::loadModelAssimp(const char* _filename, bool isStacked, bool generateNormals, bool generateTangents, bool flipYZ, bool flipWinding) {
 	std::string filename(_filename);
 
@@ -331,11 +331,11 @@ void AssimpModel::loadModelAssimp(const char* _filename, bool isStacked, bool ge
 		mesh->m_drawCount = aiMesh->mNumFaces * 3u;
 
 		if (mesh->hasMaterial()) {
-			std::vector<const aiTexture*> oldTextures;
+			std::vector<const aiTexture*> cachedTextures;
 			for (std::unordered_map<TextureSlot, std::string>::const_iterator it = mesh->getMaterial().getTextures().begin(); it != Material::GetMaterials().back().getTextures().end(); it++) {							
-				const aiTexture* texture = pScene->GetEmbeddedTexture(it->second.c_str());				
-				if (texture && std::find(oldTextures.begin(), oldTextures.end(), texture) == oldTextures.end()) {
-					oldTextures.push_back(texture);
+				const aiTexture* texture = pScene->GetEmbeddedTexture(it->second.c_str());
+				if (texture && std::find(cachedTextures.begin(), cachedTextures.end(), texture) == cachedTextures.end()) {
+					cachedTextures.push_back(texture);
 					mesh->m_embeddedTextures[it->first].second = texture->mWidth;
 					mesh->m_embeddedTextures[it->first].first = (unsigned char*)malloc(texture->mWidth);
 					std::memcpy(mesh->m_embeddedTextures[it->first].first, texture->pcData, texture->mWidth);

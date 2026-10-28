@@ -40,7 +40,7 @@ struct BloomFBO {
 	bool m_karisAverageOnDownsample = true;
 	std::vector<BloomMip> mMipChain;
 	WgpTexture m_texture;
-	WGPUBuffer upbuffer;
+	WGPUBuffer upbuffer = nullptr;
 };
 
 class HDRBloom : public State, public MouseEventListener, public KeyboardEventListener {
@@ -48,9 +48,6 @@ class HDRBloom : public State, public MouseEventListener, public KeyboardEventLi
 		Matrix4f model;
 		Vector4f color;
 	};
-	
-
-	
 	struct CompositeUniforms {
 		float exposure = 1.0f;
 		float bloomStrength = 0.04f;
@@ -70,8 +67,7 @@ public:
 	void fixedUpdate() override;
 	void update() override;
 	void render() override;
-
-	void resize(int deltaW, int deltaH) override;
+	
 	void OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor);
 	void OnPostDraw();
 	void OnMouseMotion(const Event::MouseMoveEvent& event) override;
@@ -80,7 +76,7 @@ public:
 	void OnMouseButtonUp(const Event::MouseButtonEvent& event) override;
 	void OnKeyDown(const Event::KeyboardEvent& event) override;
 	void OnKeyUp(const Event::KeyboardEvent& event) override;
-	void OnReEnter(unsigned int prevState) override;
+	void resize(int deltaW, int deltaH) override;
 
 private:
 
@@ -104,7 +100,7 @@ private:
 	WgpBuffer m_uniformBuffer, m_storageBuffer, m_compositeBuffer, m_lightBuffer;
 	WgpModel m_wgpCube, m_wgpCubeEmessive;
 	WgpTexture m_wgpSceneTarget, m_wgpBrightnessTarget, m_wgpSceneDepth;
-	WgpTexture wgpTextureEmpty, wgpTextureWood, wgpTextureContainer;
+	WgpTexture m_wgpTextureEmpty, m_wgpTextureWood, m_wgpTextureContainer;
 	WGPUBindGroup m_bindGroupComposite;
 
 	std::vector<Instance> m_instances;
