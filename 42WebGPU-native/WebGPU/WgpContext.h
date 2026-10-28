@@ -35,7 +35,7 @@ extern std::unordered_map<VertexLayoutSlot, std::vector<WGPUVertexAttribute>> wg
 extern std::unordered_map<VertexLayoutSlot, std::vector<WGPUVertexBufferLayout>> wgpVertexBufferLayouts;
 
 extern "C" {
-	void wgpInit(void* window);
+	void wgpInit(void* window, uint32_t width, uint32_t height);
 	bool wgpCreateDevice(void* window);
 	void wgpLogAdapterProperties(WGPUAdapter adapter);
 
@@ -61,9 +61,9 @@ extern "C" {
 	void wgpToggleVerticalSync();
 	void wgpConfigureSurface();
 	void wgpProcessQueue();
-	void wgpSetSurfaceColorFormat(WGPUTextureFormat textureFormat, const std::function<void()>& onSurfaceChange = NULL);
-	void wgpSetSurfaceDepthFormat(WGPUTextureFormat textureFormat, const std::function<void()>& onSurfaceChange = NULL);
-	void wgpSetMSAASampleCount(const uint32_t count, const std::function<void()>& onSurfaceChange = NULL);	
+	void wgpSetSurfaceColorFormat(WGPUTextureFormat textureFormat);
+	void wgpSetSurfaceDepthFormat(WGPUTextureFormat textureFormat);
+	void wgpSetMSAASampleCount(const uint32_t count);	
 	WGPURenderPassDepthStencilAttachment wgpCopyDepthStencilAttachment(const WGPURenderPassDepthStencilAttachment* src);
 }
 
@@ -175,6 +175,7 @@ struct WgpContext {
 	std::unordered_map<std::string, WGPURenderPipeline> renderPipelines;
 	std::function<void(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor)> OnDraw = NULL;
 	std::function<void()> OnPostDraw = NULL;
+	std::function<void()> OnSurfaceChange = NULL;
 
 private:
 

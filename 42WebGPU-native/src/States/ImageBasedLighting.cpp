@@ -17,8 +17,8 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
 
-	wgpSetMSAASampleCount(4u, Application::OnSurfaceChange);
-	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm, Application::OnSurfaceChange);
+	wgpSetMSAASampleCount(4u);
+	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm);
 
 	m_camera.perspective(90.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 100.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);

@@ -31,9 +31,9 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 	EventDispatcher::AddMouseListener(this);
 	Mouse::instance().attach(Application::GetWindow(), false, true);
 
-	wgpSetMSAASampleCount(1u, Application::OnSurfaceChange);
-	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm, Application::OnSurfaceChange);
-	wgpSetSurfaceDepthFormat(WGPUTextureFormat::WGPUTextureFormat_Depth24Plus, Application::OnSurfaceChange);
+	wgpSetMSAASampleCount(1u);
+	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm);
+	wgpSetSurfaceDepthFormat(WGPUTextureFormat::WGPUTextureFormat_Depth24Plus);
 	Physics::DebugDrawer.init();
 	nkInit(static_cast<float>(Application::Width), static_cast<float>(Application::Height));
 	nkInitFont("res/fonts/upheavtt.ttf");

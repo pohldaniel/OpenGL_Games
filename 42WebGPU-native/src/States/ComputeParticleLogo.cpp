@@ -19,7 +19,7 @@ ComputeParticleLogo::ComputeParticleLogo(StateMachine& machine) : State(machine,
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
 
-	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm, Application::OnSurfaceChange);
+	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm);
 
 	wgpVertexAttribute(VL_0).push_back(WGPUVertexAttribute{NULL, WGPUVertexFormat_Float32x3, 0u, 0u});
 	wgpVertexAttribute(VL_0).push_back(WGPUVertexAttribute{NULL, WGPUVertexFormat_Float32x4, 4 * sizeof(float), 1u});
