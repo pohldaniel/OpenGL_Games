@@ -58,7 +58,7 @@ private:
 
 	float largeScale = 0.0078125f;
 	float smallScale = 0.00390625f;
-	float m_sec;
+	float m_sec = 0.0f;
 	Matrix4f m_model;
 	Matrix4f m_textTransforms[6];
 

@@ -124,104 +124,104 @@ void Controller::update() {
 		}
 	}
 
-	IGamePad* player1 = XInputGamePad::GetPlayer()->isConnected() ? XInputGamePad::GetPlayer() : DInputGamePad::GetPlayer();
+	IGamePad* gamePad = XInputGamePad::GetPlayer() ? XInputGamePad::GetPlayer() : DInputGamePad::GetPlayer();
 	m_RightStickX = 0.0f;
 	m_RightStickY = 0.0f;
 	m_LeftStickX = 0.0f;
 	m_LeftStickY = 0.0f;
 	
 	m_state = 0;
-	if (player1) {
+	if (gamePad) {
 
-		m_RightStickX = player1->getRightStickX();
-		m_RightStickY = player1->getRightStickY();
+		m_RightStickX = gamePad->getRightStickX();
+		m_RightStickY = gamePad->getRightStickY();
 
-		m_LeftStickX = player1->getLeftStickX();
-		m_LeftStickY = player1->getLeftStickY();
+		m_LeftStickX = gamePad->getLeftStickX();
+		m_LeftStickY = gamePad->getLeftStickY();
 
-		if (player1->buttonDown(GamepadButton::DPAD_UP)) {
+		if (gamePad->buttonDown(GamepadButton::DPAD_UP)) {
 			m_state = 1;
 		}
 
-		if (player1->buttonDown(GamepadButton::DPAD_RIGHT)) {
+		if (gamePad->buttonDown(GamepadButton::DPAD_RIGHT)) {
 			m_state = 3;
 		}
 
-		if (player1->buttonDown(GamepadButton::DPAD_DOWN)) {
+		if (gamePad->buttonDown(GamepadButton::DPAD_DOWN)) {
 			m_state = 5;
 		}
 
-		if (player1->buttonDown(GamepadButton::DPAD_LEFT)) {
+		if (gamePad->buttonDown(GamepadButton::DPAD_LEFT)) {
 			m_state = 7;
 		}
 
-		if (player1->buttonDown(GamepadButton::DPAD_UP_RIGHT)) {
+		if (gamePad->buttonDown(GamepadButton::DPAD_UP_RIGHT)) {
 			m_state = 2;
 		}
 
-		if (player1->buttonDown(GamepadButton::DPAD_DOWN_RIGHT)) {
+		if (gamePad->buttonDown(GamepadButton::DPAD_DOWN_RIGHT)) {
 			m_state = 4;
 		}
 
-		if (player1->buttonDown(GamepadButton::DPAD_DOWN_LEFT)) {
+		if (gamePad->buttonDown(GamepadButton::DPAD_DOWN_LEFT)) {
 			m_state = 6;
 		}
 
-		if (player1->buttonDown(GamepadButton::DPAD_UP_LEFT)) {
+		if (gamePad->buttonDown(GamepadButton::DPAD_UP_LEFT)) {
 			m_state = 8;
 		}
 
-		if (player1->buttonDown(GamepadButton::GAMEPAD_START)) {
+		if (gamePad->buttonDown(GamepadButton::GAMEPAD_START)) {
 			m_state = 9;
 		}
 
-		if (player1->buttonDown(GamepadButton::GAMEPAD_BACK)) {
+		if (gamePad->buttonDown(GamepadButton::GAMEPAD_BACK)) {
 			m_state = 10;
 		}
 
-		if (player1->buttonDown(GamepadButton::GAMEPAD_LEFT_THUMB)) {
+		if (gamePad->buttonDown(GamepadButton::GAMEPAD_LEFT_THUMB)) {
 			m_state = 11;
 		}
 
-		if (player1->buttonDown(GamepadButton::GAMEPAD_RIGHT_THUMB)) {
+		if (gamePad->buttonDown(GamepadButton::GAMEPAD_RIGHT_THUMB)) {
 			m_state = 12;
 		}
 
-		if (player1->buttonDown(GamepadButton::GAMEPAD_LEFT_SHOULDER)) {
+		if (gamePad->buttonDown(GamepadButton::GAMEPAD_LEFT_SHOULDER)) {
 			m_state = 13;
 		}
 
-		if (player1->buttonDown(GamepadButton::GAMEPAD_RIGHT_SHOULDER)) {
+		if (gamePad->buttonDown(GamepadButton::GAMEPAD_RIGHT_SHOULDER)) {
 			m_state = 14;
 		}
 
-		if (player1->buttonDown(GamepadButton::GAMEPAD_A)) {
+		if (gamePad->buttonDown(GamepadButton::GAMEPAD_A)) {
 			m_state = 15;
 
-			if (player1->buttonDown(GamepadButton::GAMEPAD_A))
-				player1->setVibration(1.0f, 1.0f);
+			if (gamePad->buttonDown(GamepadButton::GAMEPAD_A))
+				gamePad->setVibration(1.0f, 1.0f);
 		}
 
-		if (player1->buttonDown(GamepadButton::GAMEPAD_B)) {
+		if (gamePad->buttonDown(GamepadButton::GAMEPAD_B)) {
 			m_state = 16;
 
-			if (player1->buttonDown(GamepadButton::GAMEPAD_B))
-				player1->setVibration(0.0f, 0.0f);
+			if (gamePad->buttonDown(GamepadButton::GAMEPAD_B))
+				gamePad->setVibration(0.0f, 0.0f);
 		}
 
-		if (player1->buttonDown(GamepadButton::GAMEPAD_X)) {
+		if (gamePad->buttonDown(GamepadButton::GAMEPAD_X)) {
 			m_state = 17;
 		}
 
-		if (player1->buttonDown(GamepadButton::GAMEPAD_Y)) {
+		if (gamePad->buttonDown(GamepadButton::GAMEPAD_Y)) {
 			m_state = 18;
 		}
 
-		if (player1->buttonDown(GamepadButton::GAMEPAD_LEFT_TRIGGER)) {
+		if (gamePad->buttonDown(GamepadButton::GAMEPAD_LEFT_TRIGGER)) {
 			m_state = 19;
 		}
 
-		if (player1->buttonDown(GamepadButton::GAMEPAD_RIGHT_TRIGGER)) {
+		if (gamePad->buttonDown(GamepadButton::GAMEPAD_RIGHT_TRIGGER)) {
 			m_state = 20;
 		}
 	}

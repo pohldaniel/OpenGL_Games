@@ -248,6 +248,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClCompile Include="src\Entities\Entity.cpp" />
     <ClCompile Include="src\Entities\Player.cpp" />
     <ClCompile Include="src\ImguiExtension.cpp" />
+    <ClCompile Include="src\States\ABuffer.cpp" />
     <ClCompile Include="src\States\AudioDecode.cpp" />
     <ClCompile Include="src\States\Compute.cpp" />
     <ClCompile Include="src\States\ComputeParticleLogo.cpp" />
@@ -394,6 +395,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClInclude Include="src\Entities\Player.h" />
     <ClInclude Include="src\Globals.h" />
     <ClInclude Include="src\ImguiExtension.h" />
+    <ClInclude Include="src\States\ABuffer.h" />
     <ClInclude Include="src\States\AudioDecode.h" />
     <ClInclude Include="src\States\Compute.h" />
     <ClInclude Include="src\States\ComputeParticleLogo.h" />
