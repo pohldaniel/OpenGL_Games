@@ -11,6 +11,9 @@
 #include "Application.h"
 #include "ABuffer.h"
 
+const uint32_t average_layers_per_fragment = 4u;
+uint32_t maxStorageBufferBindingSize = 0u;
+
 ABuffer::ABuffer(StateMachine& machine) : State(machine, States::ABUFFER) {
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -22,9 +25,36 @@ ABuffer::ABuffer(StateMachine& machine) : State(machine, States::ABUFFER) {
 
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f , -1.0f, 1.0f);
-	m_camera.lookAt(Vector3f(0.0f, 10.0f, 50.0f), Vector3f(0.0f, 0.0f, 0.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
-	m_camera.setMovingSpeed(10.0f);
+	m_camera.lookAt(Vector3f(0.0f, 10.0f, 250.0f), Vector3f(0.0f, 0.0f, 0.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.setMovingSpeed(100.0f);
 	m_camera.setRotationSpeed(0.1f);
+
+	WGPULimits supportedLimits = {};
+	wgpuDeviceGetLimits(wgpContext.device, &supportedLimits);
+	
+	const uint32_t canvas_width = Application::Width;
+	const uint32_t canvas_height = Application::Height;
+	const uint32_t linked_list_element_size = 5 * sizeof(float) + 1 * sizeof(uint32_t);
+
+	maxStorageBufferBindingSize = supportedLimits.maxStorageBufferBindingSize;
+	const uint32_t bytes_per_line = canvas_width * average_layers_per_fragment * linked_list_element_size;
+	const uint32_t max_lines_supported = (uint32_t)floorf(maxStorageBufferBindingSize / (float)bytes_per_line);
+	const uint32_t num_slices = (uint32_t)ceilf(canvas_height / (float)max_lines_supported);
+	const uint32_t slice_height= (uint32_t)ceilf(canvas_height / (float)num_slices);
+	const uint32_t linked_list_buffer_size= slice_height * bytes_per_line;
+	
+	uint64_t totalBufferSize = num_slices * supportedLimits.minUniformBufferOffsetAlignment;	
+	m_sliceInfoBuffer.createBuffer(sizeof(SliceInfo) * supportedLimits.minUniformBufferOffsetAlignment, WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform, true);
+	uint8_t* byteData = (uint8_t*)wgpuBufferGetMappedRange(m_sliceInfoBuffer.getBuffer(), 0, totalBufferSize);
+	const int32_t byteStride = supportedLimits.minUniformBufferOffsetAlignment;
+	for (int32_t i = 0; i < (int32_t)num_slices; ++i) {
+		SliceInfo* currentSlice = (SliceInfo*)(byteData + (i * byteStride));
+		currentSlice->targetWidth = Application::Height;
+		currentSlice->maxStorableFragments = average_layers_per_fragment * Application::Width * slice_height;
+		currentSlice->sliceStartY = i * slice_height;
+		currentSlice->padding = 0;
+	}
+	wgpuBufferUnmap(m_sliceInfoBuffer.getBuffer());
 
 	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	m_uniforms.projection = m_camera.getPerspectiveMatrix();
@@ -42,6 +72,9 @@ ABuffer::ABuffer(StateMachine& machine) : State(machine, States::ABUFFER) {
 
 	wgpContext.addSahderModule("COLOR_PN", "res/shader/color_PN.wgsl");
 	wgpContext.createRenderPipeline("COLOR_PN", "RP_COLOR_PN", VL_PN, std::bind(&ABuffer::OnBindGroupLayouts, this));
+
+	wgpContext.addSahderModule("ABUFFER_OPAQUE", "res/shader/abuffer_opaque.wgsl");
+	wgpContext.createRenderPipeline("ABUFFER_OPAQUE", "RP_ABUFFER_OPAQUE", VL_PN, std::bind(&ABuffer::OnBindGroupLayouts, this));
 
 	m_trackball.reshape(Application::Width, Application::Height);
 	m_teapot.loadModel("res/models/teapot.obj", false, false, true);
@@ -138,9 +171,9 @@ void ABuffer::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderP
 	
 	WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDescriptor);
 	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
-	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_COLOR_PN"));
+	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_ABUFFER_OPAQUE"));
 
-	m_wgpTeapot.draw(renderPassEncoder);
+	m_wgpTeapot.draw(renderPassEncoder, 8u);
 
 	wgpuRenderPassEncoderEnd(renderPassEncoder);
 	wgpuRenderPassEncoderRelease(renderPassEncoder);

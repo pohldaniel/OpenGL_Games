@@ -15,7 +15,12 @@
 #include <WebGPU/WgpTexture.h>
 
 class ABuffer : public State, public MouseEventListener, public KeyboardEventListener {
-
+	struct SliceInfo {
+		uint32_t maxStorableFragments;
+		uint32_t targetWidth;
+		int32_t  sliceStartY;
+		uint32_t padding;
+	};
 public:
 
 	ABuffer(StateMachine& machine);
@@ -50,6 +55,6 @@ private:
 	TrackBall m_trackball;
 	ObjModel m_teapot;
 
-	WgpBuffer m_uniformBuffer;
+	WgpBuffer m_uniformBuffer, m_sliceInfoBuffer;
 	WgpModel m_wgpTeapot;
 };
