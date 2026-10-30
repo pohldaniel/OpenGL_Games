@@ -121,3 +121,15 @@ void WgpModel::draw(const WGPURenderBundleEncoder& renderBundleEncoder, uint32_t
 		(*it).draw(renderBundleEncoder, instanceCount, firstInstance);
 	}
 }
+
+void WgpModel::drawRaw(const WGPURenderPassEncoder& renderPassEncoder, uint32_t instanceCount, uint32_t firstInstance) const {
+	for (std::list<WgpMesh>::const_iterator it = m_meshes.begin(); it != m_meshes.end(); ++it) {
+		(*it).drawRaw(renderPassEncoder, instanceCount, firstInstance);
+	}
+}
+
+void WgpModel::drawRaw(const WGPURenderBundleEncoder& renderBundleEncoder, uint32_t instanceCount, uint32_t firstInstance) const {
+	for (std::list<WgpMesh>::const_iterator it = m_meshes.begin(); it != m_meshes.end(); ++it) {
+		(*it).drawRaw(renderBundleEncoder, instanceCount, firstInstance);
+	}
+}

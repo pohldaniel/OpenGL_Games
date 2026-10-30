@@ -32,6 +32,8 @@ public:
 
 	void draw(const WGPURenderPassEncoder& renderPassEncoder, uint32_t instanceCount = 1u, uint32_t firstInstance = 0u) const;
 	void draw(const WGPURenderBundleEncoder& renderBundleEncoder, uint32_t instanceCount = 1u, uint32_t firstInstance = 0u) const;
+	void drawRaw(const WGPURenderPassEncoder& renderPassEncoder, uint32_t instanceCount = 1u, uint32_t firstInstance = 0u) const;
+	void drawRaw(const WGPURenderBundleEncoder& renderBundleEncoder, uint32_t instanceCount = 1u, uint32_t firstInstance = 0u) const;
 
 	void cleanup();
 	void markForDelete();

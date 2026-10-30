@@ -88,6 +88,7 @@ enum RenderPipelineFlags {
 
 enum BlendMode {
 	ALPHA_BLENDING,
+	ALPHA_BLENDING_ONE,
 	ADDITIVE_BLENDING_SRC,
 	ADDITIVE_BLENDING_ONE
 };

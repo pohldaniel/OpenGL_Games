@@ -231,10 +231,7 @@ void WgpMesh::draw(const WGPURenderPassEncoder& renderPassEncoder, uint32_t inst
 			wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, i, bindGroups[i], 0u, NULL);
 		}
 	}
-
-	wgpuRenderPassEncoderSetVertexBuffer(renderPassEncoder, 0u, m_vertexBuffer.m_buffer, 0u, wgpuBufferGetSize(m_vertexBuffer.m_buffer));
-	wgpuRenderPassEncoderSetIndexBuffer(renderPassEncoder, m_indexBuffer.m_buffer, WGPUIndexFormat_Uint32, 0u, wgpuBufferGetSize(m_indexBuffer.m_buffer));
-	wgpuRenderPassEncoderDrawIndexed(renderPassEncoder, m_drawCount, instanceCount, 0u, 0u, firstInstance);
+	drawRaw(renderPassEncoder, instanceCount, firstInstance);
 }
 
 void WgpMesh::draw(const WGPURenderBundleEncoder& renderBundleEncoder, uint32_t instanceCount, uint32_t firstInstance) const {
@@ -244,7 +241,16 @@ void WgpMesh::draw(const WGPURenderBundleEncoder& renderBundleEncoder, uint32_t 
 			wgpuRenderBundleEncoderSetBindGroup(renderBundleEncoder, i, bindGroups[i], 0u, NULL);
 		}
 	}
+	drawRaw(renderBundleEncoder, instanceCount, firstInstance);
+}
 
+void WgpMesh::drawRaw(const WGPURenderPassEncoder& renderPassEncoder, uint32_t instanceCount, uint32_t firstInstance) const {
+	wgpuRenderPassEncoderSetVertexBuffer(renderPassEncoder, 0u, m_vertexBuffer.m_buffer, 0u, wgpuBufferGetSize(m_vertexBuffer.m_buffer));
+	wgpuRenderPassEncoderSetIndexBuffer(renderPassEncoder, m_indexBuffer.m_buffer, WGPUIndexFormat_Uint32, 0u, wgpuBufferGetSize(m_indexBuffer.m_buffer));
+	wgpuRenderPassEncoderDrawIndexed(renderPassEncoder, m_drawCount, instanceCount, 0u, 0u, firstInstance);
+}
+
+void WgpMesh::drawRaw(const WGPURenderBundleEncoder& renderBundleEncoder, uint32_t instanceCount, uint32_t firstInstance) const {
 	wgpuRenderBundleEncoderSetVertexBuffer(renderBundleEncoder, 0u, m_vertexBuffer.m_buffer, 0u, wgpuBufferGetSize(m_vertexBuffer.m_buffer));
 	wgpuRenderBundleEncoderSetIndexBuffer(renderBundleEncoder, m_indexBuffer.m_buffer, WGPUIndexFormat_Uint32, 0u, wgpuBufferGetSize(m_indexBuffer.m_buffer));
 	wgpuRenderBundleEncoderDrawIndexed(renderBundleEncoder, m_drawCount, instanceCount, 0u, 0u, firstInstance);

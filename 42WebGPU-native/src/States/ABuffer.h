@@ -43,8 +43,13 @@ public:
 private:
 
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayouts();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsTranslucent();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsComposite();
+
 	std::vector<WGPUBindGroup> OnBindGroups();
-		
+	WGPUBindGroup createBindGroupTranslucent();
+	WGPUBindGroup createBindGroupComposite();
+
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);	
 	bool m_initUi = true;
 	bool m_drawUi = false;
@@ -55,6 +60,11 @@ private:
 	TrackBall m_trackball;
 	ObjModel m_teapot;
 
-	WgpBuffer m_uniformBuffer, m_sliceInfoBuffer;
+	WgpBuffer m_uniformBuffer, m_sliceInfoBuffer, m_linkedListBuffer, m_headsInitBuffer, m_headsBuffer;
 	WgpModel m_wgpTeapot;
+	WGPUBindGroup m_bindGroupTranslucent, m_bindGroupComposite;
+
+	uint32_t num_slices;
+	uint32_t slice_height;
+	uint32_t minUniformBufferOffsetAlignment;
 };
