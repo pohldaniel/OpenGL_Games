@@ -11,9 +11,6 @@
 #include "Application.h"
 #include "ABuffer.h"
 
-const uint32_t average_layers_per_fragment = 4u;
-uint32_t maxStorageBufferBindingSize = 0u;
-
 ABuffer::ABuffer(StateMachine& machine) : State(machine, States::ABUFFER) {
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
@@ -22,55 +19,15 @@ ABuffer::ABuffer(StateMachine& machine) : State(machine, States::ABUFFER) {
 
 	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm);
 	wgpSetSurfaceDepthFormat(WGPUTextureFormat::WGPUTextureFormat_Depth24Plus);
+	wgpTextureAddUsage(wgpContext.depthTexture, wgpContext.depthTextureView, WGPUTextureUsage_TextureBinding);
 
-	WgpTexture::ExtendUsage(wgpContext.depthTexture, wgpContext.depthTextureView, WGPUTextureUsage_TextureBinding);
-
-	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
+	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f , -1.0f, 1.0f);
-	m_camera.lookAt(Vector3f(0.0f, 10.0f, 250.0f), Vector3f(0.0f, 0.0f, 0.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.lookAt(Vector3f(0.0f, 5.0f, 200.0f), Vector3f(0.0f, 0.0f, 0.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 	m_camera.setMovingSpeed(100.0f);
 	m_camera.setRotationSpeed(0.1f);
 
-	WGPULimits supportedLimits = {};
-	wgpuDeviceGetLimits(wgpContext.device, &supportedLimits);
-	
-	const uint32_t canvas_width = Application::Width;
-	const uint32_t canvas_height = Application::Height;
-	const uint32_t linked_list_element_size = 5 * sizeof(float) + 1 * sizeof(uint32_t);
-
-	maxStorageBufferBindingSize = supportedLimits.maxStorageBufferBindingSize;
-	const uint32_t bytes_per_line = canvas_width * average_layers_per_fragment * linked_list_element_size;
-	const uint32_t max_lines_supported = (uint32_t)floorf(maxStorageBufferBindingSize / (float)bytes_per_line);
-	num_slices = (uint32_t)ceilf(canvas_height / (float)max_lines_supported);
-	slice_height  = (uint32_t)ceilf(canvas_height / (float)num_slices);
-	const uint32_t linked_list_buffer_size= slice_height * bytes_per_line;
-
-	minUniformBufferOffsetAlignment = supportedLimits.minUniformBufferOffsetAlignment;
-
-	uint64_t totalBufferSize = num_slices * supportedLimits.minUniformBufferOffsetAlignment;	
-	m_sliceInfoBuffer.createBuffer(totalBufferSize, WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform, true);
-	uint8_t* byteData = (uint8_t*)wgpuBufferGetMappedRange(m_sliceInfoBuffer.getBuffer(), 0, totalBufferSize);
-	const int32_t byteStride = supportedLimits.minUniformBufferOffsetAlignment;
-	for (int32_t i = 0; i < (int32_t)num_slices; ++i) {
-		SliceInfo* currentSlice = (SliceInfo*)(byteData + (i * byteStride));
-		currentSlice->targetWidth = Application::Height;
-		currentSlice->maxStorableFragments = average_layers_per_fragment * Application::Width * slice_height;
-		currentSlice->sliceStartY = i * slice_height;
-		currentSlice->padding = 0;
-	}
-	wgpuBufferUnmap(m_sliceInfoBuffer.getBuffer());
-
-	m_linkedListBuffer.createBuffer(slice_height * bytes_per_line, WGPUBufferUsage_CopyDst | WGPUBufferUsage_Storage);
-
-	const uint32_t buffer_count = 1 + canvas_width * slice_height;
-	m_headsInitBuffer.createBuffer(buffer_count * sizeof(uint32_t), WGPUBufferUsage_CopySrc, true);
-	m_headsBuffer.createBuffer(buffer_count * sizeof(uint32_t), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Storage);
-
-	uint32_t* buffer = (uint32_t*)wgpuBufferGetMappedRange(m_headsInitBuffer.getBuffer(), 0, buffer_count * sizeof(uint32_t));
-	for (uint32_t i = 0; i < buffer_count; ++i) {
-		buffer[i] = 0xffffffff;
-	}
-	wgpuBufferUnmap(m_headsInitBuffer.getBuffer());
+	createBuffer();
 
 	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	m_uniforms.projection = m_camera.getPerspectiveMatrix();
@@ -114,11 +71,9 @@ ABuffer::ABuffer(StateMachine& machine) : State(machine, States::ABUFFER) {
 	m_teapot.loadModel("res/models/teapot.obj", false, false, true);
 	m_wgpTeapot.create(m_teapot);
 	m_wgpTeapot.setBindGroups("BG_OPAQUE", std::bind(&ABuffer::OnBindGroups, this));
-	//m_wgpTeapot.addBindGroup("BG_TRANSLUCENT", createBindGroupTranslucent());
 
 	wgpContext.setClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
 	wgpContext.OnDraw = std::bind(&ABuffer::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
-	wgpContext.OnPostDraw = std::bind(&ABuffer::OnPostDraw, this);
 
 	m_bindGroupTranslucent = createBindGroupTranslucent();
 	m_bindGroupComposite = createBindGroupComposite();
@@ -128,6 +83,13 @@ ABuffer::~ABuffer() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
 	m_uniformBuffer.markForDelete();
+	m_sliceInfoBuffer.markForDelete();
+	m_linkedListBuffer.markForDelete();
+	m_headsInitBuffer.markForDelete();
+	m_headsBuffer.markForDelete();
+
+	wgpuBindGroupRelease(m_bindGroupTranslucent);
+	wgpuBindGroupRelease(m_bindGroupComposite);
 }
 
 void ABuffer::fixedUpdate() {
@@ -190,6 +152,10 @@ void ABuffer::update() {
 	}
 	m_trackball.idle();
 
+	Vector3f position = m_camera.getPosition();
+	Vector3f::RotateY(position, m_dt * 90.0f);
+	m_camera.setPosition(position, true);
+
 	m_uniforms.projection = m_camera.getPerspectiveMatrix();
 	m_uniforms.view = m_camera.getViewMatrix();
 	m_uniforms.env = m_camera.getRotationMatrix();
@@ -219,13 +185,13 @@ void ABuffer::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderP
 		wgpuRenderPassEncoderRelease(renderPassEncoder);
 	}
 
-	for (uint32_t slice = 0; slice < num_slices; ++slice) {
+	for (uint32_t slice = 0; slice < m_numSlices; ++slice) {
 		wgpuCommandEncoderCopyBufferToBuffer(commandEncoder, m_headsInitBuffer.getBuffer(), 0u, m_headsBuffer.getBuffer(), 0u, wgpuBufferGetSize(m_headsInitBuffer.getBuffer()));
 
 		const uint32_t scissor_x = 0;
-		const uint32_t scissor_y = slice * slice_height;
+		const uint32_t scissor_y = slice * m_sliceHeight;
 		const uint32_t scissor_width = Application::Width;
-		const uint32_t scissor_height = std::min((slice + 1) * slice_height, static_cast<uint32_t>(Application::Height)) - slice * slice_height;
+		const uint32_t scissor_height = std::min((slice + 1) * m_sliceHeight, static_cast<uint32_t>(Application::Height)) - slice * m_sliceHeight;
 
 		{
 			WGPURenderPassColorAttachment renderPassColorAttachment = renderPassDescriptor.colorAttachments[0];
@@ -239,7 +205,7 @@ void ABuffer::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderP
 			wgpuRenderPassEncoderSetScissorRect(renderPassEncoder, scissor_x, scissor_y, scissor_width, scissor_height);
 
 			wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_ABUFFER_TRANSLUCENT"));
-			const uint32_t dynamic_offsets[1] = { slice * minUniformBufferOffsetAlignment };
+			const uint32_t dynamic_offsets[1] = { slice * wgpContext.limits.minUniformBufferOffsetAlignment };
 			wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_bindGroupTranslucent, 1u, dynamic_offsets);
 
 			m_wgpTeapot.drawRaw(renderPassEncoder, 8u);
@@ -260,7 +226,7 @@ void ABuffer::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderP
 			wgpuRenderPassEncoderSetScissorRect(renderPassEncoder, scissor_x, scissor_y, scissor_width, scissor_height);
 
 			wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_ABUFFER_COMPOSITE"));
-			const uint32_t dynamic_offsets[1] = { slice * minUniformBufferOffsetAlignment };
+			const uint32_t dynamic_offsets[1] = { slice * wgpContext.limits.minUniformBufferOffsetAlignment };
 			wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_bindGroupComposite, 1u, dynamic_offsets);
 
 			wgpuRenderPassEncoderDraw(renderPassEncoder, 6u, 1u, 0u, 0u);
@@ -270,10 +236,21 @@ void ABuffer::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderP
 
 		}
 	}
-}
 
-void ABuffer::OnPostDraw() {
-	
+	if (m_drawUi)
+	{
+		WGPURenderPassColorAttachment renderPassColorAttachment = renderPassDescriptor.colorAttachments[0];
+		renderPassColorAttachment.loadOp = WGPULoadOp::WGPULoadOp_Load;
+
+		WGPURenderPassDescriptor rndrPssDscrptor = renderPassDescriptor;
+		rndrPssDscrptor.colorAttachments = &renderPassColorAttachment;
+
+		WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &rndrPssDscrptor);
+		wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
+		renderUi(renderPassEncoder);
+		wgpuRenderPassEncoderEnd(renderPassEncoder);
+		wgpuRenderPassEncoderRelease(renderPassEncoder);
+	}
 }
 
 void ABuffer::OnMouseMotion(const Event::MouseMoveEvent& event) {
@@ -326,7 +303,15 @@ void ABuffer::OnKeyUp(const Event::KeyboardEvent& event) {
 void ABuffer::resize(int deltaW, int deltaH) {
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, -1.0f, 1.0f);
-	m_wantResize = true;
+
+	wgpTextureAddUsage(wgpContext.depthTexture, wgpContext.depthTextureView, WGPUTextureUsage_TextureBinding);
+	wgpuBindGroupRelease(m_bindGroupTranslucent);
+	wgpuBindGroupRelease(m_bindGroupComposite);
+
+	createBuffer();
+	m_bindGroupTranslucent = createBindGroupTranslucent();
+	m_bindGroupComposite = createBindGroupComposite();
+
 }
 
 void ABuffer::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
@@ -364,8 +349,11 @@ void ABuffer::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 	}
 
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-	ImGui::End();
-
+	int currentSetting = m_setting;
+	if (ImGui::Combo("Memory Strategy", &currentSetting, "multipass\0clamp - pixel - ratio\0\0")) {
+		m_setting = static_cast<Setting>(currentSetting);
+	}
+	ImGui::End();	
 	ImGui::Render();
 	ImGui_ImplWGPU_RenderDrawData(ImGui::GetDrawData(), renderPassEncoder);
 }
@@ -400,12 +388,10 @@ std::vector<WGPUBindGroupLayout> ABuffer::OnBindGroupLayoutsTranslucent() {
 	bindingLayoutEntries[1].binding = 1u;
 	bindingLayoutEntries[1].visibility = WGPUShaderStage_Fragment;
 	bindingLayoutEntries[1].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Storage;
-	//bindingLayoutEntries[1].buffer.minBindingSize = sizeof(Instance);
 
 	bindingLayoutEntries[2].binding = 2u;
 	bindingLayoutEntries[2].visibility = WGPUShaderStage_Fragment;
 	bindingLayoutEntries[2].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Storage;
-	//bindingLayoutEntries[2].buffer.minBindingSize = sizeof(Instance);
 
 	bindingLayoutEntries[3].binding = 3u;
 	bindingLayoutEntries[3].visibility = WGPUShaderStage_Fragment;
@@ -498,7 +484,7 @@ WGPUBindGroup ABuffer::createBindGroupTranslucent() {
 	bindings[4].binding = 4u;
 	bindings[4].buffer = m_sliceInfoBuffer.getBuffer();
 	bindings[4].offset = 0u;
-	bindings[4].size = wgpuBufferGetSize(m_sliceInfoBuffer.getBuffer());
+	bindings[4].size = wgpContext.limits.minUniformBufferOffsetAlignment;
 
 	WGPUBindGroupDescriptor bindGroupDesc = {};
 	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_ABUFFER_TRANSLUCENT"), 0u);
@@ -524,7 +510,7 @@ WGPUBindGroup ABuffer::createBindGroupComposite() {
 	bindings[2].binding = 2u;
 	bindings[2].buffer = m_sliceInfoBuffer.getBuffer();
 	bindings[2].offset = 0u;
-	bindings[2].size = wgpuBufferGetSize(m_sliceInfoBuffer.getBuffer());
+	bindings[2].size = wgpContext.limits.minUniformBufferOffsetAlignment;
 
 	WGPUBindGroupDescriptor bindGroupDesc = {};
 	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_ABUFFER_COMPOSITE"), 0u);
@@ -532,4 +518,49 @@ WGPUBindGroup ABuffer::createBindGroupComposite() {
 	bindGroupDesc.entries = bindings.data();
 
 	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
+}
+
+void ABuffer::createBuffer() {
+	m_sliceInfoBuffer.markForDelete();
+	m_sliceInfoBuffer.cleanup();
+
+	m_linkedListBuffer.markForDelete();
+	m_linkedListBuffer.cleanup();
+
+	m_headsInitBuffer.markForDelete();
+	m_headsInitBuffer.cleanup();
+
+	m_headsBuffer.markForDelete();
+	m_headsBuffer.cleanup();
+	
+	const uint32_t bytesPerLine = Application::Width * AverageLayers * (5 * sizeof(float) + 1 * sizeof(uint32_t));
+	const uint32_t maxLines = (uint32_t)floorf(wgpContext.limits.maxStorageBufferBindingSize / (float)bytesPerLine);
+	m_numSlices = (uint32_t)ceilf(Application::Height / (float)maxLines);
+	m_sliceHeight = (uint32_t)ceilf(Application::Height / (float)m_numSlices);
+	uint64_t totalBufferSize = m_numSlices * wgpContext.limits.minUniformBufferOffsetAlignment;
+
+	m_sliceInfoBuffer.createBuffer(m_numSlices * wgpContext.limits.minUniformBufferOffsetAlignment, WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform, true);
+
+	uint8_t* byteData = (uint8_t*)wgpuBufferGetMappedRange(m_sliceInfoBuffer.getBuffer(), 0, m_numSlices * wgpContext.limits.minUniformBufferOffsetAlignment);
+	const int32_t byteStride = wgpContext.limits.minUniformBufferOffsetAlignment;
+	for (int32_t i = 0; i < (int32_t)m_numSlices; ++i) {
+		SliceInfo* currentSlice = (SliceInfo*)(byteData + (i * byteStride));
+		currentSlice->targetWidth = Application::Width;
+		currentSlice->maxStorableFragments = AverageLayers * Application::Width * m_sliceHeight;
+		currentSlice->sliceStartY = i * m_sliceHeight;
+		currentSlice->padding = 0;
+	}
+	wgpuBufferUnmap(m_sliceInfoBuffer.getBuffer());
+
+	m_linkedListBuffer.createBuffer(m_sliceHeight * bytesPerLine, WGPUBufferUsage_CopyDst | WGPUBufferUsage_Storage);
+
+	const uint32_t bufferCount = 1 + Application::Width * m_sliceHeight;
+	m_headsInitBuffer.createBuffer(bufferCount * sizeof(uint32_t), WGPUBufferUsage_CopySrc, true);
+	m_headsBuffer.createBuffer(bufferCount * sizeof(uint32_t), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Storage);
+
+	uint32_t* buffer = (uint32_t*)wgpuBufferGetMappedRange(m_headsInitBuffer.getBuffer(), 0, bufferCount * sizeof(uint32_t));
+	for (uint32_t i = 0; i < bufferCount; ++i) {
+		buffer[i] = 0xffffffff;
+	}
+	wgpuBufferUnmap(m_headsInitBuffer.getBuffer());
 }

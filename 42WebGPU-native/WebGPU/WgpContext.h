@@ -63,7 +63,12 @@ extern "C" {
 	void wgpProcessQueue();
 	void wgpSetSurfaceColorFormat(WGPUTextureFormat textureFormat);
 	void wgpSetSurfaceDepthFormat(WGPUTextureFormat textureFormat);
-	void wgpSetMSAASampleCount(const uint32_t count);	
+	void wgpSetMSAASampleCount(const uint32_t count);
+
+	void wgpTextureAddUsage(WGPUTexture& texture, WGPUTextureView& depthTextureView, WGPUTextureUsage textureUsage);
+	void wgpTextureRemoveUsage(WGPUTexture& texture, WGPUTextureView& depthTextureView, WGPUTextureUsage textureUsage);
+	void wgpTextureSetUsage(WGPUTexture& texture, WGPUTextureView& depthTextureView, WGPUTextureUsage textureUsage);
+
 	WGPURenderPassDepthStencilAttachment wgpCopyDepthStencilAttachment(const WGPURenderPassDepthStencilAttachment* src);
 }
 
@@ -167,6 +172,7 @@ struct WgpContext {
 	WGPUTexture msaaTexture = NULL;
 	uint32_t msaaSampleCount = 1u;
 
+	WGPULimits limits = {};
 	WGPUSurfaceConfiguration config = {};
 	WGPUSurfaceCapabilities surfaceCapabilities;
 	WGPUTextureFormat depthFormat = WGPUTextureFormat::WGPUTextureFormat_Depth24PlusStencil8;

@@ -715,24 +715,6 @@ void WgpTexture::SafeHDRI(const std::string& fileOut, const unsigned char* bytes
     FreeImage_DeInitialise();
 }
 
-void WgpTexture::ExtendUsage(WGPUTexture& texture, WGPUTextureView& depthTextureView, WGPUTextureUsage textureUsage) {
-    uint32_t width = wgpuTextureGetWidth(wgpContext.depthTexture);
-    uint32_t height = wgpuTextureGetHeight(wgpContext.depthTexture);
-    uint32_t depth = wgpuTextureGetDepthOrArrayLayers(wgpContext.depthTexture);
-    uint32_t msaaSampleCount = wgpuTextureGetSampleCount(texture);
-
-    uint32_t mipLevelCount = wgpuTextureGetMipLevelCount(texture);
-    WGPUTextureFormat textureFormat = wgpuTextureGetFormat(texture);
-    WGPUTextureUsage txtrUsg = wgpuTextureGetUsage(texture) | textureUsage;
-
-    wgpuTextureViewRelease(wgpContext.depthTextureView);
-    wgpuTextureDestroy(wgpContext.depthTexture);
-    wgpuTextureRelease(wgpContext.depthTexture);
-
-    texture = wgpCreateTexture(width, height, depth, txtrUsg, textureFormat, mipLevelCount, msaaSampleCount, textureFormat);
-    depthTextureView = wgpCreateTextureView(texture, WGPUTextureAspect::WGPUTextureAspect_All);
-}
-
 FIBITMAP* WgpTexture::AddAlphaChannel(FIBITMAP* bitmap, short alphaChannel) {
     unsigned int bpp = FreeImage_GetBPP(bitmap);
 

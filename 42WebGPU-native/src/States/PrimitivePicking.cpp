@@ -236,7 +236,6 @@ void PrimitivePicking::OnDraw(const WGPUCommandEncoder& commandEncoder, const WG
 
 	if (m_drawUi) 
 	{
-		//wgpSubmitQueue();
 		WGPURenderPassColorAttachment renderPassColorAttachment = renderPassDescriptor.colorAttachments[0];
 		renderPassColorAttachment.loadOp = WGPULoadOp::WGPULoadOp_Load;
 

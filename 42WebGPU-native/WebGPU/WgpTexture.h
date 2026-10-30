@@ -49,7 +49,6 @@ public:
 	static void Safe(const std::string& fileOut, const unsigned char* bytes, uint32_t size);
 	static void SafeHDRI(const std::string& fileOut, const unsigned char* bytes, uint32_t width, uint32_t height);
 
-	static void ExtendUsage(WGPUTexture& texture, WGPUTextureView& depthTextureView, WGPUTextureUsage textureUsage);
 private:
 	
 	static FIBITMAP* AddAlphaChannel(FIBITMAP* bitmap, short alphaChannel = -1);

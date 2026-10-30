@@ -21,6 +21,11 @@ class ABuffer : public State, public MouseEventListener, public KeyboardEventLis
 		int32_t  sliceStartY;
 		uint32_t padding;
 	};
+
+	enum Setting {
+		MULTIPASS,
+		CLAMP
+	};
 public:
 
 	ABuffer(StateMachine& machine);
@@ -31,7 +36,6 @@ public:
 	void render() override;
 	
 	void OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor);
-	void OnPostDraw();
 	void OnMouseMotion(const Event::MouseMoveEvent& event) override;
 	void OnMouseWheel(const Event::MouseWheelEvent& event) override;
 	void OnMouseButtonDown(const Event::MouseButtonEvent& event) override;
@@ -49,11 +53,11 @@ private:
 	std::vector<WGPUBindGroup> OnBindGroups();
 	WGPUBindGroup createBindGroupTranslucent();
 	WGPUBindGroup createBindGroupComposite();
-
-	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);	
+	
+	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
+	void createBuffer();
 	bool m_initUi = true;
-	bool m_drawUi = false;
-	bool m_wantResize = false;
+	bool m_drawUi = true;
 
 	Camera m_camera;
 	Uniforms m_uniforms;
@@ -64,7 +68,9 @@ private:
 	WgpModel m_wgpTeapot;
 	WGPUBindGroup m_bindGroupTranslucent, m_bindGroupComposite;
 
-	uint32_t num_slices;
-	uint32_t slice_height;
-	uint32_t minUniformBufferOffsetAlignment;
+	const uint32_t AverageLayers = 4u;
+
+	uint32_t m_numSlices;
+	uint32_t m_sliceHeight;
+	Setting m_setting = MULTIPASS;
 };
