@@ -255,7 +255,7 @@ void wgpConfigureSurface() {
 	wgpContext.config.viewFormats = NULL;
 	wgpContext.config.device = wgpContext.device;
 	wgpContext.config.presentMode = WGPUPresentMode_Fifo;
-	wgpContext.config.alphaMode = wgpContext.surfaceCapabilities.alphaModes[0];
+	wgpContext.config.alphaMode = WGPUCompositeAlphaMode::WGPUCompositeAlphaMode_Opaque;
 	wgpuSurfaceConfigure(wgpContext.surface, &wgpContext.config);
 }
 
@@ -1175,29 +1175,29 @@ void WgpContext::createRenderPipeline(const std::string& shaderModuleName,
 		blendState.color.srcFactor = WGPUBlendFactor::WGPUBlendFactor_SrcAlpha;
 		blendState.color.dstFactor = WGPUBlendFactor::WGPUBlendFactor_OneMinusSrcAlpha;		
 		blendState.alpha.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
-		blendState.alpha.srcFactor = WGPUBlendFactor::WGPUBlendFactor_One;
-		blendState.alpha.dstFactor = WGPUBlendFactor::WGPUBlendFactor_Zero;
+		blendState.alpha.srcFactor = WGPUBlendFactor::WGPUBlendFactor_Zero;
+		blendState.alpha.dstFactor = WGPUBlendFactor::WGPUBlendFactor_One;
 	}else if (configuration.blendMode == ALPHA_BLENDING_ONE) {
 		blendState.color.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
 		blendState.color.srcFactor = WGPUBlendFactor::WGPUBlendFactor_One;
 		blendState.color.dstFactor = WGPUBlendFactor::WGPUBlendFactor_OneMinusSrcAlpha;
 		blendState.alpha.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
-		blendState.alpha.srcFactor = WGPUBlendFactor::WGPUBlendFactor_One;
-		blendState.alpha.dstFactor = WGPUBlendFactor::WGPUBlendFactor_Zero;
+		blendState.alpha.srcFactor = WGPUBlendFactor::WGPUBlendFactor_Zero;
+		blendState.alpha.dstFactor = WGPUBlendFactor::WGPUBlendFactor_One;
 	}else if (configuration.blendMode == ADDITIVE_BLENDING_SRC) {
 		blendState.color.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
 		blendState.color.srcFactor = WGPUBlendFactor::WGPUBlendFactor_SrcAlpha;
 		blendState.color.dstFactor = WGPUBlendFactor::WGPUBlendFactor_One;
 		blendState.alpha.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
-		blendState.alpha.srcFactor = WGPUBlendFactor::WGPUBlendFactor_One;
-		blendState.alpha.dstFactor = WGPUBlendFactor::WGPUBlendFactor_Zero;		
+		blendState.alpha.srcFactor = WGPUBlendFactor::WGPUBlendFactor_Zero;
+		blendState.alpha.dstFactor = WGPUBlendFactor::WGPUBlendFactor_One;
 	}else if (configuration.blendMode == ADDITIVE_BLENDING_ONE) {
 		blendState.color.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
 		blendState.color.srcFactor = WGPUBlendFactor::WGPUBlendFactor_One;
 		blendState.color.dstFactor = WGPUBlendFactor::WGPUBlendFactor_One;
 		blendState.alpha.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
-		blendState.alpha.srcFactor = WGPUBlendFactor::WGPUBlendFactor_One;
-		blendState.alpha.dstFactor = WGPUBlendFactor::WGPUBlendFactor_Zero;
+		blendState.alpha.srcFactor = WGPUBlendFactor::WGPUBlendFactor_Zero;
+		blendState.alpha.dstFactor = WGPUBlendFactor::WGPUBlendFactor_One;
 	}
 
 	std::vector<WGPUColorTargetState> colorTargetStates;

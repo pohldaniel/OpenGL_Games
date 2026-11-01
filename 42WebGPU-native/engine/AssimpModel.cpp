@@ -221,11 +221,11 @@ void AssimpModel::loadModel(const char* filePath) {
 	m_meshes.emplace_back(new AssimpMesh(this));
 	AssimpMesh* mesh = static_cast<AssimpMesh*>(m_meshes.back());
 	mdlcIO.mdlcMeshToBuffer(filePath, mesh->vertexBuffer(), mesh->indexBuffer(), mesh->stride());
-	mesh->m_hasTextureCoords = true;
-	mesh->m_hasNormals = true;
+	mesh->m_hasTextureCoords = mesh->stride() >= 8u || mesh->stride() == 5u;
+	mesh->m_hasNormals = mesh->stride() >= 8u || mesh->stride() == 6u;
 	m_numberOfMeshes = m_meshes.size();
 }
-#include <iostream>
+
 void AssimpModel::loadModelAssimp(const char* _filename, bool isStacked, bool generateNormals, bool generateTangents, bool flipYZ, bool flipWinding) {
 	std::string filename(_filename);
 

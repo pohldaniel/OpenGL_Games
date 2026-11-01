@@ -333,8 +333,8 @@ void nkCreateRenderPipeline(WGPURenderPipeline& renderPipeline) {
 	blendState.color.srcFactor = WGPUBlendFactor::WGPUBlendFactor_SrcAlpha;
 	blendState.color.dstFactor = WGPUBlendFactor::WGPUBlendFactor_OneMinusSrcAlpha;
 	blendState.alpha.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
-	blendState.alpha.srcFactor = WGPUBlendFactor::WGPUBlendFactor_One;
-	blendState.alpha.dstFactor = WGPUBlendFactor::WGPUBlendFactor_Zero;
+	blendState.alpha.srcFactor = WGPUBlendFactor::WGPUBlendFactor_Zero;
+	blendState.alpha.dstFactor = WGPUBlendFactor::WGPUBlendFactor_One;
 
 	WGPUColorTargetState colorTargetState = {};
 	colorTargetState.nextInChain = NULL;

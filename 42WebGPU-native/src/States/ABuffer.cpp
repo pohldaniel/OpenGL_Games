@@ -4,7 +4,6 @@
 #include <imgui_internal.h>
 
 #include <engine/input/GamePad.h>
-#include <WebGPU/WgpRenderer.h>
 #include <States/Menu.h>
 
 #include "Globals.h"
@@ -43,9 +42,6 @@ ABuffer::ABuffer(StateMachine& machine) : State(machine, States::ABUFFER) {
 
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
 
-	wgpContext.addSahderModule("COLOR_PN", "res/shader/color_PN.wgsl");
-	wgpContext.createRenderPipeline("COLOR_PN", "RP_COLOR_PN", VL_PN, std::bind(&ABuffer::OnBindGroupLayouts, this));
-
 	wgpContext.addSahderModule("ABUFFER_OPAQUE", "res/shader/abuffer_opaque.wgsl");
 	wgpContext.createRenderPipeline("ABUFFER_OPAQUE", "RP_ABUFFER_OPAQUE", VL_PN, std::bind(&ABuffer::OnBindGroupLayouts, this));
 
@@ -69,6 +65,7 @@ ABuffer::ABuffer(StateMachine& machine) : State(machine, States::ABUFFER) {
 
 	m_trackball.reshape(Application::Width, Application::Height);
 	m_teapot.loadModel("res/models/teapot.obj", false, false, true);
+	
 	m_wgpTeapot.create(m_teapot);
 	m_wgpTeapot.setBindGroups("BG_OPAQUE", std::bind(&ABuffer::OnBindGroups, this));
 
@@ -301,7 +298,7 @@ void ABuffer::OnKeyUp(const Event::KeyboardEvent& event) {
 }
 
 void ABuffer::resize(int deltaW, int deltaH) {
-	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
+	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, -1.0f, 1.0f);
 
 	wgpTextureAddUsage(wgpContext.depthTexture, wgpContext.depthTextureView, WGPUTextureUsage_TextureBinding);
@@ -311,7 +308,6 @@ void ABuffer::resize(int deltaW, int deltaH) {
 	createBuffer();
 	m_bindGroupTranslucent = createBindGroupTranslucent();
 	m_bindGroupComposite = createBindGroupComposite();
-
 }
 
 void ABuffer::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {

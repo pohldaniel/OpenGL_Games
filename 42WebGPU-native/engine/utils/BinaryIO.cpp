@@ -66,10 +66,7 @@ bool Utils::bytesToBool(unsigned char b0) {
 	return f;
 }
 
-void Utils::MdlcIO::meshToMdlc(const char* out, const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, uint32_t stride) {
-	if (stride != 8u)
-		return;
-
+void Utils::MdlcIO::meshToMdlc(const char* out, const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, uint32_t stride) {	
 	std::ofstream file(out, std::ios::binary);
 
 	unsigned int vertexCount = static_cast<unsigned int>(vertexBuffer.size() / stride);
@@ -83,8 +80,6 @@ void Utils::MdlcIO::meshToMdlc(const char* out, const std::vector<float>& vertex
 	file.write(reinterpret_cast<const char*>(&indexCount), sizeof(unsigned int));
 	file.write(reinterpret_cast<const char*>(indexBuffer.data()), indexCount * sizeof(unsigned int));
 	file.close();
-
-	std::cout << "COUNT 1:" << vertexCount << "  " << indexCount << std::endl;
 }
 
 void Utils::MdlcIO::meshToMdlc(const char* out, const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, uint32_t stride, const std::vector<std::array<float, 4>>& weights, const std::vector<std::array<unsigned int, 4>>& joints) {
@@ -287,8 +282,6 @@ void Utils::MdlcIO::mdlcMeshToBuffer(const char* in, std::vector<float>& vertexB
 	file.read(reinterpret_cast<char*>(indexBuffer.data()), indexCount * sizeof(unsigned int));
 
 	file.close();
-
-	std::cout << "COUNT 2:" << vertexCount << "  " << indexCount << std::endl;
 }
 
 void Utils::MdlcIO::mdlcMeshToBuffer(const char* in, std::vector<float>& vertexBuffer, std::vector<unsigned int>& indexBuffer, uint32_t& stride, std::vector<std::array<float, 4>>& weights, std::vector<std::array<unsigned int, 4>>& joints) {
