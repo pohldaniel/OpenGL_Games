@@ -35,6 +35,7 @@
 #include <States/Controller.h>
 #include <States/HDRBloom.h>
 #include <States/ABuffer.h>
+#include <States/ComputeParticleEasing.h>
 
 #include "Application.h"
 #include "Globals.h"
@@ -357,7 +358,8 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new Menu(*Machine));
 	//Machine->addStateAtTop(new Controller(*Machine));
 	//Machine->addStateAtTop(new HDRBloom(*Machine));
-	Machine->addStateAtTop(new ABuffer(*Machine));
+	//Machine->addStateAtTop(new ABuffer(*Machine));
+	Machine->addStateAtTop(new ComputeParticleEasing(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

@@ -44,6 +44,7 @@ extern "C" {
 	WGPUTexture wgpCreateTexture(uint32_t width, uint32_t height, uint32_t depth, WGPUTextureUsage textureUsage, WGPUTextureFormat textureFormat, uint32_t mipLevelCount = 1u, uint32_t sampleCount = 1u, WGPUTextureFormat viewFormat = WGPUTextureFormat_Undefined);
 	WGPUTextureView wgpCreateTextureView(const WGPUTexture& texture, WGPUTextureAspect aspect, bool isArray = false);
 	WGPUSampler wgpCreateSampler(WGPUFilterMode filterMode = WGPUFilterMode_Linear, WGPUAddressMode addressMode = WGPUAddressMode_ClampToEdge, uint16_t maxAnisotropy = 1u, WGPUMipmapFilterMode mipmapFilterMode = WGPUMipmapFilterMode_Undefined, WGPUCompareFunction compareFunction = WGPUCompareFunction_Undefined);
+	WGPUSampler wgpCreateSamplerExt(const WGPUSamplerDescriptor& samplerDescriptor);
 	WGPUShaderModule wgpCreateShaderFromFile(const std::string& path);
 	WGPUShaderModule wgpCreateShaderFromString(const std::string& strng);
 	
@@ -144,7 +145,7 @@ struct WgpContext {
 		const VertexLayoutSlot vertexLayoutSlot, 
 		const std::function<std::vector<WGPUBindGroupLayout>()>& onBindGroupLayouts = NULL, 
 		uint32_t msaaSampleCount = 1u, 
-		WGPUPrimitiveTopology primitiveTopology = WGPUPrimitiveTopology::WGPUPrimitiveTopology_TriangleList,
+		WGPUPrimitiveTopology primitiveTopology = WGPUPrimitiveTopology::WGPUPrimitiveTopology_Undefined,
 		WGPUTextureFormat colorTextureFormat = WGPUTextureFormat::WGPUTextureFormat_Undefined,
 		WGPUTextureFormat depthTextureFormat = WGPUTextureFormat::WGPUTextureFormat_Undefined,
 		WGPUCompareFunction depthCompareFunction = WGPUCompareFunction::WGPUCompareFunction_LessEqual,

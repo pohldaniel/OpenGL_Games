@@ -359,6 +359,10 @@ WGPUSampler wgpCreateSampler(WGPUFilterMode filterMode, WGPUAddressMode addressM
 	return wgpuDeviceCreateSampler(device, &samplerDescriptor);
 }
 
+WGPUSampler wgpCreateSamplerExt(const WGPUSamplerDescriptor& samplerDescriptor) {
+	return wgpuDeviceCreateSampler(wgpContext.device, &samplerDescriptor);
+}
+
 WGPUShaderModule wgpCreateShaderFromFile(const std::string& path) {
 	std::ifstream file(path);
 	if (!file.is_open()) {
@@ -1248,7 +1252,7 @@ void WgpContext::createRenderPipeline(const std::string& shaderModuleName,
 	renderPipelineDescriptor.fragment = (configuration.flags & FRAGMENT_STATE) ? &fragmentState : NULL;
 	renderPipelineDescriptor.depthStencil = (configuration.flags & DEPTH_STENCIL_STATE) ? &depthStencilState : NULL;
 
-	renderPipelineDescriptor.primitive.topology = primitiveTopology;
+	renderPipelineDescriptor.primitive.topology = primitiveTopology == WGPUPrimitiveTopology::WGPUPrimitiveTopology_Undefined ? WGPUPrimitiveTopology::WGPUPrimitiveTopology_TriangleList : primitiveTopology;
 	renderPipelineDescriptor.primitive.stripIndexFormat = WGPUIndexFormat::WGPUIndexFormat_Undefined;
 	renderPipelineDescriptor.primitive.frontFace = WGPUFrontFace::WGPUFrontFace_CCW;
 	renderPipelineDescriptor.primitive.cullMode = configuration.cullMode == WGPUCullMode_Undefined ? WGPUCullMode::WGPUCullMode_Back : configuration.cullMode;
