@@ -16,8 +16,6 @@ ComputeParticleEasing::ComputeParticleEasing(StateMachine& machine) : State(mach
 	EventDispatcher::AddMouseListener(this);
 	Mouse::instance().attach(Application::GetWindow(), false, true);
 
-	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm);
-	wgpSetSurfaceDepthFormat(WGPUTextureFormat::WGPUTextureFormat_Depth24Plus);
 	wgpContext.addSampler(wgpCreateSamplerExt(
 		{
 			nullptr,
@@ -60,7 +58,7 @@ ComputeParticleEasing::ComputeParticleEasing(StateMachine& machine) : State(mach
 	wgpContext.addSahderModule("EASING_COMPUTE", "res/shader/easing_compute.wgsl");
 	wgpContext.createComputePipeline("EASING_COMPUTE", "main", "CP_EASING", std::bind(&ComputeParticleEasing::OnBindGroupLayoutsCompute, this));
 
-	wgpContext.addSahderModule("EASING", "res/shader/esing.wgsl");
+	wgpContext.addSahderModule("EASING", "res/shader/easing.wgsl");
 	wgpContext.createRenderPipeline("EASING", "RP_EASING", VL_0, std::bind(&ComputeParticleEasing::OnBindGroupLayouts, this),
 		1u,
 		WGPUPrimitiveTopology_Undefined,

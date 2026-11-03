@@ -25,7 +25,6 @@ class ComputeParticleEasing : public State, public MouseEventListener, public Ke
 		float max_life;
 		float padding;
 	};
-
 public:
 
 	ComputeParticleEasing(StateMachine& machine);
