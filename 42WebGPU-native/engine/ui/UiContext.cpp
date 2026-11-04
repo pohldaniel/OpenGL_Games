@@ -10,7 +10,7 @@ void uiInit(float width, float height) {
 	uiContext.activeScissorWidth = static_cast<uint32_t>(width);
 	uiContext.activeScissorHeight = static_cast<uint32_t>(height);
 
-	uiContext.wgpStorageBuffer.createBuffer(400u * sizeof(UiInstance), WGPUBufferUsage_Storage | WGPUBufferUsage_CopyDst);
+	uiContext.wgpStorageBuffer.createBuffer(4000u * sizeof(UiInstance), WGPUBufferUsage_Storage | WGPUBufferUsage_CopyDst);
 	uiContext.wgpUniformBuffer.createBuffer(16 * sizeof(float), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	uiResize(width, height);
 

@@ -33,6 +33,7 @@
 #include <States/HDRBloom.h>
 #include <States/ABuffer.h>
 #include <States/ComputeParticleEasing.h>
+#include <States/PristineGrid.h>
 
 #include "Menu.h"
 #include "Application.h"
@@ -515,7 +516,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	});
 
 	label = button->addChild<Label>(m_characterSet);
-	label->setText("ABuffer");
+	label->setText("A Buffer");
 	label->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 	label->setPadding(0.0f, paddingBottom);
 
@@ -532,6 +533,22 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 
 	label = button->addChild<Label>(m_characterSet);
 	label->setText("Compute Particle Easing");
+	label->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	label->setPadding(0.0f, paddingBottom);
+
+	button = surface->addChild<Button>();
+	button->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+	button->setOutlineColor(Vector4f(1.0f, 1.0f, 0.0f, 1.0f));
+	button->setOutlineThickness(5.0f);
+	button->setPadding(5.0f, 5.0f);
+	button->setOnClick([&]() {
+		wgpCleanState();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new PristineGrid(m_machine));
+	});
+
+	label = button->addChild<Label>(m_characterSet);
+	label->setText("Pristine Grid");
 	label->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 	label->setPadding(0.0f, paddingBottom);
 
