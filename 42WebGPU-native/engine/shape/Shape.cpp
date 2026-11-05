@@ -122,6 +122,14 @@ const std::vector<unsigned int>& Shape::getIndexBuffer() const {
 	return m_indexBuffer;
 }
 
+std::vector<float>& Shape::vertexBuffer() {
+	return m_vertexBuffer;
+}
+
+std::vector<unsigned int>& Shape::indexBuffer() {
+	return m_indexBuffer;
+}
+
 unsigned int Shape::getStride() const {
 	return m_stride;
 }

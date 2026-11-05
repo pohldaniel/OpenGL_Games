@@ -32,6 +32,10 @@ public:
 
 	const std::vector<float>& getVertexBuffer() const;
 	const std::vector<unsigned int>& getIndexBuffer() const;
+
+	std::vector<float>& vertexBuffer();
+	std::vector<unsigned int>& indexBuffer();
+
 	unsigned int getStride() const;
 	void flatShading();
 
