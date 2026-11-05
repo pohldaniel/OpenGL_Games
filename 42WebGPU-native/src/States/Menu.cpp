@@ -41,6 +41,7 @@
 #include "Globals.h"
 
 Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
+	ImGui::GetIO().WantCaptureMouse = false;
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
