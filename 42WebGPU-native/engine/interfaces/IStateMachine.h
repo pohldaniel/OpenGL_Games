@@ -36,6 +36,7 @@ T* IStateMachine<T>::addStateAtTop(T* state) {
 
 	m_states.push(state);
 	state->m_isActive = true;
+	state->OnInit();
 	return state;
 }
 
@@ -91,7 +92,7 @@ public:
 	virtual void update() = 0;
 	virtual void render() = 0;
 	virtual void resize(int deltaW, int deltaH) {};
-	virtual void OnReEnter(unsigned int prevState) {};
+	virtual void OnInit() {};
 
 	bool isRunning() const;
 	bool isActive() const;

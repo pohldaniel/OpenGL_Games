@@ -385,9 +385,7 @@ void Isometric::update() {
 	Keyboard& keyboard = Keyboard::instance();
 	Mouse& mouse = Mouse::instance();
 
-	IGamePad* gamePad = XInputGamePad::GetPlayer()->isConnected() ? XInputGamePad::GetPlayer() : DInputGamePad::GetPlayer();
-
-
+	IGamePad* gamePad = XInputGamePad::GetPlayer() && XInputGamePad::GetPlayer()->isConnected() ? XInputGamePad::GetPlayer() : DInputGamePad::GetPlayer();
 	nkUpdateInput(mouse.xPos(), mouse.yPos(), mouse.buttonDown(Mouse::MouseButton::BUTTON_LEFT), mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT), Application::ScrollDelta);
 
 	Vector3f direction = Vector3f();

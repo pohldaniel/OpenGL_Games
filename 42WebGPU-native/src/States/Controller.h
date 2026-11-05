@@ -26,7 +26,6 @@ public:
 	void resize(int deltaW, int deltaH) override;
 	void OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor);
 	void OnKeyDown(const Event::KeyboardEvent& event) override;
-	void OnReEnter(unsigned int prevState) override;
 
 private:
 

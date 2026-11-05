@@ -56,6 +56,18 @@ Controller::Controller(StateMachine& machine) : State(machine, States::CONTROLLE
 
 	wgpContext.setClearColor({ 0.494f, 0.686f, 0.796f, 1.0f });
 	wgpContext.OnDraw = std::bind(&Controller::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
+
+	renderRectangle(static_cast<float>(Application::Width) * 0.5f + 300.0f, static_cast<float>(Application::Height) * 0.5f);
+	renderRectangle(static_cast<float>(Application::Width) * 0.5f - 300.0f, static_cast<float>(Application::Height) * 0.5f);
+
+	renderPad(static_cast<float>(Application::Width) * 0.5f - 80.0f, static_cast<float>(Application::Height) * 0.5f + 80.0f, m_state);
+	for (int i = 0; i < 12; i++) {
+		renderButton(i * 50.0f + 50.0f, 50.0f, m_state, i + 9);
+	}
+
+	renderStick(static_cast<float>(Application::Width) * 0.5f - 300.0f, static_cast<float>(Application::Height) * 0.5f, m_RightStickX, m_RightStickY);
+	renderStick(static_cast<float>(Application::Width) * 0.5f + 300.0f, static_cast<float>(Application::Height) * 0.5f, m_LeftStickX, m_LeftStickY);
+	wgpuQueueWriteBuffer(wgpContext.queue, m_storageBuffer.getBuffer(), 0u, m_instances.data(), m_instances.size() * sizeof(float) * 20u);
 }
 
 Controller::~Controller() {
@@ -454,8 +466,4 @@ void Controller::renderStick(float x, float y, float stickX, float stickY) {
 	instance[12] = x + stickX * 50.0f; instance[13] = y - stickY * 50.0f; instance[14] = 0.0f; instance[15] = 1.0f;
 	instance[16] = 1.0f; instance[17] = 0.0f; instance[18] = 0.0f; instance[19] = 1.0f;
 	m_instances.push_back(instance);
-}
-
-void Controller::OnReEnter(unsigned int prevState) {
-	update();
 }

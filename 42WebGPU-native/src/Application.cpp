@@ -37,6 +37,7 @@
 #include <States/ABuffer.h>
 #include <States/ComputeParticleEasing.h>
 #include <States/PristineGrid.h>
+#include <States/WireframeOverlay.h>
 
 #include "Application.h"
 #include "Globals.h"
@@ -362,6 +363,7 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new ABuffer(*Machine));
 	//Machine->addStateAtTop(new ComputeParticleEasing(*Machine));
 	//Machine->addStateAtTop(new PristineGrid(*Machine));
+	//Machine->addStateAtTop(new WireframeOverlay(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

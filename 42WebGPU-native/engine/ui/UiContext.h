@@ -195,4 +195,5 @@ struct UiContext {
 	uint32_t activeScissorY = 0u;
 	uint32_t activeScissorWidth = 0u;
 	uint32_t activeScissorHeight = 0u;
+
 };

@@ -276,6 +276,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClCompile Include="src\States\VideoDecode.cpp" />
     <ClCompile Include="src\States\VolumeRendering.cpp" />
     <ClCompile Include="src\States\Wireframe.cpp" />
+    <ClCompile Include="src\States\WireframeOverlay.cpp" />
     <ClCompile Include="src\Utils\Fade.cpp" />
     <ClCompile Include="engine\Camera.cpp" />
     <ClCompile Include="engine\input\ApplicationEventListener.cpp" />
@@ -425,6 +426,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClInclude Include="src\States\VideoDecode.h" />
     <ClInclude Include="src\States\VolumeRendering.h" />
     <ClInclude Include="src\States\Wireframe.h" />
+    <ClInclude Include="src\States\WireframeOverlay.h" />
     <ClInclude Include="src\Utils\Fade.h" />
     <ClInclude Include="WebGPU\WgpBatchRenderer.h" />
     <ClInclude Include="WebGPU\WgpBuffer.h" />

@@ -1,5 +1,5 @@
-#include <imgui.h>
 #include "StateMachine.h"
+#include <iostream>
 
 bool StateMachine::WireframeEnabled = false;
 bool StateMachine::WireframeToggled = false;
@@ -18,16 +18,17 @@ void StateMachine::popState() {
 		States state = m_states.top()->getCurrentState();
 		delete m_states.top();
 		m_states.pop();
-		if (!m_states.empty()) 		
-			m_states.top()->OnReEnter(state);		
+		if (!m_states.empty())
+			m_states.top()->OnInit();
 	}
 }
 
 void StateMachine::update() {
 	if (!m_states.empty()) {
-		m_states.top()->update();
 		popState();
+		m_states.top()->update();		 
 	}else {
+	
 		m_isRunning = false;
 	}
 }

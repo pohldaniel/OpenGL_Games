@@ -14,12 +14,11 @@ PristineGrid::PristineGrid(StateMachine& machine) : State(machine, States::PRIST
 	Application::SetCursorIcon(IDC_ARROW);
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
-	Mouse::instance().attach(Application::GetWindow(), false, true);
 
 	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f , -1.0f, 1.0f);
 	m_camera.lookAt(Vector3f(0.0f, 0.0f, 0.0f), Vector3f(0.0f, 0.0f, 0.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
-	m_camera.setMovingSpeed(100.0f);
+	m_camera.setMovingSpeed(20.0f);
 	m_camera.setRotationSpeed(0.1f);
 
 	m_quad.buildQuadXZ({ -20.0, -0.5f, -20.0f }, { 40.0f, 40.0f }, 1u, 1u, true, false);
@@ -39,7 +38,6 @@ PristineGrid::PristineGrid(StateMachine& machine) : State(machine, States::PRIST
 
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
 
-	
 	m_gridOption.base_color = { 0.0f, 0.0f, 0.0f, 1.0f };
 	m_gridOption.line_color = { 1.0f, 1.0f, 1.0f, 1.0f };
 	m_gridOption.line_width = { 0.05f, 0.05f };
