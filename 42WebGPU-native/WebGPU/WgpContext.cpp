@@ -75,7 +75,7 @@ void setDefault(WGPUDepthStencilState& depthStencilState) {
 	depthStencilState.nextInChain = NULL;
 	depthStencilState.format = WGPUTextureFormat::WGPUTextureFormat_Undefined;
 	depthStencilState.depthWriteEnabled = WGPUOptionalBool::WGPUOptionalBool_True;
-	depthStencilState.depthCompare = WGPUCompareFunction::WGPUCompareFunction_Less;
+	depthStencilState.depthCompare = WGPUCompareFunction::WGPUCompareFunction_LessEqual;
 	setDefault(depthStencilState.stencilFront);
 	setDefault(depthStencilState.stencilBack);
 	depthStencilState.stencilReadMask = 0u;
@@ -1128,7 +1128,7 @@ void WgpContext::createComputePipeline(const std::string& shaderModuleName,
 	const std::string& pipelineLayoutName,
 	const std::function<std::vector<WGPUBindGroupLayout>()>& onBindGroupLayouts) {
 
-	if (onBindGroupLayouts) {
+	if (onBindGroupLayouts && !pipelineLayouts.count(pipelineLayoutName)) {
 		std::vector<WGPUBindGroupLayout> bindGroupLayouts = onBindGroupLayouts();
 		WGPUPipelineLayoutDescriptor pipelineLayoutDescriptor = {};
 		pipelineLayoutDescriptor.bindGroupLayoutCount = bindGroupLayouts.size();
@@ -1157,7 +1157,7 @@ void WgpContext::createRenderPipeline(const std::string& shaderModuleName,
 	WGPUCompareFunction depthCompareFunction,
 	const PipelineConfiguration configuration) {
 
-	if (onBindGroupLayouts) {
+	if (onBindGroupLayouts && !pipelineLayouts.count(pipelineLayoutName)) {
 		std::vector<WGPUBindGroupLayout> bindGroupLayouts = onBindGroupLayouts();
 		WGPUPipelineLayoutDescriptor pipelineLayoutDescriptor = {};
 		pipelineLayoutDescriptor.bindGroupLayoutCount = bindGroupLayouts.size();
@@ -1226,6 +1226,9 @@ void WgpContext::createRenderPipeline(const std::string& shaderModuleName,
 
 	WGPUDepthStencilState depthStencilState = {};
 	setDefault(depthStencilState);
+	depthStencilState.depthBias = configuration.depthConfig.depthBias;
+	depthStencilState.depthBiasSlopeScale = configuration.depthConfig.depthBiasSlopeScale;
+	depthStencilState.depthBiasClamp = configuration.depthConfig.depthBiasClamp;
 
 	if (configuration.stencilMode == StencilMode::SET) {
 		depthStencilState.stencilFront.passOp = WGPUStencilOperation_Replace;

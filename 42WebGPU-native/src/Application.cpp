@@ -357,13 +357,13 @@ void Application::initStates() {
 	//Machine->addStateAtTop(new VideoDecode(*Machine));
 	//Machine->addStateAtTop(new Cubes(*Machine));
 	//Machine->addStateAtTop(new Isometric(*Machine));
-	//Machine->addStateAtTop(new Menu(*Machine));
+	Machine->addStateAtTop(new Menu(*Machine));
 	//Machine->addStateAtTop(new Controller(*Machine));
 	//Machine->addStateAtTop(new HDRBloom(*Machine));
 	//Machine->addStateAtTop(new ABuffer(*Machine));
 	//Machine->addStateAtTop(new ComputeParticleEasing(*Machine));
 	//Machine->addStateAtTop(new PristineGrid(*Machine));
-	Machine->addStateAtTop(new WireframeOverlay(*Machine));
+	//Machine->addStateAtTop(new WireframeOverlay(*Machine));
 }
 
 void Application::processEvent(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

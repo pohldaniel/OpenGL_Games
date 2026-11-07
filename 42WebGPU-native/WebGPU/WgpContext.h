@@ -115,6 +115,12 @@ enum ColorMode {
 	WRITE_NONE
 };
 
+struct DepthConfig {
+	int32_t depthBias;
+	float depthBiasSlopeScale;
+	float depthBiasClamp;
+};
+
 struct WgpContext {
 
 	struct PipelineConfiguration {
@@ -126,6 +132,7 @@ struct WgpContext {
 		WGPUTextureFormat colorTextureFormat;
 		WGPUCullMode cullMode;
 		std::vector<WGPUConstantEntry> constantEntries;
+		DepthConfig depthConfig;
 	};
 
 	friend bool wgpCreateDevice(void* window);
@@ -149,7 +156,7 @@ struct WgpContext {
 		WGPUTextureFormat colorTextureFormat = WGPUTextureFormat::WGPUTextureFormat_Undefined,
 		WGPUTextureFormat depthTextureFormat = WGPUTextureFormat::WGPUTextureFormat_Undefined,
 		WGPUCompareFunction depthCompareFunction = WGPUCompareFunction::WGPUCompareFunction_LessEqual,
-		const PipelineConfiguration configuration = { DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE, ColorMode::WRITE_RGBA, DepthMode::WRITE, StencilMode::DEFAULT, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_Undefined, WGPUCullMode_Undefined, {} });
+		const PipelineConfiguration configuration = { DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE, ColorMode::WRITE_RGBA, DepthMode::WRITE, StencilMode::DEFAULT, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_Undefined, WGPUCullMode_Undefined, {}, {0, 0.0f, 0.0f} });
 
 	void addSampler(const WGPUSampler& sampler, SamplerSlot samplerSlot);
 	const WGPUSampler& getSampler(SamplerSlot samplerSlot) const;

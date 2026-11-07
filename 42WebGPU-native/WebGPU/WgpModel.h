@@ -38,7 +38,7 @@ public:
 	void addColor(std::array<float, 4> color);
 
 	const std::list<WgpMesh>& getMeshes() const;
-	WgpMesh& getMesh(size_t index) const;
+	WgpMesh& getMesh(size_t index = 0u) const;
 
 private:
 

@@ -15,10 +15,10 @@ WireframeOverlay::WireframeOverlay(StateMachine& machine) : State(machine, State
 	EventDispatcher::AddKeyboardListener(this);
 	EventDispatcher::AddMouseListener(this);
 
-	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
+	m_camera.perspective(60.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f , -1.0f, 1.0f);
-	m_camera.lookAt(Vector3f(0.0f, 0.0f, 50.0f), Vector3f(0.0f, 0.0f, 0.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
-	m_camera.setMovingSpeed(20.0f);
+	m_camera.lookAt(Vector3f(-300.0f, 0.0f, 300.0f), Vector3f(0.0f, 0.0f, 0.0f) + Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+	m_camera.setMovingSpeed(200.0f);
 	m_camera.setRotationSpeed(0.1f);
 	m_trackball.reshape(Application::Width, Application::Height);
 
@@ -52,20 +52,108 @@ WireframeOverlay::WireframeOverlay(StateMachine& machine) : State(machine, State
 
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
 
-	wgpContext.addSahderModule("COLOR_PN", "res/shader/color_PN.wgsl");
-	wgpContext.createRenderPipeline("COLOR_PN", "RP_COLOR_PN", VL_PN, std::bind(&WireframeOverlay::OnBindGroupLayouts, this));
+	wgpContext.addSahderModule("WIREFRAME_BASE", "res/shader/wireframe_base.wgsl");
+	wgpContext.createRenderPipeline("WIREFRAME_BASE", "RP_WIREFRAME_BASE", VL_PN, std::bind(&WireframeOverlay::OnBindGroupLayouts, this),
+		1u,
+		WGPUPrimitiveTopology_TriangleList,
+		WGPUTextureFormat_Undefined,
+		WGPUTextureFormat_Undefined,
+		WGPUCompareFunction_Less,
+		{ DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE, ColorMode::WRITE_RGBA, DepthMode::WRITE, StencilMode::DEFAULT, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_Undefined, WGPUCullMode_Undefined, {}, {m_depthbias, m_depthBiasSlopeScale, 0.0f} }
+	);
 
-	m_wgpTeapot.create(m_teapot);
-	m_wgpTeapot.setBindGroups("BG", std::bind(&WireframeOverlay::OnBindGroups, this));
-	m_wgpSphere.create(m_sphere);
-	m_wgpSphere.setBindGroups("BG", std::bind(&WireframeOverlay::OnBindGroups, this));
-	m_wgpJem.create(m_jem);
-	m_wgpJem.setBindGroups("BG", std::bind(&WireframeOverlay::OnBindGroups, this));
-	m_wgpRock.create(m_rock);
-	m_wgpRock.setBindGroups("BG", std::bind(&WireframeOverlay::OnBindGroups, this));
+	wgpContext.addSahderModule("WIREFRAME_LINE", "res/shader/wireframe_line.wgsl");
+	wgpContext.createRenderPipeline("WIREFRAME_LINE", "RP_WIREFRAME_LINE", VL_NONE, std::bind(&WireframeOverlay::OnBindGroupLayoutsWireframe, this), 
+		1u, 
+		WGPUPrimitiveTopology_LineList
+	);
+
+	wgpContext.addSahderModule("WIREFRAME_BARYCENTRIC", "res/shader/wireframe_barycentric.wgsl");
+	wgpContext.createRenderPipeline("WIREFRAME_BARYCENTRIC", "RP_WIREFRAME_BARYCENTRIC", VL_NONE, std::bind(&WireframeOverlay::OnBindGroupLayoutsWireframe, this));
+
+	m_wgpModels.resize(4u);
+	m_wgpModels[0].create(m_teapot);
+	m_wgpModels[1].create(m_sphere);
+	m_wgpModels[2].create(m_jem);
+	m_wgpModels[3].create(m_rock);
 
 	wgpContext.setClearColor({ 0.3f, 0.3f, 0.3f, 1.0f });
 	wgpContext.OnDraw = std::bind(&WireframeOverlay::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
+
+	for (uint32_t i = 0; i < NUM_OBJECTS; ++i) {
+		Vector4f color = { randFloat(), randFloat(), randFloat(), 1.0f};
+
+		Object object;
+		object.geometryIndex = rand() % 4;
+		object.uniformBuffer.createBuffer(sizeof(Matrix4f) + sizeof(Vector4f), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
+
+		wgpuQueueWriteBuffer(wgpContext.queue, object.uniformBuffer.getBuffer(), 0u, &Matrix4f::IDENTITY,  sizeof(Matrix4f));
+		wgpuQueueWriteBuffer(wgpContext.queue, object.uniformBuffer.getBuffer(), sizeof(Matrix4f), &color, sizeof(Vector4f));
+
+		std::vector<WGPUBindGroupEntry> bindGroupEntries(2);
+		bindGroupEntries[0].binding = 0u;
+		bindGroupEntries[0].buffer = m_uniformBuffer.getBuffer();
+		bindGroupEntries[0].offset = 0u;
+		bindGroupEntries[0].size = wgpuBufferGetSize(m_uniformBuffer.getBuffer());
+
+		bindGroupEntries[1].binding = 1u;
+		bindGroupEntries[1].buffer = object.uniformBuffer.getBuffer();
+		bindGroupEntries[1].offset = 0u;
+		bindGroupEntries[1].size = wgpuBufferGetSize(object.uniformBuffer.getBuffer());
+
+		WGPUBindGroupDescriptor bindGroupDesc = {};
+		bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_WIREFRAME_BASE"), 0u);
+		bindGroupDesc.entryCount = (uint32_t)bindGroupEntries.size();
+		bindGroupDesc.entries = bindGroupEntries.data();
+		object.bindGroup = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
+		
+		m_objects.push_back(object);
+	}
+
+	for (uint32_t i = 0; i < NUM_OBJECTS; ++i) {
+		Object& object = m_objects[i];
+
+		LineUniforms lineUniforms;
+		lineUniforms.stride = 6u;
+		lineUniforms.thickness = m_thickness;
+		lineUniforms.alpha_threshold = m_alphaTthreshold;
+
+		object.uniformBufferLine.createBuffer(&lineUniforms, sizeof(LineUniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
+
+		std::vector<WGPUBindGroupEntry> bindGroupEntries(5);
+		bindGroupEntries[0].binding = 0u;
+		bindGroupEntries[0].buffer = m_uniformBuffer.getBuffer();
+		bindGroupEntries[0].offset = 0u;
+		bindGroupEntries[0].size = wgpuBufferGetSize(m_uniformBuffer.getBuffer());
+
+		bindGroupEntries[1].binding = 1u;
+		bindGroupEntries[1].buffer = object.uniformBuffer.getBuffer();
+		bindGroupEntries[1].offset = 0u;
+		bindGroupEntries[1].size = wgpuBufferGetSize(object.uniformBuffer.getBuffer());
+
+		bindGroupEntries[2].binding = 2u;
+		bindGroupEntries[2].buffer = object.uniformBufferLine.getBuffer();
+		bindGroupEntries[2].offset = 0u;
+		bindGroupEntries[2].size = wgpuBufferGetSize(object.uniformBufferLine.getBuffer());
+
+		bindGroupEntries[3].binding = 3u;
+		bindGroupEntries[3].buffer = m_wgpModels[object.geometryIndex].getMesh().getVertexBuffer().getBuffer();
+		bindGroupEntries[3].offset = 0u;
+		bindGroupEntries[3].size = wgpuBufferGetSize(m_wgpModels[object.geometryIndex].getMesh().getVertexBuffer().getBuffer());
+
+		bindGroupEntries[4].binding = 4u;
+		bindGroupEntries[4].buffer = m_wgpModels[object.geometryIndex].getMesh().getIndexBuffer().getBuffer();
+		bindGroupEntries[4].offset = 0u;
+		bindGroupEntries[4].size = wgpuBufferGetSize(m_wgpModels[object.geometryIndex].getMesh().getIndexBuffer().getBuffer());
+
+		WGPUBindGroupDescriptor bindGroupDesc = {};
+		bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_WIREFRAME_LINE"), 0u);
+		bindGroupDesc.entryCount = (uint32_t)bindGroupEntries.size();
+		bindGroupDesc.entries = bindGroupEntries.data();
+		object.bindGroupWireframe = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
+
+		m_objects.push_back(object);
+	}
 }
 
 WireframeOverlay::~WireframeOverlay() {
@@ -73,6 +161,19 @@ WireframeOverlay::~WireframeOverlay() {
 	EventDispatcher::RemoveMouseListener(this);
 
 	m_uniformBuffer.markForDelete();
+
+	for (uint32_t i = 0; i < NUM_OBJECTS; ++i) {
+		const Object& object = m_objects[i];
+		object.uniformBuffer.markForDelete();
+		object.uniformBufferLine.markForDelete();
+		if (object.bindGroup) {
+			wgpuBindGroupRelease(object.bindGroup);
+		}
+
+		if (object.bindGroupWireframe) {
+			wgpuBindGroupRelease(object.bindGroupWireframe);
+		}
+	}
 }
 
 void WireframeOverlay::fixedUpdate() {
@@ -144,6 +245,27 @@ void WireframeOverlay::update() {
 	m_uniforms.shadow = Matrix4f::BIAS * m_uniforms.lightVP;
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0u, &m_uniforms, sizeof(Uniforms));
 
+	if (m_animate) {
+		m_animationTime += m_dt;
+		for (uint32_t i = 0; i < NUM_OBJECTS; ++i) {
+
+			Transform transform;
+			transform.rotate((m_animationTime * 0.53f + (float)i) * _180_ON_PI, 0.0f, 0.0f, false);
+			transform.translate(0.0f, 0.0f, sinf((float)i * 9.721f + m_animationTime * 0.1f) * 200.0f);
+			transform.rotate(0.0f, (float)i * 2.967f * _180_ON_PI, 0.0f, false);
+			transform.rotate((float)i * 4.567f * _180_ON_PI, 0.0f, 0.0f, false);
+			transform.translate(0.0f, 0.0f, sinf((float)i * 3.721f + m_animationTime * 0.1f) * 200.0f);
+
+			//Matrix4f model = Matrix4f::Translate(0.0f, 0.0f, sinf((float)i * 3.721f + m_animationTime * 0.1f) * 200.0f) *
+			//                 Matrix4f::Rotate((float)i * 4.567f * _180_ON_PI, 0.0f, 0.0) *
+			//                 Matrix4f::Rotate(0.0f, (float)i * 2.967f * _180_ON_PI, 0.0f) *
+			//                 Matrix4f::Translate(0.0f, 0.0f, sinf((float)i * 9.721f + m_animationTime * 0.1f) * 200.0f) *
+			//                 Matrix4f::Rotate((m_animationTime * 0.53f + (float)i) * _180_ON_PI, 0.0f, 0.0f);
+
+			const Object& object = m_objects[i];
+			wgpuQueueWriteBuffer(wgpContext.queue, object.uniformBuffer.getBuffer(), 0u, &transform.getTransformationMatrix(), sizeof(Matrix4f));
+		}
+	}
 }
 
 void WireframeOverlay::render() {
@@ -151,16 +273,47 @@ void WireframeOverlay::render() {
 }
 
 void WireframeOverlay::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor) {
-	{
-		WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDescriptor);
-		wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
-		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_COLOR_PN"));
 
-		m_wgpRock.draw(renderPassEncoder);
-		
-		wgpuRenderPassEncoderEnd(renderPassEncoder);
-		wgpuRenderPassEncoderRelease(renderPassEncoder);
-	}	
+	WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDescriptor);
+	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
+
+	if (m_darawModels) {
+		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_WIREFRAME_BASE"));
+		for (uint32_t i = 0; i < NUM_OBJECTS; i++) {
+			const WgpModel& model = m_wgpModels[m_objects[i].geometryIndex];
+
+			wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0, m_objects[i].bindGroup, 0, nullptr);
+			model.draw(renderPassEncoder);
+		}
+	}
+
+	if(m_drawWireframe && !m_barycentric){
+		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_WIREFRAME_LINE"));
+		for (uint32_t i = 0; i < NUM_OBJECTS; i++) {
+			const WgpModel& model = m_wgpModels[m_objects[i].geometryIndex];
+			const WgpMesh& mesh = model.getMeshes().front();
+
+			wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0, m_objects[i].bindGroupWireframe, 0, nullptr);
+			wgpuRenderPassEncoderDraw(renderPassEncoder, mesh.getDrawCount() * 2u, 1u, 0u, 0u);
+		}
+	}
+
+	if (m_drawWireframe && m_barycentric) {
+		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_WIREFRAME_BARYCENTRIC"));
+		for (uint32_t i = 0; i < NUM_OBJECTS; i++) {
+			const WgpModel& model = m_wgpModels[m_objects[i].geometryIndex];
+			const WgpMesh& mesh = model.getMeshes().front();
+
+			wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0, m_objects[i].bindGroupWireframe, 0, nullptr);
+			wgpuRenderPassEncoderDraw(renderPassEncoder, mesh.getDrawCount(), 1u, 0u, 0u);
+		}
+	}
+
+	if(m_drawUi)
+		renderUi(renderPassEncoder);
+
+	wgpuRenderPassEncoderEnd(renderPassEncoder);
+	wgpuRenderPassEncoderRelease(renderPassEncoder);	
 }
 
 void WireframeOverlay::OnMouseMotion(const Event::MouseMoveEvent& event) {
@@ -211,7 +364,7 @@ void WireframeOverlay::OnKeyUp(const Event::KeyboardEvent& event) {
 }
 
 void WireframeOverlay::resize(int deltaW, int deltaH) {
-	m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
+	m_camera.perspective(60.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, -1.0f, 1.0f);
 }
 
@@ -250,7 +403,28 @@ void WireframeOverlay::renderUi(const WGPURenderPassEncoder& renderPassEncoder) 
 	}
 
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-	
+	ImGui::Checkbox("Model", &m_darawModels);
+	ImGui::Checkbox("Lines", &m_drawWireframe);
+	ImGui::Checkbox("Barycentric", &m_barycentric);
+	if (ImGui::SliderInt("Depth Bias", &m_depthbias, -3, 3)) {
+		rebuildPipeline();
+	}
+
+	if (ImGui::SliderFloat("Depth Bias Slope Scale", &m_depthBiasSlopeScale, -1.0f, 1.0f, "%.2f")) {
+		rebuildPipeline();
+	}
+	ImGui::Checkbox("Animate", &m_animate);
+
+	if (m_barycentric) {
+		if (ImGui::SliderFloat("Thickness", &m_thickness, 0.0f, 10.0f, "%.1f")) {
+			updateUniforms();
+		}
+
+		if (ImGui::SliderFloat("Alpha Threshold", &m_alphaTthreshold, 0.0f, 1.0f, "%.2f")) {
+			updateUniforms();;
+		}
+	}
+
 	ImGui::End();	
 	ImGui::Render();
 	ImGui_ImplWGPU_RenderDrawData(ImGui::GetDrawData(), renderPassEncoder);
@@ -259,11 +433,16 @@ void WireframeOverlay::renderUi(const WGPURenderPassEncoder& renderPassEncoder) 
 std::vector<WGPUBindGroupLayout> WireframeOverlay::OnBindGroupLayouts() {
 	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
 
-	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(1);
+	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(2);
 	bindingLayoutEntries[0].binding = 0u;
 	bindingLayoutEntries[0].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
 	bindingLayoutEntries[0].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
 	bindingLayoutEntries[0].buffer.minBindingSize = sizeof(Uniforms);
+
+	bindingLayoutEntries[1].binding = 1u;
+	bindingLayoutEntries[1].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
+	bindingLayoutEntries[1].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
+	bindingLayoutEntries[1].buffer.minBindingSize = sizeof(Matrix4f) + sizeof(Vector4f);
 
 	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
 	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
@@ -274,26 +453,62 @@ std::vector<WGPUBindGroupLayout> WireframeOverlay::OnBindGroupLayouts() {
 	return bindingLayouts;
 }
 
-std::vector<WGPUBindGroup> WireframeOverlay::OnBindGroups() {
-	std::vector<WGPUBindGroup> bindGroups(1);
+std::vector<WGPUBindGroupLayout> WireframeOverlay::OnBindGroupLayoutsWireframe() {
+	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
 
-	std::vector<WGPUBindGroupEntry> bindings(1);
+	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(5);
+	bindingLayoutEntries[0].binding = 0u;
+	bindingLayoutEntries[0].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
+	bindingLayoutEntries[0].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
+	bindingLayoutEntries[0].buffer.minBindingSize = sizeof(Uniforms);
 
-	bindings[0].binding = 0u;
-	bindings[0].buffer = m_uniformBuffer.getBuffer();
-	bindings[0].offset = 0u;
-	bindings[0].size = wgpuBufferGetSize(m_uniformBuffer.getBuffer());
+	bindingLayoutEntries[1].binding = 1u;
+	bindingLayoutEntries[1].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
+	bindingLayoutEntries[1].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
+	bindingLayoutEntries[1].buffer.minBindingSize = sizeof(Matrix4f) + sizeof(Vector4f);
 
-	WGPUBindGroupDescriptor bindGroupDesc = {};
-	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_COLOR_PN"), 0u);
-	bindGroupDesc.entryCount = (uint32_t)bindings.size();
-	bindGroupDesc.entries = bindings.data();
+	bindingLayoutEntries[2].binding = 2u;
+	bindingLayoutEntries[2].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
+	bindingLayoutEntries[2].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
+	bindingLayoutEntries[2].buffer.minBindingSize = sizeof(LineUniforms);
 
-	bindGroups[0] = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
+	bindingLayoutEntries[3].binding = 3u;
+	bindingLayoutEntries[3].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
+	bindingLayoutEntries[3].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_ReadOnlyStorage;
 
-	return bindGroups;
+	bindingLayoutEntries[4].binding = 4u;
+	bindingLayoutEntries[4].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
+	bindingLayoutEntries[4].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_ReadOnlyStorage;
+
+	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
+	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
+	bindGroupLayoutDescriptor.entries = bindingLayoutEntries.data();
+
+	bindingLayouts[0] = wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor);
+
+	return bindingLayouts;
 }
 
 float WireframeOverlay::randFloat() {
 	return (float)rand() / (float)RAND_MAX;
+}
+
+void WireframeOverlay::rebuildPipeline() {
+	wgpuRenderPipelineRelease(wgpContext.renderPipelines.at("RP_WIREFRAME_BASE"));
+	wgpContext.createRenderPipeline("WIREFRAME_BASE", "RP_WIREFRAME_BASE", VL_PN, std::bind(&WireframeOverlay::OnBindGroupLayouts, this),
+		1u,
+		WGPUPrimitiveTopology_TriangleList,
+		WGPUTextureFormat_Undefined,
+		WGPUTextureFormat_Undefined,
+		WGPUCompareFunction_Less,
+		{ DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE, ColorMode::WRITE_RGBA, DepthMode::WRITE, StencilMode::DEFAULT, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_Undefined, WGPUCullMode_Undefined, {}, {m_depthbias, m_depthBiasSlopeScale, 0.0f} }
+	);
+}
+
+void WireframeOverlay::updateUniforms() {
+	for (uint32_t i = 0; i < NUM_OBJECTS; ++i) {
+		Object& object = m_objects[i];
+		wgpuQueueWriteBuffer(wgpContext.queue, object.uniformBufferLine.getBuffer(), sizeof(uint32_t), &m_thickness, sizeof(float));
+		wgpuQueueWriteBuffer(wgpContext.queue, object.uniformBufferLine.getBuffer(), sizeof(uint32_t) + sizeof(float), &m_alphaTthreshold, sizeof(float));
+	}
 }

@@ -32,13 +32,12 @@ public:
 
 	const std::vector<float>& getVertexBuffer() const;
 	const std::vector<unsigned int>& getIndexBuffer() const;
-
-	std::vector<float>& vertexBuffer();
-	std::vector<unsigned int>& indexBuffer();
-
 	unsigned int getStride() const;
-	void flatShading();
 
+	std::vector<float>& vertexBuffer() const;
+	std::vector<unsigned int>& indexBuffer() const;
+
+	void flatShading();
 	void rewind();
 	void flipNormal();
 	void scale(float sx, float sy, float sz);
@@ -48,8 +47,8 @@ public:
 	
 private:
 
-	std::vector<unsigned int> m_indexBuffer;
-	std::vector<float> m_vertexBuffer;
+	mutable std::vector<unsigned int> m_indexBuffer;
+	mutable std::vector<float> m_vertexBuffer;
 	unsigned int m_stride;
 
 	static std::array<float, 3> Normalize(const std::array<float, 3>& v);
