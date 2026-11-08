@@ -25,9 +25,6 @@ struct VertexOutput {
     @location(7) normalVS: vec3f      // vertex normal in view space
 };
 
-/**
- * A structure holding the value of our uniforms
- */
 struct Uniforms {
     projection: mat4x4f,
     view: mat4x4f,
@@ -35,7 +32,7 @@ struct Uniforms {
     model: mat4x4f,
 	normal: mat4x4f,
     color: vec4f,
-	camPosition: vec3f,
+	camPos: vec3f,
 };
 
 struct NormalUniform {
@@ -64,11 +61,11 @@ fn vs_main(in: VertexInput) -> VertexOutput {
 	out.color = uniforms.color;
 	
 	out.posVS = (uniforms.view * uniforms.model * vec4(in.position, 1.0)).xyz;
-    out.tangentVS = (uniforms.view * uniforms.model * vec4(in.tangent, 0.0)).xyz;
-    out.bitangentVS = (uniforms.view * uniforms.model * vec4(in.bitangent, 0.0)).xyz;
-    out.normalVS = (uniforms.view * uniforms.model * vec4(in.normal, 0.0)).xyz;
+    out.tangentVS = (uniforms.view * uniforms.model * vec4(in.tangent * 0.5, 0.0)).xyz;
+    out.bitangentVS = (uniforms.view * uniforms.model * vec4(in.bitangent * 0.5, 0.0)).xyz;
+    out.normalVS = (uniforms.view * uniforms.model * vec4(in.normal * 0.5, 0.0)).xyz;
 	
-	out.viewDirection = uniforms.camPosition - worldPosition.xyz;
+	out.viewDirection = uniforms.camPos - worldPosition.xyz;
 	return out;
 }
 
@@ -142,7 +139,7 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4f {
 		 let diffuse = albedoSample.rgb * diffuseLight;
 		 let color = pow(diffuse, vec3f(2.2));
 
-		 return vec4f(color, 1.0);
+		 return vec4f(diffuse, 1.0);
 	   }		
 	}
 	//return vec4f(in.uv, 0.0, 1.0);

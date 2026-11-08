@@ -26,15 +26,6 @@ struct LightingUniforms {
 	float _pad[1];
 };
 
-struct NormalUniforms {
-	std::array <float, 3> light_pos_vs;
-	uint32_t mode;
-	float light_intensity;
-	float depth_scale;
-	float depth_layers;
-	float padding;
-};
-
 struct PBRLightingUniforms {
 	std::array <float, 3> position;
 	float padding1;

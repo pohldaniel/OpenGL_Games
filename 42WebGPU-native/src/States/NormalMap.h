@@ -15,12 +15,39 @@
 #include <WebGPU/WgpData.h>
 #include <WebGPU/WgpModel.h>
 
-enum TexturePack {
-	SPIRAL,
-	TOY_BOX
-};
+
 
 class NormalMap : public State, public MouseEventListener, public KeyboardEventListener {
+	enum SelectedShape {
+		CUBE,
+		SPHERE,
+		TORUS,
+		TORUS_KNOT,
+		SPIRAL
+	};
+
+	enum TexturePack {
+		TP_SPIRAL,
+		TP_TOY_BOX
+	};
+
+	enum BumpMode {
+		ALBEDO_TEXTURE,
+		NORMAL_TEXTURE,
+		DEPTH_TEXTURE,
+		NORMAL_MAP,
+		PRALLAX_SCALE,
+		STEEP_PRALLAX
+	};
+
+	struct NormalUniforms {
+		std::array <float, 3> light_pos_vs;
+		uint32_t mode;
+		float light_intensity;
+		float depth_scale;
+		float depth_layers;
+		float padding;
+	};
 
 public:
 
@@ -47,7 +74,7 @@ private:
 	std::vector<WGPUBindGroup> OnBindGroups();
 
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
-	void applyTransformation(TrackBall& arc);
+	void createBindGroups();
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
@@ -66,6 +93,15 @@ private:
 	WgpTexture m_textureNS, m_textureHS;
 	WgpTexture m_textureAB, m_textureNB, m_textureHB;
 
-	std::vector <WGPUBindGroup> m_bindgroups;
-	TexturePack m_texturePack = TexturePack::SPIRAL;
+	std::vector<WGPUBindGroup> m_bindgroups;
+	std::vector<WGPUBindGroup> m_storedBindgroups;
+
+	TexturePack m_texturePack = TexturePack::TP_SPIRAL;
+	SelectedShape m_selectedShape = SelectedShape::CUBE;
+	BumpMode m_bumpMode = BumpMode::NORMAL_MAP;
+
+	float m_lightPosX = -1.7f;
+	float m_lightPosY = 0.7f;
+	float m_lightPosZ = 1.9f;
+	int m_dpehtLayers = 16;
 };

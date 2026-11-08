@@ -22,61 +22,15 @@ NormalMap::NormalMap(StateMachine& machine) : State(machine, States::NORMAL_MAP)
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(10.0f);
 
-	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
-	m_normalUniformBuffer.createBuffer(sizeof(NormalUniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
-
-	m_textureAW.loadFromFile("res/textures/wood_albedo.png");
-	m_textureAW.markForDelete();
-
-	m_textureNS.loadFromFile("res/textures/spiral_normal.png");
-	m_textureNS.markForDelete();
-
-	m_textureHS.loadFromFile("res/textures/spiral_height.png");
-	m_textureHS.markForDelete();
-
-	m_textureNT.loadFromFile("res/textures/toybox_normal.png");
-	m_textureNT.markForDelete();
-
-	m_textureHT.loadFromFile("res/textures/toybox_height.png");
-	m_textureHT.markForDelete();
-
-	m_textureAB.loadFromFile("res/textures/brickwall_albedo.jpg");
-	m_textureAB.markForDelete();
-
-	m_textureNB.loadFromFile("res/textures/brickwall_normal.jpg");
-	m_textureNB.markForDelete();
-
-	m_textureHB.loadFromFile("res/textures/brickwall_height.jpg");
-	m_textureHB.markForDelete();
-
-	wgpContext.addSahderModule("NORMAL", "res/shader/normal.wgsl");
-	wgpContext.createRenderPipeline("NORMAL", "RP_PTNTB", VL_PTNTB, std::bind(&NormalMap::OnBindGroupLayouts, this));
-
 	m_cube.buildCube({ -0.5f, -0.5f, -0.5f }, { 1.0f, 1.0f, 1.0f }, 1u, 1u, true, true, true);
-	m_wgpCube.create(m_cube);
-	m_wgpCube.setBindGroups("BG", std::bind(&NormalMap::OnBindGroups, this));
-
 	m_sphere.buildSphere({ 0.0f, 0.0f, 0.0f }, 1.0f, 0.0f, 49u, 49u, true, true, true);
-	m_wgpSphere.create(m_sphere);
-	m_wgpSphere.setBindGroups("BG", std::bind(&NormalMap::OnBindGroups, this));
-
 	m_torus.buildTorus({ 0.0f, 0.0f, 0.0f }, 0.5f, 0.25f, 49u, 49u, true, true, true);
-	m_wgpTorus.create(m_torus);
-	m_wgpTorus.setBindGroups("BG", std::bind(&NormalMap::OnBindGroups, this));
-
 	m_torusKnot.buildTorusKnot({ 0.0f, 0.0f, 0.0f }, 1.0f, 0.4f, 2u, 3u, 100u, 16u, true, true, true);
-	m_wgpTorusKnot.create(m_torusKnot);
-	m_wgpTorusKnot.setBindGroups("BG", std::bind(&NormalMap::OnBindGroups, this));
-
 	m_spiral.buildSpiral({ 0.0f, -0.75f, 0.0f }, 0.5f, 0.25f, 1.5f, 2u, true, 49u, 49u, true, true, true);
-	m_wgpSpiral.create(m_spiral);
-	m_wgpSpiral.setBindGroups("BG", std::bind(&NormalMap::OnBindGroups, this));
-
-	wgpContext.OnDraw = std::bind(&NormalMap::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
 
 	m_trackball.reshape(Application::Width, Application::Height);
-	m_trackball.setTrackballScale(0.5f);
-
+	
+	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	m_uniforms.projection = m_camera.getPerspectiveMatrix();
 	m_uniforms.view = m_camera.getViewMatrix();
 	m_uniforms.env = m_camera.getRotationMatrix();
@@ -89,8 +43,36 @@ NormalMap::NormalMap(StateMachine& machine) : State(machine, States::NORMAL_MAP)
 	m_uniforms.lightPosition = Vector3f(0.0f, 0.0f, 0.0f);
 
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
-	
-	Vector3f lightPos = m_camera.getViewMatrix() >> Vector3f(-1.7f, 0.7f, 1.9f);
+
+	m_normalUniformBuffer.createBuffer(sizeof(NormalUniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
+
+	m_textureAW.loadFromFile("res/textures/wood_albedo.png", true);
+	m_textureNS.loadFromFile("res/textures/spiral_normal.png", true);
+	m_textureHS.loadFromFile("res/textures/spiral_height.png", true);
+	m_textureNT.loadFromFile("res/textures/toybox_normal.png", true);
+	m_textureHT.loadFromFile("res/textures/toybox_height.png", true);
+	m_textureAB.loadFromFile("res/textures/brickwall_albedo.jpg", true);
+	m_textureNB.loadFromFile("res/textures/brickwall_normal.jpg", true);
+	m_textureHB.loadFromFile("res/textures/brickwall_height.jpg", true);
+
+	wgpContext.addSahderModule("NORMAL", "res/shader/normal.wgsl");
+	wgpContext.createRenderPipeline("NORMAL", "RP_NORMAL", VL_PTNTB, std::bind(&NormalMap::OnBindGroupLayouts, this));
+
+	m_wgpCube.create(m_cube);
+	m_wgpCube.setBindGroups("BG", std::bind(&NormalMap::OnBindGroups, this));
+	m_wgpSphere.create(m_sphere);
+	m_wgpSphere.setBindGroups("BG", std::bind(&NormalMap::OnBindGroups, this));
+	m_wgpTorus.create(m_torus);
+	m_wgpTorus.setBindGroups("BG", std::bind(&NormalMap::OnBindGroups, this));
+	m_wgpTorusKnot.create(m_torusKnot);
+	m_wgpTorusKnot.setBindGroups("BG", std::bind(&NormalMap::OnBindGroups, this));
+	m_wgpSpiral.create(m_spiral);
+	m_wgpSpiral.setBindGroups("BG", std::bind(&NormalMap::OnBindGroups, this));
+
+	wgpContext.setClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
+	wgpContext.OnDraw = std::bind(&NormalMap::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
+
+	Vector3f lightPos = m_camera.getViewMatrix() >> Vector3f(m_lightPosX, m_lightPosY, m_lightPosZ);
 	m_normalUniforms.light_pos_vs = { lightPos[0], lightPos[1], lightPos[2] };
 	m_normalUniforms.light_intensity = 5.0f;
 	m_normalUniforms.depth_scale = 0.05f;
@@ -99,64 +81,18 @@ NormalMap::NormalMap(StateMachine& machine) : State(machine, States::NORMAL_MAP)
 
 	wgpuQueueWriteBuffer(wgpContext.queue, m_normalUniformBuffer.getBuffer(), 0, &m_normalUniforms, sizeof(NormalUniforms));
 
-	m_bindgroups.resize(3);
-
-	std::vector<WGPUBindGroupEntry> bindGroupEntries0(3);
-
-	bindGroupEntries0[0].binding = 0u;
-	bindGroupEntries0[0].textureView = m_textureAW.getTextureView();
-
-	bindGroupEntries0[1].binding = 1u;
-	bindGroupEntries0[1].textureView = m_textureNS.getTextureView();
-
-	bindGroupEntries0[2].binding = 2u;
-	bindGroupEntries0[2].textureView = m_textureHS.getTextureView();
-
-	WGPUBindGroupDescriptor bindGroupDesc0 = {};
-	bindGroupDesc0.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_PTNTB"), 1u);
-	bindGroupDesc0.entryCount = (uint32_t)bindGroupEntries0.size();
-	bindGroupDesc0.entries = bindGroupEntries0.data();
-	m_bindgroups[0] = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc0);
-
-	
-	std::vector<WGPUBindGroupEntry> bindGroupEntries1(3);
-
-	bindGroupEntries1[0].binding = 0u;
-	bindGroupEntries1[0].textureView = m_textureAW.getTextureView();
-
-	bindGroupEntries1[1].binding = 1u;
-	bindGroupEntries1[1].textureView = m_textureNT.getTextureView();
-
-	bindGroupEntries1[2].binding = 2u;
-	bindGroupEntries1[2].textureView = m_textureHT.getTextureView();
-
-	WGPUBindGroupDescriptor bindGroupDesc1 = {};
-	bindGroupDesc1.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_PTNTB"), 1u);
-	bindGroupDesc1.entryCount = (uint32_t)bindGroupEntries1.size();
-	bindGroupDesc1.entries = bindGroupEntries1.data();
-	m_bindgroups[1] = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc1);
-
-	std::vector<WGPUBindGroupEntry> bindGroupEntries2(3);
-
-	bindGroupEntries2[0].binding = 0u;
-	bindGroupEntries2[0].textureView = m_textureAB.getTextureView();
-
-	bindGroupEntries2[1].binding = 1u;
-	bindGroupEntries2[1].textureView = m_textureNB.getTextureView();
-
-	bindGroupEntries2[2].binding = 2u;
-	bindGroupEntries2[2].textureView = m_textureHB.getTextureView();
-
-	WGPUBindGroupDescriptor bindGroupDesc2 = {};
-	bindGroupDesc2.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_PTNTB"), 1u);
-	bindGroupDesc2.entryCount = (uint32_t)bindGroupEntries2.size();
-	bindGroupDesc2.entries = bindGroupEntries2.data();
-	m_bindgroups[2] = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc2);
+	createBindGroups();
 }
 
 NormalMap::~NormalMap() {
 	EventDispatcher::RemoveKeyboardListener(this);
 	EventDispatcher::RemoveMouseListener(this);
+
+	m_wgpCube.getMesh().getBindGroups("BG")[1] = m_storedBindgroups[0];
+	m_wgpSphere.getMesh().getBindGroups("BG")[1] = m_storedBindgroups[1];
+	m_wgpTorus.getMesh().getBindGroups("BG")[1] = m_storedBindgroups[2];
+	m_wgpTorusKnot.getMesh().getBindGroups("BG")[1] = m_storedBindgroups[3];
+	m_wgpSpiral.getMesh().getBindGroups("BG")[1] = m_storedBindgroups[4];
 
 	m_uniformBuffer.markForDelete();
 	m_normalUniformBuffer.markForDelete();
@@ -235,13 +171,20 @@ void NormalMap::update() {
 	}
 
 	m_trackball.idle();
-	applyTransformation(m_trackball);
 
+	m_uniforms.projection = m_camera.getPerspectiveMatrix();
 	m_uniforms.view = m_camera.getViewMatrix();
+	m_uniforms.env = m_camera.getRotationMatrix();
+	m_uniforms.model = m_trackball.getTransform();
 	m_uniforms.normal = Matrix4f::GetNormalMatrix(m_camera.getViewMatrix() * m_uniforms.model);
+	m_uniforms.camPosition = m_camera.getPosition();
+	m_uniforms.lightVP = Matrix4f::IDENTITY;
+	m_uniforms.shadow = Matrix4f::BIAS * m_uniforms.lightVP;
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0u, &m_uniforms, sizeof(Uniforms));
 
-	Vector3f lightPos = m_camera.getViewMatrix() >> Vector3f(-1.7f, 0.7f, 1.9f);
+	Vector3f lightPos = m_camera.getViewMatrix() >> Vector3f(m_lightPosX, m_lightPosY, m_lightPosZ);
 	m_normalUniforms.light_pos_vs = { lightPos[0], lightPos[1], lightPos[2] };
+	wgpuQueueWriteBuffer(wgpContext.queue, m_normalUniformBuffer.getBuffer(), 0u, &m_normalUniforms, sizeof(NormalUniforms));
 }
 
 void NormalMap::render() {
@@ -250,22 +193,30 @@ void NormalMap::render() {
 
 void NormalMap::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor) {
 
-	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, projection), &m_uniforms.projection, sizeof(Uniforms::projection));
-	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, view), &m_uniforms.view, sizeof(Uniforms::view));
-	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, model), &m_uniforms.model, sizeof(Uniforms::model));
-	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, normal), &m_uniforms.normal, sizeof(Uniforms::normal));
-
-	wgpuQueueWriteBuffer(wgpContext.queue, m_normalUniformBuffer.getBuffer(), 0u, &m_normalUniforms.light_pos_vs, sizeof(NormalUniforms::light_pos_vs));
-
 	WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDescriptor);
 	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
 
-	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_PTNTB"));
-	m_wgpCube.draw(renderPassEncoder);
-	//m_wgpSphere.draw(renderPassEncoder);
-	//m_wgpTorus.draw(renderPassEncoder);
-	//m_wgpTorusKnot.draw(renderPassEncoder);
-	//m_wgpSpiral.draw(renderPassEncoder);
+	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_NORMAL"));
+
+	switch (m_selectedShape){
+		case NormalMap::CUBE:
+			m_wgpCube.draw(renderPassEncoder);
+			break;
+		case NormalMap::SPHERE:
+			m_wgpSphere.draw(renderPassEncoder);
+			break;
+		case NormalMap::TORUS:
+			m_wgpTorus.draw(renderPassEncoder);
+			break;
+		case NormalMap::TORUS_KNOT:
+			m_wgpTorusKnot.draw(renderPassEncoder);
+			break;
+		case NormalMap::SPIRAL:
+			m_wgpSpiral.draw(renderPassEncoder);
+			break;
+		default:
+			break;
+	}
 
 	if (m_drawUi)
 		renderUi(renderPassEncoder);
@@ -276,13 +227,11 @@ void NormalMap::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURende
 
 void NormalMap::OnMouseMotion(const Event::MouseMoveEvent& event) {
 	m_trackball.motion(event.x, event.y);
-	applyTransformation(m_trackball);
 }
 
 void NormalMap::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
 	if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {
 		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, true, event.x, event.y);
-		applyTransformation(m_trackball);
 	}else if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT) {
 		Mouse::instance().attach(Application::GetWindow());
 	}
@@ -291,7 +240,6 @@ void NormalMap::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
 void NormalMap::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
 	if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {
 		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, false, event.x, event.y);
-		applyTransformation(m_trackball);
 	}else if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT) {
 		Mouse::instance().detach();
 	}
@@ -322,10 +270,6 @@ void NormalMap::OnKeyUp(const Event::KeyboardEvent& event) {
 void NormalMap::resize(int deltaW, int deltaH) {
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-}
-
-void NormalMap::applyTransformation(TrackBall& arc) {
-	m_uniforms.model = arc.getTransform();
 }
 
 void NormalMap::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
@@ -363,12 +307,37 @@ void NormalMap::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 	}
 
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+
+	int currentShape = m_selectedShape;
+	if (ImGui::Combo("Shape", &currentShape, "Cube\0Sphere\0Torus\0Torus Knot\0Spiral\0\0")) {
+		m_selectedShape = static_cast<SelectedShape>(currentShape);
+	}
+
 	int currentTexturePack = m_texturePack;
 	if (ImGui::Combo("Texturepack", &currentTexturePack, "Spiral\0Toybox\0BrickWall\0\0")) {
 		m_texturePack = static_cast<TexturePack>(currentTexturePack);
-		m_wgpCube.getMeshes().begin()->getBindGroups("BG")[1] = m_bindgroups[currentTexturePack];
+		m_wgpCube.getMesh().getBindGroups("BG")[1] = m_bindgroups[currentTexturePack];
+		m_wgpSphere.getMesh().getBindGroups("BG")[1] = m_bindgroups[currentTexturePack];
+		m_wgpTorus.getMesh().getBindGroups("BG")[1] = m_bindgroups[currentTexturePack];
+		m_wgpTorusKnot.getMesh().getBindGroups("BG")[1] = m_bindgroups[currentTexturePack];
+		m_wgpSpiral.getMesh().getBindGroups("BG")[1] = m_bindgroups[currentTexturePack];
 	}
 
+	int currentBumpMode = m_bumpMode;
+	if (ImGui::Combo("Bump Mode", &currentBumpMode, "Albedo Texture\0Normal Texture\0Depth Texture\0Normal Map\0Parallax Scale\0Steep Parallax\0\0")) {
+		m_bumpMode = static_cast<BumpMode>(currentBumpMode);
+		m_normalUniforms.mode = currentBumpMode;
+	}
+
+	ImGui::SliderFloat("Light Pos X", &m_lightPosX, -5.0f, 5.0f, "%.1f");
+	ImGui::SliderFloat("Light Pos Y", &m_lightPosY, -5.0f, 5.0f, "%.1f");
+	ImGui::SliderFloat("Light Pos Z", &m_lightPosZ, -5.0f, 5.0f, "%.1f");
+	ImGui::SliderFloat("Light Intensity", &m_normalUniforms.light_intensity, 0.0f, 10.0f, "%.1f");
+	ImGui::SliderFloat("Depth Scale", &m_normalUniforms.depth_scale, 0.0f,0.1f, "%.2f");
+
+	m_dpehtLayers = static_cast<int>(m_normalUniforms.depth_layers);
+	ImGui::SliderInt("Depth Layers", &m_dpehtLayers, 1, 32);
+	m_normalUniforms.depth_layers = static_cast<float>(m_dpehtLayers);
 	ImGui::End();
 
 	ImGui::Render();
@@ -449,7 +418,7 @@ std::vector<WGPUBindGroup> NormalMap::OnBindGroups() {
 	bindGroupEntries0[2].sampler = wgpContext.getSampler(SS_LINEAR_CLAMP);
 
 	WGPUBindGroupDescriptor bindGroupDesc0 = {};
-	bindGroupDesc0.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_PTNTB"), 0u);
+	bindGroupDesc0.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_NORMAL"), 0u);
 	bindGroupDesc0.entryCount = (uint32_t)bindGroupEntries0.size();
 	bindGroupDesc0.entries = bindGroupEntries0.data();
 	bindGroups[0] = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc0);
@@ -466,10 +435,75 @@ std::vector<WGPUBindGroup> NormalMap::OnBindGroups() {
 	bindGroupEntries1[2].textureView = m_textureHS.getTextureView();
 
 	WGPUBindGroupDescriptor bindGroupDesc1 = {};
-	bindGroupDesc1.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_PTNTB"), 1u);
+	bindGroupDesc1.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_NORMAL"), 1u);
 	bindGroupDesc1.entryCount = (uint32_t)bindGroupEntries1.size();
 	bindGroupDesc1.entries = bindGroupEntries1.data();
 	bindGroups[1] = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc1);
 	
 	return bindGroups;
+}
+
+void NormalMap::createBindGroups() {
+	m_bindgroups.resize(3);
+
+	std::vector<WGPUBindGroupEntry> bindGroupEntries0(3);
+
+	bindGroupEntries0[0].binding = 0u;
+	bindGroupEntries0[0].textureView = m_textureAW.getTextureView();
+
+	bindGroupEntries0[1].binding = 1u;
+	bindGroupEntries0[1].textureView = m_textureNS.getTextureView();
+
+	bindGroupEntries0[2].binding = 2u;
+	bindGroupEntries0[2].textureView = m_textureHS.getTextureView();
+
+	WGPUBindGroupDescriptor bindGroupDesc0 = {};
+	bindGroupDesc0.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_NORMAL"), 1u);
+	bindGroupDesc0.entryCount = (uint32_t)bindGroupEntries0.size();
+	bindGroupDesc0.entries = bindGroupEntries0.data();
+	m_bindgroups[0] = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc0);
+
+
+	std::vector<WGPUBindGroupEntry> bindGroupEntries1(3);
+
+	bindGroupEntries1[0].binding = 0u;
+	bindGroupEntries1[0].textureView = m_textureAW.getTextureView();
+
+	bindGroupEntries1[1].binding = 1u;
+	bindGroupEntries1[1].textureView = m_textureNT.getTextureView();
+
+	bindGroupEntries1[2].binding = 2u;
+	bindGroupEntries1[2].textureView = m_textureHT.getTextureView();
+
+	WGPUBindGroupDescriptor bindGroupDesc1 = {};
+	bindGroupDesc1.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_NORMAL"), 1u);
+	bindGroupDesc1.entryCount = (uint32_t)bindGroupEntries1.size();
+	bindGroupDesc1.entries = bindGroupEntries1.data();
+	m_bindgroups[1] = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc1);
+
+	std::vector<WGPUBindGroupEntry> bindGroupEntries2(3);
+
+	bindGroupEntries2[0].binding = 0u;
+	bindGroupEntries2[0].textureView = m_textureAB.getTextureView();
+
+	bindGroupEntries2[1].binding = 1u;
+	bindGroupEntries2[1].textureView = m_textureNB.getTextureView();
+
+	bindGroupEntries2[2].binding = 2u;
+	bindGroupEntries2[2].textureView = m_textureHB.getTextureView();
+
+	WGPUBindGroupDescriptor bindGroupDesc2 = {};
+	bindGroupDesc2.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_NORMAL"), 1u);
+	bindGroupDesc2.entryCount = (uint32_t)bindGroupEntries2.size();
+	bindGroupDesc2.entries = bindGroupEntries2.data();
+	m_bindgroups[2] = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc2);
+
+
+	m_storedBindgroups.resize(5u);
+
+	m_storedBindgroups[0] = m_wgpCube.getMesh().getBindGroups("BG")[1];
+	m_storedBindgroups[1] = m_wgpSphere.getMesh().getBindGroups("BG")[1];
+	m_storedBindgroups[2] = m_wgpTorus.getMesh().getBindGroups("BG")[1];
+	m_storedBindgroups[3] = m_wgpTorusKnot.getMesh().getBindGroups("BG")[1];
+	m_storedBindgroups[4] = m_wgpSpiral.getMesh().getBindGroups("BG")[1];
 }
