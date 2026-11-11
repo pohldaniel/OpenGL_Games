@@ -9,8 +9,8 @@
 #include <engine/ui/UiContext.h>
 
 #include <States/Wireframe.h>
-#include <States/Compute.h>
 #include <States/Specularity.h>
+#include <States/Compute.h>
 #include <States/NormalMap.h>
 #include <States/MSDFFont.h>
 #include <States/InstancedCube.h>
@@ -92,24 +92,6 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	button = surface->addChild<Button>();
 	button->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
 	button->setOutlineColor(Vector4f(1.0f, 1.0f, 0.0f, 1.0f));
-	button->setPosition(0.05f, 0.35f);
-	button->setOutlineThickness(5.0f);
-	button->setPadding(5.0f, 5.0f);
-	button->setOnClick([&]() {
-		uiShutDown();
-		wgpCleanState();
-		m_isRunning = false;
-		m_machine.addStateAtBottom(new Compute(m_machine));
-	});
-
-	label = button->addChild<Label>(m_characterSet);
-	label->setText("Compute");
-	label->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-	label->setPadding(0.0f, paddingBottom);
-
-	button = surface->addChild<Button>();
-	button->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
-	button->setOutlineColor(Vector4f(1.0f, 1.0f, 0.0f, 1.0f));
 	button->setPosition(0.35f, 0.35f);
 	button->setOutlineThickness(5.0f);
 	button->setPadding(5.0f, 5.0f);
@@ -122,6 +104,24 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 
 	label = button->addChild<Label>(m_characterSet);
 	label->setText("Specularity");
+	label->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	label->setPadding(0.0f, paddingBottom);
+
+	button = surface->addChild<Button>();
+	button->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+	button->setOutlineColor(Vector4f(1.0f, 1.0f, 0.0f, 1.0f));
+	button->setPosition(0.05f, 0.35f);
+	button->setOutlineThickness(5.0f);
+	button->setPadding(5.0f, 5.0f);
+	button->setOnClick([&]() {
+		uiShutDown();
+		wgpCleanState();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Compute(m_machine));
+		});
+
+	label = button->addChild<Label>(m_characterSet);
+	label->setText("Compute");
 	label->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 	label->setPadding(0.0f, paddingBottom);
 
@@ -181,7 +181,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	label = button->addChild<Label>(m_characterSet);
 	label->setText("Instanced Cube");
 	label->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
-	label->setPadding(5.0f, paddingBottom);
+	label->setPadding(0.0f, paddingBottom);
 
 	button = surface->addChild<Button>();
 	button->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));

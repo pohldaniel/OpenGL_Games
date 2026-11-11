@@ -15,8 +15,6 @@
 #include <WebGPU/WgpData.h>
 #include <WebGPU/WgpModel.h>
 
-
-
 class NormalMap : public State, public MouseEventListener, public KeyboardEventListener {
 	enum SelectedShape {
 		CUBE,

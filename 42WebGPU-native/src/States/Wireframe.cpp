@@ -134,10 +134,10 @@ void Wireframe::update() {
 	}
 
 	m_trackball.idle();
-	applyTransformation(m_trackball);
 
 	m_uniforms.projection = m_camera.getPerspectiveMatrix();
 	m_uniforms.view = m_camera.getViewMatrix();
+	m_uniforms.model = m_trackball.getTransform();
 }
 
 void Wireframe::render() {
@@ -181,13 +181,11 @@ void Wireframe::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURende
 
 void Wireframe::OnMouseMotion(const Event::MouseMoveEvent& event) {
 	m_trackball.motion(event.x, event.y);
-	applyTransformation(m_trackball);
 }
 
 void Wireframe::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
 	if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {
 		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, true, event.x, event.y);
-		applyTransformation(m_trackball);
 	}else if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT) {
 		Mouse::instance().attach(Application::GetWindow());
 	}
@@ -196,7 +194,6 @@ void Wireframe::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
 void Wireframe::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
 	if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {
 		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, false, event.x, event.y);
-		applyTransformation(m_trackball);
 	}else if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT) {
 		Mouse::instance().detach();
 	}
@@ -222,10 +219,6 @@ void Wireframe::OnKeyDown(const Event::KeyboardEvent& event) {
 
 void Wireframe::OnKeyUp(const Event::KeyboardEvent& event) {
 
-}
-
-void Wireframe::applyTransformation(TrackBall& arc) {
-	m_uniforms.model = arc.getTransform();
 }
 
 void Wireframe::resize(int deltaW, int deltaH) {

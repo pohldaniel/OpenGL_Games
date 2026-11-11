@@ -6,6 +6,7 @@
 #include <engine/TrackBall.h>
 #include <engine/Camera.h>
 #include <engine/ObjModel.h>
+#include <engine/Transform.h>
 
 #include <States/StateMachine.h>
 

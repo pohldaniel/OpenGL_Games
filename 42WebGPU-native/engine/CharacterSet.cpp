@@ -230,8 +230,8 @@ void CharacterSet::loadFromFile(const std::string& path, uint32_t characterSize)
 		Char character = {
 			{ (float)glyph->bitmap_left, (float)glyph->bitmap_top - (float)lineHeight },
 			{ (float)glyph->bitmap.width, (float)glyph->bitmap.rows },
-			{ (static_cast<float>(ox) + 0.5f) / (float)maxWidth, (static_cast<float>(oy) + 0.5f) / (float)maxHeight },
-			{ (static_cast<float>(glyph->bitmap.width) - 1.0f) / static_cast<float>(maxWidth), (static_cast<float>(glyph->bitmap.rows) - 1.0f) / static_cast<float>(maxHeight) },
+			{ (static_cast<float>(ox) + 0.5f) / (float)maxWidth, (static_cast<float>(oy) - 0.5f) / (float)maxHeight },
+			{ (static_cast<float>(glyph->bitmap.width) - 1.0f) / static_cast<float>(maxWidth), (static_cast<float>(glyph->bitmap.rows) + 1.0f) / static_cast<float>(maxHeight) },
 			static_cast<float>((glyph->advance.x >> 6) + spacing)
 		};
 

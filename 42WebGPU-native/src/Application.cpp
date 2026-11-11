@@ -11,8 +11,8 @@
 #include <engine/input/GamePad.h>
 
 #include <States/Wireframe.h>
-#include <States/Compute.h>
 #include <States/Specularity.h>
+#include <States/Compute.h>
 #include <States/NormalMap.h>
 #include <States/MSDFFont.h>
 #include <States/InstancedCube.h>
@@ -337,8 +337,8 @@ void Application::fixedUpdate() {
 void Application::initStates() {
 	Machine = new StateMachine(m_dt, m_fdt);
 	//Machine->addStateAtTop(new Wireframe(*Machine));
-	//Machine->addStateAtTop(new Compute(*Machine));
 	//Machine->addStateAtTop(new Specularity(*Machine));
+	//Machine->addStateAtTop(new Compute(*Machine));
 	//Machine->addStateAtTop(new NormalMap(*Machine));
 	//Machine->addStateAtTop(new MSDFFont(*Machine));
 	//Machine->addStateAtTop(new InstancedCube(*Machine));

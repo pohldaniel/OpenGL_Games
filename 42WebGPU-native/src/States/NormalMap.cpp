@@ -270,6 +270,7 @@ void NormalMap::OnKeyUp(const Event::KeyboardEvent& event) {
 void NormalMap::resize(int deltaW, int deltaH) {
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
+	m_trackball.reshape(Application::Width, Application::Height);
 }
 
 void NormalMap::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {

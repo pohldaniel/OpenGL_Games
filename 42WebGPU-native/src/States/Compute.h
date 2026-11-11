@@ -9,27 +9,26 @@
 #include <WebGPU/WgpTexture.h>
 #include <WebGPU/WgpBuffer.h>
 
-enum class FilterType {
-	Sum,
-	Maximum,
-	Minimum,
-};
-
-struct Parameters {
-	FilterType filterType = FilterType::Sum;
-	Matrix4f kernel = Matrix4f::IDENTITY;
-	bool normalize = true;
-};
-
-struct UniformsCompute {
-	Matrix4f kernel;
-	float test = 0.5f;
-	uint32_t filterType = 0;
-	float _pad[2];
-};
 
 class Compute : public State, public MouseEventListener, public KeyboardEventListener {
+	enum class FilterType {
+		Sum,
+		Maximum,
+		Minimum,
+	};
 
+	struct Parameters {
+		FilterType filterType = FilterType::Sum;
+		Matrix4f kernel = Matrix4f::IDENTITY;
+		bool normalize = true;
+	};
+
+	struct UniformsCompute {
+		Matrix4f kernel;
+		float test = 0.5f;
+		uint32_t filterType = 0;
+		float _pad[2];
+	};
 public:
 
 	Compute(StateMachine& machine);

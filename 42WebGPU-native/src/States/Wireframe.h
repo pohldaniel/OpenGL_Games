@@ -47,7 +47,6 @@ private:
 	std::vector<WGPUBindGroup> OnBindGroupsWF();
 
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
-	void applyTransformation(TrackBall& arc);
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
