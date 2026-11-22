@@ -220,12 +220,15 @@ public:
 
 	void set(float x_, float y_, float z_, float w_);
 	void normalize3();
+	float length() const;
 	unsigned int toUInt() const;
 	const float* getData()const;
 
 	static float Dot(const Vector4f &p, const Vector4f &q);
 	static float Dot(const Vector4f &p, const Vector3f &q);
 	static float DotAbs(const Vector4f &p, const Vector3f &q);
+	static Vector4f& Normalize(Vector4f& p);
+	static Vector4f Normalize(const Vector4f& p);
 
 private:
 

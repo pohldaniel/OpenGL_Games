@@ -1212,7 +1212,7 @@ void WgpContext::createRenderPipeline(const std::string& shaderModuleName,
 	}
 
 	colorTargetStates.push_back({ NULL, colorTextureFormat == WGPUTextureFormat_Undefined ? colorFormat : colorTextureFormat,
-									   (configuration.flags & BLEND_STATE) ? &blendState : NULL,
+									   (configuration.flags & BLEND_STATE) && isBlendAble(wgpContext.colorFormat) ? &blendState : NULL,
                                        (configuration.colorMode == WRITE_RGBA) ? WGPUColorWriteMask_All : WGPUColorWriteMask_None });
 	
 	WGPUFragmentState fragmentState = {};

@@ -3344,6 +3344,10 @@ void Vector4f::normalize3() {
 	vec[3] = vec[3] * invDistance;
 }
 
+float Vector4f::length() const {
+	return sqrtf((vec[0] * vec[0]) + (vec[1] * vec[1]) + (vec[2] * vec[2]) + (vec[3] * vec[3]));
+}
+
 unsigned int Vector4f::toUInt() const {
 	unsigned int r = Math::Clamp(((unsigned int)(vec[0] * 255.0f)), 0u, 255u);
 	unsigned int g = Math::Clamp(((unsigned int)(vec[1] * 255.0f)), 0u, 255u);
@@ -3366,6 +3370,19 @@ float Vector4f::Dot(const Vector4f &p, const Vector3f &q) {
 
 float Vector4f::DotAbs(const Vector4f &p, const Vector3f &q) {
 	return (fabs(p[0]) * q[0]) + (fabs(p[1]) * q[1]) + (fabs(p[2]) * q[2]);
+}
+
+Vector4f& Vector4f::Normalize(Vector4f& p) {
+	float length = p.length();
+	float invMag = length != 0.0f ? 1.0f / length : 1.0f;
+	p[0] *= invMag, p[1] *= invMag, p[2] *= invMag;
+	return p;
+}
+
+Vector4f Vector4f::Normalize(const Vector4f& p) {
+	float length = p.length();
+	float invMag = length != 0.0f ? 1.0f / length : 1.0f;
+	return Vector3f(p[0] * invMag, p[1] * invMag, p[2] * invMag);
 }
 
 //friend operator
