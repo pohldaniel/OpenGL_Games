@@ -18,10 +18,17 @@
 #define WATER_HEIGHT 256
 #define CAUSTICS_SIZE 1024
 #define SPHERE_RADIUS 0.25f
+#define SPHERE_DETAIL 10
 #define WATER_SURFACE_DETAIL 200
 
 class WaterSimulation : public State, public MouseEventListener, public KeyboardEventListener {
-	
+	struct PendingDrop{
+		float x;
+		float z;
+		float radius;
+		float strength;
+		bool pending;
+	};
 public:
 
 	WaterSimulation(StateMachine& machine);
@@ -45,20 +52,25 @@ private:
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsDrop();
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsUpdate();
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsNormal();
-	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsSphere();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsSphereMove();
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsCaustics();
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsPool();
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsWater();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsSphere();
 
-	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsSkybox();
-
-	std::vector<WGPUBindGroup> OnBindGroupsSkybox();
 	void createBindGroupPool();
-	void createBindCaustic();
+	void createBindGroupCaustic();
+	void createBindGroupWater();
+	void createBindGroupSphere();
 
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 	void run_simulation_pass(WGPURenderPipeline pipeline, WGPUBuffer uniform_buffer, uint32_t uniform_size);
-	
+	void water_add_drop(float x, float y, float radius, float strength);
+	float random_float_min_max(float min, float max);
+	float random_float();
+	bool getWorldPosition(int xPos, int yPos, const Vector3f& planeNormal, Vector3f& outIntersection);
+	Vector3f getRay(int xPos, int yPos);
+	void water_move_sphere(const Vector3f& oldCenter, const Vector3f& newCenter, float radius);
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
@@ -66,12 +78,14 @@ private:
 
 	Camera m_camera;
 	Uniforms m_uniforms;
-	Shape m_cube;
+	PendingDrop m_pendingDrop;
+	TrackBall m_trackball;
 
-	WgpBuffer m_uniformBuffer, m_lightBuffer, m_sphereBuffer, m_shadowBuffer, m_dropBuffer, m_updateBuffer;
-	WgpBuffer m_poolVertex, m_poolIndex, m_waterVertex, m_waterIndex;
+	WgpBuffer m_uniformBuffer, m_lightBuffer, m_sphereBuffer, m_sphereMoveBuffer, m_shadowBuffer, m_dropBuffer, m_updateBuffer;
+	WgpBuffer m_poolVertex, m_poolIndex, m_waterVertex, m_waterIndex, m_sphereVertex, m_sphereIndex;
 	WgpTexture m_wgpTextureCube, m_wgpTextureTiles, m_textureA, m_textureB, m_textureCaustics;
-	WgpModel m_wgpCube;
+	WGPUBindGroup m_bindGoupPoolA, m_bindGoupPoolB, m_bindGroupCausticA, m_bindGroupCausticB, m_bindGroupWaterA, m_bindGroupWaterB, m_bindGroupSphereA, m_bindGroupSphereB;
 
-	WGPUBindGroup m_bindGoupPoolA, m_bindGoupPoolB, m_bindGroupCausticA, m_bindGroupCausticB;
+	static uint16_t floatToHalf(float value);
+	static bool hit_test_sphere(const Vector3f& origin, const Vector3f& ray, const Vector3f& center, float radius, float* t_out, Vector3f& hit_out);
 };

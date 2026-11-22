@@ -1,47 +1,77 @@
-struct SphereMoveUniforms {
-  oldCenter : vec3f,
-  radius : f32,
-  newCenter : vec3f,
+struct Uniforms {
+    projection: mat4x4<f32>,
+	view: mat4x4<f32>,
+	env: mat4x4<f32>,
+    model: mat4x4<f32>,    
+	normal: mat4x4<f32>,
+	color: vec4<f32>,
+	camPos: vec3<f32>,
+	lightVP:mat4x4<f32>,
+	shadow: mat4x4<f32>,
+	lightPos: vec3<f32>
+};
+struct LightUniforms {
+  direction : vec3f,
   _pad : f32,
 }
-@group(0) @binding(0) var waterTexture : texture_2d<f32>;
-@group(0) @binding(1) var waterSampler : sampler;
-@group(0) @binding(2) var<uniform> u : SphereMoveUniforms;
+struct SphereUniforms {
+  center : vec3f,
+  radius : f32,
+}
+@group(0) @binding(0) var<uniform> camera : Uniforms;
+@group(0) @binding(1) var<uniform> light : LightUniforms;
+@group(0) @binding(2) var<uniform> sphere : SphereUniforms;
+@group(0) @binding(3) var waterSampler : sampler;
+@group(0) @binding(4) var waterTexture : texture_2d<f32>;
+@group(0) @binding(5) var causticTexture : texture_2d<f32>;
+
+const IOR_AIR : f32 = 1.0;
+const IOR_WATER : f32 = 1.333;
+const underwaterColor : vec3f = vec3f(0.4, 0.9, 1.0);
 
 struct VertexOutput {
   @builtin(position) position : vec4f,
-  @location(0) coord : vec2f,
+  @location(0) localPos : vec3f,
+  @location(1) worldPos : vec3f,
 }
 
 @vertex
-fn vs_main(@builtin(vertex_index) idx : u32) -> VertexOutput {
-  var pos = array<vec2f, 6>(
-    vec2f(-1.0, -1.0), vec2f(1.0, -1.0), vec2f(-1.0, 1.0),
-    vec2f(-1.0, 1.0), vec2f(1.0, -1.0), vec2f(1.0, 1.0)
-  );
+fn vs_main(@location(0) position : vec3f) -> VertexOutput {
   var out : VertexOutput;
-  out.position = vec4f(pos[idx], 0.0, 1.0);
-  out.coord = vec2f((pos[idx].x + 1.0) * 0.5, (1.0 - pos[idx].y) * 0.5);
+  let worldPos = sphere.center + position * sphere.radius;
+  out.position = camera.projection * camera.view * camera.model * vec4f(worldPos, 1.0);
+  out.localPos = position;
+  out.worldPos = worldPos;
   return out;
 }
 
-// Calculates the volume of sphere intersecting the water at a UV position
-fn volumeInSphere(center : vec3f, uv : vec2f, radius : f32) -> f32 {
-  let p = vec3f(uv.x * 2.0 - 1.0, 0.0, uv.y * 2.0 - 1.0);
-  let dist = length(p - center);
-  let t = dist / radius;
-  // Gaussian-like falloff for smooth interaction
-  let dy = exp(-pow(t * 1.5, 6.0));
-  let ymin = min(0.0, center.y - dy);
-  let ymax = min(max(0.0, center.y + dy), ymin + 2.0 * dy);
-  return (ymax - ymin) * 0.1;
-}
-
 @fragment
-fn fs_main(@location(0) coord : vec2f) -> @location(0) vec4f {
-  var info = textureSample(waterTexture, waterSampler, coord);
-  // Water rises where sphere was, falls where sphere is now
-  info.r += volumeInSphere(u.oldCenter, coord, u.radius);
-  info.r -= volumeInSphere(u.newCenter, coord, u.radius);
-  return info;
+fn fs_main(@location(0) localPos : vec3f, @location(1) worldPos : vec3f) -> @location(0) vec4f {
+  var color = vec3f(0.5);
+
+  // Distance-based darkening near pool walls
+  color *= 1.0 - 0.9 / pow((1.0 + sphere.radius - abs(worldPos.x)) / sphere.radius, 3.0);
+  color *= 1.0 - 0.9 / pow((1.0 + sphere.radius - abs(worldPos.z)) / sphere.radius, 3.0);
+  color *= 1.0 - 0.9 / pow((worldPos.y + 1.0 + sphere.radius) / sphere.radius, 3.0);
+
+  // Diffuse lighting with caustics
+  let sphereNormal = normalize(localPos);
+  let refractedLight = refract(-light.direction, vec3f(0.0, 1.0, 0.0), IOR_AIR / IOR_WATER);
+  var diffuse = max(0.0, dot(-refractedLight, sphereNormal)) * 0.5;
+
+  let info = textureSampleLevel(waterTexture, waterSampler, worldPos.xz * 0.5 + 0.5, 0.0);
+  if (worldPos.y < info.r) {
+    // Underwater: apply caustics
+    let causticUV = 0.75 * (worldPos.xz - worldPos.y * refractedLight.xz / refractedLight.y) * 0.5 + 0.5;
+    let caustic = textureSampleLevel(causticTexture, waterSampler, causticUV, 0.0);
+    diffuse *= caustic.r * 4.0;
+  }
+  color += diffuse;
+
+  // Apply underwater tint
+  if (worldPos.y < info.r) {
+    color *= underwaterColor;
+  }
+
+  return vec4f(color, 1.0);
 }

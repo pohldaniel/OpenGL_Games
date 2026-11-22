@@ -571,7 +571,7 @@ void WgpTexture::resize(uint32_t width, uint32_t height) {
     }
 }
 
-void WgpTexture::fillLayer(const std::array<float, 4>& color, uint32_t layer) {
+void WgpTexture::uploadData(const void* data, uint32_t bpp, uint32_t layer) {
     WGPUTexelCopyTextureInfo destination = {};
     destination.texture = m_texture;
     destination.mipLevel = 0u;
@@ -580,11 +580,16 @@ void WgpTexture::fillLayer(const std::array<float, 4>& color, uint32_t layer) {
 
     WGPUTexelCopyBufferLayout dataLayout = {};
     dataLayout.offset = 0u;
-    dataLayout.bytesPerRow = m_width * sizeof(uint32_t);
+    dataLayout.bytesPerRow = m_width * bpp;
     dataLayout.rowsPerImage = m_height;
 
     WGPUExtent3D writeSize = { m_width, m_height, 1u };
+    size_t dataSize = m_width * m_height * bpp;
 
+    wgpuQueueWriteTexture(wgpContext.queue, &destination, data, dataSize, &dataLayout, &writeSize);
+}
+
+void WgpTexture::fillLayer(const std::array<float, 4>& color, uint32_t layer) {
     uint32_t r = static_cast<uint32_t>(color[0] * 255.0f + 0.5f);
     uint32_t g = static_cast<uint32_t>(color[1] * 255.0f + 0.5f);
     uint32_t b = static_cast<uint32_t>(color[2] * 255.0f + 0.5f);
@@ -592,8 +597,7 @@ void WgpTexture::fillLayer(const std::array<float, 4>& color, uint32_t layer) {
 
     uint32_t packedColor = r | (g << 8) | (b << 16) | (a << 24);
     std::vector<uint32_t> pixels(m_width * m_height, packedColor);
-
-    wgpuQueueWriteTexture(wgpContext.queue, &destination, pixels.data(), pixels.size() * sizeof(uint32_t), &dataLayout, &writeSize);
+    uploadData(pixels.data(), sizeof(uint32_t), layer);
 }
 
 unsigned char* WgpTexture::LoadFromFile(const std::string& fileName, bool flipVertical, short alphaChannel) {

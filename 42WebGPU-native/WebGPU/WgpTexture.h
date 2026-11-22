@@ -28,8 +28,9 @@ public:
 	void setTextureUsage(WGPUTextureUsage textureUsage = WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst);
 	void setTextureFormat(WGPUTextureFormat format);
 	void setFlipHorizontal(bool flipHorizontal = false);
+	void uploadData(const void* data, uint32_t bpp, uint32_t layer = 0u);
 	void fillLayer(const std::array<float, 4>& color = {1.0f, 1.0f, 1.0f, 1.0f}, uint32_t layer = 0u);
-
+	
 	const WGPUTexture& getTexture() const;
 	const WGPUTextureView& getTextureView() const;
 

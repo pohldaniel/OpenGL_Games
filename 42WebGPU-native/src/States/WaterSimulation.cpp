@@ -20,14 +20,12 @@ WaterSimulation::WaterSimulation(StateMachine& machine) : State(machine, States:
 	m_camera.perspective(45.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f , -1.0f, 1.0f);
 
-
 	m_camera.lookAt(4.0f, 25.0f, 200.5f);
 	m_camera.move(0.0f, -0.5f, 0.0f);
-	m_camera.setMovingSpeed(1.0f);
+	m_camera.setMovingSpeed(10.0f);
 	m_camera.setRotationSpeed(0.1f);
 
-	m_cube.buildCube({ -1.0f, -1.0f, -1.0f }, { 2.0f, 2.0f, 2.0f }, 1u, 1u, false, false);
-	m_cube.rewind();
+	m_trackball.reshape(Application::Width, Application::Height);
 
 	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	m_uniforms.projection = m_camera.getPerspectiveMatrix();
@@ -56,12 +54,13 @@ WaterSimulation::WaterSimulation(StateMachine& machine) : State(machine, States:
 	
 	m_dropBuffer.createBuffer(32u, WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	m_updateBuffer.createBuffer(16u, WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
+	m_sphereMoveBuffer.createBuffer(32u, WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 
 	std::string faces[] = { "res/textures/cubemaps/clouds/clouds_cube_px.jpg", "res/textures/cubemaps/clouds/clouds_cube_nx.jpg", "res/textures/cubemaps/clouds/clouds_cube_py.jpg", "res/textures/cubemaps/clouds/clouds_cube_ny.jpg", "res/textures/cubemaps/clouds/clouds_cube_pz.jpg", "res/textures/cubemaps/clouds/clouds_cube_nz.jpg" };
 	m_wgpTextureCube.loadCubeFromFiles(faces);
 	m_wgpTextureTiles.loadFromFile("res/textures/tiles.jpg", true);
 
-	m_textureA.createEmpty(WATER_WIDTH, WATER_HEIGHT, 1u, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_RenderAttachment, WGPUTextureFormat_RGBA16Float);
+	m_textureA.createEmpty(WATER_WIDTH, WATER_HEIGHT, 1u, WGPUTextureUsage_CopyDst | WGPUTextureUsage_TextureBinding | WGPUTextureUsage_RenderAttachment, WGPUTextureFormat_RGBA16Float);
 	m_textureB.createEmpty(WATER_WIDTH, WATER_HEIGHT, 1u, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_RenderAttachment, WGPUTextureFormat_RGBA16Float);
 	m_textureCaustics.createEmpty(CAUSTICS_SIZE, CAUSTICS_SIZE, 1u, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_RenderAttachment, WGPUTextureFormat_RGBA8Unorm);
 
@@ -69,7 +68,10 @@ WaterSimulation::WaterSimulation(StateMachine& machine) : State(machine, States:
 	wgpContext.createRenderPipeline("WATER_DROP", "RP_WATER_DROP", VL_NONE, std::bind(&WaterSimulation::OnBindGroupLayoutsDrop, this),
 		1u,
 		WGPUPrimitiveTopology_Undefined,
-		WGPUTextureFormat_RGBA16Float);
+		WGPUTextureFormat_RGBA16Float,
+		WGPUTextureFormat_Undefined,
+		WGPUCompareFunction_Undefined,
+		{ FRAGMENT_STATE, ColorMode::WRITE_RGBA });
 
 	wgpContext.addSahderModule("WATER_UPDATE", "res/shader/water_update.wgsl");
 	wgpContext.createRenderPipeline("WATER_UPDATE", "RP_WATER_UPDATE", VL_NONE, std::bind(&WaterSimulation::OnBindGroupLayoutsUpdate, this), 
@@ -89,8 +91,8 @@ WaterSimulation::WaterSimulation(StateMachine& machine) : State(machine, States:
 		WGPUCompareFunction_Undefined,
 		{ FRAGMENT_STATE , ColorMode::WRITE_RGBA });
 
-	wgpContext.addSahderModule("WATER_SPHERE", "res/shader/water_sphere.wgsl");
-	wgpContext.createRenderPipeline("WATER_SPHERE", "RP_WATER_SPHERE", VL_NONE, std::bind(&WaterSimulation::OnBindGroupLayoutsSphere, this),
+	wgpContext.addSahderModule("WATER_SPHERE_MOVE", "res/shader/water_sphere_move.wgsl");
+	wgpContext.createRenderPipeline("WATER_SPHERE_MOVE", "RP_WATER_SPHERE_MOVE", VL_NONE, std::bind(&WaterSimulation::OnBindGroupLayoutsSphereMove, this),
 		1u,
 		WGPUPrimitiveTopology_Undefined,
 		WGPUTextureFormat_RGBA16Float,
@@ -135,24 +137,22 @@ WaterSimulation::WaterSimulation(StateMachine& machine) : State(machine, States:
 		WGPUCompareFunction_Less,
 		{ FRAGMENT_STATE | DEPTH_STENCIL_STATE, ColorMode::WRITE_RGBA, DepthMode::WRITE, StencilMode::DEFAULT, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_Undefined, WGPUCullMode_Back });
 
-	wgpContext.addSahderModule("SKYBOX", "res/shader/env_cube.wgsl");
-	wgpContext.createRenderPipeline("SKYBOX", "RP_SKYBOX", VL_P,
-		std::bind(&WaterSimulation::OnBindGroupLayoutsSkybox, this),
+	wgpContext.addSahderModule("WATER_SPHERE", "res/shader/water_sphere.wgsl");
+	wgpContext.createRenderPipeline("WATER_SPHERE", "RP_WATER_SPHERE", VL_P, std::bind(&WaterSimulation::OnBindGroupLayoutsSphere, this),
 		1u,
-		WGPUPrimitiveTopology_TriangleList,
+		WGPUPrimitiveTopology_Undefined,
 		WGPUTextureFormat_Undefined,
 		WGPUTextureFormat_Undefined,
-		WGPUCompareFunction_LessEqual,
-		{ DEPTH_STENCIL_STATE | FRAGMENT_STATE }
-	);
+		WGPUCompareFunction_Less,
+		{ FRAGMENT_STATE | DEPTH_STENCIL_STATE, ColorMode::WRITE_RGBA, DepthMode::WRITE, StencilMode::DEFAULT, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_Undefined, WGPUCullMode_Back });
 
-	m_wgpCube.create(m_cube);
-	m_wgpCube.setBindGroups("BG", std::bind(&WaterSimulation::OnBindGroupsSkybox, this));
 
 	float uniform_data[4] = { 1.0f / WATER_WIDTH, 1.0f / WATER_HEIGHT, 0, 0 };
 	wgpuQueueWriteBuffer(wgpContext.queue, m_updateBuffer.getBuffer(), 0u, uniform_data, sizeof(uniform_data));
 	createBindGroupPool();
-	createBindCaustic();
+	createBindGroupCaustic();
+	createBindGroupWater();
+	createBindGroupSphere();
 	{
 		float positions[5 * 4 * 3];
 		uint32_t indices[5 * 6];
@@ -230,6 +230,140 @@ WaterSimulation::WaterSimulation(StateMachine& machine) : State(machine, States:
 		m_waterIndex.createBuffer(indices.data(), indices.size() * sizeof(uint32_t), WGPUBufferUsage_Index | WGPUBufferUsage_CopySrc);
 	}
 
+	{
+		const int detail = SPHERE_DETAIL;
+		const int max_vertices = 8 * (detail + 1) * (detail + 2) / 2;
+		const int max_indices = 8 * detail * detail * 3;
+
+		std::vector<float> positions(max_vertices * 3);
+		std::vector<uint32_t> indices(max_indices);
+		std::vector<int> unique_map(max_vertices);
+
+		int unique_count = 0;
+		int final_idx_count = 0;
+
+		#define ADD_VERTEX(px, py, pz)                                                 \
+		  do {                                                                         \
+			int found = -1;                                                            \
+			for (int k = 0; k < unique_count && found < 0; k++) {                      \
+			  if (fabsf(positions[k * 3] - (px)) < 1e-6f                               \
+				  && fabsf(positions[k * 3 + 1] - (py)) < 1e-6f                        \
+				  && fabsf(positions[k * 3 + 2] - (pz)) < 1e-6f) {                     \
+				found = k;                                                             \
+			  }                                                                        \
+			}                                                                          \
+			if (found < 0) {                                                           \
+			  found                           = unique_count;                          \
+			  positions[unique_count * 3]     = (px);                                  \
+			  positions[unique_count * 3 + 1] = (py);                                  \
+			  positions[unique_count * 3 + 2] = (pz);                                  \
+			  unique_count++;                                                          \
+			}                                                                          \
+			unique_map[vertex_idx++] = found;                                          \
+		  } while (0)
+
+		for (int octant = 0; octant < 8; octant++) {
+			float sx = (octant & 1) ? 1.0f : -1.0f;
+			float sy = (octant & 2) ? 1.0f : -1.0f;
+			float sz = (octant & 4) ? 1.0f : -1.0f;
+			int flip = (sx * sy * sz > 0.0f) ? 1 : 0;
+
+			int vertex_idx = 0;
+			int local_indices[256];
+			int local_count = 0;
+
+			for (int i = 0; i <= detail; i++) {
+				for (int j = 0; i + j <= detail; j++) {
+					float a = (float)i / detail;
+					float b = (float)j / detail;
+					float c = (float)(detail - i - j) / detail;
+
+					a = a + (a - a * a) / 2.0f;
+					b = b + (b - b * b) / 2.0f;
+					c = c + (c - c * c) / 2.0f;
+
+					float len = sqrtf(a * a + b * b + c * c);
+					float px = (a / len) * sx;
+					float py = (b / len) * sy;
+					float pz = (c / len) * sz;
+
+					ADD_VERTEX(px, py, pz);
+					local_indices[local_count++] = unique_map[vertex_idx - 1];
+				}
+			}
+
+			int k = 0;
+			for (int i = 0; i < detail; i++) {
+				for (int j = 0; i + j < detail; j++) {
+					int a_idx = local_indices[k];
+					int b_idx = local_indices[k + detail - i + 1];
+					int c_idx = local_indices[k + 1];
+
+					if (flip) {
+						indices[final_idx_count++] = a_idx;
+						indices[final_idx_count++] = b_idx;
+						indices[final_idx_count++] = c_idx;
+					}
+					else {
+						indices[final_idx_count++] = a_idx;
+						indices[final_idx_count++] = c_idx;
+						indices[final_idx_count++] = b_idx;
+					}
+
+					if (i + j < detail - 1) {
+						int d_idx = local_indices[k + detail - i + 2];
+						if (flip) {
+							indices[final_idx_count++] = b_idx;
+							indices[final_idx_count++] = d_idx;
+							indices[final_idx_count++] = c_idx;
+						}
+						else {
+							indices[final_idx_count++] = b_idx;
+							indices[final_idx_count++] = c_idx;
+							indices[final_idx_count++] = d_idx;
+						}
+					}
+					k++;
+				}
+				k++;
+			}
+		}
+		m_sphereVertex.createBuffer(positions.data(), positions.size() * sizeof(float), WGPUBufferUsage_Vertex | WGPUBufferUsage_CopySrc);
+		m_sphereIndex.createBuffer(indices.data(), indices.size() * sizeof(uint32_t), WGPUBufferUsage_Index | WGPUBufferUsage_CopySrc);
+		#undef ADD_VERTEX
+	}
+
+	std::vector<float> heightField(WATER_WIDTH* WATER_HEIGHT, 0.0f);
+	for (int i = 0; i < 20; i++) {
+		float centerX = random_float();
+		float centerY = random_float();
+		float radius = 0.03f;
+		float strength = (i & 1) ? 0.01f : -0.01f;
+
+		for (uint32_t y = 0; y < WATER_HEIGHT; y++) {
+			float uvY = (static_cast<float>(y) + 0.5f) / WATER_HEIGHT;
+			for (uint32_t x = 0; x < WATER_WIDTH; x++) {
+				float uvX = (static_cast<float>(x) + 0.5f) / WATER_WIDTH;
+
+				float dx = uvX - centerX;
+				float dy = uvY - centerY;
+				float dist = std::sqrt(dx * dx + dy * dy);
+
+				if (dist < radius) {
+					float drop = 1.0f - dist / radius;
+					drop = 0.5f - std::cos(drop * 3.14159265f) * 0.5f;
+					heightField[y * WATER_WIDTH + x] += drop * strength;
+				}
+			}
+		}
+	}
+
+	std::vector<uint16_t> halfPixels(WATER_WIDTH * WATER_HEIGHT * 4, 0);
+	for (size_t i = 0; i < heightField.size(); i++) {
+		halfPixels[i * 4 + 0] = floatToHalf(heightField[i]);
+	}
+	m_textureA.uploadData(halfPixels.data(), 8u);
+
 	wgpContext.setClearColor({ 0.0f, 0.0f, 0.0f, 0.0f });
 	wgpContext.OnDraw = std::bind(&WaterSimulation::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
 }
@@ -299,6 +433,7 @@ void WaterSimulation::update() {
 			m_camera.move(direction * m_dt);
 		}
 	}
+	m_trackball.idle();
 
 	m_uniforms.projection = m_camera.getPerspectiveMatrix();
 	m_uniforms.view = m_camera.getViewMatrix();
@@ -308,10 +443,8 @@ void WaterSimulation::update() {
 	m_uniforms.camPosition = m_camera.getPosition();
 	m_uniforms.lightVP = Matrix4f::IDENTITY;
 	m_uniforms.shadow = Matrix4f::BIAS * m_uniforms.lightVP;
-	m_uniforms.lightPosition = Vector3f(1.0f, 0.0f, 0.0f);
+	m_uniforms.lightPosition = Vector3f(0.0f, 1.0f, 0.0f);
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0u, &m_uniforms, sizeof(Uniforms));
-
-	
 }
 
 void WaterSimulation::render() {
@@ -320,57 +453,110 @@ void WaterSimulation::render() {
 
 void WaterSimulation::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor) {
 
+	if (m_pendingDrop.pending) {
+		m_pendingDrop.pending = false;
+		water_add_drop(m_pendingDrop.x, m_pendingDrop.z, m_pendingDrop.radius, m_pendingDrop.strength);
+	}
+
 	{
 		run_simulation_pass(wgpContext.renderPipelines.at("RP_WATER_UPDATE"), m_updateBuffer.getBuffer(), 16u);
 		run_simulation_pass(wgpContext.renderPipelines.at("RP_WATER_UPDATE"), m_updateBuffer.getBuffer(), 16u);
 		run_simulation_pass(wgpContext.renderPipelines.at("RP_WATER_NORMAL"), m_updateBuffer.getBuffer(), 16u);
 	}
 
-	{
-
-		WgpRenderer::DrawColor(m_textureCaustics, [this](const WGPURenderPassEncoder& renderPassEncoder) {
-			wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_WATER_CAUSTICS"));
-			wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_useA ? m_bindGroupCausticA : m_bindGroupCausticB, 0u, nullptr);
-			wgpuRenderPassEncoderSetVertexBuffer(renderPassEncoder, 0u, m_waterVertex.getBuffer(), 0u, wgpuBufferGetSize(m_waterVertex.getBuffer()));
-			wgpuRenderPassEncoderSetIndexBuffer(renderPassEncoder, m_waterIndex.getBuffer(), WGPUIndexFormat_Uint32, 0u, wgpuBufferGetSize(m_waterIndex.getBuffer()));
-			wgpuRenderPassEncoderDrawIndexed(renderPassEncoder, 240000u, 1u, 0u, 0u, 0u);
-		});
-	}
-
+	WgpRenderer::DrawColor(m_textureCaustics, [this](const WGPURenderPassEncoder& renderPassEncoder) {
+		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_WATER_CAUSTICS"));
+		wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_useA ? m_bindGroupCausticA : m_bindGroupCausticB, 0u, nullptr);
+		wgpuRenderPassEncoderSetVertexBuffer(renderPassEncoder, 0u, m_waterVertex.getBuffer(), 0u, wgpuBufferGetSize(m_waterVertex.getBuffer()));
+		wgpuRenderPassEncoderSetIndexBuffer(renderPassEncoder, m_waterIndex.getBuffer(), WGPUIndexFormat_Uint32, 0u, wgpuBufferGetSize(m_waterIndex.getBuffer()));
+		wgpuRenderPassEncoderDrawIndexed(renderPassEncoder, 240000u, 1u, 0u, 0u, 0u);
+	});
+	
 	{
 		WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDescriptor);
-		WGPUBindGroup water_bind_group = m_useA ? m_bindGoupPoolA : m_bindGoupPoolB;
 
 		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_WATER_POOL"));
-		wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_bindGoupPoolA, 0u, NULL);
+		wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_useA ? m_bindGoupPoolA : m_bindGoupPoolB, 0u, nullptr);
 		wgpuRenderPassEncoderSetVertexBuffer(renderPassEncoder, 0u, m_poolVertex.getBuffer(), 0u, wgpuBufferGetSize(m_poolVertex.getBuffer()));
 		wgpuRenderPassEncoderSetIndexBuffer(renderPassEncoder, m_poolIndex.getBuffer(), WGPUIndexFormat_Uint32, 0u, wgpuBufferGetSize(m_poolIndex.getBuffer()));
 		wgpuRenderPassEncoderDrawIndexed(renderPassEncoder, 30u, 1u, 0u, 0u, 0u);
+
+		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_WATER_SPHERE"));
+		wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_useA ? m_bindGroupSphereA : m_bindGroupSphereB, 0u, nullptr);
+		wgpuRenderPassEncoderSetVertexBuffer(renderPassEncoder, 0u, m_sphereVertex.getBuffer(), 0u, wgpuBufferGetSize(m_sphereVertex.getBuffer()));
+		wgpuRenderPassEncoderSetIndexBuffer(renderPassEncoder, m_sphereIndex.getBuffer(), WGPUIndexFormat_Uint32, 0u, wgpuBufferGetSize(m_sphereIndex.getBuffer()));
+		wgpuRenderPassEncoderDrawIndexed(renderPassEncoder, 2400u, 1u, 0u, 0u, 0u);
+
+		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_WATER_ABOVE"));
+		wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_useA ? m_bindGroupWaterA : m_bindGroupWaterB, 0u, nullptr);
+		wgpuRenderPassEncoderSetVertexBuffer(renderPassEncoder, 0u, m_waterVertex.getBuffer(), 0u, wgpuBufferGetSize(m_waterVertex.getBuffer()));
+		wgpuRenderPassEncoderSetIndexBuffer(renderPassEncoder, m_waterIndex.getBuffer(), WGPUIndexFormat_Uint32, 0u, wgpuBufferGetSize(m_waterIndex.getBuffer()));
+		wgpuRenderPassEncoderDrawIndexed(renderPassEncoder, 240000u, 1u, 0u, 0u, 0u);
+
+		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_WATER_UNDER"));
+		wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_useA ? m_bindGroupWaterA : m_bindGroupWaterB, 0u, nullptr);
+		wgpuRenderPassEncoderSetVertexBuffer(renderPassEncoder, 0u, m_waterVertex.getBuffer(), 0u, wgpuBufferGetSize(m_waterVertex.getBuffer()));
+		wgpuRenderPassEncoderSetIndexBuffer(renderPassEncoder, m_waterIndex.getBuffer(), WGPUIndexFormat_Uint32, 0u, wgpuBufferGetSize(m_waterIndex.getBuffer()));
+		wgpuRenderPassEncoderDrawIndexed(renderPassEncoder, 240000u, 1u, 0u, 0u, 0u);
+
 
 		wgpuRenderPassEncoderEnd(renderPassEncoder);
 		wgpuRenderPassEncoderRelease(renderPassEncoder);
 	}
 
-
-	/*WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDescriptor);
-	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
-	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_SKYBOX"));
-	m_wgpCube.draw(renderPassEncoder);
-
 	if (m_drawUi)
-		renderUi(renderPassEncoder);
+	{
+		WGPURenderPassColorAttachment renderPassColorAttachment = renderPassDescriptor.colorAttachments[0];
+		renderPassColorAttachment.loadOp = WGPULoadOp::WGPULoadOp_Load;
 
-	wgpuRenderPassEncoderEnd(renderPassEncoder);
-	wgpuRenderPassEncoderRelease(renderPassEncoder);*/
+		WGPURenderPassDescriptor rndrPssDscrptor = renderPassDescriptor;
+		rndrPssDscrptor.colorAttachments = &renderPassColorAttachment;
+
+		WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &rndrPssDscrptor);
+		wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
+		renderUi(renderPassEncoder);
+		wgpuRenderPassEncoderEnd(renderPassEncoder);
+		wgpuRenderPassEncoderRelease(renderPassEncoder);
+	}
 }
 
 void WaterSimulation::OnMouseMotion(const Event::MouseMoveEvent& event) {
-
+	m_trackball.motion(event.x, event.y);
+	if (event.button == Event::MouseMoveEvent::MouseButton::BUTTON_LEFT) {
+		
+		Vector3f coords;
+		if (getWorldPosition(event.x, event.y, Vector3f(0.0f, 1.0f, 0.0f), coords)) {
+			m_pendingDrop.x = coords[0];
+			m_pendingDrop.z = coords[2];
+			m_pendingDrop.radius = 0.03f;
+			m_pendingDrop.strength = 0.01f;
+			m_pendingDrop.pending = true;
+		}
+	}
 }
 
 void WaterSimulation::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
 	if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {
+
+		Vector3f ray = getRay(event.x, event.y);
+		float t;
+		Vector3f hit;
+		if (hit_test_sphere(m_camera.getPosition(), ray, Vector3f(-0.4f, -0.75f, 0.2f), SPHERE_RADIUS, &t, hit)) {
+			std::cout << "-------" << std::endl;
+			return;
+		}
+
 		Mouse::instance().attach(Application::GetWindow(), false, true);
+		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, true, event.x, event.y);
+
+		Vector3f coords;
+		if (getWorldPosition(event.x, event.y, Vector3f(0.0f, 1.0f, 0.0f), coords)) {
+			m_pendingDrop.x = coords[0];
+			m_pendingDrop.z = coords[2];
+			m_pendingDrop.radius = 0.03f;
+			m_pendingDrop.strength = 0.01f;
+			m_pendingDrop.pending = true;
+		}
 	}
 
 	if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT)
@@ -379,6 +565,7 @@ void WaterSimulation::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
 
 void WaterSimulation::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
 	if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {
+		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, false, event.x, event.y);
 		Mouse::instance().attach(Application::GetWindow(), false, true);
 	}
 
@@ -539,7 +726,7 @@ std::vector<WGPUBindGroupLayout> WaterSimulation::OnBindGroupLayoutsNormal() {
 	return bindingLayouts;
 }
 
-std::vector<WGPUBindGroupLayout> WaterSimulation::OnBindGroupLayoutsSphere() {
+std::vector<WGPUBindGroupLayout> WaterSimulation::OnBindGroupLayoutsSphereMove() {
 	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
 
 	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(3);
@@ -728,23 +915,39 @@ std::vector<WGPUBindGroupLayout> WaterSimulation::OnBindGroupLayoutsWater() {
 	return bindingLayouts;
 }
 
-std::vector<WGPUBindGroupLayout> WaterSimulation::OnBindGroupLayoutsSkybox() {
+std::vector<WGPUBindGroupLayout> WaterSimulation::OnBindGroupLayoutsSphere() {
 	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
 
-	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(3);
+	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(6);
+
 	bindingLayoutEntries[0].binding = 0u;
 	bindingLayoutEntries[0].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
-	bindingLayoutEntries[0].buffer.type = WGPUBufferBindingType_Uniform;
+	bindingLayoutEntries[0].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
 	bindingLayoutEntries[0].buffer.minBindingSize = sizeof(Uniforms);
 
 	bindingLayoutEntries[1].binding = 1u;
-	bindingLayoutEntries[1].visibility = WGPUShaderStage_Fragment;
-	bindingLayoutEntries[1].sampler.type = WGPUSamplerBindingType_Filtering;
+	bindingLayoutEntries[1].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
+	bindingLayoutEntries[1].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
+	bindingLayoutEntries[1].buffer.minBindingSize = 16u;
 
 	bindingLayoutEntries[2].binding = 2u;
-	bindingLayoutEntries[2].visibility = WGPUShaderStage_Fragment;
-	bindingLayoutEntries[2].texture.viewDimension = WGPUTextureViewDimension_Cube;
-	bindingLayoutEntries[2].texture.sampleType = WGPUTextureSampleType_Float;
+	bindingLayoutEntries[2].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
+	bindingLayoutEntries[2].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
+	bindingLayoutEntries[2].buffer.minBindingSize = 16u;
+
+	bindingLayoutEntries[3].binding = 3u;
+	bindingLayoutEntries[3].visibility = WGPUShaderStage_Fragment;
+	bindingLayoutEntries[3].sampler.type = WGPUSamplerBindingType::WGPUSamplerBindingType_Filtering;
+
+	bindingLayoutEntries[4].binding = 4u;
+	bindingLayoutEntries[4].visibility = WGPUShaderStage_Fragment;
+	bindingLayoutEntries[4].texture.sampleType = WGPUTextureSampleType::WGPUTextureSampleType_Float;
+	bindingLayoutEntries[4].texture.viewDimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
+
+	bindingLayoutEntries[5].binding = 5u;
+	bindingLayoutEntries[5].visibility = WGPUShaderStage_Fragment;
+	bindingLayoutEntries[5].texture.sampleType = WGPUTextureSampleType::WGPUTextureSampleType_Float;
+	bindingLayoutEntries[5].texture.viewDimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
 
 	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
 	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
@@ -753,30 +956,6 @@ std::vector<WGPUBindGroupLayout> WaterSimulation::OnBindGroupLayoutsSkybox() {
 	bindingLayouts[0] = wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor);
 
 	return bindingLayouts;
-}
-
-std::vector<WGPUBindGroup> WaterSimulation::OnBindGroupsSkybox() {
-	std::vector<WGPUBindGroup> bindGroups(1);
-	std::vector<WGPUBindGroupEntry> bindGroupEntries(3);
-
-	bindGroupEntries[0].binding = 0u;
-	bindGroupEntries[0].buffer = m_uniformBuffer.getBuffer();
-	bindGroupEntries[0].offset = 0u;
-	bindGroupEntries[0].size = wgpuBufferGetSize(m_uniformBuffer.getBuffer());
-
-	bindGroupEntries[1].binding = 1u;
-	bindGroupEntries[1].sampler = wgpContext.getSampler(SS_LINEAR_CLAMP);
-
-	bindGroupEntries[2].binding = 2u;
-	bindGroupEntries[2].textureView = m_wgpTextureCube.getTextureView();
-
-	WGPUBindGroupDescriptor bindGroupDesc = {};
-	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_SKYBOX"), 0u);
-	bindGroupDesc.entryCount = (uint32_t)bindGroupEntries.size();
-	bindGroupDesc.entries = bindGroupEntries.data();
-	bindGroups[0] = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
-
-	return bindGroups;
 }
 
 void WaterSimulation::createBindGroupPool() {
@@ -834,7 +1013,7 @@ void WaterSimulation::createBindGroupPool() {
 	m_bindGoupPoolB = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDescB);
 }
 
-void WaterSimulation::createBindCaustic() {
+void WaterSimulation::createBindGroupCaustic() {
 	std::vector<WGPUBindGroupEntry> bindGroupEntries(5u);
 
 	bindGroupEntries[0].binding = 0u;
@@ -876,10 +1055,113 @@ void WaterSimulation::createBindCaustic() {
 
 }
 
+void WaterSimulation::createBindGroupWater() {
+	std::vector<WGPUBindGroupEntry> bindGroupEntries(11u);
+
+	bindGroupEntries[0].binding = 0u;
+	bindGroupEntries[0].buffer = m_uniformBuffer.getBuffer();
+	bindGroupEntries[0].offset = 0u;
+	bindGroupEntries[0].size = sizeof(Uniforms);
+
+	bindGroupEntries[1].binding = 1u;
+	bindGroupEntries[1].buffer = m_lightBuffer.getBuffer();
+	bindGroupEntries[1].offset = 0u;
+	bindGroupEntries[1].size = 16u;
+
+	bindGroupEntries[2].binding = 2u;
+	bindGroupEntries[2].buffer = m_sphereBuffer.getBuffer();
+	bindGroupEntries[2].offset = 0u;
+	bindGroupEntries[2].size = 16u;
+
+	bindGroupEntries[3].binding = 3u;
+	bindGroupEntries[3].sampler = wgpContext.getSampler(SS_LINEAR_REPEAT);
+
+	bindGroupEntries[4].binding = 4u;
+	bindGroupEntries[4].textureView = m_wgpTextureTiles.getTextureView();
+
+	bindGroupEntries[5].binding = 5u;
+	bindGroupEntries[5].sampler = wgpContext.getSampler(SS_LINEAR_CLAMP);
+
+	bindGroupEntries[6].binding = 6u;
+	bindGroupEntries[6].textureView = m_textureA.getTextureView();
+
+	bindGroupEntries[7].binding = 7u;
+	bindGroupEntries[7].textureView = m_textureCaustics.getTextureView();
+
+	bindGroupEntries[8].binding = 8u;
+	bindGroupEntries[8].buffer = m_shadowBuffer.getBuffer();
+	bindGroupEntries[8].offset = 0u;
+	bindGroupEntries[8].size = 16u;
+
+	bindGroupEntries[9].binding = 9u;
+	bindGroupEntries[9].sampler = wgpContext.getSampler(SS_LINEAR_CLAMP);
+
+	bindGroupEntries[10].binding = 10u;
+	bindGroupEntries[10].textureView = m_wgpTextureCube.getTextureView();
+
+	WGPUBindGroupDescriptor bindGroupDescA = {};
+	bindGroupDescA.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_WATER_ABOVE"), 0u);
+	bindGroupDescA.entryCount = (uint32_t)bindGroupEntries.size();
+	bindGroupDescA.entries = (WGPUBindGroupEntry*)bindGroupEntries.data();
+
+	m_bindGroupWaterA = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDescA);
+
+	bindGroupEntries[6].textureView = m_textureB.getTextureView();
+
+	WGPUBindGroupDescriptor bindGroupDescB = {};
+	bindGroupDescB.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_WATER_ABOVE"), 0u);
+	bindGroupDescB.entryCount = (uint32_t)bindGroupEntries.size();
+	bindGroupDescB.entries = (WGPUBindGroupEntry*)bindGroupEntries.data();
+
+	m_bindGroupWaterB = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDescB);
+}
+
+void WaterSimulation::createBindGroupSphere() {
+	std::vector<WGPUBindGroupEntry> bindGroupEntries(6u);
+
+	bindGroupEntries[0].binding = 0u;
+	bindGroupEntries[0].buffer = m_uniformBuffer.getBuffer();
+	bindGroupEntries[0].offset = 0u;
+	bindGroupEntries[0].size = sizeof(Uniforms);
+
+	bindGroupEntries[1].binding = 1u;
+	bindGroupEntries[1].buffer = m_lightBuffer.getBuffer();
+	bindGroupEntries[1].offset = 0u;
+	bindGroupEntries[1].size = 16u;
+
+	bindGroupEntries[2].binding = 2u;
+	bindGroupEntries[2].buffer = m_sphereBuffer.getBuffer();
+	bindGroupEntries[2].offset = 0u;
+	bindGroupEntries[2].size = 16u;
+
+	bindGroupEntries[3].binding = 3u;
+	bindGroupEntries[3].sampler = wgpContext.getSampler(SS_LINEAR_CLAMP);
+
+	bindGroupEntries[4].binding = 4u;
+	bindGroupEntries[4].textureView = m_textureA.getTextureView();
+
+	bindGroupEntries[5].binding = 5u;
+	bindGroupEntries[5].textureView = m_textureCaustics.getTextureView();
+
+	WGPUBindGroupDescriptor bindGroupDescA = {};
+	bindGroupDescA.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_WATER_SPHERE"), 0u);
+	bindGroupDescA.entryCount = (uint32_t)bindGroupEntries.size();
+	bindGroupDescA.entries = (WGPUBindGroupEntry*)bindGroupEntries.data();
+
+	m_bindGroupSphereA = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDescA);
+
+	bindGroupEntries[4].textureView = m_textureB.getTextureView();
+
+	WGPUBindGroupDescriptor bindGroupDescB = {};
+	bindGroupDescB.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_WATER_SPHERE"), 0u);
+	bindGroupDescB.entryCount = (uint32_t)bindGroupEntries.size();
+	bindGroupDescB.entries = (WGPUBindGroupEntry*)bindGroupEntries.data();
+
+	m_bindGroupSphereB = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDescB);
+}
+
 void WaterSimulation::run_simulation_pass(WGPURenderPipeline pipeline, WGPUBuffer uniform_buffer, uint32_t uniform_size) {
 	WGPUTextureView input_view = m_useA ? m_textureA.getTextureView() : m_textureB.getTextureView();
-	//WGPUTextureView output_view = m_useA ? m_textureB.getTextureView() : m_textureA.getTextureView();
-
 	std::vector<WGPUBindGroupEntry> bindGroupEntries(3u);
 	
 	bindGroupEntries[0].binding = 0u;
@@ -887,8 +1169,6 @@ void WaterSimulation::run_simulation_pass(WGPURenderPipeline pipeline, WGPUBuffe
 
 	bindGroupEntries[1].binding = 1u;
 	bindGroupEntries[1].sampler = wgpContext.getSampler(SS_LINEAR_CLAMP);
-
-
 
 	bindGroupEntries[2].binding = 2u;
 	bindGroupEntries[2].buffer = uniform_buffer;
@@ -907,10 +1187,103 @@ void WaterSimulation::run_simulation_pass(WGPURenderPipeline pipeline, WGPUBuffe
 		wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, bindGroup, 0u, nullptr);
 		wgpuRenderPassEncoderDraw(renderPassEncoder, 6u, 1u, 0u, 0u);
 	});
-
-
-
 	wgpuBindGroupRelease(bindGroup);
-
 	m_useA = !m_useA;
+}
+
+void WaterSimulation::water_add_drop(float x, float y, float radius, float strength) {
+	float uniform_data[8] = { x, y, radius, strength, 0.0f, 0.0f, 0.0f, 0.0f };
+	wgpuQueueWriteBuffer(wgpContext.queue, m_dropBuffer.getBuffer(), 0u, uniform_data, sizeof(uniform_data));
+	run_simulation_pass(wgpContext.renderPipelines.at("RP_WATER_DROP"), m_dropBuffer.getBuffer(), 32u);
+}
+
+void WaterSimulation::water_move_sphere(const Vector3f& oldCenter, const Vector3f& newCenter, float radius) {
+	float uniform_data[8] = { oldCenter[0], oldCenter[1], oldCenter[2], radius,
+						      newCenter[0], newCenter[1], newCenter[2], 0.0f };
+	wgpuQueueWriteBuffer(wgpContext.queue, m_sphereMoveBuffer.getBuffer(), 0u, uniform_data, sizeof(uniform_data));
+	run_simulation_pass(wgpContext.renderPipelines.at("RP_WATER_SPHERE_MOVE"), m_dropBuffer.getBuffer(), 32u);
+}
+
+bool WaterSimulation::hit_test_sphere(const Vector3f& origin, const Vector3f& ray, const Vector3f& center, float radius, float* t_out, Vector3f& hit_out){
+	Vector3f offset = origin - center;
+
+	float a = Vector3f::Dot(ray, ray);
+	float b = 2.0f * Vector3f::Dot(offset, ray);
+	float c = Vector3f::Dot(offset, offset) - radius * radius;
+	float discriminant = b * b - 4.0f * a * c;
+	if (discriminant > 0.0f) {
+		float t = (-b - sqrtf(discriminant)) / (2.0f * a);
+		if (t > 0.0f) {
+			*t_out = t;
+			hit_out[0] = origin[0] + ray[0] * t;
+			hit_out[1] = origin[1] + ray[1] * t;
+			hit_out[2] = origin[2] + ray[2] * t;
+			return true;
+		}
+	}
+	return false;
+}
+
+float WaterSimulation::random_float_min_max(float min, float max) {
+	return ((max - min) * ((float)rand() / (float)RAND_MAX)) + min;
+}
+
+float WaterSimulation::random_float() {
+	return random_float_min_max(0.0f, 1.0f);
+}
+
+uint16_t WaterSimulation::floatToHalf(float value) {
+	uint32_t f;
+	std::memcpy(&f, &value, sizeof(float));
+
+	uint32_t sign = (f >> 16) & 0x8000;
+	int32_t exp = ((f >> 23) & 0xFF) - 127 + 15;
+	uint32_t mant = f & 0x007FFFFF;
+
+	if (exp <= 0) {
+		if (exp < -10) return static_cast<uint16_t>(sign);
+		mant = (mant | 0x00800000) >> (1 - exp);
+		return static_cast<uint16_t>(sign | (mant >> 13));
+	}else if (exp == 0xFF - 127 + 15) {
+		if (mant == 0) return static_cast<uint16_t>(sign | 0x7C00);
+		return static_cast<uint16_t>(sign | 0x7C00 | (mant >> 13) | 1);
+	}else if (exp > 30) {
+		return static_cast<uint16_t>(sign | 0x7C00);
+	}
+
+	return static_cast<uint16_t>(sign | (exp << 10) | (mant >> 13));
+}
+
+bool WaterSimulation::getWorldPosition(int xPos, int yPos, const Vector3f& planeNormal, Vector3f& outIntersection) {
+	float mouseXndc = (2.0f * xPos) / static_cast<float>(Application::Width) - 1.0f;
+	float mouseYndc = 1.0f - (2.0f * yPos) / static_cast<float>(Application::Height);
+
+	float tanfov = m_camera.getTanFov();
+	float aspect = (static_cast<float>(Application::Width) / static_cast<float>(Application::Height));
+
+	Vector3f rayStartWorld = m_camera.getPosition() + (m_camera.getCamX() * mouseXndc * tanfov * aspect + m_camera.getCamY() * mouseYndc * tanfov + m_camera.getViewDirection()) * m_camera.getNear();
+	Vector3f rayEndWorld = m_camera.getPosition() + (m_camera.getCamX() * mouseXndc * tanfov * aspect + m_camera.getCamY() * mouseYndc * tanfov + m_camera.getViewDirection()) * m_camera.getFar();
+	Vector3f direction = Vector3f::Normalize(rayEndWorld - rayStartWorld);
+
+	float denom = Vector3f::Dot(direction, planeNormal);
+	if (std::abs(denom) > 1e-6f) {
+		float t = Vector3f::Dot(-rayStartWorld, planeNormal) / denom;
+		if (t >= 0.0f) {
+			outIntersection = rayStartWorld + direction * t;
+			return true;
+		}
+	}
+	return false;
+}
+
+Vector3f WaterSimulation::getRay(int xPos, int yPos) {
+	float mouseXndc = (2.0f * xPos) / static_cast<float>(Application::Width) - 1.0f;
+	float mouseYndc = 1.0f - (2.0f * yPos) / static_cast<float>(Application::Height);
+
+	float tanfov = m_camera.getTanFov();
+	float aspect = (static_cast<float>(Application::Width) / static_cast<float>(Application::Height));
+
+	Vector3f rayStartWorld = m_camera.getPosition() + (m_camera.getCamX() * mouseXndc * tanfov * aspect + m_camera.getCamY() * mouseYndc * tanfov + m_camera.getViewDirection()) * m_camera.getNear();
+	Vector3f rayEndWorld = m_camera.getPosition() + (m_camera.getCamX() * mouseXndc * tanfov * aspect + m_camera.getCamY() * mouseYndc * tanfov + m_camera.getViewDirection()) * m_camera.getFar();
+	return Vector3f::Normalize(rayEndWorld - rayStartWorld);
 }
