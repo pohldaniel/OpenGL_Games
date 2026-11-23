@@ -20,6 +20,7 @@
 #define SPHERE_RADIUS 0.25f
 #define SPHERE_DETAIL 10
 #define WATER_SURFACE_DETAIL 200
+#define SPHERE_DENSITY  1.1f
 
 class WaterSimulation : public State, public MouseEventListener, public KeyboardEventListener {
 	struct PendingDrop{
@@ -71,6 +72,7 @@ private:
 	bool getWorldPosition(int xPos, int yPos, const Vector3f& planeNormal, Vector3f& outIntersection);
 	Vector3f getRay(int xPos, int yPos);
 	void water_move_sphere(const Vector3f& oldCenter, const Vector3f& newCenter, float radius);
+	bool intersectDragPlane(int mouseX, int mouseY, const Vector3f& planePoint, const Vector3f& planeNormal, Vector3f& outHit);
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
@@ -85,6 +87,14 @@ private:
 	WgpBuffer m_poolVertex, m_poolIndex, m_waterVertex, m_waterIndex, m_sphereVertex, m_sphereIndex;
 	WgpTexture m_wgpTextureCube, m_wgpTextureTiles, m_textureA, m_textureB, m_textureCaustics;
 	WGPUBindGroup m_bindGoupPoolA, m_bindGoupPoolB, m_bindGroupCausticA, m_bindGroupCausticB, m_bindGroupWaterA, m_bindGroupWaterB, m_bindGroupSphereA, m_bindGroupSphereB;
+
+	bool m_isDraggingSphere = false;
+	Vector3f m_prevHit;
+	Vector3f m_dragPlaneNormal;
+	Vector3f m_sphereCenter = Vector3f(-0.4f, -0.75f, 0.2f);
+	Vector3f m_oldSphereCenter = Vector3f(-0.4f, -0.75f, 0.2f);
+	Vector3f m_sphereVelocity = Vector3f(0.0f, 0.0f, 0.0f);
+	bool m_wasHorizontalDrag = false;
 
 	static uint16_t floatToHalf(float value);
 	static bool hit_test_sphere(const Vector3f& origin, const Vector3f& ray, const Vector3f& center, float radius, float* t_out, Vector3f& hit_out);

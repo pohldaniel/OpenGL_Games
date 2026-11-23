@@ -49,7 +49,7 @@ WaterSimulation::WaterSimulation(StateMachine& machine) : State(machine, States:
 	float shadow_data[4] = {1.0f, 1.0f, 1.0f, 0.0f};
 	m_shadowBuffer.createBuffer(shadow_data, 16u, WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 
-	float sphere_data[4] = { -0.4f, -0.75f, 0.2f, SPHERE_RADIUS };
+	float sphere_data[4] = { m_sphereCenter[0], m_sphereCenter[1], m_sphereCenter[2], SPHERE_RADIUS};
 	m_sphereBuffer.createBuffer(sphere_data, 16u, WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	
 	m_dropBuffer.createBuffer(32u, WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
@@ -445,6 +445,35 @@ void WaterSimulation::update() {
 	m_uniforms.shadow = Matrix4f::BIAS * m_uniforms.lightVP;
 	m_uniforms.lightPosition = Vector3f(0.0f, 1.0f, 0.0f);
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0u, &m_uniforms, sizeof(Uniforms));
+
+	if (m_isDraggingSphere) {
+		m_sphereVelocity = Vector3f(0.0f, 0.0f, 0.0f);
+	}else {
+		float percentUnderWater = std::clamp((SPHERE_RADIUS - m_sphereCenter[1]) / (2.0f * SPHERE_RADIUS), 0.0f, 1.0f);
+
+		Vector3f gravity(0.0f, -4.0f, 0.0f);
+		Vector3f buoyancyForce = gravity * (m_dt - 1.1f * m_dt * percentUnderWater);
+		m_sphereVelocity += buoyancyForce;
+
+		if (percentUnderWater > 0.0f) {
+			float velocityMag = m_sphereVelocity.length();
+			if (velocityMag > 0.001f) {
+				Vector3f velocityUnit = m_sphereVelocity / velocityMag;
+				float dragFactor = percentUnderWater * m_dt * velocityMag * velocityMag;
+				m_sphereVelocity -= velocityUnit * dragFactor;
+			}
+		}
+
+		m_sphereCenter += m_sphereVelocity * m_dt;
+
+		if (m_sphereCenter[1] < SPHERE_RADIUS - 1.0f) {
+			m_sphereCenter[1] = SPHERE_RADIUS - 1.0f;
+			m_sphereVelocity[1] = std::abs(m_sphereVelocity[1]) * 0.7f;
+		}
+	}
+
+	float sphere_data[4] = { m_sphereCenter[0], m_sphereCenter[1], m_sphereCenter[2], SPHERE_RADIUS };
+	wgpuQueueWriteBuffer(wgpContext.queue, m_sphereBuffer.getBuffer(), 0u, &sphere_data, 16u);
 }
 
 void WaterSimulation::render() {
@@ -452,6 +481,11 @@ void WaterSimulation::render() {
 }
 
 void WaterSimulation::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor) {
+
+	if ((m_sphereCenter - m_oldSphereCenter).lengthSq() > 1e-8f) {
+		water_move_sphere(m_oldSphereCenter, m_sphereCenter, SPHERE_RADIUS);
+		m_oldSphereCenter = m_sphereCenter;
+	}
 
 	if (m_pendingDrop.pending) {
 		m_pendingDrop.pending = false;
@@ -521,9 +555,32 @@ void WaterSimulation::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGP
 }
 
 void WaterSimulation::OnMouseMotion(const Event::MouseMoveEvent& event) {
-	m_trackball.motion(event.x, event.y);
+	
 	if (event.button == Event::MouseMoveEvent::MouseButton::BUTTON_LEFT) {
-		
+		if (m_isDraggingSphere) {
+			bool isHorizontalDrag = Keyboard::instance().keyDown(Keyboard::Key::KEY_LSHIFT); // oder event.modifier
+			Vector3f targetNormal = isHorizontalDrag ? Vector3f(0.0f, 1.0f, 0.0f) : Vector3f(0.0f, 0.0f, 1.0f);
+			if (isHorizontalDrag != m_wasHorizontalDrag) {
+				m_dragPlaneNormal = targetNormal;
+				m_wasHorizontalDrag = isHorizontalDrag;
+				intersectDragPlane(event.x, event.y, m_sphereCenter, m_dragPlaneNormal, m_prevHit);
+				return;
+			}
+
+			Vector3f nextHit;
+			if (intersectDragPlane(event.x, event.y, m_prevHit, m_dragPlaneNormal, nextHit)) {
+				Vector3f delta = nextHit - m_prevHit;
+				m_sphereCenter += delta;
+				m_sphereCenter[0] = std::clamp(m_sphereCenter[0], -1.0f + SPHERE_RADIUS, 1.0f - SPHERE_RADIUS);
+				m_sphereCenter[1] = std::clamp(m_sphereCenter[1], -1.0f + SPHERE_RADIUS, 2.0f);
+				m_sphereCenter[2] = std::clamp(m_sphereCenter[2], -1.0f + SPHERE_RADIUS, 1.0f - SPHERE_RADIUS);
+
+				m_prevHit = nextHit;
+			}
+			return;
+		}
+
+		m_trackball.motion(event.x, event.y);
 		Vector3f coords;
 		if (getWorldPosition(event.x, event.y, Vector3f(0.0f, 1.0f, 0.0f), coords)) {
 			m_pendingDrop.x = coords[0];
@@ -537,16 +594,19 @@ void WaterSimulation::OnMouseMotion(const Event::MouseMoveEvent& event) {
 
 void WaterSimulation::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
 	if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {
+		Mouse::instance().attach(Application::GetWindow(), false, true);
 
 		Vector3f ray = getRay(event.x, event.y);
 		float t;
 		Vector3f hit;
-		if (hit_test_sphere(m_camera.getPosition(), ray, Vector3f(-0.4f, -0.75f, 0.2f), SPHERE_RADIUS, &t, hit)) {
-			std::cout << "-------" << std::endl;
+		if (hit_test_sphere(m_camera.getPosition(), ray, m_sphereCenter, SPHERE_RADIUS, &t, hit)) {
+			m_isDraggingSphere = true;
+			m_prevHit = hit;
+			m_wasHorizontalDrag = Keyboard::instance().keyDown(Keyboard::Key::KEY_LSHIFT);
+			m_dragPlaneNormal = m_wasHorizontalDrag ? Vector3f(0.0f, 1.0f, 0.0f) : Vector3f(0.0f, 0.0f, 1.0f);
 			return;
 		}
 
-		Mouse::instance().attach(Application::GetWindow(), false, true);
 		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, true, event.x, event.y);
 
 		Vector3f coords;
@@ -566,6 +626,7 @@ void WaterSimulation::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
 void WaterSimulation::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
 	if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {
 		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, false, event.x, event.y);
+		m_isDraggingSphere = false;
 		Mouse::instance().attach(Application::GetWindow(), false, true);
 	}
 
@@ -1201,7 +1262,7 @@ void WaterSimulation::water_move_sphere(const Vector3f& oldCenter, const Vector3
 	float uniform_data[8] = { oldCenter[0], oldCenter[1], oldCenter[2], radius,
 						      newCenter[0], newCenter[1], newCenter[2], 0.0f };
 	wgpuQueueWriteBuffer(wgpContext.queue, m_sphereMoveBuffer.getBuffer(), 0u, uniform_data, sizeof(uniform_data));
-	run_simulation_pass(wgpContext.renderPipelines.at("RP_WATER_SPHERE_MOVE"), m_dropBuffer.getBuffer(), 32u);
+	run_simulation_pass(wgpContext.renderPipelines.at("RP_WATER_SPHERE_MOVE"), m_sphereMoveBuffer.getBuffer(), 32u);
 }
 
 bool WaterSimulation::hit_test_sphere(const Vector3f& origin, const Vector3f& ray, const Vector3f& center, float radius, float* t_out, Vector3f& hit_out){
@@ -1286,4 +1347,21 @@ Vector3f WaterSimulation::getRay(int xPos, int yPos) {
 	Vector3f rayStartWorld = m_camera.getPosition() + (m_camera.getCamX() * mouseXndc * tanfov * aspect + m_camera.getCamY() * mouseYndc * tanfov + m_camera.getViewDirection()) * m_camera.getNear();
 	Vector3f rayEndWorld = m_camera.getPosition() + (m_camera.getCamX() * mouseXndc * tanfov * aspect + m_camera.getCamY() * mouseYndc * tanfov + m_camera.getViewDirection()) * m_camera.getFar();
 	return Vector3f::Normalize(rayEndWorld - rayStartWorld);
+}
+
+bool WaterSimulation::intersectDragPlane(int mouseX, int mouseY, const Vector3f& planePoint, const Vector3f& planeNormal, Vector3f& outHit) {
+	Vector3f eye = m_camera.getPosition();
+	Vector3f ray = getRay(mouseX, mouseY);
+
+	Vector3f planeToEye = eye - planePoint;
+	float denom = Vector3f::Dot(planeNormal, ray);
+
+	if (std::abs(denom) > 1e-6f) {
+		float t = - Vector3f::Dot(planeNormal,planeToEye) / denom;
+		if (t > 0.0f) {
+			outHit = eye + ray * t;
+			return true;
+		}
+	}
+	return false;
 }
