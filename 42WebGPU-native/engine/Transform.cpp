@@ -349,26 +349,39 @@ const Matrix4f& Transform::getTransformationMatrix() const {
 }
 
 //this just works with uniform scaling
-const Matrix4f& Transform::getInvTransformationMatrix() {
-	float sx = Vector3f(T[0][0], T[1][0], T[2][0]).length();
-	float sy = Vector3f(T[0][1], T[1][1], T[2][1]).length();
-	float sz = Vector3f(T[0][2], T[1][2], T[2][2]).length();
+const Matrix4f& Transform::getInvTransformationMatrix(bool isScaled) {
+	if (isScaled) {
+		float sx = Vector3f(T[0][0], T[1][0], T[2][0]).length();
+		float sy = Vector3f(T[0][1], T[1][1], T[2][1]).length();
+		float sz = Vector3f(T[0][2], T[1][2], T[2][2]).length();
 
-	float sxx = sx * sx;
-	float sxy = sx * sy;
-	float sxz = sx * sz;
+		float sxx = sx * sx;
+		float sxy = sx * sy;
+		float sxz = sx * sz;
 
-	float syy = sy * sy;
-	float syz = sy * sz;
+		float syy = sy * sy;
+		float syz = sy * sz;
 
-	float szz = sz * sz;
+		float szz = sz * sz;
 
-	invT[0][0] = T[0][0] * (1.0f / sxx); invT[1][0] = T[0][1] * (1.0f / sxy); invT[2][0] = T[0][2] * (1.0f / sxz); invT[3][0] = -(T[3][0] * T[0][0] * (1.0f / sxx) + T[3][1] * T[0][1] * (1.0f / sxy) + T[3][2] * T[0][2] * (1.0f / sxz));
-	invT[0][1] = T[1][0] * (1.0f / sxy); invT[1][1] = T[1][1] * (1.0f / syy); invT[2][1] = T[1][2] * (1.0f / syz); invT[3][1] = -(T[3][0] * T[1][0] * (1.0f / sxy) + T[3][1] * T[1][1] * (1.0f / syy) + T[3][2] * T[1][2] * (1.0f / syz));
-	invT[0][2] = T[2][0] * (1.0f / sxz); invT[1][2] = T[2][1] * (1.0f / syz); invT[2][2] = T[2][2] * (1.0f / szz); invT[3][2] = -(T[3][0] * T[2][0] * (1.0f / sxz) + T[3][1] * T[2][1] * (1.0f / syz) + T[3][2] * T[2][2] * (1.0f / szz));
-	invT[0][3] = 0.0f;					 invT[1][3] = 0.0f;					  invT[2][3] = 0.0f;				   invT[3][3] = 1.0f;
+		invT[0][0] = T[0][0] * (1.0f / sxx); invT[1][0] = T[0][1] * (1.0f / sxy); invT[2][0] = T[0][2] * (1.0f / sxz); invT[3][0] = -(T[3][0] * T[0][0] * (1.0f / sxx) + T[3][1] * T[0][1] * (1.0f / sxy) + T[3][2] * T[0][2] * (1.0f / sxz));
+		invT[0][1] = T[1][0] * (1.0f / sxy); invT[1][1] = T[1][1] * (1.0f / syy); invT[2][1] = T[1][2] * (1.0f / syz); invT[3][1] = -(T[3][0] * T[1][0] * (1.0f / sxy) + T[3][1] * T[1][1] * (1.0f / syy) + T[3][2] * T[1][2] * (1.0f / syz));
+		invT[0][2] = T[2][0] * (1.0f / sxz); invT[1][2] = T[2][1] * (1.0f / syz); invT[2][2] = T[2][2] * (1.0f / szz); invT[3][2] = -(T[3][0] * T[2][0] * (1.0f / sxz) + T[3][1] * T[2][1] * (1.0f / syz) + T[3][2] * T[2][2] * (1.0f / szz));
+		invT[0][3] = 0.0f;					 invT[1][3] = 0.0f;					  invT[2][3] = 0.0f;				   invT[3][3] = 1.0f;
 
-	return invT;
+		return invT;
+	}else {
+		invT[0][0] = T[0][0]; invT[0][1] = T[1][0]; invT[0][2] = T[2][0]; invT[0][3] = 0.0f;
+		invT[1][0] = T[0][1]; invT[1][1] = T[1][1]; invT[1][2] = T[2][1]; invT[1][3] = 0.0f;
+		invT[2][0] = T[0][2]; invT[2][1] = T[1][2]; invT[2][2] = T[2][2]; invT[2][3] = 0.0f;
+
+		float tx = T[3][0], ty = T[3][1], tz = T[3][2];
+		invT[3][0] = -(tx * invT[0][0] + ty * invT[1][0] + tz * invT[2][0]);
+		invT[3][1] = -(tx * invT[0][1] + ty * invT[1][1] + tz * invT[2][1]);
+		invT[3][2] = -(tx * invT[0][2] + ty * invT[1][2] + tz * invT[2][2]);
+		invT[3][3] = 1.0f;
+		return invT;
+	}
 }
 
 void Transform::getScale(Vector3f& scale) {

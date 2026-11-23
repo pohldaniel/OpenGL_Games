@@ -429,6 +429,9 @@
     <ClCompile Include="src\States\WaterSimulation.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
+    <ClCompile Include="src\States\VolumetricTexture.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\input\ApplicationEventListener.h">
@@ -838,6 +841,15 @@
     </ClInclude>
     <ClInclude Include="src\States\WaterSimulation.h">
       <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="src\States\VolumetricTexture.h">
+      <Filter>Source Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="WebGPU\WgpBindGroupBuilder.h">
+      <Filter>WebGPU</Filter>
+    </ClInclude>
+    <ClInclude Include="WebGPU\WgpBindGroupLayoutBuilder.h">
+      <Filter>WebGPU</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

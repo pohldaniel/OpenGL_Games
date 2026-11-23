@@ -194,6 +194,10 @@ public:
 		return m_transform.getTransformationMatrix();
 	}
 
+	const Matrix4f& getInvTransform() {	
+		return m_transform.getInvTransformationMatrix(false);
+	}
+
 	const Matrix4f& getTransform(const Vector3f& axis, float degree) {
 		m_transform.reset();
 		m_transform.rotate(axis, degree, _centroid);

@@ -17,7 +17,6 @@ public:
 	Shader* m_splat;
 	Shader* m_copy;
 	Shader* m_waves;
-	Shader* m_step;
 	Shader* m_clear;
 
 private:

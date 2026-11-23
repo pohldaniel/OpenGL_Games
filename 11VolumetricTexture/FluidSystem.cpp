@@ -10,7 +10,6 @@ FluidSystem::FluidSystem(int width, int height, int depth) : m_width(width), m_h
 	m_copy = new Shader("res/shader/compute/copy.cs");
 	m_waves = new Shader("res/shader/compute/waves.cs");
 	m_clear = new Shader("res/shader/compute/clear.cs");
-	m_step = new Shader("res/shader/compute/step.vert", "res/shader/compute/step.frag");
 
 	m_state[0]->setShader(m_splat);
 	m_state[1]->setShader(m_splat);
@@ -26,7 +25,6 @@ FluidSystem::~FluidSystem() {
 	delete m_splat;
 	delete m_copy;
 	delete m_waves;
-	delete m_step;
 }
 
 float FluidSystem::frand() {

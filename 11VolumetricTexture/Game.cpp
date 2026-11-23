@@ -44,7 +44,7 @@ Game::Game(StateMachine& machine) : State(machine, CurrentState::GAME) {
 	PointList positions = CreatePathline();
 	SplatTexture = CreateSplat(positions);
 	SplatTextureCpu = CreateCpuSplat();
-	
+
 	scan[0] = CreateTexture("res/boston_teapot_256x256x178.raw", 256, 256, 178);
 	scan[1] = CreateTexture("res/bonsai_256x256x256.raw", 256, 256, 256, false);
 	scan[2] = CreateTexture("res/suzanne_128x128x128.raw", 128, 128, 128);
@@ -60,7 +60,7 @@ void Game::fixedUpdate() {
 }
 
 void Game::update() {
-	Keyboard &keyboard = Keyboard::instance();
+	Keyboard& keyboard = Keyboard::instance();
 	Vector3f direction = Vector3f();
 
 	float dx = 0.0f;
@@ -120,7 +120,7 @@ void Game::update() {
 		m_currentModel = 2;
 	}
 
-	Mouse &mouse = Mouse::instance();
+	Mouse& mouse = Mouse::instance();
 
 	if (mouse.buttonDown(Mouse::MouseButton::BUTTON_RIGHT)) {
 		dx = mouse.xPosRelative();
@@ -143,11 +143,11 @@ void Game::update() {
 
 };
 
-void Game::render(unsigned int &frameBuffer) {
+void Game::render(unsigned int& frameBuffer) {
 
 	glClearColor(0, 0.25f, 0.5f, 1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
+
 	renderOffscreen();
 
 	glDisable(GL_DEPTH_TEST);
@@ -157,7 +157,7 @@ void Game::render(unsigned int &frameBuffer) {
 	auto shader = Globals::shaderManager.getAssetPointer("twopass_ray");
 	glUseProgram(shader->m_program);
 	shader->loadMatrix("ModelviewProjection", m_camera.getProjectionMatrix() * m_camera.getViewMatrix() * m_tranformCloud2.getTransformationMatrix());
-	shader->loadMatrix("Modelview", m_camera.getViewMatrix()* m_tranformCloud2.getTransformationMatrix());
+	shader->loadMatrix("Modelview", m_camera.getViewMatrix() * m_tranformCloud2.getTransformationMatrix());
 	shader->loadMatrix("ViewMatrix", m_camera.getViewMatrix());
 	shader->loadMatrix("ProjectionMatrix", m_camera.getProjectionMatrix());
 	shader->loadVector("backgroundColor", Vector4f(0.0f, 0.25f, 0.5f, 1.0f));
@@ -176,8 +176,8 @@ void Game::render(unsigned int &frameBuffer) {
 
 	glDrawArrays(GL_POINTS, 0, 1);
 	glUseProgram(0);
-	
-	
+
+
 	glDisable(GL_BLEND);
 	if (((rand() & 0xff) > 220)) {
 		fluidSys->splat();
@@ -244,7 +244,7 @@ void Game::render(unsigned int &frameBuffer) {
 	m_cube->drawRaw();
 	glUseProgram(0);*/
 	///////////////////////////////////////////////////////////////////////////////////
-	
+
 	if (!m_drawBorder) {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -265,7 +265,8 @@ void Game::render(unsigned int &frameBuffer) {
 		glUseProgram(0);
 		glDisable(GL_CULL_FACE);
 
-	}else {
+	}
+	else {
 		////////////////////////////////////////////////////////////////////////////////////
 		auto shader = Globals::shaderManager.getAssetPointer("ray_march");
 		glUseProgram(shader->m_program);
@@ -390,8 +391,8 @@ void Game::resize(int deltaW, int deltaH) {
 
 //http://magnuswrenninge.com/volumetricmethods
 unsigned int Game::createPyroclasticVolume(int n, float r) {
-	unsigned char *data = new unsigned char[n*n*n];
-	unsigned char *ptr = data;
+	unsigned char* data = new unsigned char[n * n * n];
+	unsigned char* ptr = data;
 
 	float frequency = 3.0f / n;
 	float center = n / 2.0f + 0.5f;
@@ -404,13 +405,13 @@ unsigned int Game::createPyroclasticVolume(int n, float r) {
 				float dz = center - z;
 
 				float off = fabsf((float)pn.cloudNoise(
-					x*frequency,
-					y*frequency,
-					z*frequency,
+					x * frequency,
+					y * frequency,
+					z * frequency,
 					5,
 					6, 3));
 
-				float d = sqrtf(dx*dx + dy*dy + dz*dz) / (n);
+				float d = sqrtf(dx * dx + dy * dy + dz * dz) / (n);
 				bool isFilled = (d - off) < r;
 				*ptr++ = isFilled ? 255 : 0;
 			}
@@ -430,14 +431,14 @@ unsigned int Game::createPyroclasticVolume(int n, float r) {
 
 unsigned int Game::createPointVbo(float x, float y, float z) {
 	float p[] = { x, y, z };
-	
+
 	GLuint vbo;
 	glGenBuffers(1, &vbo);
 
 	GLuint vao;
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
-	
+
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(p), &p[0], GL_STATIC_DRAW);
 
@@ -448,7 +449,7 @@ unsigned int Game::createPointVbo(float x, float y, float z) {
 }
 
 void Game::renderOffscreen() {
-	
+
 	m_intervalls[0].bind();
 
 	glBindVertexArray(cubeCenterVbo);
@@ -457,7 +458,7 @@ void Game::renderOffscreen() {
 	auto shader = Globals::shaderManager.getAssetPointer("twopass_int");
 	glUseProgram(shader->m_program);
 	shader->loadMatrix("ModelviewProjection", m_camera.getProjectionMatrix() * m_camera.getViewMatrix() * m_tranformCloud2.getTransformationMatrix());
-	shader->loadMatrix("Modelview", m_camera.getViewMatrix()* m_tranformCloud2.getTransformationMatrix());
+	shader->loadMatrix("Modelview", m_camera.getViewMatrix() * m_tranformCloud2.getTransformationMatrix());
 	shader->loadMatrix("ViewMatrix", m_camera.getViewMatrix());
 	shader->loadMatrix("ProjectionMatrix", m_camera.getProjectionMatrix());
 	shader->loadInt("RayStartPoints", 1);
@@ -475,7 +476,7 @@ void Game::renderOffscreen() {
 
 
 	glDisable(GL_CULL_FACE);
-	m_intervalls[1].unbind();	
+	m_intervalls[1].unbind();
 }
 
 GLuint Game::CreatePoints() {
@@ -550,7 +551,7 @@ GLuint Game::CreateSplat(PointList positions) {
 
 	splatFbo.unbind();
 	glDisable(GL_BLEND);
-	
+
 	return m_texture;
 }
 
@@ -559,8 +560,8 @@ GLuint Game::CreateCpuSplat() {
 	const float InnerScale = 0.4f;
 	const float RadiusScale = 0.001f;
 
-	unsigned char* pixels = new unsigned char[Size*Size*Size];
-	
+	unsigned char* pixels = new unsigned char[Size * Size * Size];
+
 	// http://www.stat.wisc.edu/~mchung/teaching/MIA/reading/diffusion.gaussian.kernel.pdf.pdf
 	float doubleVariance = 2.0f * InnerScale * InnerScale;
 	float normalizationConstant = 1.0f / std::pow(std::sqrt(TWO_PI) * InnerScale, 3.0f);
@@ -574,7 +575,7 @@ GLuint Game::CreateCpuSplat() {
 				int cx = x - Size / 2;
 				int cy = y - Size / 2;
 				int cz = z - Size / 2;
-				float r2 = RadiusScale * float(cx*cx + cy*cy + cz*cz);
+				float r2 = RadiusScale * float(cx * cx + cy * cy + cz * cz);
 				float density = normalizationConstant * std::exp(-r2 / doubleVariance);
 				maxDensity = (std::max)(maxDensity, density);
 				minDensity = (std::max)(minDensity, density);
@@ -583,7 +584,7 @@ GLuint Game::CreateCpuSplat() {
 			}
 		}
 	}
-	
+
 	GLuint textureHandle;
 	Texture::CreateTexture3D(textureHandle, Size, Size, Size, GL_R8, GL_RED, GL_UNSIGNED_BYTE, pixels);
 	Texture::SetFilter3D(textureHandle, GL_LINEAR);
@@ -609,8 +610,8 @@ PointList Game::CreatePathline() {
 	return path;
 }
 
-GLuint Game::CreateTexture(const char *filename, int width, int height, int depth, bool flipvertical) {
-	FILE *filePtr;
+GLuint Game::CreateTexture(const char* filename, int width, int height, int depth, bool flipvertical) {
+	FILE* filePtr;
 
 	// open filename in "read binary" mode
 	filePtr = fopen(filename, "rb");
@@ -631,12 +632,13 @@ GLuint Game::CreateTexture(const char *filename, int width, int height, int dept
 	std::vector<unsigned char> pixel;
 	if (flipvertical) {
 		for (int i = 0; i < depth - 1; i++) {
-			std::vector<unsigned char> subimage(data + width*height * i, data + width*height * (i + 1));
+			std::vector<unsigned char> subimage(data + width * height * i, data + width * height * (i + 1));
 			Texture::FlipVertical(subimage.data(), width, height);
 			pixel.insert(pixel.end(), subimage.begin(), subimage.end());
 		}
-	}else {
-		pixel = std::vector<unsigned char>(data, data + width*height * depth);
+	}
+	else {
+		pixel = std::vector<unsigned char>(data, data + width * height * depth);
 	}
 
 	GLuint textureHandle;
@@ -656,8 +658,8 @@ GLuint Game::CreateTexture(const char *filename, int width, int height, int dept
 	return textureHandle;
 }
 
-GLuint Game::Create(const char *path, int width, int height, int slices, bool flipvertical) {
-	FILE *filePtr;
+GLuint Game::Create(const char* path, int width, int height, int slices, bool flipvertical) {
+	FILE* filePtr;
 
 	std::vector<unsigned char> pixel;
 	std::vector<std::string> names;
@@ -667,12 +669,12 @@ GLuint Game::Create(const char *path, int width, int height, int slices, bool fl
 	if (hFind != INVALID_HANDLE_VALUE) {
 		do {
 			if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
-				
+
 				unsigned char* data = Texture::LoadFromFile(std::string(path) + "/" + fd.cFileName, false);
-				if(flipvertical)
+				if (flipvertical)
 					Texture::FlipVertical(data, width * 4, height);
 
-				pixel.insert(pixel.end(), data , data + width * height * 4);
+				pixel.insert(pixel.end(), data, data + width * height * 4);
 				free(data);
 			}
 		} while (FindNextFile(hFind, &fd));
@@ -698,13 +700,14 @@ GLuint Game::Create(const char *path, int width, int height, int slices, bool fl
 		glTexImage3D(GL_TEXTURE_3D, 0, GL_LUMINANCE8, width, height, slices, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, &pixelNew[0]);
 
 		std::ofstream binFile("suzanne.raw", std::ios::out | std::ios::binary);
-		if (binFile.is_open()){
+		if (binFile.is_open()) {
 			binFile.write((char*)pixelNew.data(), width * height * slices * sizeof(char));
 			binFile.close();
 		}
 
 		return textureHandle;
-	}else {
+	}
+	else {
 		GLuint textureHandle;
 		glGenTextures(1, &textureHandle);
 		glBindTexture(GL_TEXTURE_3D, textureHandle);
@@ -717,5 +720,5 @@ GLuint Game::Create(const char *path, int width, int height, int slices, bool fl
 
 		glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8, width, height, slices, 0, GL_RGBA, GL_UNSIGNED_BYTE, &pixel[0]);
 		return textureHandle;
-	}	
+	}
 }

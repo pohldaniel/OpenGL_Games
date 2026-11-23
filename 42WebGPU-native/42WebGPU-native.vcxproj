@@ -275,6 +275,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClCompile Include="src\States\StencilMask.cpp" />
     <ClCompile Include="src\States\VideoDecode.cpp" />
     <ClCompile Include="src\States\VolumeRendering.cpp" />
+    <ClCompile Include="src\States\VolumetricTexture.cpp" />
     <ClCompile Include="src\States\WaterSimulation.cpp" />
     <ClCompile Include="src\States\Wireframe.cpp" />
     <ClCompile Include="src\States\WireframeOverlay.cpp" />
@@ -426,11 +427,14 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClInclude Include="src\States\StencilMask.h" />
     <ClInclude Include="src\States\VideoDecode.h" />
     <ClInclude Include="src\States\VolumeRendering.h" />
+    <ClInclude Include="src\States\VolumetricTexture.h" />
     <ClInclude Include="src\States\WaterSimulation.h" />
     <ClInclude Include="src\States\Wireframe.h" />
     <ClInclude Include="src\States\WireframeOverlay.h" />
     <ClInclude Include="src\Utils\Fade.h" />
     <ClInclude Include="WebGPU\WgpBatchRenderer.h" />
+    <ClInclude Include="WebGPU\WgpBindGroupBuilder.h" />
+    <ClInclude Include="WebGPU\WgpBindGroupLayoutBuilder.h" />
     <ClInclude Include="WebGPU\WgpBuffer.h" />
     <ClInclude Include="WebGPU\WgpContext.h" />
     <ClInclude Include="WebGPU\WgpData.h" />

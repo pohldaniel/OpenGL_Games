@@ -35,6 +35,8 @@
 #include <States/ComputeParticleEasing.h>
 #include <States/PristineGrid.h>
 #include <States/WireframeOverlay.h>
+#include <States/WaterSimulation.h>
+#include <States/VolumetricTexture.h>
 
 #include "Menu.h"
 #include "Application.h"
@@ -593,6 +595,30 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 
 	label = button->addChild<Label>(m_characterSet);
 	label->setText("Wireframe Overlay");
+	label->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+	label->setPadding(0.0f, paddingBottom);
+
+	surface = m_uiScene->addChild<Surface>();
+	surface->setColor(Vector4f(0.2f, 0.2f, 0.2f, 1.0f));
+	surface->setPadding(20.0f, 20.0f);
+	surface->setSpacing(25.0f, 25.0f);
+	surface->setSort(0u);
+	surface->setLayout(Layout::GRID);
+
+	button = surface->addChild<Button>();
+	button->setColor(Vector4f(1.0f, 0.0f, 0.0f, 1.0f));
+	button->setOutlineColor(Vector4f(1.0f, 1.0f, 0.0f, 1.0f));
+	button->setOutlineThickness(5.0f);
+	button->setPadding(5.0f, 5.0f);
+	button->setOnClick([&]() {
+		uiShutDown();
+		wgpCleanState();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new VolumetricTexture(m_machine));
+	});
+
+	label = button->addChild<Label>(m_characterSet);
+	label->setText("Volumetric Texture");
 	label->setColor(Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 	label->setPadding(0.0f, paddingBottom);
 
