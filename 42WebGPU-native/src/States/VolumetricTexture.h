@@ -62,16 +62,16 @@ struct VolumeBuffer {
 class VolumetricTexture : public State, public MouseEventListener, public KeyboardEventListener {
 
 	struct RayMarchUniforms {
-		Matrix4f u_projection;
-		Matrix4f u_modelView;
-		Matrix4f u_invModelView;
+		Matrix4f projection;
+		Matrix4f modelView;
+		Matrix4f invModelView;
 		Vector3f boxMin;
 		float density;
 		Vector3f boxMax;
 		float brightness;
 		int32_t steps;
 		float threshold;
-		float _pad[2];
+		float pad[2];
 	};
 
 	struct SplatUniforms {
@@ -83,11 +83,6 @@ class VolumetricTexture : public State, public MouseEventListener, public Keyboa
 	struct WaveUniforms {
 		Vector3f voxelSize;
 		float damping;
-	};
-
-	struct VertexPT {
-		Vector3f position;
-		Vector3f texCoord;
 	};
 
 public:
@@ -125,7 +120,7 @@ private:
 	WgpBuffer m_uniformBuffer, m_splatBuffer, m_waveBuffer, m_rayMarchBuffer;
 	WgpModel m_wgpCube;
 
-	int m_width = 128, m_height = 128, m_depth = 128;
+	uint32_t m_width = 128, m_height = 128, m_depth = 128;
 
 	VolumeBuffer* m_state[2];
 	VolumeBuffer* m_prevState;

@@ -433,8 +433,6 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClInclude Include="src\States\WireframeOverlay.h" />
     <ClInclude Include="src\Utils\Fade.h" />
     <ClInclude Include="WebGPU\WgpBatchRenderer.h" />
-    <ClInclude Include="WebGPU\WgpBindGroupBuilder.h" />
-    <ClInclude Include="WebGPU\WgpBindGroupLayoutBuilder.h" />
     <ClInclude Include="WebGPU\WgpBuffer.h" />
     <ClInclude Include="WebGPU\WgpContext.h" />
     <ClInclude Include="WebGPU\WgpData.h" />
@@ -443,6 +441,7 @@ copy /Y "$(ProjectDir)..\SDKs\wgpu-dawn\bin\x64\d3dcompiler_47.dll" "$(ProjectDi
     <ClInclude Include="WebGPU\WgpModel.h" />
     <ClInclude Include="WebGPU\WgpRenderer.h" />
     <ClInclude Include="WebGPU\WgpTexture.h" />
+    <ClInclude Include="WebGPU\WgpUtils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -101,5 +101,5 @@ fn fs_main(in : VertexOutput) -> @location(0) vec4<f32> {
         P += Pstep;
     }
 
-    return vec4<f32>(c.rgb * u.brightness, c.a);
+    return vec4<f32>(c.rgb * u.brightness, 1.0);
 }

@@ -46,20 +46,20 @@ VolumetricTexture::VolumetricTexture(StateMachine& machine) : State(machine, Sta
 	m_state[1] = new VolumeBuffer(wgpContext.device, m_width, m_height, m_depth);
 	m_prevState = new VolumeBuffer(wgpContext.device, m_width, m_height, m_depth);
 
-	wgpContext.addSahderModule("VOL_RAYMARCH", "res/shader/ray_march.wgsl");
+	wgpContext.addSahderModule("VOL_RAYMARCH", "res/shader/volumetric_ray_march.wgsl");
 	wgpContext.createRenderPipeline("VOL_RAYMARCH", "RP_VOL_RAYMARCH", VL_P,
 		{ wgpContext.createBindGroupLayout()
-			.addUniformBuffer(0, WGPUShaderStage_Vertex | WGPUShaderStage_Fragment, sizeof(RayMarchUniforms))
-			.addTexture3D(1, WGPUShaderStage_Fragment)
-			.addSampler(2, WGPUShaderStage_Fragment)
+			.addUniformBuffer(0u, WGPUShaderStage_Vertex | WGPUShaderStage_Fragment, sizeof(RayMarchUniforms))
+			.addTexture3D(1u, WGPUShaderStage_Fragment)
+			.addSampler(2u, WGPUShaderStage_Fragment)
 			.build() },
 		1u, WGPUPrimitiveTopology_Undefined, WGPUTextureFormat_Undefined, WGPUTextureFormat_Undefined, WGPUCompareFunction_Less,
-		{ FRAGMENT_STATE | DEPTH_STENCIL_STATE, ColorMode::WRITE_RGBA, DepthMode::PASS, StencilMode::DEFAULT, BlendMode::ALPHA_BLENDING_ONE, WGPUTextureFormat_Undefined, WGPUCullMode_Front });
+		{ FRAGMENT_STATE | DEPTH_STENCIL_STATE | BLEND_STATE, ColorMode::WRITE_RGBA, DepthMode::PASS, StencilMode::DEFAULT, BlendMode::ALPHA_BLENDING_ONE, WGPUTextureFormat_Undefined, WGPUCullMode_Front });
 
 	m_bgRayMarch[0] = wgpContext.createRenderBindGroup("RP_VOL_RAYMARCH")
-		.bindBuffer(0, m_rayMarchBuffer.getBuffer(), sizeof(RayMarchUniforms))
-		.bindTextureView(1, m_state[0]->view)
-		.bindSampler(2, wgpContext.getSampler(SS_LINEAR_CLAMP))
+		.bindBuffer(0u, m_rayMarchBuffer.getBuffer(), sizeof(RayMarchUniforms))
+		.bindTextureView(1u, m_state[0]->view)
+		.bindSampler(2u, wgpContext.getSampler(SS_LINEAR_CLAMP))
 		.build();
 
 	m_bgRayMarch[1] = wgpContext.createRenderBindGroup("RP_VOL_RAYMARCH")
@@ -68,36 +68,36 @@ VolumetricTexture::VolumetricTexture(StateMachine& machine) : State(machine, Sta
 		.bindSampler(2, wgpContext.getSampler(SS_LINEAR_CLAMP))
 		.build();
 
-	wgpContext.addSahderModule("VOL_SPLAT", "res/shader/splat.wgsl");
+	wgpContext.addSahderModule("VOL_SPLAT", "res/shader/volumetric_splat.wgsl");
 	wgpContext.createComputePipeline("VOL_SPLAT", "cs_splat", "CP_VOL_SPLAT", {
 	wgpContext.createBindGroupLayout()
-		.addTexture3D(0, WGPUShaderStage_Compute, WGPUTextureSampleType_UnfilterableFloat)
-		.addStorageTexture3D(1, WGPUShaderStage_Compute, WGPUTextureFormat_RGBA16Float)
-		.addUniformBuffer(2, WGPUShaderStage_Compute, sizeof(SplatUniforms))
+		.addTexture3D(0u, WGPUShaderStage_Compute, WGPUTextureSampleType_UnfilterableFloat)
+		.addStorageTexture3D(1u, WGPUShaderStage_Compute, WGPUTextureFormat_RGBA16Float)
+		.addUniformBuffer(2u, WGPUShaderStage_Compute, sizeof(SplatUniforms))
 		.build()
-		});
+	});
 
 	m_bgSplat[0] = wgpContext.createComputeBindGroup("CP_VOL_SPLAT")
-		.bindTextureView(0, m_state[0]->view)
-		.bindTextureView(1, m_state[1]->view)
-		.bindBuffer(2, m_splatBuffer.getBuffer(), sizeof(SplatUniforms))
+		.bindTextureView(0u, m_state[0]->view)
+		.bindTextureView(1u, m_state[1]->view)
+		.bindBuffer(2u, m_splatBuffer.getBuffer(), sizeof(SplatUniforms))
 		.build();
 
 	m_bgSplat[1] = wgpContext.createComputeBindGroup("CP_VOL_SPLAT")
-		.bindTextureView(0, m_state[1]->view)
-		.bindTextureView(1, m_state[0]->view)
-		.bindBuffer(2, m_splatBuffer.getBuffer(), sizeof(SplatUniforms))
+		.bindTextureView(0u, m_state[1]->view)
+		.bindTextureView(1u, m_state[0]->view)
+		.bindBuffer(2u, m_splatBuffer.getBuffer(), sizeof(SplatUniforms))
 		.build();
 
-	wgpContext.addSahderModule("VOL_WAVES", "res/shader/waves.wgsl");
+	wgpContext.addSahderModule("VOL_WAVES", "res/shader/volumetric_waves.wgsl");
 	wgpContext.createComputePipeline("VOL_WAVES", "cs_waves", "CP_VOL_WAVES", {
 	wgpContext.createBindGroupLayout()
-		.addTexture3D(0, WGPUShaderStage_Compute, WGPUTextureSampleType_UnfilterableFloat)
-		.addTexture3D(1, WGPUShaderStage_Compute, WGPUTextureSampleType_UnfilterableFloat)
-		.addStorageTexture3D(2, WGPUShaderStage_Compute, WGPUTextureFormat_RGBA16Float)
-		.addUniformBuffer(3, WGPUShaderStage_Compute, sizeof(WaveUniforms))
+		.addTexture3D(0u, WGPUShaderStage_Compute, WGPUTextureSampleType_UnfilterableFloat)
+		.addTexture3D(1u, WGPUShaderStage_Compute, WGPUTextureSampleType_UnfilterableFloat)
+		.addStorageTexture3D(2u, WGPUShaderStage_Compute, WGPUTextureFormat_RGBA16Float)
+		.addUniformBuffer(3u, WGPUShaderStage_Compute, sizeof(WaveUniforms))
 		.build()
-		});
+	});
 
 	m_bgWaves[0] = wgpContext.createComputeBindGroup("CP_VOL_WAVES")
 		.bindTextureView(0, m_state[0]->view)
@@ -227,27 +227,23 @@ void VolumetricTexture::update() {
 	m_uniforms.lightVP = Matrix4f::IDENTITY;
 	m_uniforms.shadow = Matrix4f::BIAS * m_uniforms.lightVP;
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0u, &m_uniforms, sizeof(Uniforms));
+
+	RayMarchUniforms rmUniforms = {};
+	rmUniforms.projection = m_camera.getPerspectiveMatrix();
+	rmUniforms.modelView = m_camera.getViewMatrix() * m_trackball.getTransform();
+	rmUniforms.invModelView = m_trackball.getInvTransform() * m_camera.getInvViewMatrix();
+	rmUniforms.boxMin = Vector3f(-1.0f, -1.0f, -1.0f);
+	rmUniforms.density = 0.01f;
+	rmUniforms.boxMax = Vector3f(1.0f, 1.0f, 1.0f);
+	rmUniforms.brightness = 2.0f;
+	rmUniforms.steps = 128;
+	rmUniforms.threshold = 0.99f;
+
+	wgpuQueueWriteBuffer(wgpContext.queue, m_rayMarchBuffer.getBuffer(), 0u, &rmUniforms, sizeof(RayMarchUniforms));
 }
 
 void VolumetricTexture::render() {
 	wgpDraw();
-}
-
-Matrix4f invertRigidBody(const Matrix4f& m) {
-	// Oberer 3x3-Block wird transponiert (R^T)
-	// Translation wird zu -R^T * t
-	// (Passend zu deinem Matrix4f-Layout aus Quaternion::toMatrix4f: Translation in Zeile 3 / Elemente 12,13,14)
-	Matrix4f inv;
-	inv[0][0] = m[0][0]; inv[0][1] = m[1][0]; inv[0][2] = m[2][0]; inv[0][3] = 0.0f;
-	inv[1][0] = m[0][1]; inv[1][1] = m[1][1]; inv[1][2] = m[2][1]; inv[1][3] = 0.0f;
-	inv[2][0] = m[0][2]; inv[2][1] = m[1][2]; inv[2][2] = m[2][2]; inv[2][3] = 0.0f;
-
-	float tx = m[3][0], ty = m[3][1], tz = m[3][2];
-	inv[3][0] = -(tx * inv[0][0] + ty * inv[1][0] + tz * inv[2][0]);
-	inv[3][1] = -(tx * inv[0][1] + ty * inv[1][1] + tz * inv[2][1]);
-	inv[3][2] = -(tx * inv[0][2] + ty * inv[1][2] + tz * inv[2][2]);
-	inv[3][3] = 1.0f;
-	return inv;
 }
 
 void VolumetricTexture::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor) {
@@ -301,27 +297,27 @@ void VolumetricTexture::OnDraw(const WGPUCommandEncoder& commandEncoder, const W
 		m_current = 1 - m_current;
 	}
 
-	{		
-		RayMarchUniforms rmUniforms = {};
-		rmUniforms.u_projection = m_camera.getPerspectiveMatrix();
-		rmUniforms.u_modelView = m_camera.getViewMatrix() * m_trackball.getTransform();
-		rmUniforms.u_invModelView = m_trackball.getInvTransform() * m_camera.getInvViewMatrix();
-		rmUniforms.boxMin = Vector3f(-1.0f, -1.0f, -1.0f);
-		rmUniforms.density = 0.01f;
-		rmUniforms.boxMax = Vector3f(1.0f, 1.0f, 1.0f);
-		rmUniforms.brightness = 2.0f;
-		rmUniforms.steps = 128;
-		rmUniforms.threshold = 0.99f;
-
-		wgpuQueueWriteBuffer(wgpContext.queue, m_rayMarchBuffer.getBuffer(), 0u, &rmUniforms, sizeof(RayMarchUniforms));
-	}
-
 	{
 		WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDescriptor);
 
 		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_VOL_RAYMARCH"));
 		wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_bgRayMarch[m_current], 0u, nullptr);
 		m_wgpCube.drawRaw(renderPassEncoder);
+		wgpuRenderPassEncoderEnd(renderPassEncoder);
+		wgpuRenderPassEncoderRelease(renderPassEncoder);
+	}
+
+	if (m_drawUi)
+	{
+		WGPURenderPassColorAttachment renderPassColorAttachment = renderPassDescriptor.colorAttachments[0];
+		renderPassColorAttachment.loadOp = WGPULoadOp::WGPULoadOp_Load;
+
+		WGPURenderPassDescriptor rndrPssDscrptor = renderPassDescriptor;
+		rndrPssDscrptor.colorAttachments = &renderPassColorAttachment;
+
+		WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &rndrPssDscrptor);
+		wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
+		renderUi(renderPassEncoder);
 		wgpuRenderPassEncoderEnd(renderPassEncoder);
 		wgpuRenderPassEncoderRelease(renderPassEncoder);
 	}

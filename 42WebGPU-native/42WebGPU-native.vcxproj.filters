@@ -845,10 +845,7 @@
     <ClInclude Include="src\States\VolumetricTexture.h">
       <Filter>Source Files\States</Filter>
     </ClInclude>
-    <ClInclude Include="WebGPU\WgpBindGroupBuilder.h">
-      <Filter>WebGPU</Filter>
-    </ClInclude>
-    <ClInclude Include="WebGPU\WgpBindGroupLayoutBuilder.h">
+    <ClInclude Include="WebGPU\WgpUtils.h">
       <Filter>WebGPU</Filter>
     </ClInclude>
   </ItemGroup>

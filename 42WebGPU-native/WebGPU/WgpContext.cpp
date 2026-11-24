@@ -1119,10 +1119,6 @@ void WgpContext::setClearColor(const WGPUColor& _clearColor) {
 	clearColor = _clearColor;
 }
 
-bool WgpContext::isBlendAble(WGPUTextureFormat textureFormat) {
-	return textureFormat != WGPUTextureFormat_R32Uint && textureFormat != WGPUTextureFormat_R32Sint;
-}
-
 void WgpContext::createComputePipeline(const std::string& shaderModuleName,
 	const std::string& entrypoint,
 	const std::string& pipelineLayoutName,
@@ -1229,12 +1225,12 @@ void WgpContext::createRenderPipeline(const std::string& shaderModuleName,
 	std::vector<WGPUColorTargetState> colorTargetStates;
 	if (configuration.colorTextureFormat != WGPUTextureFormat_Undefined) {
 		colorTargetStates.push_back({ NULL, configuration.colorTextureFormat ,
-										   (configuration.flags & BLEND_STATE) && isBlendAble(configuration.colorTextureFormat) ? &blendState : NULL,
+										   (configuration.flags & BLEND_STATE) && IsBlendAble(configuration.colorTextureFormat) ? &blendState : NULL,
 										   (configuration.colorMode == WRITE_RGBA) ? WGPUColorWriteMask_All : WGPUColorWriteMask_None });
 	}
 
 	colorTargetStates.push_back({ NULL, colorTextureFormat == WGPUTextureFormat_Undefined ? colorFormat : colorTextureFormat,
-									   (configuration.flags & BLEND_STATE) && isBlendAble(wgpContext.colorFormat) ? &blendState : NULL,
+									   (configuration.flags & BLEND_STATE) && IsBlendAble(wgpContext.colorFormat) ? &blendState : NULL,
                                        (configuration.colorMode == WRITE_RGBA) ? WGPUColorWriteMask_All : WGPUColorWriteMask_None });
 	
 	WGPUFragmentState fragmentState = {};
@@ -1284,6 +1280,10 @@ void WgpContext::createRenderPipeline(const std::string& shaderModuleName,
 	renderPipelines[pipelineLayoutName] = wgpuDeviceCreateRenderPipeline(device, &renderPipelineDescriptor);
 }
 
+WgpBindGroupLayoutBuilder WgpContext::createBindGroupLayout() {
+	return WgpBindGroupLayoutBuilder(wgpContext.device);
+}
+
 WgpBindGroupBuilder WgpContext::createRenderBindGroup(const std::string& pipelineName, uint32_t groupIndex) {
 	return WgpBindGroupBuilder(wgpContext.device, wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at(pipelineName), groupIndex));
 }
@@ -1292,10 +1292,6 @@ WgpBindGroupBuilder WgpContext::createComputeBindGroup(const std::string& pipeli
 	return WgpBindGroupBuilder(wgpContext.device, wgpuComputePipelineGetBindGroupLayout(wgpContext.computePipelines.at(pipelineName), groupIndex));
 }
 
-WgpBindGroupLayoutBuilder WgpContext::createBindGroupLayout() {
-	return WgpBindGroupLayoutBuilder(wgpContext.device);
-}
-
-WgpBindGroupBuilder WgpContext::createBindGroup(WGPUBindGroupLayout layout) {
-	return WgpBindGroupBuilder(wgpContext.device, layout); 
+bool WgpContext::IsBlendAble(WGPUTextureFormat textureFormat) {
+	return textureFormat != WGPUTextureFormat_R32Uint && textureFormat != WGPUTextureFormat_R32Sint;
 }
